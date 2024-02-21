@@ -1,0 +1,19 @@
+# mkdocs.yml
+site_name: FILL OUT
+site_url: https://sites.uab.edu/periop-datascience/
+repo_url: https://gitlab.rc.uab.edu/anes_ai/llm_apps/scopingreview.git
+nav:
+  - Home: index.md
+  - workflows:
+    - main: ScopingReview/main.md
+  - ScopingReview:
+    - plotter: ScopingReview/plotter.md
+    - data: ScopingReview/data.md
+    - generate: ScopingReview/generate.md
+    - prompts: ScopingReview/prompts.md
+    - utils: ScopingReview/utils.md
+theme: readthedocs
+plugins:
+  - mkdocstrings
+watch:
+  - .  # reload docs for any file changes
