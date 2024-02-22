@@ -114,3 +114,4 @@ fetch_pdf(pubmed_id, access_token)
 # So let's have the first csv provide the full text links
 # and if it comes from pmc OR libkey resolves to something ending in ".pdf",
 # we'll say we can get the pdf
+# maybe we also flag if it was PMC?
