@@ -3,6 +3,8 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 
+# example chrome driver usage
+
 options = Options()
 options.add_argument('--headless')  # Run Chrome in headless mode (no GUI).
 options.add_argument('--no-sandbox')  # Bypass OS security model; necessary in Docker.
