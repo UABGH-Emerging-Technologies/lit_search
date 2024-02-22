@@ -6,7 +6,29 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from webdriver_manager.chrome import ChromeDriverManager
 import requests
-import time
+from urllib.request import urlretrieve
+import os 
+os.environ['NCBI_API_KEY'] = "5c7b745fcba4a835c311c056f725c6814208"
+from Bio import Entrez
+Entrez.email = "rmelvin@uabmc.edu"
+
+def get_pmcid_from_pubmed(pmid):
+    link_result = Entrez.elink(dbfrom="pubmed", db="pmc", id=pmid)
+    record = Entrez.read(link_result)
+    try:
+        pmcid = record[0]['LinkSetDb'][0]['Link'][0]['Id']
+        return pmcid
+    except (IndexError, KeyError):
+        return None
+
+def get_pdf_url(pmcid):
+    url = f"http://europepmc.org/backend/ptpmcrender.fcgi?accid=PMC{pmcid}&blobtype=pdf"
+    # even though we're using the europe one, should we present the american one to the user?
+    # url = f"https://www.ncbi.nlm.nih.gov/pmc/articles/PMC{pmcid}/pdf"
+    response = requests.get(url, allow_redirects=True)
+    final_url = response.url
+    return final_url
+
 
 def get_driver(headless=True):
     chrome_options = Options()
@@ -54,19 +76,41 @@ def download_pdf_with_selenium(pubmed_id, access_token, headless=True):
         print(f"Final URL: {final_url}")
 
         if final_url.endswith('.pdf'):
-            response = requests.get(final_url)
-            with open(f'{pubmed_id}.pdf', 'wb') as file:
-                file.write(response.content)
-            print(f"PDF saved as {pubmed_id}.pdf")
+            local_filename = f"{pubmed_id}.pdf"
+            urlretrieve(final_url, local_filename)
+            print(f"PDF saved as {local_filename}")
         else:
             print("The final URL is not a PDF.")
         driver.quit()
 
     else:
         print("Unable to retrieve full text link.")
+        
+def fetch_pdf(pmid, access_token):
+    try:
+        pmcid = get_pmcid_from_pubmed(pmid)
+        if pmcid:
+            pdf_url = get_pdf_url(pmcid)
+            if pdf_url:
+                print(pdf_url)
+                urlretrieve(pdf_url, f'{pmid}.pdf')
+                print(f"PDF saved as {pmid}.pdf using PMC")
+                return
+    except Exception as e:
+        print(f"Error during PMC download: {e}")
+    # Fallback to Selenium method if PMC download fails
+    try:
+        download_pdf_with_selenium(pmid, access_token)
+    except TimeoutException:
+        print("Failed to download PDF using Selenium.")
 
 
 # Example usage
 access_token = "56e085ab-387b-4696-8583-762fa32ab29b"
 pubmed_id = "38365899"
-download_pdf_with_selenium(pubmed_id, access_token, headless=True)
+fetch_pdf(pubmed_id, access_token)
+
+#NOTES:
+# So let's have the first csv provide the full text links
+# and if it comes from pmc OR libkey resolves to something ending in ".pdf",
+# we'll say we can get the pdf
