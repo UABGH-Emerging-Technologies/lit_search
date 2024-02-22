@@ -3,5 +3,3 @@
 #to test the package as you go
 python3 -m pip install pip setuptools wheel
 python3 -m pip install -e ".[dev]"
-
-python 3 docs/chrome_driver.py
