@@ -5,9 +5,9 @@ openai
 tiktoken
 pyodbc
 pip-tools
-mlflow
 jupyter
 pandas
 matplotlib
 requests
-json
+selenium
+webdriver-manager
