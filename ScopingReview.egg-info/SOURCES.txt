@@ -1,0 +1,16 @@
+README.md
+pyproject.toml
+setup.py
+ScopingReview/__init__.py
+ScopingReview/data.py
+ScopingReview/generate.py
+ScopingReview/main.py
+ScopingReview/prompts.py
+ScopingReview.egg-info/PKG-INFO
+ScopingReview.egg-info/SOURCES.txt
+ScopingReview.egg-info/dependency_links.txt
+ScopingReview.egg-info/requires.txt
+ScopingReview.egg-info/top_level.txt
+ScopingReview/utils/__init__.py
+ScopingReview_config/__init__.py
+ScopingReview_config/config.py

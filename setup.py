@@ -4,7 +4,7 @@ from setuptools import find_packages, setup
 
 # Load packages from requirements.txt
 BASE_DIR = Path(__file__).parent
-with open(Path(BASE_DIR, "requirements.in")) as file:
+with open(Path(BASE_DIR, "requirements.txt")) as file:
     required_packages = [ln.strip() for ln in file.readlines()]
 
 docs_packages = ["mkdocs==1.3.1", "mkdocstrings==0.18.1"]
