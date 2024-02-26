@@ -5,12 +5,12 @@ openai
 tiktoken
 pyodbc
 pip-tools
-mlflow
 jupyter
 pandas
 matplotlib
 requests
-json
+selenium
+webdriver-manager
 
 [dev]
 mkdocs==1.3.1
