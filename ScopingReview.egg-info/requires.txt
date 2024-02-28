@@ -1,5 +1,7 @@
 streamlit
 langchain
+langchain-community
+langchain-openai
 faiss-cpu
 openai
 tiktoken
@@ -11,6 +13,7 @@ matplotlib
 requests
 selenium
 webdriver-manager
+biopython
 
 [dev]
 mkdocs==1.3.1

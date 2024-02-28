@@ -1,0 +1,942 @@
+The Intersection Between Aging and Cardiovascular Disease
+Brian J. North  and David A. Sinclair
+Glenn Laboratories for the Biological Mechanisms of Aging, Department of Genetics, Harvard
+Medical School, Boston, MA
+Abstract
+The average lifespan of humans is increasing, and with it the percentage of people entering the 65
+and older age group is growing rapidly and will continue to do so in the next 20 years. Within this
+age group, cardiovascular disease will remain the leading cause of death, and the cost associated
+with treatment will continue to increase. Aging is an inevitable part of life and unfortunately poses
+the largest risk factor for cardiovascular disease. Although numerous studies in the cardiovascular
+field have considered both young and aged humans, there are still many unanswered questions as
+to how the genetic pathways that regulate aging in model organisms influence cardiovascular
+aging. Likewise, in the molecular biology of aging field, few studies fully assess the role of these
+aging pathways in cardiovascular health. Fortunately, this gap is beginning to close, and these two
+fields are merging together. We provide an overview of some of the key genes involved in
+regulating lifespan and health span, including sirtuins, AMP-activated protein kinase, mammalian
+target of rapamycin, and insulin-like growth factor 1 and their roles regulating cardiovascular
+health. We then discuss a series of review articles that will appear in succession and provide a
+more comprehensive analysis of studies carried out linking genes of aging and cardiovascular
+health, and perspectives of future directions of these two intimately linked fields.
+Keywords
+aging; cardiovascular disease; calorie restriction; longevity genes
+The most important determinant of cardiovascular health is a person’s age. By 2030,
+approximately 20% of the population will be aged 65 or older. In this age group,
+cardiovascular diseases (CVD) will result in 40% of all deaths and rank as the leading cause.
+Furthermore, the cost to treat cardiovascular disease will triple in that time.1,2 Hence, it
+remains vital that we understand why age is such a critical component of CVD etiology.
+However, until recently, the fields of cardiovascular disease and molecular biology of aging
+have remained largely separate. Most rodent studies of atherosclerosis or cardiomyopathies
+were performed in young mice, whereas studies of genetic and pharmacological
+interventions that extend lifespan rarely assessed whether CVD or heart function are
+improved. Fortunately, the situation is changing. In this introductory review, we discuss
+genetic pathways that have been identified to regulate the process of aging. Furthermore, we
+provide an overview of changes that occur in the cardiovascular system with age and
+introduce a series of reviews that will highlight the recent breakthroughs that have been
+made bridging the gap between the aging and cardiovascular research fields.
+© 2012 American Heart Association, Inc.
+Correspondence to Brian J. North, PhD, or David A. Sinclair, PhD, Harvard Medical School, New Research Building, Room 931, 77
+Ave Louis Pasteur, Boston, MA 02115 (brian_north@hms.harvard.edu) or (david_sinclair@hms.harvard.edu).
+Disclosures
+D.A.S. is a consultant and inventor on patents licensed to GSK, a company developing sirtuin-related medicines.
+NIH Public Access
+Author Manuscript
+Circ Res . Author manuscript; available in PMC 2012 October 13.
+Published in final edited form as:
+Circ Res . 2012 April 13; 110(8): 1097–1108. doi:10.1161/CIRCRESAHA.111.246876.
+NIH-PA Author Manuscript NIH-PA Author Manuscript NIH-PA Author ManuscriptMeasuring the Impact of Aging on the Heart and Vasculature
+Aging is associated with a progressive decline in numerous physiological processes, leading
+to an increased risk of health complications and disease. By delivering oxygenated blood to
+all tissues in the body, the health of the cardiovascular system is vital for health of every
+tissue and longevity of the organism as a whole. Aging has a remarkable effect on the heart
+and arterial system, leading to an increase in CVD including atherosclerosis, hypertension,
+myocardial infarction, and stroke.3 Aging cardiovascular tissues are exemplified by
+pathological alterations including hypertrophy, altered left ventricular (LV) diastolic
+function, and diminished LV systolic reverse capacity, increased arterial stiffness, and
+impaired endothelial function3,4 (Figure 1). However, the health of the arterial and cardiac
+systems is not mutually exclusive, as each system greatly affects the other. For instance, an
+increase in arterial stiffness leads to compensatory mechanisms by the myocardium
+including LV hypertrophy and fibroblast proliferation, resulting in decreased cardiac output
+and increase in fibrotic tissue.3,4 Heart rate modulation is also affected by age with a
+decrease in both rate variability and maximum heart rate.5 Heart rate is influenced not only
+by the loss of cells in the sinoatrial node (responsible for controlling heart rate) but also by
+structural changes in the heart, including fibrosis and hypertrophy, which slow propagation
+of electric impulse throughout the heart.
+At early ages, the LV diastolic filling rate begins to decline, which is compensated for by
+increasing arterial contraction to sustain stroke volume and workload, maintaining sufficient
+ejection fraction.6,7 However, with age, the LV contractility and ejection fraction, as well as
+sympathetic modulation of heart rate, and response to β-adrenergic receptor activation all
+decrease.4 A reduction in cardiac output due to decline in function with age stimulates the
+myocardium to compensate by increasing muscle mass by undergoing cardiac hypertrophy;
+although this may provide short-term enhancement of cardiac output, the long-term effect of
+hypertrophy diminishes cardiac function.8 Ventricular hypertrophy is the result of an
+increase in size of individual cardiomyocytes and can be either physiological, which is
+reversible (eg, exercise-induced), or pathological which is irreversible (disease-based).9
+Hypertrophy in mammalian models such as mouse and rat can be measured with a variety of
+techniques including echocardiography to measure LV size, histological analysis of heart
+tissue, or isolation of cardiomyocytes for cell size measurements. The noninvasive nature of
+echocardiography allows for the unique opportunity to measure alterations in cardiac size
+and functional parameters longitudinally in an aging study cohort.
+Aging of the vasculature results in increased arterial thickening and stiffness as well as
+dysfunctional endothelium. Clinically, these changes result in increased systolic pressure
+and present major risk factors for development of atherosclerosis, hypertension and stroke,
+and arterial fibrillation.4 Vascular dysfunction associated with aging leads to a variety of
+age-related pathologies, including loss of adequate tissue perfusion (resulting in ischemia),
+insufficient vascular growth or regression (resulting in hypertension), or excessive growth
+and remodeling (resulting in age-related macular degeneration). The vasculature undergoes
+structure and function alterations with age that are well documented, such as luminal
+enlargement with wall thickening and a decline in endothelial cell function negatively
+affecting endothelium-dependent dilation and promoting vascular stiffness.10 In addition,
+endothelial cells lose their ability to proliferate and migrate after tissue injury.11
+Furthermore, endothelial barriers become porous and vascular smooth muscle cells migrate
+into subendothelial spaces and deposit extracellular matrix proteins that result in intimal
+thickening. At the molecular level, as endothelial cells age, they exhibit a reduction in
+endothelial nitric oxide synthetase (eNOS) activity, reducing the abundance of NO.12 NO is
+a critical vasodilator produced by endothelial cells, regulating vascular tone, in addition to
+inhibiting vascular inflammation, thrombotic events, and aberrant cellular proliferation.13North and Sinclair Page 2
+Circ Res . Author manuscript; available in PMC 2012 October 13.
+NIH-PA Author Manuscript NIH-PA Author Manuscript NIH-PA Author ManuscriptLoss of NO also promotes endothelial cell senescence.14 Numerous mechanisms can
+modulate eNOS activity. However, hemodynamic shear stress, the frictional force acting on
+endothelial cell surface as a result of blood flow, is one of the most potent inducers of eNOS
+activity.12 As vessels age, they are exposed to less hemodynamic stress due to reduced blood
+flow caused by decline in heart function; in addition, endothelial cells become less
+responsive to shear stress, resulting in a decline in the protective NO.15 Therefore,
+measuring arterial thickness and stiffness in aged models can lead to further understanding
+of the role various longevity genes influence vasculature aging. Elastic properties of arteries
+can be directly measured, as well as histological analysis of luminal enlargement, arterial
+thickness, and deposition of vascular smooth muscle cells. In addition, measuring eNOS
+activity in vessels, as well as endothelial senescence, can also serve as a marker of vascular
+aging.
+The heart undergoes complex changes during aging that affect the cellular composition,
+marked by a decrease in absolute number of cardiomyocytes due to increased apoptosis and
+necrosis and a decrease in repopulation of cardiomyocytes from cardiac stem cell
+reserves.16,17 With age, cardiomyocytes become more susceptible to stress, including
+oxidative stress. Therefore the increase in oxidative stress due to the increase in reactive
+oxygen species (ROS) production with age results in an overall enhancement in the rate of
+cardiomyocyte death with age. In cases when cardiomyocytes undergo necrosis, the release
+of cellular components can affect survival of neighboring cardiomyocytes, in addition to
+promoting the development of proinflammatory and profibrotic environments in the aging
+heart. Cardiomyocyte senescence, defined by the increased expression of senescence
+markers and decreased telomere length, also increases with age.18 However, a recent study
+suggests that removal of senescence cells alone may not be sufficient to improve cardiac
+defects observed in some aging models.19 Measuring cardiac-specific senescence, DNA
+damage, as well as levels of apoptosis and necrosis, coupled with fibrosis measurements in
+animal models of aging, will lead to a better understanding of the link between aging and
+CVD. Senescence is coupled with expression of such factors as p53, p21, p16, and
+senescence-associated β-galactosidase activity, which can be measured by immunoblotting
+or histological techniques. In addition, the levels of damaged nuclear and mitochondrial
+DNA can be assessed by quantifying levels of 8-oxoguanine, a common DNA lesion
+associated with oxidative stress, and thus a marker for fundamental damaged DNA pathways
+in the heart.20 DNA damage and can also be assessed by determining phosphorylation status
+of γ-H2Ax, a histone variant that is phosphorylated near DNA break sites and thus forms
+readily detectable foci in cells.21 Fibrosis is measured primarily by histological methods,
+using staining techniques such as Masson trichrome. These biomarkers of aging can be used
+in cardiac tissue to assess how modulation of longevity genes influences the rate and degree
+of cardiovascular aging at the cellular level.
+Although long thought to be postmitotic, cardiomyocytes undergo division and regeneration,
+and recent work has discovered that cardiac regeneration is a vital mechanism of
+maintaining cardiovascular health. However, the rate of regeneration in the aged may not be
+adequate to maintain cardiomyocyte numbers in response to cardiomyocyte loss.22
+Regenerated cardiac tissue is thought to involve a small pool of cardiac stem cells and a
+subset of small incompletely differentiated cardiomyocytes that can reenter the cell
+cycle.23,24 Regenerative capacity can be measured by assessing the proliferative index,
+using markers of proliferation such as Ki67 or proliferating cell nuclear antigen. Therefore,
+long-lived or short-lived progeroid animal models can be tested for alterations in their
+regenerative capacity to determine how regulatory mechanisms controlling regeneration are
+involved in the aging cardiovascular system.North and Sinclair Page 3
+Circ Res . Author manuscript; available in PMC 2012 October 13.
+NIH-PA Author Manuscript NIH-PA Author Manuscript NIH-PA Author ManuscriptOther less understood changes in the heart with age are a decrease in the number and
+function of sinoatrial nodal pacemaker cells and a concomitant increase in conduction
+abnormalities. The aging heart undergoes a decrease in heart rate variability and maximum
+heart rate.5 Consistent with this notion, the aging models budding uninhibited by
+benzimidazoles related 1 (BubR1) and Klotho have both been described to contain
+abnormalities leading to arrhythmias and altered conduction system, respectively.19,25 Very
+few aging models have been assessed for alterations in cardiac conduction. Therefore the
+use of electrophysiology (EP) studies as well as testing aging models for alterations in EP
+parameters is a future area of research that could lead to a prominent understanding for the
+increased incidence of cardiovascular disease with age. EP studies can be carried out in
+cultured cardiomyocytes and in vivo by intracardiac and surface ECG analysis. Like
+echocardiography, the noninvasive nature of measuring surface ECGs can allow for
+longitudinal studies in aging cohorts.
+Aging Research Leads to a New View of CVD
+In both the aging and cardiovascular fields, it is generally accepted that a low calorie diet
+combined with exercise will increase the health span of mammals and that adiposity and a
+sedentary lifestyle have the opposite effect. The traditional view is that CVD results from
+the accumulation of cholesterol and fatty acids in tissues, which compromise tissue function
+and stimulate the production of inflammatory cytokines as well as ROS. In the past decade,
+however, the aging field has proposed that there is another fundamental process at work: a
+diet high in calories without exercise may be harmful because it suppresses the expression of
+“longevity genes” that promote cellular defenses against aging and age-related diseases.26
+The new concept has its roots in the seminal observation by McCay et al in 1935 that
+reducing a rat’s caloric intake by 20% to 40% dramatically extends its lifespan.27 Since
+then, the lifespan-extending properties of calorie restriction (CR) have been observed in
+yeast, fish, some rodents, dogs, and macaque monkeys, although there are exceptions,
+including conflicting results in various inbred and outbred strains of mice and wild
+mice.28–30 In mammals, CR reduces the incidence of most age-related diseases, including
+cancer, sarcopenia, kidney failure, and CVD.31
+Whether or not CR increases the lifespan of primates is debated, in part because of
+conflicting data from 2 different sites and questions about which types of death should be
+censored. Data from human studies indicate that Okinawans eat a moderately restricted diet
+(≈ 1785 kcal/d) and have lower rates of coronary heart disease and a relatively high
+frequency of centenarians. Consistent with this, individuals on CR diets (0.5–8 years) have a
+physiology consistent with protection from CVD, including reduced triglycerides, lower
+blood pressure, reduced inflammatory markers, and decreased oxidative stress.32–34
+Many of the fundamental molecular processes involved in CR-mediated protection of the
+cardiovascular system are known. CR increases mitochondrial function while reducing
+oxidative stress in the vasculature, in part by inducing expression of the Nfr2 stress response
+transcription factor, which induces expression of NADPH:quinone oxidoreductase 1, heme
+oxygenase I, and glutathione S transferase.35–37 CR also reduces inflammation by
+suppressing the activity of vascular adhesion molecules, prostanoids, and inflammatory
+cytokines in both rodents38 and humans.39 Endothelial function is enhanced and both
+atherosclerosis and arterial stiffness are reduced by CR in rodents.40,41 With regard to
+cardiac function, CR delays the age-related decline in diastolic filling accompanied by
+reductions in inflammation, cardiomyopathy, cardiac fibrosis, and myocardial
+degeneration.42 Given all these data, there is considerable interest in understanding how CR
+works and in finding ways to mimic these effects with pharmacological agents.North and Sinclair Page 4
+Circ Res . Author manuscript; available in PMC 2012 October 13.
+NIH-PA Author Manuscript NIH-PA Author Manuscript NIH-PA Author ManuscriptConsiderable progress has been made in the past decade toward understanding not only how
+but also why CR works. The original idea that CR works passively by suppressing metabolic
+rate or reducing damage caused by ROS is being replaced by a fundamentally different
+model in which CR triggers an active defense response that evolved to promote survival
+during harsh conditions (Figure 2). At the center of this response are so-called “longevity
+regulatory” pathways, which include insulin/insulin-like growth factor 1 (IGF-1), the
+mammalian target of rapamycin (mTOR), AMP-activated kinase (AMPK), and nicotinamide
+adenine dinucleotide (NAD)+-dependent deacetylases (sirtuins). Although researchers still
+argue about which longevity gene is most important for the health benefits of CR, the
+emerging picture is that these genes form a network of redundant pathways and both
+positive and negative feedbacks (Figures 2 and 3). How these pathways improve health and
+control one another is the most intense area of research at present in the aging field.
+There is increasing evidence that longevity pathways are not only important for
+understanding how CR works, they may also underlie the health benefits of weight loss and
+exercise. If this is true, then an individual who reduces caloric intake and starts exercising is
+improving their health because they are triggering a billion-year-old defense response that
+evolved to keep organisms alive during adversity. Conversely, when an individual gains
+adiposity and leads a sedentary lifestyle, they are negatively affecting their cardiovascular
+system by adding stress to the system and are also inhibiting these natural defense pathways.
+The logical extension of this idea is that it should be possible to mimic the beneficial effects
+of dieting and exercise by tweaking the right pathways, using small molecules. Studies with
+“CR mimetics” such as resveratrol and metformin (which activate the SIRT1-AMPK
+system) or rapamycin (which inhibits mTOR), show that it is possible for a rodent to be
+obese and sedentary while maintaining the physiology of a lean animal.43–47 Recent work
+has also identified a secreting hormone termed irisin, which, when increased, induces energy
+expenditure in the absence of exercise, positively influencing obesity and glucose
+homeostasis.48 However, the overall effect of irisin on cardiovascular disease remains
+largely unexplored.
+Longevity Genes and CVD
+A number of longevity genes have been identified in model organisms, including the yeast
+Saccharomyces cerevisiae , the nemotode Caenorhabditis elegans , and the fly Drosophila
+malanogaster . Many of these genes and their related pathways have been subsequently
+assessed for their role in regulating longevity in mice, as well as to begin assessing their
+roles in CVD.
+SIR2
+Sirtuins are evolutionary conserved enzymes that function as NAD+-dependent deacetylases
+and ribosyltransferases. Mammals have 7 sirtuin members, which have diverse localizations
+in the cell and regulate a variety of cellular functions including DNA damage repair, cell
+cycle, metabolic response to nutrient availability, and protection from neurological
+degeneration.49 Sirtuins have been observed to modulate aging in yeast to mammals.50–55
+However, a direct role for sirtuins in regulating lifespan in worms and flies has been
+challenged.56 Yet, numerous studies have maintained sirtuins as a key component of the
+longevity network (Figure 3). SIRT1, which is localized primarily in the nucleus, has been
+observed to regulate the AMPK pathway through deacetylation of the liver kinase B1.57,58
+In addition, SIRT1 regulates the Insulin/IGF-1 pathway through modulation of UCP2
+expression and direct regulation of the IGF-1 signaling pathway.55,59,60 SIRT1 also interacts
+with TSC1/2, inhibiting mTOR activity.61,62 In relation to cardiovascular development and
+disease, SIRT1 knockout mice have greater injury in response to ischemia reperfusionNorth and Sinclair Page 5
+Circ Res . Author manuscript; available in PMC 2012 October 13.
+NIH-PA Author Manuscript NIH-PA Author Manuscript NIH-PA Author Manuscriptstudies, and injury is attenuated in SIRT1 transgenic mice.63 Cardiac-specific SIRT1-
+overexpressing mice show delayed age-dependent cardiomyopathies and reduction of stress-
+induced apoptosis. However, extensive SIRT1 overexpression ( ≈ 20 fold) resulted in
+oxidative stress, apoptosis, and cardiomyopathy.64,65 Interestingly, SIRT1 is involved in
+both pressure overload-induced, and Angiotensin II, cardiac hypertrophy in addition to
+hypertrophy of vascular smooth muscle.66,67 SIRT1 has been observed to regulate blood
+vessel growth both in zebrafish and in mice by regulating notch signaling.68,69 Arterial
+stiffness is also regulated by SIRT1 through preventing hyperphosphatemia-induced arterial
+calcification.70 SIRT3 is localized in the mitochondria, and knockout mice exhibit both age-
+dependent and exercise/pressure overload–induced cardiac hypertrophy.71,72 SIRT7
+knockout mice develop cardiac hypertrophy and inflammatory cardiomyopathy and are also
+characterized by an increase in fibrosis.54 Cardiomyocytes from SIRT7 knockout mice have
+decreased resistance to oxidative stress and an increase in apoptosis. Although a number of
+effects of sirtuins on cardiovascular health have been described, the molecular mechanisms
+by which sirtuins regulate the heart and vasculature are only beginning to be understood.
+Furthermore, sirtuins have been shown to be involved in some of the beneficial effects of
+CR and resveratrol, suggesting that positive influence of CR and resveratrol in CVD may be
+modulated in part through sirtuin proteins.
+IGF-1/Growth Hormone
+IGF-1 was one of the initial genes to be identified as a longevity gene, where loss of IGF-1
+was shown to extend lifespan of C elegans .73 Subsequently, genes involved in the IGF-1
+pathway were characterized to modulate lifespan as well, confirming the role of this
+pathway in lifespan regulation. IGF-1 signaling modulates other factors in the longevity
+network by inducing mTOR activity through regulation of Akt activity74 (Figure 3). Mice
+deficient in IGF-1 die shortly after birth, whereas some live to adulthood but are deficient in
+growth and are dwarfed. However, IGF-1 receptor–deficient mice die postnatally due to
+respiratory failure.75 Overexpression of IGF-1 in the heart prevented myocardial cell death
+after infarction and reduced ventricular dilation, hypertrophy, and diabetic
+cardiomyopathy.76–79 However, in a second overexpression study, IGF-1 led to cardiac
+hypertrophy and failure80 as well as to diminished recovery of heart function after acute
+ischemic challenge.81 Interestingly, liver-specific IGF-1 knockout antagonized oxidative
+stress and cell death in cardiomyocytes induced under potent oxidant treatment with
+paraquat.82 These differences probably arise from the duality of autocrine and paracrine
+effects of IGF-1. In Drosophila , which have a primitive cardiovascular system, deletion of
+the IGF-1 homologue (InR) delayed the effects of aging on the fly cardiovascular system.83
+Although a significant role for the IGF-1 pathway in regulating cardiovascular health has
+been defined, further studies are needed to elucidate the mechanism and clarify the
+discrepancies that have been observed.
+Forkhead Transcription Factors
+Forkhead transcription factors (FOXOs) play a role in regulating expression of genes
+involved in cell growth, proliferation, differentiation, and longevity.84 FOXOs are also
+downstream effectors of the IGF-1 signaling cascade and are regulated by sirtuin-mediated
+deacetylation (Figure 3). Deletion of FOXO1 in mice leads to embryonic lethality,
+exhibiting deficient vascular and cardiac growth, including underdeveloped dorsal aorta and
+impaired cardiac looping.85,86 However, a balance of FOXO1 is critical, as overexpression
+of FOXO1 in a cardiac-specific manner leads to embryonic lethality, with impaired
+cardiomyocyte proliferation, reduced heart size, myocardium thickness, and subsequent
+heart failure.87 Expression of FOXO3a in mouse hearts resulted in reduction of
+cardiomyocyte size, suggesting that this FOXO factor functions to reduce hypertrophy.88
+FOXO3a deficiency has been shown to increase eNOS expression and enhances postnatalNorth and Sinclair Page 6
+Circ Res . Author manuscript; available in PMC 2012 October 13.
+NIH-PA Author Manuscript NIH-PA Author Manuscript NIH-PA Author Manuscriptvessel formation and maturation.89 Although recent studies suggest the disparity between
+the expression of various members of the FOXO family, more research is necessary to
+understand the role of these transcription factors in regulating cardiovascular development,
+function, and disease as well as to elucidate how FOXO factors interact with the longevity
+network in cardiovascular tissues.
+Clock 1
+Clock 1 (CLK-1)/mammalian CLK-1 (MCLK1) is a hydroxylase localized to the
+mitochondria that is necessary for the biosynthesis of ubiquinone (coenzyme Q), the
+essential electron transporter of the mitochondrial respiratory chain.90 Inactivation of clk-1
+in C elegans  and partial inactivation in mice extends lifespan of both organisms. MCLK-1
+heterozygous mice have yet to be assessed for effects on cardiovascular system function and
+disease progression. However, these mice are known to exhibit protection from cerebral
+ischemia and reperfusion, suggesting a potential role in modulation of vascular response to
+ischemic conditions.
+AMPK
+The AMP-activated protein kinase is involved in glucose and lipid metabolism, cell growth
+and autophagy, cellular polarity, and gene expression.91 AMPK modulates mitochondrial
+function by triggering the destruction of defective mitochondria through a process of
+mitochondrial-specific autophagy termed mitophagy and induction of new mitochondria
+through activation of mitochondrial biogenesis.91 Composed of 3 subunits, which are
+regulated by binding AMP, AMPK acts as a metabolic sensor, measuring the relative
+AMP:ATP ratio.91 Within the longevity network (Figure 3), AMPK regulates mTOR
+through direct phosphorylation of the TSC1/2 complex,92 modulates the IGF-1 pathway
+through the extracellular signal-regulated kinase (Erk) cascade,93 and controls sirtuin
+activity by regulating the abundance of NAD and nicotinamide phosphoribosyltransferase
+(Nampt).94,95 AMPK is cardioprotective during ischemia and reperfusion. Mouse models
+using dominant-negative AMPK have exacerbated myocardial infarction.96,97 Activation of
+AMPK by metformin reduces pressure overload–induced cardiac hypertrophy.98,99
+Mutations in the regulatory γ2 subunit of AMPK lead to an inherited syndrome of
+hypertrophic cardiomyopathy and ventricular preexcitation.100–102 Being involved in energy
+sensing, AMPK may be a mediator of the positive effects of CR and resveratrol on both
+longevity and CVD. Consistent with this notion, many of the effects of resveratrol are lost in
+AMPK knockout mice.103 Further studies are necessary to determine the interaction of these
+dietary regimens, AMPK, and cardiovascular heath.
+p66shc
+The mammalian p66shc is a splice variant of the Shc locus, encoding proteins carrying a
+Src-homology 2 domain, a collagen-homology region, and a phosphotyrosine-binding
+domain. The splice variant p66sch contains a unique N-terminal region, which functions as a
+redox enzyme modulating mitochondrial ROS.104 Loss of p66shc leads a decrease in ROS
+and lifespan extension.105 In the cardiovascular system, loss of p66shc blocks the decline in
+cardiac progenitor cell senescence, decreases DNA damage, necrosis, and apoptosis, and
+preserves LV volume and function, thus reducing heart failure.106 Loss of p66shc also
+prevented Angiotensin II–induced hypertrophy and apoptotic cell death.107 Furthermore,
+consistent with a central role of ROS in the pathogenesis of atherosclerosis, loss of p66sch
+protected mice from aortic lesions when placed on a high-fat diet.108North and Sinclair Page 7
+Circ Res . Author manuscript; available in PMC 2012 October 13.
+NIH-PA Author Manuscript NIH-PA Author Manuscript NIH-PA Author ManuscriptCatalase
+Catalase converts one of the major ROS, hydrogen peroxide, into water and oxygen.
+Targeting peroxisomal catalase to the mitochondria, leads to ≈ 20% lifespan extension,
+lending support to the oxidative theory of aging.109 These mice also demonstrated reduction
+in age-dependent LV hypertrophy and diastolic dysfunction.110 In addition, these mice were
+also protected from Angiotensin II–induced cardiac hypertrophy as well as pressure
+overload–induced and G- α-q overexpression–induced heart failure.111 Similar to p66shc
+knockouts, mitochondrial-targeted catalase mice emphasize the role of ROS in CVD.
+Pituitary Transcription Factor 1 and Prophet of Pituitary Transcription Factor 1
+The pituitary transcription factor 1 (Pit-1) is involved in the transcriptional program for
+normal development and function of the pituitary gland. Patients with mutants in Pit-1 have
+growth hormone deficiencies.112 Prop-1, or Prophet of Pit-1, is also a pituitary transcription
+factor. Prop-1 mutations in patients exhibit secondary hypogonadism in addition to the
+deficiencies of growth hormone, prolactin, and thyroid-stimulating hormone also seen in
+patients with Pit-1 mutations.113 Mutations in Prop-1 are the genetic basis for the
+phenotypes observed in the long-lived Ames dwarf mice. Little is known about the role of
+these gene alterations in cardiovascular function. Cardiomyocyte size, however, was reduced
+in young and old Ames dwarf mice compared with wild-type. Collagen content was reduced
+only in the young mice, suggesting that Ames dwarf mice may receive some longevity
+benefit from the reduced cardiomyocyte cell size and a period of reduced collagen content in
+the heart during adulthood.114
+Klotho
+Klotho was discovered as a gene that is mutated in a mouse strain presenting multiple
+premature aging phenotypes and a shortened lifespan.115 In addition, overexpression of
+Klotho increases lifespan.116 The Klotho gene encodes a single-pass transmembrane protein
+that is expressed primarily in the renal tubular cells and functions in phosphate reabsorption
+and metabolism.117 Klotho is also observed as a circulating hormone-like factor, due to
+proteolytic cleavage by membrane-anchored proteases.116 In the heart, Klotho is expressed
+in the sinoatrial node region and is required for the sinoatrial node to function as a
+pacemaker under stress.25
+Target of Rapamycin/Rapamycin
+Target of rapamycin (TOR), is a serine-threonine protein kinase that is inhibited by the
+bacterial product rapamycin. Conserved from yeast to humans, TOR integrates signaling
+from insulin and growth factors as well as sensing intracellular amino acid levels to regulate
+cell size and growth, proliferation, survival, motility, protein synthesis, and transcription.118
+Deletion of TOR or treatment with rapamycin has been observed to extend lifespan in yeast,
+worms, flies, and mammals.45,119–121 Within the longevity network, mTOR tends to play an
+effector role of upstream sirtuin/AMPK/IGF-1 activity (Figure 3). However, in yeast, one
+proposed mechanism by which TOR inhibition regulates lifespan is by enhancing multicopy
+suppressor of SNF1 protein 2/4 transcriptional induction of the NAD synthesis enzyme Pnc1
+(yeast homolog of Nampt), thus activating sirtuin proteins.122 Conservation of this pathway
+in higher organisms has yet to be described. Inhibition of mTOR signaling in the heart
+represses cardiac hypertrophy mediated by pressure overload, potentially through blocking
+of mTOR control of protein translation and cell size.123,124 Furthermore, mTOR, through its
+involvement in the PI3K/AKT signaling pathway, plays a role in mediating hypoxia-induced
+angiogenesis in tumors, through regulation of hypoxia-inducible factor-1 α stabilization and
+vascular endothelial growth factor (VEGF) expression. 125 Inhibition of PI3K/AKT/mTOR
+pathway through such agents as PI3K/AKT inhibitors LY294002 and wortmannin and theNorth and Sinclair Page 8
+Circ Res . Author manuscript; available in PMC 2012 October 13.
+NIH-PA Author Manuscript NIH-PA Author Manuscript NIH-PA Author ManuscriptmTOR inhibitor rapamycin leads to decreases in VEGF secretion and angiogenesis.126
+mTOR negatively regulates autophagy, and inhibition of mTOR, either through nutrient-
+poor conditions or rapamycin treatment, activates autophagy, allowing for the destruction of
+defective molecules and organelles and promoting health of cardiovascular tissues.127 The
+PI3K/AKT/mTOR pathway lies at the intersections of numerous signaling pathways, thus
+positioning this pathway as a vital mediator of aging and the cardiovascular system.
+BubR1
+BubR1 is a serine/threonine protein kinase and an inhibitor of the anaphase-promoting
+complex, regulating the mitotic spindle assembly checkpoint.128 Heterozygous mice develop
+normally but are tumor-prone, and mice with near-deficient levels (homozygous BubR1
+hypomorphic mice) develop premature aging phenotypes and have a shortened
+lifespan.129,130 BubR1 hypomorphic mice exhibit arrhythmias, thought to be the primary
+mechanism leading to their death.19 In addition, arterial wall thickness and inner diameter
+were reduced in loss-of-BubR1 mice, with increased fibrosis and reduced elastic
+properties.131 Future studies should illuminate the role that this mitotic regulator plays in the
+heart, which is largely postmitotic.
+A Cardiovascular Aging Review Series
+The work discussed in the following articles in the series highlights the recent progress in
+understanding the mechanisms by which aging and obesity reduce cardiovascular function
+and how we may use this knowledge to combat cardiovascular disease. In the first part of the
+series, Leeuwenburgh, Marzetti, and colleagues examine involvement of mitochondrial
+dysfunction and deregulated autophagy on cardiovascular aging. Extensive evidence has
+been presented that mitochondrial function declines with age in a majority of tissues. The
+triggering cause and molecular mechanism of age-associated mitochondrial decline is
+unclear, but the functional consequences at the cellular and tissue levels have been well
+documented. Mitochondria generate energy through oxidative phosphorylation, of which a
+byproduct is an increase in ROS production, leading to free radical– imposed damage to
+macromolecules and cellular components. Control of mitochondria quality can occur at 3
+basic stages: repair of damaged mitochondria, removal of dysfunctional mitochondria
+through autophagy, and generation of new mitochondria through biogenesis.132 The current
+knowledge of the mechanisms responsible for cardiac mitochondrial dysfunction and
+abnormal ROS production in advanced age will be reviewed; the role that autophagy plays
+in controlling mitochondria quality will be discussed in the context of cardiac hypertrophy,
+ischemia, heart failure, and diabetic cardiomyopathy.
+In the second part of the series, Fontana, Vinciguerra, and Longo take a look at the role of
+growth factors on cardiovascular aging. Growth factors were at the center of initial studies
+pertaining to the molecular genetics of lifespan extension. Kenyon and colleagues found that
+loss of insulin-like growth factor 1 (IGF-1) signaling led to lifespan extension in C
+elegans .73 IGF-1 pathways regulate downstream phosphorylation cascades including the
+MAPK and mTOR pathways, leading to effects on cell growth, proliferation, and survival,
+in addition to lipid and glucose metabolism. The role of IGF-1 in cardiac function and aging
+is largely unknown, and the recent data present a complex picture of positive and negative
+influences of growth factors on cardiovascular health. Furthermore, clinical studies rely
+heavily on associations, and the limited direct mouse studies have given conflicting results.
+The pathways regulated by growth factors in cardiomyocytes and the effect of these
+pathways on cardiac aging will be discussed, including effects of IGF-1 on cardiac stem cell
+and myocardial regeneration. In addition, the role of adiposity of cardiac tissue is touched
+on.North and Sinclair Page 9
+Circ Res . Author manuscript; available in PMC 2012 October 13.
+NIH-PA Author Manuscript NIH-PA Author Manuscript NIH-PA Author ManuscriptIn the third part of the series, Dai, Rabinovitch, and Ungvari revisit the role of mitochondria
+and cardiovascular aging. Mitochondria are the cellular sources for energy generation and
+are critically important for high energy–demanding tissues such as the heart. However, due
+to their production of ROS, they are central to the rate of aging of these tissues. The role of
+mitochondria dysfunction and oxidative stress in cardiovascular aging is exemplified by
+murine models that reduce mitochondria ROS, which have reduced age-associated changes
+in the heart.133 This review discusses the role and molecular mechanisms regulating
+oxidative stress in the aging cardiovascular system. Furthermore, discussions touch on the
+role of retrograde mitochondrial signaling (communication from the mitochondria to the
+nucleus) and mitochondrial biogenesis in cardiovascular health, including therapeutic targets
+to regulating mitochondria to diminish cardiovascular aging.
+In the fourth part of the series, DePinho, Moslehi, and Sahin consider the implications of
+telomere attrition and mitochondria in the aging heart. Loss of telomeric DNA, during each
+successive cell division has been a central instigator in cellular aging since the identification
+of cellular senescence by Hayflick.134 Subsequently, extensive studies attribute telomere
+attrition to degeneration of stem and progenitor cell compartments and other highly dividing
+tissues. However, a number of recent studies have found that loss of telomeres has
+deleterious effects in quiescent tissues and further characterize signaling pathways that are
+activated in response to loss of telomeric DNA.135 Specifically, the role of telomere attrition
+in augmenting age-related cardiac decline are discussed, including details of a p53/
+mitochondrial signaling pathway.
+In the fifth part of the series, Oellerich and Potente provide a current view of the role of
+FOXOs/sirtuins in vascular aging. FOXOs have been associated with longevity due to their
+role as downstream effectors of IGF-1 signaling.136 Similarly, sirtuins have been associated
+with lifespan and age-related diseases.49 Both FOXO factors and sirtuins have been
+associated with vascular development and cardiac function during aging. The upstream
+regulators of FOXO/sirtuin factors and downstream effector pathway involving these factors
+are discussed, with particular emphasis on vascular flow and hypoxic responses leading to
+modulators of these factors.
+In the sixth part of the series, Lahteenvuo and Rosenzweig evaluate the role of angiogenesis
+impairment and endothelial dysfunction in cardiovascular aging. Age-related impairment of
+angiogenesis contributes to increased end-organ damage seen in the elderly and directly
+links cardiovascular health with systemic tissue homeostasis.137 Angiogenesis is critical in
+the elderly as a mechanism for repairing tissues after damage caused by events such as
+ischemic stroke, myocardial infarction and ischemia, and lower-limb ischemia. Processes
+and pathways contributing to impairment of angiogenesis, including cellular senescence,
+telomere attrition, oxidative damage, NO, hypoxia, and vascular growth factors are
+discussed, in addition to therapeutic approaches for improving angiogenesis in the elderly.
+In the final part of the series, Tartar and Bodmer discuss nonmammalian models of
+cardiovascular aging. Various model organisms have rudimentary heart and circulatory
+systems, such as those observed in zebrafish and Drosophila . Even with a rudimentary
+cardiovascular system, the powerful use of genetics in these systems has, and will continue
+to, allow for these models to be useful in discovering novel pathways regulating
+cardiovascular biology. Although zebrafish are rarely used for aging research, Drosophila
+has been used in discovery and confirmation of various aging pathways. This review
+discusses the history and discoveries made in various nonmammalian models both in terms
+of longevity and cardiovascular aging.North and Sinclair Page 10
+Circ Res . Author manuscript; available in PMC 2012 October 13.
+NIH-PA Author Manuscript NIH-PA Author Manuscript NIH-PA Author ManuscriptAging, although an unavoidable cardiovascular risk factor, may overcome all the other risk
+factors collectively. Therefore, understanding fundamental mechanisms that dictate the pace
+of aging could lead to significant advancements into both preventative and therapeutic
+treatments of CVD. The articles presented in this review series shed light the interconnected
+roles of aging and cardiovascular research and provide a perspective on new and exciting
+areas to investigate by integrating these two tightly linked research areas.
+Acknowledgments
+We would like to apologize to all those investigators whose work could not be cited due to space limitations.
+Sources of Funding
+B.J.N. is supported by the BIDMC/Harvard Translational Research in Aging Training Program (T32 AG023480).
+D.A.S. is supported by the Glenn Foundation for Medical Research, the Juvenile Diabetes Research Foundation,
+and the National Institutes of Health.
+Non-standard Abbreviations and Acronyms
+Akt also known as protein kinase B
+AMPK AMP-activated protein kinase
+BubR1 budding uninhibited by benzimidazoles related 1
+CLK-1 clock 1
+CR calorie restriction
+CVD cardiovascular disease
+eNOS endothelial nitric oxide synthetase
+EP electrophysiology
+Erk extracellular signal-regulated kinase
+FOXO forkhead transcription factors
+IGF-1 insulin-like growth factor-1
+LV left ventricle
+MCLK1 mammalian clock 1
+mTOR mammalian target of rapamycin
+NAD nicotinamide adenine dinucleotide
+NADPH reduced nicotinamide adenine dinucleotide phosphate
+Nampt nicotinamide phosphoribosyltransferase
+PI3K phosphatidylinositol-3-kinase
+Pit-1 pituitary transcription factor 1
+PNC1 pyrazinamidase and nicotinamidase 1
+Prop-1 prophet of Pit-1
+ROS reactive oxygen species
+SIR2 silent information regulator 2
+SIRT sirtuinNorth and Sinclair Page 11
+Circ Res . Author manuscript; available in PMC 2012 October 13.
+NIH-PA Author Manuscript NIH-PA Author Manuscript NIH-PA Author ManuscriptTOR target of rapamycin
+TSC1/2 tuberous sclerosis complex 1/2
+UCP2 uncoupling protein 2
+VEGF vascular endothelial growth factor
+References
+1. Fleg JL, Aronow WS, Frishman WH. Cardiovascular drug therapy in the elderly: benefits and
+challenges. Nat Rev Cardiol. 2011; 8:13–28. [PubMed: 20978470]
+2. Heidenreich PA, Trogdon JG, Khavjou OA, et al. Forecasting the future of cardiovascular disease in
+the United States: a policy statement from the American Heart Association. Circulation. 2011;
+123:933–944. [PubMed: 21262990]
+3. Lakatta EG, Levy D. Arterial and cardiac aging: major shareholders in cardiovascular disease
+enterprises, part I: aging arteries: a “set up” for vascular disease. Circulation. 2003; 107:139–146.
+[PubMed: 12515756]
+4. Lakatta EG, Levy D. Arterial and cardiac aging: major shareholders in cardiovascular disease
+enterprises, part II: the aging heart in health: links to heart disease. Circulation. 2003; 107:346–354.
+[PubMed: 12538439]
+5. Antelmi I, de Paula RS, Shinzato AR, Peres CA, Mansur AJ, Grupi CJ. Influence of age, gender,
+body mass index, and functional capacity on heart rate variability in a cohort of subjects without
+heart disease. Am J Cardiol. 2004; 93:381–385. [PubMed: 14759400]
+6. Fleg JL, O’Connor F, Gerstenblith G, Becker LC, Clulow J, Schulman SP, Lakatta EG. Impact of
+age on the cardiovascular response to dynamic upright exercise in healthy men and women. J Appl
+Physiol. 1995; 78:890–900. [PubMed: 7775334]
+7. Schulman SP, Lakatta EG, Fleg JL, Lakatta L, Becker LC, Gerstenblith G. Age-related decline in
+left ventricular filling at rest and exercise. Am J Physiol. 1992; 263:H1932–H1938. [PubMed:
+1362335]
+8. Levy D, Anderson KM, Savage DD, Kannel WB, Christiansen JC, Castelli WP.
+Echocardiographically detected left ventricular hypertrophy: prevalence and risk factors. the
+Framingham Heart Study. Ann Intern Med. 1988; 108:7–13. [PubMed: 2962527]
+9. Akazawa H, Komuro I. Roles of cardiac transcription factors in cardiac hypertrophy. Circ Res.
+2003; 92:1079–1088. [PubMed: 12775656]
+10. Izzo JL Jr, Shykoff BE. Arterial stiffness: clinical relevance, measurement, and treatment. Rev
+Cardiovasc Med. 2001; 2:29–34. [PubMed: 12478235]
+11. Brandes RP, Fleming I, Busse R. Endothelial aging. Cardiovasc Res. 2005; 66:286–294. [PubMed:
+15820197]
+12. Collins C, Tzima E. Hemodynamic forces in endothelial dysfunction and vascular aging. Exp
+Gerontol. 2011; 46:185–188. [PubMed: 20888896]
+13. Heffernan KS, Fahs CA, Ranadive SM, Patvardhan EA. L-arginine as a nutritional prophylaxis
+against vascular endothelial dysfunction with aging. J Cardiovasc Pharmacol Ther. 2010; 15:17–
+23. [PubMed: 20053922]
+14. Vasa M, Breitschopf K, Zeiher AM, Dimmeler S. Nitric oxide activates telomerase and delays
+endothelial cell senescence. Circ Res. 2000; 87:540–542. [PubMed: 11009557]
+15. Kang LS, Reyes RA, Muller-Delp JM. Aging impairs flow-induced dilation in coronary arterioles:
+role of NO and H(2)O(2). Am J Physiol Heart Circ Physiol. 2009; 297:H1087–H1095. [PubMed:
+19617414]
+16. Olivetti G, Melissari M, Capasso JM, Anversa P. Cardiomyopathy of the aging human heart:
+myocyte loss and reactive cellular hypertrophy. Circ Res. 1991; 68:1560–1568. [PubMed:
+2036710]
+17. Goldspink DF, Burniston JG, Tan LB. Cardiomyocyte death and the ageing and failing heart. Exp
+Physiol. 2003; 88:447–458. [PubMed: 12719770]North and Sinclair Page 12
+Circ Res . Author manuscript; available in PMC 2012 October 13.
+NIH-PA Author Manuscript NIH-PA Author Manuscript NIH-PA Author Manuscript18. Chimenti C, Kajstura J, Torella D, Urbanek K, Heleniak H, Colussi C, Di Meglio F, Nadal-Ginard
+B, Frustaci A, Leri A, Maseri A, Anversa P. Senescence and death of primitive cells and myocytes
+lead to premature cardiac aging and heart failure. Circ Res. 2003; 93:604–613. [PubMed:
+12958145]
+19. Baker DJ, Wijshake T, Tchkonia T, LeBrasseur NK, Childs BG, van de Sluis B, Kirkland JL, van
+Deursen JM. Clearance of p16ink4a-positive senescent cells delays ageing-associated disorders.
+Nature. 2011; 479:232–236. [PubMed: 22048312]
+20. Szczesny B, Bhakat KK, Mitra S, Boldogh I. Age-dependent modulation of DNA repair enzymes
+by covalent modification and subcellular distribution. Mech Ageing Dev. 2004; 125:755–765.
+[PubMed: 15541770]
+21. Mah LJ, El-Osta A, Karagiannis TC. Gammah2ax as a molecular marker of aging and disease.
+Epigenetics. 2010; 5:129–136. [PubMed: 20150765]
+22. Anversa P, Kajstura J, Leri A, Bolli R. Life and death of cardiac stem cells: a paradigm shift in
+cardiac biology. Circulation. 2006; 113:1451–1463. [PubMed: 16549650]
+23. Nadal-Ginard B, Kajstura J, Leri A, Anversa P. Myocyte death, growth, and regeneration in
+cardiac hypertrophy and failure. Circ Res. 2003; 92:139–150. [PubMed: 12574141]
+24. Anversa P, Leri A, Kajstura J, Nadal-Ginard B. Myocyte growth and cardiac repair. J Mol Cell
+Cardiol. 2002; 34:91–105. [PubMed: 11851350]
+25. Takeshita K, Fujimori T, Kurotaki Y, Honjo H, Tsujikawa H, Yasui K, Lee JK, Kamiya K,
+Kitaichi K, Yamamoto K, Ito M, Kondo T, Iino S, Inden Y, Hirai M, Murohara T, Kodama I,
+Nabeshima Y. Sinoatrial node dysfunction and early unexpected death of mice with a defect of
+Klotho gene expression. Circulation. 2004; 109:1776–1782. [PubMed: 15037532]
+26. Sinclair DA. Toward a unified theory of caloric restriction and longevity regulation. Mech Ageing
+Dev. 2005
+27. McCay CM, Crowell MF, Maynard LA. The effect of retarded growth upon the life-span and upon
+the ultimate body size. J Nutr. 1935; 10:63.
+28. Liao CY, Rikke BA, Johnson TE, Diaz V, Nelson JF. Genetic variation in the murine lifespan
+response to dietary restriction: from life extension to life shortening. Aging Cell. 2010; 9:92–95.
+[PubMed: 19878144]
+29. Swindell WR. Dietary restriction in rats and mice: a meta-analysis and review of the evidence for
+genotype-dependent effects on lifespan. Ageing Res Rev. 2012; 11:254–270. [PubMed: 22210149]
+30. Harper JM, Leathers CW, Austad SN. Does caloric restriction extend life in wild mice? Aging
+Cell. 2006; 5:441–449. [PubMed: 17054664]
+31. Weiss EP, Fontana L. Caloric restriction: powerful protection for the aging heart and vasculature.
+Am J Physiol Heart Circ Physiol. 2011; 301:H1205–H1219. [PubMed: 21841020]
+32. Larson-Meyer DE, Heilbronn LK, Redman LM, Newcomer BR, Frisard MI, Anton S, Smith SR,
+Alfonso A, Ravussin E. Effect of calorie restriction with or without exercise on insulin sensitivity,
+beta-cell function, fat cell size, and ectopic lipid in overweight subjects. Diabetes Care. 2006;
+29:1337–1344. [PubMed: 16732018]
+33. Heilbronn LK, de Jonge L, Frisard MI, DeLany JP, Larson-Meyer DE, Rood J, Nguyen T, Martin
+CK, Volaufova J, Most MM, Greenway FL, Smith SR, Deutsch WA, Williamson DA, Ravussin E.
+Effect of 6-month calorie restriction on biomarkers of longevity, metabolic adaptation, and
+oxidative stress in overweight individuals: a randomized controlled trial. JAMA. 2006; 295:1539–
+1548. [PubMed: 16595757]
+34. Fontana L, Meyer TE, Klein S, Holloszy JO. Long-term calorie restriction is highly effective in
+reducing the risk for atherosclerosis in humans. Proc Natl Acad Sci U S A. 2004; 101:6659–6663.
+[PubMed: 15096581]
+35. Nguyen T, Nioi P, Pickett CB. The nrf2-antioxidant response element signaling pathway and its
+activation by oxidative stress. J Biol Chem. 2009; 284:13291–13295. [PubMed: 19182219]
+36. Kobayashi M, Yamamoto M. Nrf2-keap1 regulation of cellular defense mechanisms against
+electrophiles and reactive oxygen species. Adv Enzyme Regul. 2006; 46:113–140. [PubMed:
+16887173]
+37. Ishii T, Itoh K, Yamamoto M. Roles of nrf2 in activation of antioxidant enzyme genes via
+antioxidant responsive elements. Methods Enzymol. 2002; 348:182–190. [PubMed: 11885271]North and Sinclair Page 13
+Circ Res . Author manuscript; available in PMC 2012 October 13.
+NIH-PA Author Manuscript NIH-PA Author Manuscript NIH-PA Author Manuscript38. Zou Y, Jung KJ, Kim JW, Yu BP, Chung HY. Alteration of soluble adhesion molecules during
+aging and their modulation by calorie restriction. FASEB J. 2004; 18:320–322. [PubMed:
+14688195]
+39. Weiss EP, Racette SB, Villareal DT, Fontana L, Steger-May K, Schechtman KB, Klein S,
+Holloszy JO. Improvements in glucose tolerance and insulin action induced by increasing energy
+expenditure or decreasing energy intake: a randomized controlled trial. Am J Clin Nutr. 2006;
+84:1033–1042. [PubMed: 17093155]
+40. Guo Z, Mitchell-Raymundo F, Yang H, Ikeno Y, Nelson J, Diaz V, Richardson A, Reddick R.
+Dietary restriction reduces atherosclerosis and oxidative stress in the aorta of apolipoprotein e-
+deficient mice. Mech Ageing Dev. 2002; 123:1121–1131. [PubMed: 12044962]
+41. Ahmet I, Tae HJ, de Cabo R, Lakatta EG, Talan MI. Effects of calorie restriction on
+cardioprotection and cardiovascular health. J Mol Cell Cardiol. 2011; 51:263–271. [PubMed:
+21586294]
+42. Kemi M, Keenan KP, McCoy C, Hoe CM, Soper KA, Ballam GC, van Zwieten MJ. The relative
+protective effects of moderate dietary restriction versus dietary modification on spontaneous
+cardiomyopathy in male Sprague-Dawley rats. Toxicol Pathol. 2000; 28:285–296. [PubMed:
+10805146]
+43. Baur JA, Pearson KJ, Price NL, et al. Resveratrol improves health and survival of mice on a high-
+calorie diet. Nature. 2006; 444:337–342. [PubMed: 17086191]
+44. Pearson KJ, Baur JA, Lewis KN, et al. Resveratrol delays age-related deterioration and mimics
+transcriptional aspects of dietary restriction without extending life span. Cell Metab. 2008; 8:157–
+168. [PubMed: 18599363]
+45. Harrison DE, Strong R, Sharp ZD, Nelson JF, Astle CM, Flurkey K, Nadon NL, Wilkinson JE,
+Frenkel K, Carter CS, Pahor M, Javors MA, Fernandez E, Miller RA. Rapamycin fed late in life
+extends lifespan in genetically heterogeneous mice. Nature. 2009; 460:392–395. [PubMed:
+19587680]
+46. Dhahbi JM, Mote PL, Fahy GM, Spindler SR. Identification of potential caloric restriction
+mimetics by microarray profiling. Physiol Genom. 2005; 23:343–350.
+47. Lagouge M, Argmann C, Gerhart-Hines Z, Meziane H, Lerin C, Daussin F, Messadeq N, Milne J,
+Lambert P, Elliott P, Geny B, Laakso M, Puigserver P, Auwerx J. Resveratrol improves
+mitochondrial function and protects against metabolic disease by activating sirt1 and pgc-1alpha.
+Cell. 2006; 127:1109–1122. [PubMed: 17112576]
+48. Bostrom P, Wu J, Jedrychowski MP, et al. A pgc1-alpha-dependent myokine that drives brown-fat-
+like development of white fat and thermogenesis. Nature. 2012; 481:463–468. [PubMed:
+22237023]
+49. Haigis MC, Sinclair DA. Mammalian sirtuins: biological insights and disease relevance. Annu Rev
+Pathol. 2010; 5:253–295. [PubMed: 20078221]
+50. Kaeberlein M, McVey M, Guarente L. The sir2/3/4 complex and sir2 alone promote longevity in
+saccharomyces cerevisiae by two different mechanisms. Genes Dev. 1999; 13:2570–2580.
+[PubMed: 10521401]
+51. Mostoslavsky R, Chua KF, Lombard DB, et al. Genomic instability and aging-like phenotype in
+the absence of mammalian sirt6. Cell. 2006; 124:315–329. [PubMed: 16439206]
+52. Rogina B, Helfand SL. Sir2 mediates longevity in the fly through a pathway related to calorie
+restriction. Proc Natl Acad Sci U S A. 2004; 101:15998–16003. [PubMed: 15520384]
+53. Tissenbaum HA, Guarente L. Increased dosage of a sir-2 gene extends lifespan in Caenorhabditis
+elegans. Nature. 2001; 410:227–230. [PubMed: 11242085]
+54. Vakhrusheva O, Smolka C, Gajawada P, Kostin S, Boettger T, Kubin T, Braun T, Bober E. Sirt7
+increases stress resistance of cardiomyocytes and prevents apoptosis and inflammatory
+cardiomyopathy in mice. Circ Res. 2008; 102:703–710. [PubMed: 18239138]
+55. Li Y, Xu W, McBurney MW, Longo VD. Sirt1 inhibition reduces igf-i/irs-2/ras/erk1/2 signaling
+and protects neurons. Cell Metab. 2008; 8:38–48. [PubMed: 18590691]
+56. Burnett C, Valentini S, Cabreiro F, et al. Absence of effects of sir2 overexpression on lifespan in C
+Elegans and drosophila. Nature. 2011; 477:482–485. [PubMed: 21938067]North and Sinclair Page 14
+Circ Res . Author manuscript; available in PMC 2012 October 13.
+NIH-PA Author Manuscript NIH-PA Author Manuscript NIH-PA Author Manuscript57. Lan F, Cacicedo JM, Ruderman N, Ido Y. Sirt1 modulation of the acetylation status, cytosolic
+localization, and activity of LKB1: possible role in amp-activated protein kinase activation. J Biol
+Chem. 2008; 283:27628–27635. [PubMed: 18687677]
+58. Zu Y, Liu L, Lee MY, Xu C, Liang Y, Man RY, Vanhoutte PM, Wang Y. Sirt1 promotes
+proliferation and prevents senescence through targeting lkb1 in primary porcine aortic endothelial
+cells. Circ Res. 2010; 106:1384–1393. [PubMed: 20203304]
+59. Bordone L, Motta MC, Picard F, Robinson A, Jhala US, Apfeld J, McDonagh T, Lemieux M,
+McBurney M, Szilvasi A, Easlon EJ, Lin SJ, Guarente L. Sirt1 regulates insulin secretion by
+repressing ucp2 in pancreatic beta cells. PLoS Biol. 2006; 4:e31. [PubMed: 16366736]
+60. Zhang J. The direct involvement of sirt1 in insulin-induced insulin receptor substrate-2 tyrosine
+phosphorylation. J Biol Chem. 2007; 282:34356–34364. [PubMed: 17901049]
+61. Ghosh HS, McBurney M, Robbins PD. Sirt1 negatively regulates the mammalian target of
+rapamycin. PLoS One. 2010; 5:e9199. [PubMed: 20169165]
+62. Liu M, Wilk SA, Wang A, Zhou L, Wang RH, Ogawa W, Deng C, Dong LQ, Liu F. Resveratrol
+inhibits mTOR signaling by promoting the interaction between mTOR and depTOR. J Biol Chem.
+2010; 285:36387–36394. [PubMed: 20851890]
+63. Hsu CP, Zhai P, Yamamoto T, Maejima Y, Matsushima S, Hariharan N, Shao D, Takagi H, Oka S,
+Sadoshima J. Silent information regulator 1 protects the heart from ischemia/reperfusion.
+Circulation. 2010; 122:2170–2182. [PubMed: 21060073]
+64. Kawashima T, Inuzuka Y, Okuda J, Kato T, Niizuma S, Tamaki Y, Iwanaga Y, Kawamoto A,
+Narazaki M, Matsuda T, Adachi S, Takemura G, Kita T, Kimura T, Shioi T. Constitutive sirt1
+overexpression impairs mitochondria and reduces cardiac function in mice. J Mol Cell Cardiol.
+2011; 51:1026–1036. [PubMed: 21964378]
+65. Alcendor RR, Gao S, Zhai P, Zablocki D, Holle E, Yu X, Tian B, Wagner T, Vatner SF,
+Sadoshima J. Sirt1 regulates aging and resistance to oxidative stress in the heart. Circ Res. 2007;
+100:1512–1521. [PubMed: 17446436]
+66. Li L, Gao P, Zhang H, Chen H, Zheng W, Lv X, Xu T, Wei Y, Liu D, Liang C. Sirt1 inhibits
+angiotensin II-induced vascular smooth muscle cell hypertrophy. Acta Biochim Biophys Sin
+(Shanghai). 2011; 43:103–109. [PubMed: 21118843]
+67. Sundaresan NR, Pillai VB, Wolfgeher D, Samant S, Vasudevan P, Parekh V, Raghuraman H,
+Cunningham JM, Gupta M, Gupta MP. The deacetylase sirt1 promotes membrane localization and
+activation of akt and pdk1 during tumorigenesis and cardiac hypertrophy. Sci Signal. 2011; 4:ra46.
+[PubMed: 21775285]
+68. Potente M, Ghaeni L, Baldessari D, Mostoslavsky R, Rossig L, Dequiedt F, Haendeler J, Mione M,
+Dejana E, Alt FW, Zeiher AM, Dimmeler S. Sirt1 controls endothelial angiogenic functions during
+vascular growth. Genes Dev. 2007; 21:2644–2658. [PubMed: 17938244]
+69. Guarani V, Deflorian G, Franco CA, et al. Acetylation-dependent regulation of endothelial notch
+signalling by the sirt1 deacetylase. Nature. 2011; 473:234–238. [PubMed: 21499261]
+70. Takemura A, Iijima K, Ota H, Son BK, Ito Y, Ogawa S, Eto M, Akishita M, Ouchi Y. Sirtuin 1
+retards hyperphosphatemia-induced calcification of vascular smooth muscle cells. Arterioscler
+Thromb Vasc Biol. 2011; 31:2054–2062. [PubMed: 21719763]
+71. Hafner AV, Dai J, Gomes AP, Xiao CY, Palmeira CM, Rosenzweig A, Sinclair DA. Regulation of
+the mptp by sirt3-mediated deacetylation of cypd at lysine 166 suppresses age-related cardiac
+hypertrophy. Aging (Albany NY). 2010; 2:914–923. [PubMed: 21212461]
+72. Sundaresan NR, Gupta M, Kim G, Rajamohan SB, Isbatan A, Gupta MP. Sirt3 blocks the cardiac
+hypertrophic response by augmenting foxo3a-dependent antioxidant defense mechanisms in mice.
+J Clin Invest. 2009; 119:2758–2771. [PubMed: 19652361]
+73. Kenyon C, Chang J, Gensch E, Rudner A, Tabtiang R. A C Elegans mutant that lives twice as long
+as wild type. Nature. 1993; 366:461–464. [PubMed: 8247153]
+74. Guttridge DC. Signaling pathways weigh in on decisions to make or break skeletal muscle. Curr
+Opin Clin Nutr Metab Care. 2004; 7:443–450. [PubMed: 15192448]
+75. Liu JP, Baker J, Perkins AS, Robertson EJ, Efstratiadis A. Mice carrying null mutations of the
+genes encoding insulin-like growth factor I (IGF-1) and type 1 IGF receptor (IGF1r). Cell. 1993;
+75:59–72. [PubMed: 8402901]North and Sinclair Page 15
+Circ Res . Author manuscript; available in PMC 2012 October 13.
+NIH-PA Author Manuscript NIH-PA Author Manuscript NIH-PA Author Manuscript76. Li Q, Li B, Wang X, Leri A, Jana KP, Liu Y, Kajstura J, Baserga R, Anversa P. Overexpression of
+insulin-like growth factor-1 in mice protects from myocyte death after infarction, attenuating
+ventricular dilation, wall stress, and cardiac hypertrophy. J Clin Invest. 1997; 100:1991–1999.
+[PubMed: 9329962]
+77. Kajstura J, Fiordaliso F, Andreoli AM, Li B, Chimenti S, Medow MS, Limana F, Nadal-Ginard B,
+Leri A, Anversa P. Igf-1 overexpression inhibits the development of diabetic cardiomyopathy and
+angiotensin II-mediated oxidative stress. Diabetes. 2001; 50:1414–1424. [PubMed: 11375343]
+78. Li Q, Wu S, Li SY, Lopez FL, Du M, Kajstura J, Anversa P, Ren J. Cardiac-specific
+overexpression of insulin-like growth factor 1 attenuates aging-associated cardiac diastolic
+contractile dysfunction and protein damage. Am J Physiol Heart Circ Physiol. 2007; 292:H1398–
+H1403. [PubMed: 17085535]
+79. Ren J, Duan J, Thomas DP, Yang X, Sreejayan N, Sowers JR, Leri A, Kajstura J, Gao F, Anversa
+P. IGF-I alleviates diabetes-induced rhoa activation, eNOS uncoupling, and myocardial
+dysfunction. Am J Physiol Regul Integr Comp Physiol. 2008; 294:R793–R802. [PubMed:
+18199585]
+80. Delaughter MC, Taffet GE, Fiorotto ML, Entman ML, Schwartz RJ. Local insulin-like growth
+factor I expression induces physiologic, then pathologic, cardiac hypertrophy in transgenic mice.
+FASEB J. 1999; 13:1923–1929. [PubMed: 10544175]
+81. Prele CM, Reichelt ME, Mutsaers SE, Davies M, Delbridge LM, Headrick JP, Rosenthal N,
+Bogoyevitch MA, Grounds MD. Insulin-like growth factor-1 overexpression in cardiomyocytes
+diminishes ex vivo heart functional recovery after acute ischemia. Cardiovasc Pathol. 2012;
+21:17–27. [PubMed: 21266309]
+82. Li Q, Yang X, Sreejayan N, Ren J. Insulin-like growth factor I deficiency prolongs survival and
+antagonizes paraquat-induced cardiomyocyte dysfunction: role of oxidative stress. Rejuvenation
+Res. 2007; 10:501–512. [PubMed: 17979500]
+83. Wessells RJ, Fitzgerald E, Cypser JR, Tatar M, Bodmer R. Insulin regulation of heart function in
+aging fruit flies. Nat Genet. 2004; 36:1275–1281. [PubMed: 15565107]
+84. Sedding DG. Foxo transcription factors in oxidative stress response and ageing: a new fork on the
+way to longevity? Biol Chem. 2008; 389:279–283. [PubMed: 18208360]
+85. Furuyama T, Kitayama K, Shimoda Y, Ogawa M, Sone K, Yoshida-Araki K, Hisatsune H,
+Nishikawa S, Nakayama K, Ikeda K, Motoyama N, Mori N. Abnormal angiogenesis in foxo1
+(fkhr)-deficient mice. J Biol Chem. 2004; 279:34741–34749. [PubMed: 15184386]
+86. Hosaka T, Biggs WH III, Tieu D, Boyer AD, Varki NM, Cavenee WK, Arden KC. Disruption of
+forkhead transcription factor (foxo) family members in mice reveals their functional
+diversification. Proc Natl Acad Sci U S A. 2004; 101:2975–2980. [PubMed: 14978268]
+87. Evans-Anderson HJ, Alfieri CM, Yutzey KE. Regulation of cardiomyocyte proliferation and
+myocardial growth during development by foxo transcription factors. Circ Res. 2008; 102:686–
+694. [PubMed: 18218983]
+88. Skurk C, Izumiya Y, Maatz H, Razeghi P, Shiojima I, Sandri M, Sato K, Zeng L, Schiekofer S,
+Pimentel D, Lecker S, Taegtmeyer H, Goldberg AL, Walsh K. The foxo3a transcription factor
+regulates cardiac myocyte size downstream of akt signaling. J Biol Chem. 2005; 280:20814–
+20823. [PubMed: 15781459]
+89. Potente M, Urbich C, Sasaki K, Hofmann WK, Heeschen C, Aicher A, Kollipara R, DePinho RA,
+Zeiher AM, Dimmeler S. Involvement of foxo transcription factors in angiogenesis and postnatal
+neovascularization. J Clin Invest. 2005; 115:2382–2392. [PubMed: 16100571]
+90. Levavasseur F, Miyadera H, Sirois J, Tremblay ML, Kita K, Shoubridge E, Hekimi S. Ubiquinone
+is necessary for mouse embryonic development but is not essential for mitochondrial respiration. J
+Biol Chem. 2001; 276:46160–46164. [PubMed: 11585841]
+91. Hardie DG. Amp-activated protein kinase: an energy sensor that regulates all aspects of cell
+function. Genes Dev. 2011; 25:1895–1908. [PubMed: 21937710]
+92. Brugarolas J, Kaelin WG Jr. Dysregulation of HIF and VEGF is a unifying feature of the familial
+hamartoma syndromes. Cancer Cell. 2004; 6:7–10. [PubMed: 15261137]
+93. Kim J, Yoon MY, Choi SL, Kang I, Kim SS, Kim YS, Choi YK, Ha J. Effects of stimulation of
+amp-activated protein kinase on insulin-like growth factor 1- and epidermal growth factor-North and Sinclair Page 16
+Circ Res . Author manuscript; available in PMC 2012 October 13.
+NIH-PA Author Manuscript NIH-PA Author Manuscript NIH-PA Author Manuscriptdependent extracellular signal-regulated kinase pathway. J Biol Chem. 2001; 276:19102–19110.
+[PubMed: 11262401]
+94. Canto C, Gerhart-Hines Z, Feige JN, Lagouge M, Noriega L, Milne JC, Elliott PJ, Puigserver P,
+Auwerx J. AMPK regulates energy expenditure by modulating NAD+ metabolism and sirt1
+activity. Nature. 2009; 458:1056–1060. [PubMed: 19262508]
+95. Fulco M, Sartorelli V. Comparing and contrasting the roles of Ampk and sirt1 in metabolic tissues.
+Cell Cycle. 2008; 7:3669–3679. [PubMed: 19029811]
+96. Russell RR III, Li J, Coven DL, Pypaert M, Zechner C, Palmeri M, Giordano FJ, Mu J, Birnbaum
+MJ, Young LH. Amp-activated protein kinase mediates ischemic glucose uptake and prevents
+postischemic cardiac dysfunction, apoptosis, and injury. J Clin Invest. 2004; 114:495–503.
+[PubMed: 15314686]
+97. Shibata R, Sato K, Pimentel DR, Takemura Y, Kihara S, Ohashi K, Funahashi T, Ouchi N, Walsh
+K. Adiponectin protects against myocardial ischemia-reperfusion injury through ampk- and cox-2-
+dependent mechanisms. Nat Med. 2005; 11:1096–1103. [PubMed: 16155579]
+98. Fu YN, Xiao H, Ma XW, Jiang SY, Xu M, Zhang YY. Metformin attenuates pressure overload-
+induced cardiac hypertrophy via ampk activation. Acta Pharmacol Sin. 2011; 32:879–887.
+[PubMed: 21552292]
+99. Zhang CX, Pan SN, Meng RS, Peng CQ, Xiong ZJ, Chen BL, Chen GQ, Yao FJ, Chen YL, Ma
+YD, Dong YG. Metformin attenuates ventricular hypertrophy by activating the amp-activated
+protein kinase-endothelial nitric oxide synthase pathway in rats. Clin Exp Pharmacol Physiol.
+2011; 38:55–62. [PubMed: 21083698]
+100. Blair E, Redwood C, Ashrafian H, Oliveira M, Broxholme J, Kerr B, Salmon A, Ostman-Smith I,
+Watkins H. Mutations in the gamma(2) subunit of amp-activated protein kinase cause familial
+hypertrophic cardiomyopathy: evidence for the central role of energy compromise in disease
+pathogenesis. Hum Mol Genet. 2001; 10:1215–1220. [PubMed: 11371514]
+101. Gollob MH, Green MS, Tang AS, Gollob T, Karibe A, Ali Hassan AS, Ahmad F, Lozado R, Shah
+G, Fananapazir L, Bachinski LL, Roberts R. Identification of a gene responsible for familial
+Wolff-Parkinson-White syndrome. N Engl J Med. 2001; 344:1823–1831. [PubMed: 11407343]
+102. Li J, Coven DL, Miller EJ, Hu X, Young ME, Carling D, Sinusas AJ, Young LH. Activation of
+ampk alpha- and gamma-isoform complexes in the intact ischemic rat heart. Am J Physiol Heart
+Circ Physiol. 2006; 291:H1927–H1934. [PubMed: 16648175]
+103. Um JH, Park SJ, Kang H, Yang S, Foretz M, McBurney MW, Kim MK, Viollet B, Chung JH.
+Amp-activated protein kinase-deficient mice are resistant to the metabolic effects of resveratrol.
+Diabetes. 2010; 59:554–563. [PubMed: 19934007]
+104. Bonfini L, Migliaccio E, Pelicci G, Lanfrancone L, Pelicci PG. Not all shc’s roads lead to ras.
+Trends Biochem Sci. 1996; 21:257–261. [PubMed: 8755247]
+105. Migliaccio E, Giorgio M, Mele S, Pelicci G, Reboldi P, Pandolfi PP, Lanfrancone L, Pelicci PG.
+The p66shc adaptor protein controls oxidative stress response and life span in mammals. Nature.
+1999; 402:309–313. [PubMed: 10580504]
+106. Cosentino F, Francia P, Camici GG, Pelicci PG, Luscher TF, Volpe M. Final common molecular
+pathways of aging and cardiovascular disease: role of the p66shc protein. Arterioscler Thromb
+Vasc Biol. 2008; 28:622–628. [PubMed: 18162611]
+107. Graiani G, Lagrasta C, Migliaccio E, Spillmann F, Meloni M, Madeddu P, Quaini F, Padura IM,
+Lanfrancone L, Pelicci P, Emanueli C. Genetic deletion of the p66shc adaptor protein protects
+from angiotensin II-induced myocardial damage. Hypertension. 2005; 46:433–440. [PubMed:
+15998704]
+108. Napoli C, Martin-Padura I, de Nigris F, Giorgio M, Mansueto G, Somma P, Condorelli M, Sica
+G, De Rosa G, Pelicci P. Deletion of the p66shc longevity gene reduces systemic and tissue
+oxidative stress, vascular cell apoptosis, and early atherogenesis in mice fed a high-fat diet. Proc
+Natl Acad Sci U S A. 2003; 100:2112–2116. [PubMed: 12571362]
+109. Schriner SE, Linford NJ, Martin GM, Treuting P, Ogburn CE, Emond M, Coskun PE, Ladiges W,
+Wolf N, Van Remmen H, Wallace DC, Rabinovitch PS. Extension of murine life span by
+overexpression of catalase targeted to mitochondria. Science. 2005; 308:1909–1911. [PubMed:
+15879174]North and Sinclair Page 17
+Circ Res . Author manuscript; available in PMC 2012 October 13.
+NIH-PA Author Manuscript NIH-PA Author Manuscript NIH-PA Author Manuscript110. Dai DF, Santana LF, Vermulst M, Tomazela DM, Emond MJ, MacCoss MJ, Gollahon K, Martin
+GM, Loeb LA, Ladiges WC, Rabinovitch PS. Overexpression of catalase targeted to
+mitochondria attenuates murine cardiac aging. Circulation. 2009; 119:2789–2797. [PubMed:
+19451351]
+111. Dai DF, Johnson SC, Villarin JJ, Chin MT, Nieves-Cintron M, Chen T, Marcinek DJ, Dorn GW
+II, Kang YJ, Prolla TA, Santana LF, Rabinovitch PS. Mitochondrial oxidative stress mediates
+angiotensin ii-induced cardiac hypertrophy and galphaq overexpression-induced heart failure.
+Circ Res. 2011; 108:837–846. [PubMed: 21311045]
+112. Kerr J, Wood W, Ridgway EC. Basic science and clinical research advances in the pituitary
+transcription factors: pit-1 and prop-1. Curr Opin Endocrinol Diabetes Obes. 2008; 15:359–363.
+[PubMed: 18594277]
+113. Pfaffle RW, Blankenstein O, Wuller S, Kentrup H. Combined pituitary hormone deficiency: role
+of pit-1 and prop-1. Acta Paediatr Suppl. 1999; 88:33–41. [PubMed: 10626543]
+114. Helms SA, Azhar G, Zuo C, Theus SA, Bartke A, Wei JY. Smaller cardiac cell size and reduced
+extra-cellular collagen might be beneficial for hearts of Ames dwarf mice. Int J Biol Sci. 2010;
+6:475–490. [PubMed: 20827400]
+115. Kuro-o M, Matsumura Y, Aizawa H, et al. Mutation of the mouse Klotho gene leads to a
+syndrome resembling ageing. Nature. 1997; 390:45–51. [PubMed: 9363890]
+116. Kurosu H, Yamamoto M, Clark JD, Pastor JV, Nandi A, Gurnani P, McGuinness OP, Chikuda H,
+Yamaguchi M, Kawaguchi H, Shimomura I, Takayama Y, Herz J, Kahn CR, Rosenblatt KP,
+Kuro-o M. Suppression of aging in mice by the hormone Klotho. Science. 2005; 309:1829–1833.
+[PubMed: 16123266]
+117. Kuro-o M. A potential link between phosphate and aging: lessons from Klotho-deficient mice.
+Mech Ageing Dev. 2010; 131:270–275. [PubMed: 20197072]
+118. Bjornsti MA, Houghton PJ. The TOR pathway: a target for cancer therapy. Nat Rev Cancer.
+2004; 4:335–348. [PubMed: 15122205]
+119. Kaeberlein M, Powers RW III, Steffen KK, Westman EA, Hu D, Dang N, Kerr EO, Kirkland KT,
+Fields S, Kennedy BK. Regulation of yeast replicative life span by TOR and sch9 in response to
+nutrients. Science. 2005; 310:1193–1196. [PubMed: 16293764]
+120. Kapahi P, Zid BM, Harper T, Koslover D, Sapin V, Benzer S. Regulation of lifespan in
+drosophila by modulation of genes in the TOR signaling pathway. Curr Biol. 2004; 14:885–890.
+[PubMed: 15186745]
+121. Vellai T, Takacs-Vellai K, Zhang Y, Kovacs AL, Orosz L, Muller F. Genetics: influence of TOR
+kinase on lifespan in C Elegans. Nature. 2003; 426:620. [PubMed: 14668850]
+122. Medvedik O, Lamming DW, Kim KD, Sinclair DA. Msn2 and msn4 link calorie restriction and
+TOR to sirtuin-mediated lifespan extension in saccharomyces cerevisiae. PLoS Biol. 2007;
+5:e261. [PubMed: 17914901]
+123. McMullen JR, Sherwood MC, Tarnavski O, Zhang L, Dorfman AL, Shioi T, Izumo S. Inhibition
+of mTOR signaling with rapamycin regresses established cardiac hypertrophy induced by
+pressure overload. Circulation. 2004; 109:3050–3055. [PubMed: 15184287]
+124. Shioi T, McMullen JR, Tarnavski O, Converso K, Sherwood MC, Manning WJ, Izumo S.
+Rapamycin attenuates load-induced cardiac hypertrophy in mice. Circulation. 2003; 107:1664–
+1670. [PubMed: 12668503]
+125. Zhong H, Chiles K, Feldser D, Laughner E, Hanrahan C, Georgescu MM, Simons JW, Semenza
+GL. Modulation of hypoxia-inducible factor 1alpha expression by the epidermal growth factor/
+phosphatidylinositol 3-kinase/pten/akt/frap pathway in human prostate cancer cells: Implications
+for tumor angiogenesis and therapeutics. Cancer Res. 2000; 60:1541–1545. [PubMed: 10749120]
+126. Karar J, Maity A. Pi3k/akt/mtor pathway in angiogenesis. Front Mol Neurosci. 2011; 4:51.
+[PubMed: 22144946]
+127. Halapas A, Armakolas A, Koutsilieris M. Autophagy: a target for therapeutic interventions in
+myocardial pathophysiology. Expert Opin Ther Targets. 2008; 12:1509–1522. [PubMed:
+19007320]
+128. Bolanos-Garcia VM, Blundell TL. Bub1 and bubr1: multifaceted kinases of the cell cycle. Trends
+Biochem Sci. 2011; 36:141–150. [PubMed: 20888775]North and Sinclair Page 18
+Circ Res . Author manuscript; available in PMC 2012 October 13.
+NIH-PA Author Manuscript NIH-PA Author Manuscript NIH-PA Author Manuscript129. Wang Q, Liu T, Fang Y, Xie S, Huang X, Mahmood R, Ramaswamy G, Sakamoto KM,
+Darzynkiewicz Z, Xu M, Dai W. Bubr1 deficiency results in abnormal megakaryopoiesis. Blood.
+2004; 103:1278–1285. [PubMed: 14576056]
+130. Baker DJ, Jeganathan KB, Cameron JD, Thompson M, Juneja S, Kopecka A, Kumar R, Jenkins
+RB, de Groen PC, Roche P, van Deursen JM. Bubr1 insufficiency causes early onset of aging-
+associated phenotypes and infertility in mice. Nat Genet. 2004; 36:744–749. [PubMed:
+15208629]
+131. Matsumoto T, Baker DJ, d’Uscio LV, Mozammel G, Katusic ZS, van Deursen JM. Aging-
+associated vascular phenotype in mutant mice with low levels of bubr1. Stroke. 2007; 38:1050–
+1056. [PubMed: 17272762]
+132. Chu CT. A pivotal role for pink1 and autophagy in mitochondrial quality control: implications for
+Parkinson disease. Hum Mol Genet. 2010; 19:R28–R37. [PubMed: 20385539]
+133. Dai DF, Rabinovitch PS. Cardiac aging in mice and humans: the role of mitochondrial oxidative
+stress. Trends Cardiovasc Med. 2009; 19:213–220. [PubMed: 20382344]
+134. Hayflick L, Moorhead PS. The serial cultivation of human diploid cell strains. Exp Cell Res.
+1961; 25:585–621.
+135. Sahin E, Depinho RA. Linking functional decline of telomeres, mitochondria and stem cells
+during ageing. Nature. 2010; 464:520–528. [PubMed: 20336134]
+136. Greer EL, Brunet A. Foxo transcription factors at the interface between longevity and tumor
+suppression. Oncogene. 2005; 24:7410–7425. [PubMed: 16288288]
+137. Reed MJ, Edelberg JM. Impaired angiogenesis in the aged. Sci Aging Knowledge Environ. 2004;
+2004:pe7. [PubMed: 14973174]North and Sinclair Page 19
+Circ Res . Author manuscript; available in PMC 2012 October 13.
+NIH-PA Author Manuscript NIH-PA Author Manuscript NIH-PA Author ManuscriptFigure 1. Age-dependent changes to cardiovascular tissues
+Both the heart and vasculature undergo numerous alterations during aging as a result of
+deregulation of molecular longevity pathways, leading to compromised function. Illustration
+credit: Cosmocyte/Ben Smith.North and Sinclair Page 20
+Circ Res . Author manuscript; available in PMC 2012 October 13.
+NIH-PA Author Manuscript NIH-PA Author Manuscript NIH-PA Author ManuscriptFigure 2. Pathway leading from calorie restriction to longevity
+Calorie restriction modulates factors in the longevity network, leading to alterations in
+cellular responses to stress, affecting common diseases of aging and influencing longevity.North and Sinclair Page 21
+Circ Res . Author manuscript; available in PMC 2012 October 13.
+NIH-PA Author Manuscript NIH-PA Author Manuscript NIH-PA Author ManuscriptFigure 3. Model for a longevity network
+Positive and negative feedback regulation between genes involved in lifespan and age-
+related diseases including sirtuins, AMPK, IGF-1, and TOR.North and Sinclair Page 22
+Circ Res . Author manuscript; available in PMC 2012 October 13.
+NIH-PA Author Manuscript NIH-PA Author Manuscript NIH-PA Author Manuscript
