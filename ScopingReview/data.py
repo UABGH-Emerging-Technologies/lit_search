@@ -4,9 +4,7 @@ import ScopingReview_config.config as helper_config
 
 
 def ingest_scoping_review_csv(
-    path=helper_config.ScopingReview_CSV,
-    embeddings=helper_config.EMBEDDINGS,
-    out=helper_config.ScopingReview_VECTORSTORE
+
     ):
     """
     This function ingests a CSV file, converts it into a document format, creates a FAISS index using
@@ -20,7 +18,7 @@ def ingest_scoping_review_csv(
       out: The `out` parameter is the output path where the vector store generated from the MPOG CSV
     file will be saved.
     """
-    scoping_review_csv_loader = CSVLoader(file_path=path)
-    scoping_review_documents = scoping_review_csv_loader.load()
-    scoping_review_db = FAISS.from_documents(scoping_review_documents, embeddings)
-    scoping_review_db.save_local(out)
+    # scoping_review_csv_loader = CSVLoader(file_path=path)
+    # scoping_review_documents = scoping_review_csv_loader.load()
+    # scoping_review_db = FAISS.from_documents(scoping_review_documents, embeddings)
+    # scoping_review_db.save_local(out)
