@@ -1,0 +1,86 @@
+EditoriAl
+Nature reviews | NeurologySince the launch of our journal as Nature Clinical 
+Practice Neurology back in 2005, we have witnessed sub-
+stantial progress in several areas of neurology, including 
+disease- modifying drugs for multiple sclerosis (MS), 
+thrombolysis and thrombectomy for acute ischaemic stroke and, most recently, genetic therapies for spinal 
+muscular atrophy (SMA). As we highlight in this 15th 
+anniversary issue, these advances have raised new ques-tions and challenges that will need to be addressed in the future.
+In a specially commissioned series of Comment arti-
+cles on the overarching theme ‘neurology at the cross-roads’ , key opinion leaders explore subspecialties of neurology in which a turning point has been reached, 
+for example, in light of the success of a new therapy or 
+the failure of a specific approach. The authors of each article were asked to consider how these pivotal events might necessitate a change in thinking to move the field 
+forward.
+Alan Thompson and Olga Ciccarelli acknowledge 
+the rapid expansion of treatment options for relapsing–
+remitting forms of MS over the past few years, and 
+they propose that we now need to turn our attention to 
+tackling progressive MS
+1. This endeavour will require 
+a better understanding of the mechanisms underlying 
+MS progression and the development of biomarkers to 
+identify patients who are entering the progressive phase of the disease.
+The introduction of mechanical thrombectomy for 
+the treatment of acute ischaemic stroke is enabling reca-nalization of the occluded vessel to be achieved in an increasing number of patients. However, as Guido Stoll and Mirko Pham point out in their Comment article
+2, 
+many individuals still experience poor outcomes owing 
+to factors such as delays in treatment initiation, and 
+ischaemia–reperfusion injury following recanalization. The authors suggest that these issues could be addressed through a combination of traditional neuroprotective 
+strategies and novel therapies.
+The approval of the antisense oligonucleotide nusin-
+ersen is transforming SMA from a lethal to a treat-
+able disease. Michelle Farrar and Matthew Kiernan 
+consider how this rapidly evolving clinical landscape 
+is uncove ring health- care disparities and provoking 
+debate regarding drug pricing
+3, as well as creating new 
+challenges for the long- term management of individuals 
+with SMA.As the remaining two Comment articles illustrate, 
+not all changes of direction in the neurology field have been fuelled by success. Michael Rafii and Paul Aisen
+4 
+highlight the persistent failure of anti- amyloid therapies 
+for Alzheimer disease (AD), which has led to suggestions from some quarters to abandon this approach and inves-tigate new therapeutic targets, such as tau pathology. However, the authors argue that earlier intervention and 
+better trial designs could still enable amyloid-  targeting 
+therapies to fulfil their potential.
+The past three decades have seen the development 
+of a plethora of antiepileptic drugs, yet the incidence of pharmacoresistant epilepsy has remained largely 
+unchanged. In his Comment article
+5, Holger Lerche dis-
+cusses the prospect of novel treatment approaches that 
+target the underlying epileptogenic mechanisms rather 
+than individual seizures.
+The anniversary issue is accompanied by an online 
+collection containing some our most- cited articles 
+from the past 15 years, including a Review by Martin Bendszus and Guido Stoll from the very first issue. Bringing the field right up to date, the issue also includes two Perspectives on the neurological consequences of 
+COVID-19 — an important emerging area of research 
+that we will continue to follow closely.
+The rapid proliferation of scientific data during 
+the current pandemic has underlined the importance  
+of monitoring and filtering the literature to provide timely and accurate information, and the Nature Reviews  
+journals have a vital part to play in this ongoing effort. We would like to take this opportunity to thank the 
+editorial and production staff, authors, peer reviewers 
+and journal advisors who have contributed to the journal over the past 15 years, and we look forward to providing a valuable service to our authors and readers for many 
+years to come.
+1. Thompson, A. & Ciccarelli, O. T owards treating progressive multiple 
+sclerosis. Nat. Rev. Neurol. https://doi.org/10.1038/s41582-020-
+00421-4 (2020).
+2. Stoll, G. & Pham, M. Beyond recanalization — a call for action  
+in acute stroke. Nat. Rev. Neurol. https://doi.org/10.1038/ 
+s41582-020-00417-0 (2020).
+3. Farrar, M. A. & Kiernan, M. C. Spinal muscular atrophy — the 
+dawning of a new era. Nat. Rev. Neurol. https://doi.org/10.1038/
+s41582-020-00410-7 (2020).
+4. Author, A., Rafii, M. S. & Aisen, P . S. The search for Alzheimer 
+disease therapeutics — same targets, better trials? Nat. Rev. 
+Neurol. https://doi.org/10.1038/s41582-020-00414-3 (2020).
+5. Lerche, H. Drug- resistant epilepsy — time to target mechanisms. 
+Nat. Rev. Neurol. https://doi.org/10.1038/s41582-020-00419-y 
+(2020).Neurology at the crossroads
+Advances in neurology over the past 15 years have transformed the treatment of a number of 
+conditions but have also raised new questions and challenges.
+key opinion 
+leaders explore 
+subspecialties 
+of neurology in which a turning point has been 
+reached
+  volume 16 | November 2020 | 587
