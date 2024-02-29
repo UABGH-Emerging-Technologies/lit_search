@@ -1,0 +1,22 @@
+Abstract Research in genetics of epilepsy represents an area
+of great interest both for clinical purposes and for understand-
+ing the basic mechanisms of epilepsy. Most mutations inepilepsies without structural brain abnormalities have been
+identified in ion channel genes, but an increasing number of
+genes involved in a diversity of functional and developmental
+processes are being recognized through whole exome or ge-
+nome sequencing. Targeted molecular diagnosis is now avail-able for different forms of epilepsy. The identification of
+epileptogenic mutations in patients before epilepsy onset and
+the possibility of developing therapeutic strategies tested inexperimental models may facilitate experimental approaches
+that prevent epilepsy or decrease its severity. Functional anal-
+ysis is essential for better understanding pathogenic mecha-nisms and gene interactions. In vitro experimental systems are
+either cells that usually do not express the protein of interest or
+neurons in primary cultures. In vivo /ex vivo systems are or-
+ganisms or preparations obtained from them (e.g., brain
+slices), which should better model the complexity of brain
+circuits and actual pathophysiological conditions. Neuronsdifferentiated from induced pluripotent stem cells generated
+from the skin fibroblasts of patients have recently allowed the
+study of mutations in human neurons having the geneticbackground of a given patient. However, there is remarkable
+complexity underlying epileptogenesis in the clinicaldimension, as reflected by the fact that experimental models
+have not provided yet results having clinical translation and
+that, with a few exceptions concerning rare conditions, no newcurative treatment has emerged from any genetic finding in
+epilepsy.
