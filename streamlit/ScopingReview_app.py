@@ -8,7 +8,7 @@ from llm_utils.database import get_db_connection
 from llm_utils.streamlit_common import hide_streamlit_branding, apply_uab_font
 from llm_utils.text_format import convert_markdown_docx
 from llm_utils.call_pubmed_api import PubMedAPI
-from llm_utils.prep_pubmed_query import CreatePubMedQuery
+from llm_utils.prep_pubmed_query import PubMedQueryGenerator
 
 import ScopingReview_config.app_config as review_app_config
 import ScopingReview_config.config as review_config
@@ -67,7 +67,7 @@ def show_literature_page():
         previous_query = ""
         while len(article_ids)<review_config.MIN_ARTICLES and loop_counter<6:
             with st.spinner("Generating pubmed search string."):
-                query_maker = CreatePubMedQuery(research_q)
+                query_maker = PubMedQueryGenerator(research_q)
                 search_string, response_meta = query_maker.generate_search_string(
                     PUBMED_CHAT = review_config.CHAT,
                     loop_n=loop_counter, 
@@ -85,17 +85,17 @@ def show_literature_page():
             with st.spinner("Compiling articles"):
                 st.markdown("scoping review!")
                 articles_df = pm_connection.fetch_article_details_medline(article_ids)
-                
 
-            # add author response column
-            articles_df.insert(0, 'Author 1: Relevant Article? (Yes/No)', 'No')  
-            articles_df.insert(1, 'Author 2: Relevant Article? (Yes/No)', 'No')  
-            
-            # temporary, add column for link and full text available
-            articles_df['Full Text Link'] = "a link will go here"
-            articles_df['AI Can Read Full Text?'] = "Yes"
-            
-            
+                # add author response column
+                articles_df.insert(0, 'Author 1: Relevant Article? (Yes/No)', 'No')  
+                articles_df.insert(1, 'Author 2: Relevant Article? (Yes/No)', 'No')  
+                
+                articles_df.rename(columns={'pmid': 'PMID'}, inplace=True)
+                
+                # add full text link and text if available
+                full_text_df = review_data.fetch_full_text(articles_df.PMID)
+                articles_df = pd.merge(articles_df, full_text_df, on="PMID", how="inner")
+                
             # save with nice formatting
             with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmpfile:
                 # Use the xlsxwriter engine

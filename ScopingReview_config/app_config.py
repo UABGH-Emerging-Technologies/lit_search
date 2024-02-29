@@ -11,5 +11,10 @@ DB_PASSWORD = manage_sensitive("db_password")
 OPENAI_API_KEY = manage_sensitive("openai_api_key")
 GPT4_KEY = manage_sensitive("gpt4_api_key")
 
-# openai
-#os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
+# libkey
+LIBKEY_API_KEY = manage_sensitive("libkey_api_key")
+
+#NCBI
+NCBI_API_KEY = manage_sensitive("ncbi_api_key")
+
+UAB_LIBKEY_ID = "731"
