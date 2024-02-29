@@ -1,7 +1,0 @@
-Abstract: Objective:  The dramatic increase in the population with dementia expected in the next 
-decades is accompanied by the establishment of novel and innovated methods that will offer accurate 
-and efficient detection of the disease in its early stages. While Alzheimer’s disease is the most common cause of dementia, by the time it is typically diagnosed, substantial neuronal loss and neuropathological 
-lesions can damage many brain regions. The aim of this study is to investigate the main risk factors that 
-affect and increase Alzheimer’s disease progression over time even in cases with no significant memory impairment present. Several potential markers are discussed such as oxidative stress, metal ions, vascular disorders, protein dysfunctions and alterations in the mitochondrial populations.  
-Conclusion:  A multiparametric model of Alzheimer’s biomarkers is presented according to the latest 
-classification of the disease. 
