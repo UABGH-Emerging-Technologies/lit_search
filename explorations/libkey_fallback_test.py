@@ -107,7 +107,7 @@ def fetch_pdf(pmid, access_token):
 
 # Example usage
 access_token = "***REMOVED-LIBKEY-TOKEN***"
-pubmed_id = "38365899"
+pubmed_id = "38381674"
 fetch_pdf(pubmed_id, access_token)
 
 #NOTES:
