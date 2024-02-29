@@ -56,25 +56,7 @@ def download_pmc_pdf(pmcid):
         print(f"Failed to retrieve or process PDF for PMCID {pmcid}: {e}")
         return None, None
 
-
-def get_driver(headless=True):
-    chrome_options = Options()
-    if headless:
-        chrome_options.add_argument("--headless=new")
-        # Mimic non-headless user agent
-        chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36")
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-    # Set window size when running headless
-    #chrome_options.add_argument("window-size=1920,1080")
-    chrome_options.add_argument("--remote-debugging-port=9222")
-    # Set a user agent
-    chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36")
-    service = Service(ChromeDriverManager().install())
-    driver = webdriver.Chrome(service=service, options=chrome_options)
-    return driver
-
-def get_libkey_text_link(pubmed_id, access_token, library_number=lit_ap_config.UAB_LIBKEY_ID):
+def get_libkey_text_link(pubmed_id, access_token=lit_ap_config.LIBKEY_API_KEY, library_number=lit_ap_config.UAB_LIBKEY_ID):
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.3'
     }
@@ -94,42 +76,8 @@ def extract_text_from_pdf(pdf_path):
             text += page.extract_text()
     return text
 
-def download_pdf_with_selenium(pubmed_id, access_token, headless=True):
-    full_text_link = get_libkey_text_link(pubmed_id, access_token)
-    if full_text_link:
-        driver = get_driver(headless=headless)
-        driver.get(full_text_link)
-        time.sleep(2)
-        # Wait until the URL contains '.pdf'
-        try:
-            WebDriverWait(driver, 20).until(EC.url_contains(".pdf"))
-        except TimeoutException:
-            print("Timed out waiting for PDF URL.")
-            final_url = driver.current_url
-            driver.quit()
-            return final_url, None
-
-        final_url = driver.current_url
-        print(f"Final URL: {final_url}")
-
-        text = None
-        if final_url.endswith('.pdf'):
-            local_filename = f"{pubmed_id}.pdf"
-            urlretrieve(final_url, local_filename)
-            print(f"PDF saved as {local_filename}")
-            text = extract_text_from_pdf(local_filename)
-        else:
-            print("The final URL is not a PDF.")
-
-        driver.quit()
-        return final_url, text
-    else:
-        print("Unable to retrieve full text link.")
-        return None, None
-
-
         
-def fetch_full_text(pmids, access_token=lit_ap_config.NCBI_API_KEY):
+def fetch_full_text(pmids, access_token=lit_ap_config.LIBKEY_API_KEY):
     data = {'PMID': [], 'URL': [], 'Downloaded': [], 'Text': []}
 
     pmcids = get_pmcids_from_pubmed(pmids)
@@ -150,15 +98,22 @@ def fetch_full_text(pmids, access_token=lit_ap_config.NCBI_API_KEY):
                     print(f"Failed to download or process PDF from PMC for PMID {pmid}")
 
             if not downloaded:
-                # Fallback to Selenium method if PMC download fails
-                try:
-                    url, text = download_pdf_with_selenium(pmid, access_token)
-                    if text:
-                        downloaded = True
-                    else:
-                        print("Selenium method failed to retrieve PDF URL.")
-                except TimeoutException:
-                    print(f"Failed to download PDF for PMID {pmid} using Selenium.")
+                # Check if LibKey provides a direct PDF link
+                libkey_url = get_libkey_text_link(pmid, access_token)
+                if libkey_url and libkey_url.endswith('.pdf'):
+                    try:
+                        headers = {
+                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.3'
+                        }
+                        response = requests.get(libkey_url, timeout=20, headers=headers)
+                        if response.ok:
+                            text = extract_text_from_pdf_bytes(response.content)
+                            url = libkey_url
+                            downloaded = True
+                    except Exception as e:
+                        print(f"Error during LibKey PDF download for PMID {pmid}: {e}")
+                else:
+                    url = libkey_url  # Record the URL provided by LibKey, even if not a direct PDF
 
         except Exception as e:
             print(f"Error during processing PMID {pmid}: {e}")
@@ -166,7 +121,7 @@ def fetch_full_text(pmids, access_token=lit_ap_config.NCBI_API_KEY):
         data['PMID'].append(pmid)
         data['URL'].append(url if url else "Not available")
         data['Downloaded'].append(downloaded)
-        data['Text'].append(text if text else "Could not download automatically. If you can find the full text, paste it here. Don't worry about formatting.")
+        data['Text'].append(text if text else "Text not available")
 
     return pd.DataFrame(data)
   

@@ -40,3 +40,4 @@ CHAT = AzureChatOpenAI(
 
 # pubmed settings
 MIN_ARTICLES = 10
+MAX_ARTICLES = 10

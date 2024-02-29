@@ -78,7 +78,7 @@ def show_literature_page():
                 loop_counter += 1
             st.write(f"**Searching Pubmed with the query:** _{search_string}_")
             with st.spinner("Searching Pubmed."):
-                pm_connection = PubMedAPI(email="rmelvin@uabmc.edu", max_results=150, streamlit_context=True)
+                pm_connection = PubMedAPI(email="rmelvin@uabmc.edu", max_results=review_config.MAX_ARTICLES, streamlit_context=True)
                 article_ids_new = pm_connection.search_pubmed_articles(search_string)
                 article_ids = list(set().union(article_ids, article_ids_new))
         if query_type == "start on a scoping review":
