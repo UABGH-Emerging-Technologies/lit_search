@@ -22,6 +22,9 @@ Requires-Dist: requests
 Requires-Dist: selenium
 Requires-Dist: webdriver-manager
 Requires-Dist: biopython
+Requires-Dist: llm_utils@ git+https://ai_web:xu3wm_hf-5pMMfzXtWaG@gitlab.rc.uab.edu/anes_ai/llm_apps/llm_utils.git@feature/generalizingAPIs
+Requires-Dist: openpyxl
+Requires-Dist: xlsxwriter
 Provides-Extra: dev
 Requires-Dist: mkdocs==1.3.1; extra == "dev"
 Requires-Dist: mkdocstrings==0.18.1; extra == "dev"

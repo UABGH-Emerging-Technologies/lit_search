@@ -8,7 +8,7 @@ from llm_utils.database import get_db_connection
 from llm_utils.streamlit_common import hide_streamlit_branding, apply_uab_font
 from llm_utils.text_format import convert_markdown_docx
 from llm_utils.call_pubmed_api import PubMedAPI
-from llm_utils.prep_pubmed_query import CreatePubMedQuery
+from llm_utils.prep_pubmed_query import PubMedQueryGenerator
 
 import ScopingReview_config.app_config as review_app_config
 import ScopingReview_config.config as review_config
@@ -67,7 +67,7 @@ def show_literature_page():
         previous_query = ""
         while len(article_ids)<review_config.MIN_ARTICLES and loop_counter<6:
             with st.spinner("Generating pubmed search string."):
-                query_maker = CreatePubMedQuery(research_q)
+                query_maker = PubMedQueryGenerator(research_q)
                 search_string, response_meta = query_maker.generate_search_string(
                     PUBMED_CHAT = review_config.CHAT,
                     loop_n=loop_counter, 
@@ -133,43 +133,15 @@ def show_literature_page():
                 article_infos = ""
                 bibliography = ""
                 additional_articles = ""
-                articles = PubMedAPI.fetch_article_details(article_ids,
-                                                        streamlit_context=True, 
-                                                        email=email)
+                articles = pm_connection.fetch_article_details_medline(article_ids)
                 for i, article in enumerate(articles):
-                    try:
-                        authors =  irb_data.format_authors(article["MedlineCitation"]["Article"]["AuthorList"])
-                    except KeyError:
-                        authors = ""
-
-                    try:
-                        title = article["MedlineCitation"]["Article"]["ArticleTitle"]
-                    except KeyError:
-                        title = ""
-
-                    try:
-                        journal = article["MedlineCitation"]["Article"]["Journal"]["Title"]
-                    except KeyError:
-                        journal = ""
-
-                    try:
-                        pub_year = datetime.strptime(article["MedlineCitation"]["Article"]["Journal"]["JournalIssue"]["PubDate"]["Year"], "%Y").year
-                    except KeyError:
-                        pub_year = ""
-
-                    try:
-                        abstract = article["MedlineCitation"]["Article"]["Abstract"]["AbstractText"][0]
-                    except KeyError:
-                        abstract = ""
-                    apa_citation =  irb_data.format_apa_citation(article, 
-                                                                str(article["MedlineCitation"]["PMID"]))
-                    reference = f"{apa_citation}\n\n"
-                    if i < irb_assistant_config.MIN_ARTICLES:
-                        st.write(apa_citation)
+                    formatted_aricle = articles.format_apa_citation(article,  article_ids[i])
+                    if i < review_config.MIN_ARTICLES:
+                        st.write(formatted_aricle)
                         article_info = f"Authors: {authors}\nTitle: {title}\nJournal: {journal}\nPublication Year: {pub_year}\nAbstract: {abstract}\nAPA Citation: {apa_citation}\n\n"
                         article_infos += article_info
                         bibliography += reference
-                    elif i == irb_assistant_config.MIN_ARTICLES:
+                    elif i == review_config.MIN_ARTICLES:
                         st.write("**...and more, which will be included in the downloadable file.**")
                         additional_articles += reference
                     else: 
