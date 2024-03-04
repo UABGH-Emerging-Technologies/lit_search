@@ -10,7 +10,7 @@ import ScopingReview_config.app_config as lit_app_config
 BASE_DIR = Path(__file__).parent.parent.absolute()
 CONFIG_DIR = Path(BASE_DIR, "config")
 LOGS_DIR = Path(BASE_DIR, "logs")
-
+DEV_EMAIL = "rmelvin@uabmc.edu"
 
 
 #Assets

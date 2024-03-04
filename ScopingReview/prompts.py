@@ -9,3 +9,4 @@ PUBMED_PROMPT = "Given the following research question, suggest a PubMed search 
 FEW_RESULTS_PROMPT = "\n\n The following query returned no or few results. Please suggest a simpler one (i.e., with fewer query elements).\n\n"
 
 SUMMARIZE_LITERATURE_PROMPT = "I am considering a clinical research project to address this question: '{}'\n\n I want to {} and understand how my project is situated in existing literature. Write a paragrph summarizing of the following article abstracts and addressing how my proposed project fits in to existing literature.\n\n{}\n\nCite each article in the paragraph in APA format."
+
