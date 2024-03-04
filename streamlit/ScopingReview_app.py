@@ -44,9 +44,6 @@ def show_literature_page():
     ---
     """)
 
-    email = st.text_input(
-        "Your email address (NCBI requires an email address be associated with automated PubMed searches.)"
-        ,"emailid@uabmc.edu")
     search_type_options = [
         "assess the novelty of my idea",
         "get a jump start on my literature search",
@@ -78,7 +75,7 @@ def show_literature_page():
                 loop_counter += 1
             st.write(f"**Searching Pubmed with the query:** _{search_string}_")
             with st.spinner("Searching Pubmed."):
-                pm_connection = PubMedAPI(email="rmelvin@uabmc.edu", max_results=150, streamlit_context=True)
+                pm_connection = PubMedAPI(email=review_config.DEV_EMAIL, max_results=150, streamlit_context=True)
                 article_ids_new = pm_connection.search_pubmed_articles(search_string)
                 article_ids = list(set().union(article_ids, article_ids_new))
         if query_type == "start on a scoping review":
@@ -136,6 +133,7 @@ def show_literature_page():
                 articles = pm_connection.fetch_article_details_medline(article_ids)
                 for i, article in enumerate(articles):
                     formatted_aricle = articles.format_apa_citation(article,  article_ids[i])
+                    reference = f"{formatted_aricle}\n\n"
                     if i < review_config.MIN_ARTICLES:
                         st.write(formatted_aricle)
                         article_info = f"Authors: {authors}\nTitle: {title}\nJournal: {journal}\nPublication Year: {pub_year}\nAbstract: {abstract}\nAPA Citation: {apa_citation}\n\n"
@@ -147,7 +145,7 @@ def show_literature_page():
                     else: 
                         additional_articles += reference
                 with st.spinner("Summarizing and evaluating novelty"):
-                    overall_introduction, response_meta = irb_generate.generate_overall_introduction(
+                    overall_introduction, response_meta = review_generate.generate_overall_introduction(
                         research_q,
                         article_infos,
                         query_type
@@ -170,47 +168,6 @@ def show_literature_page():
                     )
             else:
                 st.write("No articles found")
-
-        # try:
-        #     with get_db_connection(db_server=lit_app_config.DB_SERVER,
-        #                             db_name=lit_app_config.DB_NAME,
-        #                             db_user=lit_app_config.DB_USER,
-        #                             db_password=lit_app_config.DB_PASSWORD) as conn:
-        #         # tempting to move this into llm_utils, but the query will be unique to each app.
-        #         cursor = conn.cursor()
-        #         query = """
-        #                 INSERT INTO [dbo].[literature_helper] (
-        #                     email_address, 
-        #                     research_idea, 
-        #                     purpose_request, 
-        #                     citations, 
-        #                     literature_summary, 
-        #                     pubmed_query, 
-        #                     input_time, 
-        #                     response_time,
-        #                     total_cost
-        #                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        #                 """
-
-        #         cursor.execute(
-        #             query,
-        #             (
-        #                 email,
-        #                 research_q,
-        #                 query_type,
-        #                 bibliography + "\n\n" + additional_articles,
-        #                 overall_introduction,
-        #                 search_string,
-        #                 input_time,
-        #                 response_time,
-        #                 cost
-        #             )
-        #         )
-        #     st.success("To comply with a Health System Information Security request, submissions are recorded for potential review.")
-        # except Exception as e:
-        #     st.error("Something went wrong, and your submission was not recorded for review. Give the following message when asking for help.")
-        #     st.error(e)
-
 
 if __name__ == "__main__":
     show_literature_page()
