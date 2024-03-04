@@ -38,6 +38,16 @@ CHAT = AzureChatOpenAI(
     openai_api_key=lit_app_config.GPT4_KEY
 )
 
+SUMMARIZE_CHAT = AzureChatOpenAI(
+    azure_endpoint="https://nlp-ai-svc.openai.azure.com/",
+    openai_api_version="2023-06-01-preview",
+    azure_deployment="ChatGPT432k",
+    openai_api_type="azure",
+    temperature=0,
+    model_name="gpt-4-32k",
+    openai_api_key=lit_app_config.GPT4_KEY
+)
+
 # pubmed settings
 MIN_ARTICLES = 10
 MAX_ARTICLES = 10
