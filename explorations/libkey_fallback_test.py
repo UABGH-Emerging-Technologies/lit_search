@@ -107,7 +107,7 @@ def fetch_pdf(pmid, access_token):
 
 # Example usage
 access_token = "56e085ab-387b-4696-8583-762fa32ab29b"
-pubmed_id = "38365899"
+pubmed_id = "38381674"
 fetch_pdf(pubmed_id, access_token)
 
 #NOTES:

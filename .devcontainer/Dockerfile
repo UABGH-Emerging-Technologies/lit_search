@@ -21,12 +21,12 @@ RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
     apt-get update && \
     ACCEPT_EULA=Y apt-get install -y msodbcsql17
 
-# Step 2: Install dependencies for Google Chrome and wget
-RUN apt-get install -y wget gnupg2
+# # Step 2: Install dependencies for Google Chrome and wget
+# RUN apt-get install -y wget gnupg2
 
-# Step 3: Download and install Google Chrome Stable
-RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-RUN dpkg -i google-chrome-stable_current_amd64.deb || apt-get install -f -y
+# # Step 3: Download and install Google Chrome Stable
+# RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+# RUN dpkg -i google-chrome-stable_current_amd64.deb || apt-get install -f -y
 
 # # [Optional] If your pip requirements rarely change, uncomment this section to add them to the image.
 #  COPY docs/dev_requirements.txt /tmp/pip-tmp/
