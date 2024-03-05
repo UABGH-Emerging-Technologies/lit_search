@@ -128,6 +128,9 @@ def fetch_full_text(pmids, access_token=lit_ap_config.LIBKEY_API_KEY):
 
 def make_initial_df(pm_connection, article_ids):
     articles_df = pm_connection.fetch_article_details_medline(article_ids)
+    
+    for i, article in enumerate(articles_df):
+        articles_df['APA_Citation'] = pm_connection.format_apa_citation(article,  article_ids[i])
 
     # add author response column
     articles_df.insert(0, 'Author 1: Relevant Article? (Yes/No)', 'No')  
@@ -135,7 +138,8 @@ def make_initial_df(pm_connection, article_ids):
     
     articles_df.rename(columns={'pmid': 'PMID'}, inplace=True)
     
-    # add full text link and text if available
+    # TODO: Wait until after categories are assigned
+    # # add full text link and text if available
     full_text_df = fetch_full_text(articles_df.PMID)
     articles_df = pd.merge(articles_df, full_text_df, on="PMID", how="inner")
     
