@@ -1,11 +1,3 @@
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.common.by import By
 import requests
 from urllib.request import urlretrieve
 import os 
@@ -13,14 +5,11 @@ from io import BytesIO
 import ScopingReview_config.app_config as lit_ap_config
 import pandas as pd
 import pdfplumber
-import base64
-import tempfile
-import time
 from Bio import Entrez
 
 # For NCBI interactions
 Entrez.email = "rmelvin@uabmc.edu"
-os.environ['NCBI_API_KEY'] = lit_ap_config.NCBI_API_KEY
+#os.environ['NCBI_API_KEY'] = lit_ap_config.NCBI_API_KEY
 
 def get_pmcid_from_pubmed(pmid):
     link_result = Entrez.elink(dbfrom="pubmed", db="pmc", id=pmid)
