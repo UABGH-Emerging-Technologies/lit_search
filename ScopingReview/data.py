@@ -6,23 +6,31 @@ import ScopingReview_config.app_config as lit_ap_config
 import ScopingReview.prompts as prompt
 import pandas as pd
 import pdfplumber
-import base64
-import tempfile
-import time
 from Bio import Entrez
+import xml.etree.ElementTree as ET
+
 
 # For NCBI interactions
 Entrez.email = "rmelvin@uabmc.edu"
 os.environ['NCBI_API_KEY'] = lit_ap_config.NCBI_API_KEY
 
 def get_pmcid_from_pubmed(pmid):
-    link_result = Entrez.elink(dbfrom="pubmed", db="pmc", id=pmid)
-    record = Entrez.read(link_result)
-    try:
-        pmcid = record[0]['LinkSetDb'][0]['Link'][0]['Id']
-        return pmcid
-    except (IndexError, KeyError):
-        return None
+    # from https://www.biostars.org/p/321100/
+
+    handle = Entrez.elink(dbfrom="pubmed", db="pmc", linkname="pubmed_pmc", id=pmid, retmode="text")
+
+    handle_read = handle.read()
+    handle.close()
+
+    root = ET.fromstring(handle_read)
+
+    pmcid = ""
+
+    for link in root.iter('Link'):
+        for id in link.iter('Id'):
+            pmcid = id.text
+    return pmcid 
+
 
 def get_pmcids_from_pubmed(pmids):
     pmcids = []
