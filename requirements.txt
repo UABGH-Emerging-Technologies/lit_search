@@ -16,3 +16,4 @@ llm_utils @ git+https://ai_web:xu3wm_hf-5pMMfzXtWaG@gitlab.rc.uab.edu/anes_ai/ll
 openpyxl
 xlsxwriter
 pdfplumber
+pypandoc

@@ -69,52 +69,14 @@ def show_literature_page():
         "draft article"
         ]
         scoping_step = st.radio("What step of the scoping review do you want to work on?", scoping_steps)
-
-
-        cost = 0.0
-        input_time = datetime.now()
-        article_ids = []
-        loop_counter = 0
-        previous_query = ""
-        while len(article_ids)<review_config.MIN_ARTICLES and loop_counter<6:
-            with st.spinner("Generating pubmed search string."):
-                query_maker = PubMedQueryGenerator(research_q)
-                search_string, response_meta = query_maker.generate_search_string(
-                    PUBMED_CHAT = review_config.CHAT,
-                    loop_n=loop_counter, 
-                    last_query=previous_query
-                    )
-                cost += response_meta.total_cost
-                previous_query = search_string
-                loop_counter += 1
-            st.write(f"**Searching Pubmed with the query:** _{search_string}_")
-            
-        if query_type == "start on a scoping review":
-            with st.spinner("Searching Pubmed."):
-                pm_connection = PubMedAPI(email=review_config.DEV_EMAIL, max_results=review_config.MAX_ARTICLES_SR, streamlit_context=True)
-                article_ids_new = pm_connection.search_pubmed_articles(search_string)
-                article_ids = list(set().union(article_ids, article_ids_new))
-            with st.spinner("Compiling articles"):
-                articles_df = pm_connection.fetch_article_details(article_ids)
-            
-            # add author response column
-            articles_df.insert(0, 'Author 1: Relevant Article? (Yes/No)', 'No')  
-            articles_df.insert(1, 'Author 2: Relevant Article? (Yes/No)', 'No')  
-            
-            # temporary, add column for link and full text available
-            articles_df['Full Text Link'] = "a link will go here"
-            articles_df['AI Can Read Full Text?'] = "Yes"
-            
-            
-            # save with nice formatting
-            with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmpfile:
-                # Use the xlsxwriter engine
-                with pd.ExcelWriter(tmpfile.name, engine='xlsxwriter') as writer:
-                    articles_df.to_excel(writer, index=False, sheet_name='Sheet1')
+        
+        # TODO: should go after each if ... button
+        # input_time = datetime.now()
                     
         # Only need a pubmed search on step1 or step2
         if scoping_step not in scoping_steps[2:]:
-            if st.button('Search'):
+            if st.button("Find Articles"):
+                cost = 0.0
                 article_ids = []
                 loop_counter = 0
                 previous_query = ""
@@ -131,13 +93,12 @@ def show_literature_page():
                         loop_counter += 1
                     st.write(f"**Searching Pubmed with the query:** _{search_string}_")
                     with st.spinner("Searching Pubmed."):
-                        pm_connection = PubMedAPI(email=review_config.DEV_EMAIL, max_results=review_config.MAX_ARTICLES, streamlit_context=True)
+                        pm_connection = PubMedAPI(email=review_config.DEV_EMAIL, max_results=review_config.MAX_ARTICLES_SR, streamlit_context=True)
                         article_ids_new = pm_connection.search_pubmed_articles(search_string)
                         article_ids = list(set().union(article_ids, article_ids_new))
                 
                 if scoping_step == "first search":
                     with st.spinner("Compiling articles"):
-                        st.markdown("scoping review!")
                         articles_df = review_data.make_initial_df(pm_connection, article_ids)
                         
                     # save with nice formatting
@@ -159,9 +120,10 @@ def show_literature_page():
             if uploaded_file is not None:
                 category_df = pd.read_excel(uploaded_file)
                 
-                input_text = st.text_area("Enter your list of categories, separated by commas:")
+                input_text = st.text_area("Enter your list of categories, separated by commas:", "Category 1, Category 2, etc...")
 
-                if input_text and st.button('Categorize'):
+                if st.button('Categorize'):
+                    cost = 0.0
                     input_list = input_text.split(',')
                     input_list = [value.strip() for value in input_list if value.strip()]
 
@@ -179,15 +141,32 @@ def show_literature_page():
                             st.download_button(
                                 label="Download Categorized File",
                                 data=file,
-                                file_name=review_config.SR_STEP2_FILENAME,
+                                file_name=review_config.SR_STEP3_FILENAME,
                                 mime="application/vnd.ms-excel"
                             )
 
-        if query_type != "work on scoping review":
-            with st.spinner("Searching Pubmed."):
-                pm_connection = PubMedAPI(email=review_config.DEV_EMAIL, max_results=review_config.MAX_ARTICLES_LR, streamlit_context=True)
-                article_ids_new = pm_connection.search_pubmed_articles(search_string)
-                article_ids = list(set().union(article_ids, article_ids_new))
+    else:
+        if st.button("Search"):
+            cost = 0.0
+            article_ids = []
+            loop_counter = 0
+            previous_query = ""
+            while len(article_ids)<review_config.MIN_ARTICLES and loop_counter<6:
+                with st.spinner("Generating pubmed search string."):
+                    query_maker = PubMedQueryGenerator(research_q)
+                    search_string, response_meta = query_maker.generate_search_string(
+                        PUBMED_CHAT = review_config.CHAT,
+                        loop_n=loop_counter, 
+                        last_query=previous_query
+                        )
+                    cost += response_meta.total_cost
+                    previous_query = search_string
+                    loop_counter += 1
+                st.write(f"**Searching Pubmed with the query:** _{search_string}_")
+                with st.spinner("Searching Pubmed."):
+                    pm_connection = PubMedAPI(email=review_config.DEV_EMAIL, max_results=review_config.MAX_ARTICLES_LR, streamlit_context=True)
+                    article_ids_new = pm_connection.search_pubmed_articles(search_string)
+                    article_ids = list(set().union(article_ids, article_ids_new))
             if len(article_ids)>0:
                 st.write("**Found the following articles:**")
                 article_infos = ""
@@ -195,7 +174,7 @@ def show_literature_page():
                 additional_articles = ""
                 articles = pm_connection.fetch_article_details(article_ids)
                 articles['pmid'] = articles['pmid'].astype(str)
-                              
+                                
                 for i, article in articles.iterrows():
                     print('article - ', article)
                     print('article authors - ', article['authors'])
