@@ -92,7 +92,6 @@ def show_literature_page():
             articles_df['Full Text Link'] = "a link will go here"
             articles_df['AI Can Read Full Text?'] = "Yes"
             
-            
             # save with nice formatting
             with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmpfile:
                 # Use the xlsxwriter engine
