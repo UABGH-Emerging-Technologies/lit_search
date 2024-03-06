@@ -124,8 +124,27 @@ def fetch_full_text(pmids, access_token=lit_ap_config.LIBKEY_API_KEY):
         data['Text'].append(text if text else "Text not available")
 
     return pd.DataFrame(data)
-  
-  
+
+
+def make_initial_df(pm_connection, article_ids):
+    articles_df = pm_connection.fetch_article_details_medline(article_ids)
+    
+    for i, article in enumerate(articles_df):
+        articles_df['APA_Citation'] = pm_connection.format_apa_citation(article,  article_ids[i])
+
+    # add author response column
+    articles_df.insert(0, 'Author 1: Relevant Article? (Yes/No)', 'No')  
+    articles_df.insert(1, 'Author 2: Relevant Article? (Yes/No)', 'No')  
+    
+    articles_df.rename(columns={'pmid': 'PMID'}, inplace=True)
+    
+    # TODO: Wait until after categories are assigned
+    # # add full text link and text if available
+    full_text_df = fetch_full_text(articles_df.PMID)
+    articles_df = pd.merge(articles_df, full_text_df, on="PMID", how="inner")
+    
+    return articles_df
+
 # Example usage
 # pmids = ["32076685","23376664","38289217","30995704","16178450","31562971","32242448","16934734","18893366","24880802","9952101","29342391","18354149","25587612", "8014946"]
 # access_token = 
