@@ -17,7 +17,7 @@ DEV_EMAIL = "rmelvin@uabmc.edu"
 ASSETS_DIR = Path(BASE_DIR, "assets")
 
 #ScopingReview_outname 
-SR_STEP1_FILENAME="ScopingReview.xlsx"
+SR_STEP1_FILENAME="InitialSearch.xlsx"
 SR_STEP2_FILENAME="IteratedSearch.xlsx"
 SR_STEP3_FILENAME="CategorizedArticles.xlsx"
 
