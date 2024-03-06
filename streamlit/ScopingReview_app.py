@@ -74,16 +74,15 @@ def show_literature_page():
                 previous_query = search_string
                 loop_counter += 1
             st.write(f"**Searching Pubmed with the query:** _{search_string}_")
+        if query_type == "start on a scoping review":
             with st.spinner("Searching Pubmed."):
-                pm_connection = PubMedAPI(email=review_config.DEV_EMAIL, max_results=150, streamlit_context=True)
+                pm_connection = PubMedAPI(email=review_config.DEV_EMAIL, max_results=review_config.MAX_ARTICLES_SR, streamlit_context=True)
                 article_ids_new = pm_connection.search_pubmed_articles(search_string)
                 article_ids = list(set().union(article_ids, article_ids_new))
-        if query_type == "start on a scoping review":
             with st.spinner("Compiling articles"):
                 st.markdown("scoping review!")
-                articles_df = pm_connection.fetch_article_details_medline(article_ids)
-                
-
+                articles_df = pm_connection.fetch_article_details(article_ids)
+            
             # add author response column
             articles_df.insert(0, 'Author 1: Relevant Article? (Yes/No)', 'No')  
             articles_df.insert(1, 'Author 2: Relevant Article? (Yes/No)', 'No')  
@@ -121,22 +120,31 @@ def show_literature_page():
                     st.download_button(
                         label="Download Excel file",
                         data=file,
-                        file_name="data.xlsx",
+                        file_name=review_config.SR_OUTPUT_FILENAME,
                         mime="application/vnd.ms-excel"
                     )
         else:
+            with st.spinner("Searching Pubmed."):
+                pm_connection = PubMedAPI(email=review_config.DEV_EMAIL, max_results=review_config.MAX_ARTICLES_LR, streamlit_context=True)
+                article_ids_new = pm_connection.search_pubmed_articles(search_string)
+                article_ids = list(set().union(article_ids, article_ids_new))
             if len(article_ids)>0:
                 st.write("**Found the following articles:**")
                 article_infos = ""
                 bibliography = ""
                 additional_articles = ""
-                articles = pm_connection.fetch_article_details_medline(article_ids)
-                for i, article in enumerate(articles):
-                    formatted_aricle = articles.format_apa_citation(article,  article_ids[i])
-                    reference = f"{formatted_aricle}\n\n"
+                articles = pm_connection.fetch_article_details(article_ids)
+                articles['pmid'] = articles['pmid'].astype(str)
+                              
+                for i, article in articles.iterrows():
+                    print('article - ', article)
+                    print('article authors - ', article['authors'])
+                    formatted_article = article['citation']
+                    reference = f"{formatted_article}\n\n"
                     if i < review_config.MIN_ARTICLES:
-                        st.write(formatted_aricle)
-                        article_info = f"Authors: {authors}\nTitle: {title}\nJournal: {journal}\nPublication Year: {pub_year}\nAbstract: {abstract}\nAPA Citation: {apa_citation}\n\n"
+                        st.write(formatted_article)
+
+                        article_info = f"Authors: {article['authors']}\nTitle: {article['title']}\nJournal: {article['journal']}\nPublication Year: {article['date_published']}\nAbstract: {article['abstract']}\nAPA Citation: {formatted_article}\n\n"
                         article_infos += article_info
                         bibliography += reference
                     elif i == review_config.MIN_ARTICLES:
@@ -170,4 +178,5 @@ def show_literature_page():
                 st.write("No articles found")
 
 if __name__ == "__main__":
+    
     show_literature_page()
