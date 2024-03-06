@@ -17,6 +17,7 @@ DEV_EMAIL = "rmelvin@uabmc.edu"
 ASSETS_DIR = Path(BASE_DIR, "assets")
 
 #ScopingReview_VECTORSTORE 
+SR_OUTPUT_FILENAME="ScopingReview.xlsx"
 
 # LLM specific
 EMBEDDINGS = AzureOpenAIEmbeddings(
@@ -40,3 +41,5 @@ CHAT = AzureChatOpenAI(
 
 # pubmed settings
 MIN_ARTICLES = 10
+MAX_ARTICLES_SR = 200
+MAX_ARTICLES_LR = 50
