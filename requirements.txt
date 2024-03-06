@@ -16,3 +16,4 @@ llm_utils @ git+https://ai_web:***REMOVED-GITLAB-CREDENTIAL***@gitlab.rc.uab.edu
 openpyxl
 xlsxwriter
 pdfplumber
+pypandoc
