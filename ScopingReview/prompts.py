@@ -13,18 +13,6 @@ FEW_RESULTS_PROMPT = "\n\n The following query returned no or few results. Pleas
 
 SUMMARIZE_LITERATURE_PROMPT = "I am considering a clinical research project to address this question: '{}'\n\n I want to {} and understand how my project is situated in existing literature. Write a paragrph summarizing of the following article abstracts and addressing how my proposed project fits in to existing literature.\n\n{}\n\nCite each article in the paragraph in APA format."
 
-# remove this later
-CHAT = AzureChatOpenAI(
-    azure_endpoint="https://nlp-ai-svc.openai.azure.com/",
-    openai_api_version="2023-06-01-preview",
-    azure_deployment="ChatGPT4",
-    openai_api_type="azure",
-    temperature=0.8,
-    model_name="gpt-4",
-    openai_api_key=os.environ.get("OPENAI_API_KEY")
-)
-
-
 CATEGORIZE_SYSTEM_TEMPLATE = """ Help categorize the abstract into either of the input categories given by the user and return only 1 category as output(whichever matters the most). When it is just "No abstract available" in the input return "No abstract available" as output. """
 
 HUMAN_TEMPLATE = """

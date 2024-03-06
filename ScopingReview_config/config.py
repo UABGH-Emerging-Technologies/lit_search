@@ -10,13 +10,17 @@ import ScopingReview_config.app_config as lit_app_config
 BASE_DIR = Path(__file__).parent.parent.absolute()
 CONFIG_DIR = Path(BASE_DIR, "config")
 LOGS_DIR = Path(BASE_DIR, "logs")
-
+DEV_EMAIL = "rmelvin@uabmc.edu"
 
 
 #Assets
 ASSETS_DIR = Path(BASE_DIR, "assets")
 
-#ScopingReview_VECTORSTORE 
+#ScopingReview_outname 
+SR_STEP1_FILENAME="ScopingReview.xlsx"
+SR_STEP2_FILENAME="IteratedSearch.xlsx"
+SR_STEP3_FILENAME="CategorizedArticles.xlsx"
+
 
 # LLM specific
 EMBEDDINGS = AzureOpenAIEmbeddings(
@@ -50,4 +54,5 @@ SUMMARIZE_CHAT = AzureChatOpenAI(
 
 # pubmed settings
 MIN_ARTICLES = 10
-MAX_ARTICLES = 10
+MAX_ARTICLES_SR = 200
+MAX_ARTICLES_LR = 50
