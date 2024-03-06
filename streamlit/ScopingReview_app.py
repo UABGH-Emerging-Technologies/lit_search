@@ -1,6 +1,5 @@
 import streamlit as st
 import openai
-import pypandoc
 import pandas as pd
 import tempfile
 
@@ -15,6 +14,8 @@ import ScopingReview_config.app_config as review_app_config
 import ScopingReview_config.config as review_config
 import ScopingReview.generate as review_generate
 import ScopingReview.data as review_data
+import ScopingReview.utils as review_utils
+import ScopingReview.step3prompt as prompt
 
 import tempfile
 from datetime import datetime
@@ -50,14 +51,26 @@ def show_literature_page():
         "get a jump start on my literature search",
         "estimate the complexity and feasibility of my idea",
         "identify weaknesses or gaps in the literature that serve as the key support for a proposed NIH-style grant",
-        "start on a scoping review"
+        "work on scoping review"
     ]
 
     query_type = st.radio("Which of these best describes what you want help with?", search_type_options)
     research_q = st.text_area("Enter your research question/topic (or for a grant, your specific aims)",
                                 "Retrospectively, In adult patients undergoing surgery, how does the use of regional anesthesia techniques compare to general anesthesia in terms of postoperative pain management?")
 
-    if st.button('Evaluate'):
+
+    if query_type == "work on scoping review":
+        scoping_step = None
+        scoping_steps = [
+        "first search",
+        "iterate on search",
+        "categorize articles",
+        "summarize categories",
+        "draft article"
+        ]
+        scoping_step = st.radio("What step of the scoping review do you want to work on?", scoping_steps)
+
+
         cost = 0.0
         input_time = datetime.now()
         article_ids = []
@@ -75,13 +88,13 @@ def show_literature_page():
                 previous_query = search_string
                 loop_counter += 1
             st.write(f"**Searching Pubmed with the query:** _{search_string}_")
+            
         if query_type == "start on a scoping review":
             with st.spinner("Searching Pubmed."):
                 pm_connection = PubMedAPI(email=review_config.DEV_EMAIL, max_results=review_config.MAX_ARTICLES_SR, streamlit_context=True)
                 article_ids_new = pm_connection.search_pubmed_articles(search_string)
                 article_ids = list(set().union(article_ids, article_ids_new))
             with st.spinner("Compiling articles"):
-                st.markdown("scoping review!")
                 articles_df = pm_connection.fetch_article_details(article_ids)
             
             # add author response column
@@ -98,33 +111,79 @@ def show_literature_page():
                 # Use the xlsxwriter engine
                 with pd.ExcelWriter(tmpfile.name, engine='xlsxwriter') as writer:
                     articles_df.to_excel(writer, index=False, sheet_name='Sheet1')
+                    
+        # Only need a pubmed search on step1 or step2
+        if scoping_step not in scoping_steps[2:]:
+            if st.button('Search'):
+                article_ids = []
+                loop_counter = 0
+                previous_query = ""
+                while len(article_ids)<review_config.MIN_ARTICLES and loop_counter<6:
+                    with st.spinner("Generating pubmed search string."):
+                        query_maker = PubMedQueryGenerator(research_q)
+                        search_string, response_meta = query_maker.generate_search_string(
+                            PUBMED_CHAT=review_config.CHAT,
+                            loop_n=loop_counter, 
+                            last_query=previous_query
+                            )
+                        cost += response_meta.total_cost
+                        previous_query = search_string
+                        loop_counter += 1
+                    st.write(f"**Searching Pubmed with the query:** _{search_string}_")
+                    with st.spinner("Searching Pubmed."):
+                        pm_connection = PubMedAPI(email=review_config.DEV_EMAIL, max_results=review_config.MAX_ARTICLES, streamlit_context=True)
+                        article_ids_new = pm_connection.search_pubmed_articles(search_string)
+                        article_ids = list(set().union(article_ids, article_ids_new))
+                
+                if scoping_step == "first search":
+                    with st.spinner("Compiling articles"):
+                        st.markdown("scoping review!")
+                        articles_df = review_data.make_initial_df(pm_connection, article_ids)
+                        
+                    # save with nice formatting
+                    with tempfile.NamedTemporaryFile(delete=True, suffix='.xlsx') as tmpfile:
+                        review_utils.make_downloadable_excel(tmpfile, articles_df, sheet2_text=None)
 
-                    # Get the xlsxwriter workbook and worksheet objects
-                    workbook  = writer.book
-                    worksheet = writer.sheets['Sheet1']
+                        # Read the file in binary mode for the download button
+                        with open(tmpfile.name, "rb") as file:
+                            st.download_button(
+                                label="Download Excel file",
+                                data=file,
+                                file_name=review_config.SR_STEP1_FILENAME,
+                                mime="application/vnd.ms-excel"
+                            )
+                    
+        if scoping_step == "categorize articles":
+            uploaded_file = st.file_uploader("Upload file with Y/N filled in", type=['xlsx'])
 
-                    # Define a format with word wrap
-                    wrap_format = workbook.add_format({'text_wrap': True})
+            if uploaded_file is not None:
+                category_df = pd.read_excel(uploaded_file)
+                
+                input_text = st.text_area("Enter your list of categories, separated by commas:")
 
-                    # Iterate over the DataFrame columns to set the column width
-                    for idx, col in enumerate(articles_df.columns):
-                        # Find the maximum length of data in the column
-                        column_len = articles_df[col].astype(str).map(len).max()
-                        column_title_len = len(col)
-                        max_len = min(100,max(column_len, column_title_len))
+                if input_text and st.button('Categorize'):
+                    input_list = input_text.split(',')
+                    input_list = [value.strip() for value in input_list if value.strip()]
 
-                        # Set the column width with some extra margin
-                        worksheet.set_column(idx, idx, max_len + 1, wrap_format)
+                    for index, row in category_df.iterrows():
+                        data = row['abstract']
+                        result = prompt.chat.invoke(prompt.chat_prompt.format_prompt(categories=input_list, context=data).to_messages())
+                        category_df.at[index, 'category'] = result.content
+                            # save with nice formatting
+                            
+                    with tempfile.NamedTemporaryFile(delete=True, suffix='.xlsx') as tmpfile:
+                        review_utils.make_downloadable_excel(tmpfile, category_df, sheet2_text=None)
 
-                # Read the file in binary mode for the download button
-                with open(tmpfile.name, "rb") as file:
-                    st.download_button(
-                        label="Download Excel file",
-                        data=file,
-                        file_name=review_config.SR_OUTPUT_FILENAME,
-                        mime="application/vnd.ms-excel"
-                    )
-        else:
+                        # Read the file in binary mode for the download button
+                        with open(tmpfile.name, "rb") as file:
+                            st.download_button(
+                                label="Download Categorized File",
+                                data=file,
+                                file_name=review_config.SR_STEP2_FILENAME,
+                                mime="application/vnd.ms-excel"
+                            )
+
+        if query_type != "work on scoping review":
             with st.spinner("Searching Pubmed."):
                 pm_connection = PubMedAPI(email=review_config.DEV_EMAIL, max_results=review_config.MAX_ARTICLES_LR, streamlit_context=True)
                 article_ids_new = pm_connection.search_pubmed_articles(search_string)
