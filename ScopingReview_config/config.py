@@ -16,8 +16,11 @@ DEV_EMAIL = "rmelvin@uabmc.edu"
 #Assets
 ASSETS_DIR = Path(BASE_DIR, "assets")
 
-#ScopingReview_VECTORSTORE 
-SR_OUTPUT_FILENAME="ScopingReview.xlsx"
+#ScopingReview_outname 
+SR_STEP1_FILENAME="ScopingReview.xlsx"
+SR_STEP2_FILENAME="IteratedSearch.xlsx"
+SR_STEP3_FILENAME="CategorizedArticles.xlsx"
+
 
 # LLM specific
 EMBEDDINGS = AzureOpenAIEmbeddings(
