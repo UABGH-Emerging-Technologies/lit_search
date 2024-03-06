@@ -138,8 +138,8 @@ def make_initial_df(pm_connection, article_ids):
     
     # TODO: Wait until after categories are assigned
     # # add full text link and text if available
-    # full_text_df = fetch_full_text(articles_df.PMID)
-    # articles_df = pd.merge(articles_df, full_text_df, on="PMID", how="inner")
+    full_text_df = fetch_full_text(articles_df.PMID)
+    articles_df = pd.merge(articles_df, full_text_df, on="PMID", how="inner")
     
     return articles_df
 
