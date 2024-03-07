@@ -15,6 +15,8 @@ import ScopingReview_config.app_config as review_app_config
 import ScopingReview_config.config as review_config
 import ScopingReview.generate as review_generate
 import ScopingReview.data as review_data
+from ScopingReview.data import make_and_refine_query, search_and_compile, write_excel_output
+from ScopingReview.data import get_relevant_keywords, get_unique_keywords
 
 import tempfile
 from datetime import datetime
@@ -60,29 +62,18 @@ def show_literature_page():
     if st.button('Evaluate'):
         cost = 0.0
         input_time = datetime.now()
-        article_ids = []
+
         loop_counter = 0
-        previous_query = ""
+        query = ""
         while len(article_ids)<review_config.MIN_ARTICLES and loop_counter<6:
             with st.spinner("Generating pubmed search string."):
-                query_maker = PubMedQueryGenerator(research_q)
-                search_string, response_meta = query_maker.generate_search_string(
-                    PUBMED_CHAT = review_config.CHAT,
-                    loop_n=loop_counter, 
-                    last_query=previous_query
-                    )
-                cost += response_meta.total_cost
-                previous_query = search_string
-                loop_counter += 1
-            st.write(f"**Searching Pubmed with the query:** _{search_string}_")
+                cost, loop_counter, query, search_string = make_and_refine_query(query, research_q)
+            st.write(f"**Searching Pubmed with the query:** _{query}_")
+            
         if query_type == "start on a scoping review":
-            with st.spinner("Searching Pubmed."):
-                pm_connection = PubMedAPI(email=review_config.DEV_EMAIL, max_results=review_config.MAX_ARTICLES_SR, streamlit_context=True)
-                article_ids_new = pm_connection.search_pubmed_articles(search_string)
-                article_ids = list(set().union(article_ids, article_ids_new))
-            with st.spinner("Compiling articles"):
-                st.markdown("scoping review!")
-                articles_df = pm_connection.fetch_article_details(article_ids)
+            with st.spinner("Searching Pubmed and compiling articles."):
+                pm_connection, articles_ids = search_and_compile(query, article_ids)
+                articles_df = pm_connection.fetch_article_details(articles_ids)
             
             # add author response column
             articles_df.insert(0, 'Author 1: Relevant Article? (Yes/No)', 'No')  
@@ -95,25 +86,7 @@ def show_literature_page():
             # save with nice formatting
             with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmpfile:
                 # Use the xlsxwriter engine
-                with pd.ExcelWriter(tmpfile.name, engine='xlsxwriter') as writer:
-                    articles_df.to_excel(writer, index=False, sheet_name='Sheet1')
-
-                    # Get the xlsxwriter workbook and worksheet objects
-                    workbook  = writer.book
-                    worksheet = writer.sheets['Sheet1']
-
-                    # Define a format with word wrap
-                    wrap_format = workbook.add_format({'text_wrap': True})
-
-                    # Iterate over the DataFrame columns to set the column width
-                    for idx, col in enumerate(articles_df.columns):
-                        # Find the maximum length of data in the column
-                        column_len = articles_df[col].astype(str).map(len).max()
-                        column_title_len = len(col)
-                        max_len = min(100,max(column_len, column_title_len))
-
-                        # Set the column width with some extra margin
-                        worksheet.set_column(idx, idx, max_len + 1, wrap_format)
+                write_excel_output(tmpfile, articles_df, research_q)
 
                 # Read the file in binary mode for the download button
                 with open(tmpfile.name, "rb") as file:
