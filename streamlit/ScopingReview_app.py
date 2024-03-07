@@ -15,7 +15,7 @@ import ScopingReview_config.config as review_config
 import ScopingReview.generate as review_generate
 import ScopingReview.data as review_data
 import ScopingReview.utils as review_utils
-import ScopingReview.step3prompt as prompt
+# import ScopingReview.step3prompt as prompt
 
 import tempfile
 from datetime import datetime
@@ -123,15 +123,7 @@ def show_literature_page():
                 input_text = st.text_area("Enter your list of categories, separated by commas:", "Category 1, Category 2, etc...")
 
                 if st.button('Categorize'):
-                    cost = 0.0
-                    input_list = input_text.split(',')
-                    input_list = [value.strip() for value in input_list if value.strip()]
-
-                    for index, row in category_df.iterrows():
-                        data = row['abstract']
-                        result = prompt.chat.invoke(prompt.chat_prompt.format_prompt(categories=input_list, context=data).to_messages())
-                        category_df.at[index, 'category'] = result.content
-                            # save with nice formatting
+                    category_df = review_generate.categorize(category_df, input_text)
                             
                     with tempfile.NamedTemporaryFile(delete=True, suffix='.xlsx') as tmpfile:
                         review_utils.make_downloadable_excel(tmpfile, category_df, sheet2_text=None)
