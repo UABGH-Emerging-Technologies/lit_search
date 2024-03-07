@@ -27,7 +27,41 @@ INPUT CATEGORIES:
 OUTPUT:
 """
 
+SUMMARIZE_CATEGORY_TEMPLATE = "I am working  on a scoping review to address this question: {question}\n\n Currently, I am summarizing articles by expert-defined categories. All of the article summaries below were assigned the category {category}. Write a single paragrph final summary of the following journal article summaries, focusing on my question. Liberally use APA-style in-text citations throughout the paragraph, citing the summarized articles. The article summaries are separated by '---'"
+
+SUMMARIZE_HUMAN_TEMPLATE = """
+Content to summarize:
+{content}
+"""
+
+summarize_system_message_prompt = SystemMessagePromptTemplate.from_template(SUMMARIZE_CATEGORY_TEMPLATE)
+
+sumarize_human_message_prompt = HumanMessagePromptTemplate.from_template(SUMMARIZE_HUMAN_TEMPLATE)
+
+category_summary_chat_prompt = ChatPromptTemplate.from_messages([summarize_system_message_prompt, sumarize_human_message_prompt])
+
 system_message_prompt = SystemMessagePromptTemplate.from_template(CATEGORIZE_SYSTEM_TEMPLATE)
 human_message_prompt = HumanMessagePromptTemplate.from_template(HUMAN_TEMPLATE)
 
 categorization_chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, human_message_prompt])
+
+
+# Template for the initial summarization of the first chunk
+initial_summary_prompt = """I am working on a scoping review to address a specific question.
+I need to summarize this journal article, focusing on the given question and the article's category.
+Here is the first chunk of the journal article:
+
+{text}
+"""
+
+# Template for refining the summary with each subsequent chunk
+refine_summary_prompt = """Based on the existing summary and the specific question, refine the summary with the information from the next chunk of the article.
+Current summary:
+
+{existing_summary}
+
+Next chunk of the article:
+------------
+{text}
+------------
+"""
