@@ -14,8 +14,8 @@ import ScopingReview_config.app_config as review_app_config
 import ScopingReview_config.config as review_config
 import ScopingReview.generate as review_generate
 import ScopingReview.data as review_data
-import ScopingReview.utils as review_utils
-import ScopingReview.step3prompt as prompt
+from ScopingReview.data import make_and_refine_query, search_and_compile, write_excel_output
+from ScopingReview.data import get_relevant_keywords, get_unique_keywords
 
 import tempfile
 from datetime import datetime
@@ -77,33 +77,26 @@ def show_literature_page():
         if scoping_step not in scoping_steps[2:]:
             if st.button("Find Articles"):
                 cost = 0.0
-                article_ids = []
+                input_time = datetime.now()
+                article_ids=[]
                 loop_counter = 0
-                previous_query = ""
+                query = ""
                 while len(article_ids)<review_config.MIN_ARTICLES and loop_counter<6:
                     with st.spinner("Generating pubmed search string."):
-                        query_maker = PubMedQueryGenerator(research_q)
-                        search_string, response_meta = query_maker.generate_search_string(
-                            PUBMED_CHAT=review_config.CHAT,
-                            loop_n=loop_counter, 
-                            last_query=previous_query
-                            )
-                        cost += response_meta.total_cost
-                        previous_query = search_string
-                        loop_counter += 1
-                    st.write(f"**Searching Pubmed with the query:** _{search_string}_")
-                    with st.spinner("Searching Pubmed."):
-                        pm_connection = PubMedAPI(email=review_config.DEV_EMAIL, max_results=review_config.MAX_ARTICLES_SR, streamlit_context=True)
-                        article_ids_new = pm_connection.search_pubmed_articles(search_string)
-                        article_ids = list(set().union(article_ids, article_ids_new))
-                
+                        cost, loop_counter, query, search_string = make_and_refine_query(query, research_q, cost, loop_counter)
+                    st.write(f"**Searching Pubmed with the query:** _{query}_")
+                    with st.spinner("Searching Pubmed and compiling articles."):
+                        pm_connection, article_ids = search_and_compile(query, article_ids)
+                        articles_df = pm_connection.fetch_article_details(article_ids)
+                        
                 if scoping_step == "first search":
                     with st.spinner("Compiling articles"):
                         articles_df = review_data.make_initial_df(pm_connection, article_ids)
-                        
+                    
                     # save with nice formatting
-                    with tempfile.NamedTemporaryFile(delete=True, suffix='.xlsx') as tmpfile:
-                        review_utils.make_downloadable_excel(tmpfile, articles_df, sheet2_text=None)
+                    with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmpfile:
+                        # Use the xlsxwriter engine
+                        write_excel_output(tmpfile, articles_df, research_q)
 
                         # Read the file in binary mode for the download button
                         with open(tmpfile.name, "rb") as file:
@@ -113,6 +106,10 @@ def show_literature_page():
                                 file_name=review_config.SR_STEP1_FILENAME,
                                 mime="application/vnd.ms-excel"
                             )
+                    
+        # Step 2 goes here
+        #
+        #
                     
         if scoping_step == "categorize articles":
             uploaded_file = st.file_uploader("Upload file with Y/N filled in", type=['xlsx'])
@@ -126,15 +123,16 @@ def show_literature_page():
                     cost = 0.0
                     input_list = input_text.split(',')
                     input_list = [value.strip() for value in input_list if value.strip()]
-
+            
                     for index, row in category_df.iterrows():
                         data = row['abstract']
                         result = prompt.chat.invoke(prompt.chat_prompt.format_prompt(categories=input_list, context=data).to_messages())
                         category_df.at[index, 'category'] = result.content
-                            # save with nice formatting
-                            
-                    with tempfile.NamedTemporaryFile(delete=True, suffix='.xlsx') as tmpfile:
-                        review_utils.make_downloadable_excel(tmpfile, category_df, sheet2_text=None)
+                    
+                    # save with nice formatting
+                    with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmpfile:
+                        # Use the xlsxwriter engine
+                        write_excel_output(tmpfile, category_df, research_q)
 
                         # Read the file in binary mode for the download button
                         with open(tmpfile.name, "rb") as file:
