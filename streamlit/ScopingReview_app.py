@@ -89,6 +89,7 @@ def show_literature_page():
                         pm_connection, article_ids = search_and_compile(query, article_ids)
                         articles_df = pm_connection.fetch_article_details(article_ids)
                         
+                # step 1
                 if scoping_step == "first search":
                     with st.spinner("Compiling articles"):
                         articles_df = review_data.make_initial_df(pm_connection, article_ids)
@@ -110,8 +111,10 @@ def show_literature_page():
         # Step 2 goes here
         #
         #
-                    
-        if scoping_step == "categorize articles":
+                
+        # step 3 
+        # TODO: we should move the full text downloading to here, since step 4 will be the first it is needed
+        if scoping_step == scoping_steps[2]:
             uploaded_file = st.file_uploader("Upload file with Y/N filled in", type=['xlsx'])
 
             if uploaded_file is not None:
@@ -134,6 +137,31 @@ def show_literature_page():
                                 mime="application/vnd.ms-excel"
                             )
 
+        # step 4
+        if scoping_step == scoping_steps[3]:
+            uploaded_file = st.file_uploader("Corrected/confirmed categories", type=['xlsx'])
+            
+            if uploaded_file is not None:
+                category_df = pd.read_excel(uploaded_file)
+                
+                if st.button('Summarize'):
+                    with st.spinner("Summarizing. This may take a long time."):
+                        # TODO: are there streamlit progress bars?
+                        markdown_to_convert = review_generate.summarize_all_categories(category_df, research_q)
+                        docx_data = convert_markdown_docx(markdown_to_convert)
+                        
+                    if docx_data:
+                        st.balloons()
+                        st.write("Note that once you hit download, this form will reset.")
+
+                        st.download_button(
+                            label="Download Evaluation",
+                            data=docx_data,
+                            file_name="Literature_novelty_evaluation.docx",
+                            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"  # correct MIME type for docx
+                        )
+                        
+        
     else:
         if st.button("Search"):
             cost = 0.0
