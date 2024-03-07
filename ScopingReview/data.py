@@ -1,19 +1,102 @@
 import requests
 from urllib.request import urlretrieve
-import os 
 from io import BytesIO
 import ScopingReview_config.app_config as lit_ap_config
+import ScopingReview_config.config as review_config
 import pandas as pd
 import pdfplumber
-import base64
-import tempfile
-import time
 from Bio import Entrez
+from llm_utils.call_pubmed_api import PubMedAPI
+from llm_utils.prep_pubmed_query import PubMedQueryGenerator
 
 # For NCBI interactions
-Entrez.email = "rmelvin@uabmc.edu"
-os.environ['NCBI_API_KEY'] = lit_ap_config.NCBI_API_KEY
+Entrez.email = review_config.DEV_EMAIL
+#os.environ['NCBI_API_KEY'] = lit_ap_config.NCBI_API_KEY
 
+#### MAIN Interface Functions ####
+def make_and_refine_query(previous_query, research_q, cost, loop_counter):
+    query_maker = PubMedQueryGenerator(research_q)
+    search_string, response_meta = query_maker.generate_search_string(
+        PUBMED_CHAT = review_config.CHAT,
+        loop_n=loop_counter, 
+        last_query=previous_query
+        )
+    cost += response_meta.total_cost
+    previous_query = search_string
+    loop_counter += 1
+    return cost, loop_counter, previous_query, search_string
+
+def search_and_compile(query, article_ids=[]):
+    pm_connection = PubMedAPI(email=review_config.DEV_EMAIL, max_results=review_config.MAX_ARTICLES_SR, streamlit_context=True)
+    article_ids_new = pm_connection.search_pubmed_articles(query)
+    article_ids = list(set().union(article_ids, article_ids_new))
+    articles_df = pm_connection.fetch_article_details(article_ids)
+    return articles_df
+
+def write_excel_output(tmpfile, articles_df, unique_keywords_str):
+    with pd.ExcelWriter(tmpfile.name, engine='xlsxwriter') as writer:
+        articles_df.to_excel(writer, index=False, sheet_name='Sheet1')
+        
+        # Convert string to dataFrame and save to excel
+        df_keywords = pd.DataFrame([unique_keywords_str], columns=['Unique Keywords'])
+        df_keywords.to_excel(writer, index=False, sheet_name='Sheet2')
+
+        # Get the xlsxwriter workbook and worksheet objects
+        workbook  = writer.book
+        worksheet1 = writer.sheets['Sheet1']
+        worksheet2 = writer.sheets['Sheet2']
+        # Define a format with word wrap
+        wrap_format = workbook.add_format({'text_wrap': True})
+
+        # Iterate over the DataFrame columns to set the column width
+        for idx, col in enumerate(articles_df.columns):
+            # Find the maximum length of data in the column
+            column_len = articles_df[col].astype(str).map(len).max()
+            column_title_len = len(col)
+            max_len = min(100,max(column_len, column_title_len))
+
+            # Set the column width with some extra margin
+            worksheet1.set_column(idx, idx, max_len + 1, wrap_format)
+    
+        # You can also set column width for the second sheet if needed
+        worksheet2.set_column(0, 0, len('Unique Keywords') + 1, wrap_format)
+        
+#### Step 2 - Iteration functions ####
+# Function to check if either of the values is a 'Yes'
+def check_relevance(row):
+    author1_relevant = str(row["Author 1: Relevant Article? (Yes/No)"]).lower() in ["yes", "y", "true", "t"]
+    author2_relevant = str(row["Author 2: Relevant Article? (Yes/No)"]).lower() in ["yes", "y", "true", "t"]
+
+    if author1_relevant or author2_relevant:
+        return row['keywords']
+    else:
+        return None
+
+def get_relevant_keywords(df):
+    df['Relevant Keywords'] = df.apply(check_relevance, axis=1)
+    relevant_df = df.dropna(subset=['Relevant Keywords'])
+    return relevant_df
+
+def get_unique_keywords(df):
+    df['Relevant Keywords'] = df.apply(check_relevance, axis=1)
+    relevant_df = df.dropna(subset=['Relevant Keywords'])
+
+    # Join all keywords into a single string, then split by comma
+    all_keywords = ",".join(relevant_df['Relevant Keywords']).split(',')
+
+    # Remove leading/trailing white spaces and convert to lower case
+    all_keywords = [keyword.strip().lower() for keyword in all_keywords]
+
+    # Get unique keywords
+    unique_keywords = list(set(all_keywords))
+    # Convert list of unique keywords to a comma-separated string
+    unique_keywords_str = ", ".join(unique_keywords)
+
+    return unique_keywords_str
+
+#### Step 3 - Retrieve full text functions ####
+
+# Should some of these go into the pubmed api class (or similar new class) in LLM Utils?
 def get_pmcid_from_pubmed(pmid):
     link_result = Entrez.elink(dbfrom="pubmed", db="pmc", id=pmid)
     record = Entrez.read(link_result)
@@ -68,7 +151,6 @@ def extract_text_from_pdf(pdf_path):
             text += page.extract_text()
     return text
 
-        
 def fetch_full_text(pmids, access_token=lit_ap_config.LIBKEY_API_KEY):
     data = {'PMID': [], 'URL': [], 'Downloaded': [], 'Text': []}
 
