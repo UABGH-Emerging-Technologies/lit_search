@@ -56,16 +56,10 @@ def show_professional_development_page():
                 st.write(f"**Searching Pubmed with the query:** _{query}_")
                 
             with st.spinner("Searching Pubmed and compiling articles."):
-                articles_df = search_and_compile(query, article_ids)
-               
-            # add author response column
-            articles_df.insert(0, 'Author 1: Relevant Article? (Yes/No)', 'No')  
-            articles_df.insert(1, 'Author 2: Relevant Article? (Yes/No)', 'No')  
-            
-            # temporary, add column for link and full text available
-            articles_df['Full Text Link'] = "a link will go here"
-            articles_df['AI Can Read Full Text?'] = "Yes"
-            
+                pm_connection, article_ids = search_and_compile(query, article_ids)
+                articles_df = pm_connection.fetch_article_details(article_ids)
+                print('articles_df - ', articles_df)
+           
             # save with nice formatting
             with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmpfile:
                 # Use the xlsxwriter engine
@@ -75,7 +69,7 @@ def show_professional_development_page():
                     st.download_button(
                         label="Download Excel file",
                         data=file,
-                        file_name=review_config.SR_OUTPUT_FILENAME,
+                        file_name=review_config.SR_STEP2_FILENAME,
                         mime="application/vnd.ms-excel"
                     )                         
 
