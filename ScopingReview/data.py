@@ -30,8 +30,7 @@ def search_and_compile(query, article_ids=[]):
     pm_connection = PubMedAPI(email=review_config.DEV_EMAIL, max_results=review_config.MAX_ARTICLES_SR, streamlit_context=True)
     article_ids_new = pm_connection.search_pubmed_articles(query)
     article_ids = list(set().union(article_ids, article_ids_new))
-    articles_df = pm_connection.fetch_article_details(article_ids)
-    return articles_df
+    return pm_connection, article_ids
 
 def write_excel_output(tmpfile, articles_df, unique_keywords_str):
     with pd.ExcelWriter(tmpfile.name, engine='xlsxwriter') as writer:
