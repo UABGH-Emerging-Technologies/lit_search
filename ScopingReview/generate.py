@@ -1,5 +1,7 @@
 import ScopingReview.prompts as ScopingReview_prompts
 import ScopingReview_config.config as ScopingReview_config
+import ScopingReview.data as review_data
+
 
 import openai
 
@@ -79,13 +81,14 @@ def generate_overall_introduction(question, abstracts, help_type):
 
 
 def categorize(category_df, input_text):
+  reduced_df = review_data.get_relevant_rows(category_df)
   cost = 0.0
   input_list = input_text.split(',')
   input_list = [value.strip() for value in input_list if value.strip()]
 
-  for index, row in category_df.iterrows():
+  for index, row in reduced_df.iterrows():
       data = row['abstract']
       result = ScopingReview_config.CHAT.invoke(ScopingReview_prompts.categorization_chat_prompt.format_prompt(categories=input_list, context=data).to_messages())
-      category_df.at[index, 'category'] = result.content
-  return category_df
+      reduced_df.at[index, 'category'] = result.content
+  return reduced_df
 
