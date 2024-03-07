@@ -14,8 +14,8 @@ import ScopingReview_config.app_config as review_app_config
 import ScopingReview_config.config as review_config
 import ScopingReview.generate as review_generate
 import ScopingReview.data as review_data
-from ScopingReview.data import make_and_refine_query, search_and_compile, write_excel_output
-from ScopingReview.data import get_relevant_keywords, get_unique_keywords
+import ScopingReview.utils as review_utils
+# import ScopingReview.step3prompt as prompt
 
 import tempfile
 from datetime import datetime
@@ -120,19 +120,10 @@ def show_literature_page():
                 input_text = st.text_area("Enter your list of categories, separated by commas:", "Category 1, Category 2, etc...")
 
                 if st.button('Categorize'):
-                    cost = 0.0
-                    input_list = input_text.split(',')
-                    input_list = [value.strip() for value in input_list if value.strip()]
-            
-                    for index, row in category_df.iterrows():
-                        data = row['abstract']
-                        result = prompt.chat.invoke(prompt.chat_prompt.format_prompt(categories=input_list, context=data).to_messages())
-                        category_df.at[index, 'category'] = result.content
-                    
-                    # save with nice formatting
-                    with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmpfile:
-                        # Use the xlsxwriter engine
-                        write_excel_output(tmpfile, category_df, research_q)
+                    category_df = review_generate.categorize(category_df, input_text)
+                            
+                    with tempfile.NamedTemporaryFile(delete=True, suffix='.xlsx') as tmpfile:
+                        review_utils.make_downloadable_excel(tmpfile, category_df, sheet2_text=None)
 
                         # Read the file in binary mode for the download button
                         with open(tmpfile.name, "rb") as file:
