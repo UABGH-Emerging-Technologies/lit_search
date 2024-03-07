@@ -56,3 +56,14 @@ SUMMARIZE_CHAT = AzureChatOpenAI(
 MIN_ARTICLES = 10
 MAX_ARTICLES_SR = 200
 MAX_ARTICLES_LR = 50
+
+# remove this later
+FASTER_CHAT = AzureChatOpenAI(
+    azure_endpoint="https://nlp-ai-svc.openai.azure.com/",
+    openai_api_version="2024-02-15-preview",
+    azure_deployment="ChatGPT16k",
+    openai_api_type="azure",
+    temperature=0,
+    model_name="gpt-35-turbo-16",
+    openai_api_key=lit_app_config.GPT4_KEY
+)
