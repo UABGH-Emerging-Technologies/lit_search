@@ -8,6 +8,8 @@ import pdfplumber
 from Bio import Entrez
 from llm_utils.call_pubmed_api import PubMedAPI
 from llm_utils.prep_pubmed_query import PubMedQueryGenerator
+import xml.etree.ElementTree as ET
+
 
 # For NCBI interactions
 Entrez.email = review_config.DEV_EMAIL
@@ -97,13 +99,22 @@ def get_unique_keywords(df):
 
 # Should some of these go into the pubmed api class (or similar new class) in LLM Utils?
 def get_pmcid_from_pubmed(pmid):
-    link_result = Entrez.elink(dbfrom="pubmed", db="pmc", id=pmid)
-    record = Entrez.read(link_result)
-    try:
-        pmcid = record[0]['LinkSetDb'][0]['Link'][0]['Id']
-        return pmcid
-    except (IndexError, KeyError):
-        return None
+    # from https://www.biostars.org/p/321100/
+
+    handle = Entrez.elink(dbfrom="pubmed", db="pmc", linkname="pubmed_pmc", id=pmid, retmode="text")
+
+    handle_read = handle.read()
+    handle.close()
+
+    root = ET.fromstring(handle_read)
+
+    pmcid = ""
+
+    for link in root.iter('Link'):
+        for id in link.iter('Id'):
+            pmcid = id.text
+    return pmcid 
+
 
 def get_pmcids_from_pubmed(pmids):
     pmcids = []
@@ -210,8 +221,8 @@ def make_initial_df(pm_connection, article_ids):
     
     # TODO: Wait until after categories are assigned
     # # add full text link and text if available
-    # full_text_df = fetch_full_text(articles_df.PMID)
-    # articles_df = pd.merge(articles_df, full_text_df, on="PMID", how="inner")
+    full_text_df = fetch_full_text(articles_df.PMID)
+    articles_df = pd.merge(articles_df, full_text_df, on="PMID", how="inner")
     
     return articles_df
 

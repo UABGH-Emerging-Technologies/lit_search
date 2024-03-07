@@ -4,14 +4,25 @@ from Bio import Entrez
 # Always tell NCBI who you are (your email address)
 Entrez.email = "rmelvin@uab.edu"
 
+from Bio import Entrez
+import xml.etree.ElementTree as ET
+
 def get_pmcid_from_pubmed(pmid):
-    link_result = Entrez.elink(dbfrom="pubmed", db="pmc", id=pmid)
-    record = Entrez.read(link_result)
-    try:
-        pmcid = record[0]['LinkSetDb'][0]['Link'][0]['Id']
-        return pmcid
-    except (IndexError, KeyError):
-        return None
+    # from https://www.biostars.org/p/321100/
+
+    handle = Entrez.elink(dbfrom="pubmed", db="pmc", linkname="pubmed_pmc", id=pmid, retmode="text")
+
+    handle_read = handle.read()
+    handle.close()
+
+    root = ET.fromstring(handle_read)
+
+    pmcid = ""
+
+    for link in root.iter('Link'):
+        for id in link.iter('Id'):
+            pmcid = id.text
+    return pmcid 
 
 def get_pdf_url(pmcid):
     url = f"http://europepmc.org/backend/ptpmcrender.fcgi?accid=PMC{pmcid}&blobtype=pdf"
@@ -20,7 +31,7 @@ def get_pdf_url(pmcid):
     return(final_url)
 
 # Example usage
-pmid = "38365899"
+pmid = "24958300"
 pmcid = get_pmcid_from_pubmed(pmid)
 if pmcid:
     pdf_url = get_pdf_url(pmcid)
