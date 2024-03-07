@@ -15,7 +15,7 @@ FEW_RESULTS_PROMPT = "\n\n The following query returned no or few results. Pleas
 
 SUMMARIZE_LITERATURE_PROMPT = "I am considering a clinical research project to address this question: '{}'\n\n I want to {} and understand how my project is situated in existing literature. Write a paragrph summarizing of the following article abstracts and addressing how my proposed project fits in to existing literature.\n\n{}\n\nCite each article in the paragraph in APA format."
 
-CATEGORIZE_SYSTEM_TEMPLATE = """ Help categorize the abstract into either of the input categories given by the user and return only 1 category as output(whichever matters the most). When it is just "No abstract available" in the input return "No abstract available" as output. """
+CATEGORIZE_SYSTEM_TEMPLATE = """ Help categorize the abstract into either of the input categories given by the user and return only 1 category as output(whichever matters the most) without the quotes. When it is just "No abstract available" in the input return "No abstract available" as output. """
 
 HUMAN_TEMPLATE = """
 CONTEXT:
