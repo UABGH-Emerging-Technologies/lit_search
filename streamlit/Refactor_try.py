@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
-from ScopingReview.search import ArticleSearchManager, IterateSearchManager, CategorizeManager
+from ScopingReview.search import ArticleSearchManager, IterateSearchManager
+from ScopingReview.compile import CategorizeManager, SummarizeManager
 
 from llm_utils.streamlit_common import hide_streamlit_branding, apply_uab_font
 
@@ -112,17 +113,20 @@ class LiteraturePage:
     def _categorize_articles(self):
         upload_manager = UploadManager()
         df = upload_manager.upload_file()
-        if st.button("Categorize Topics"):
+        input_text = st.text_area("Enter your list of categories, separated by commas:", "Category 1, Category 2, etc...")
 
+        if st.button("Categorize Topics"):
             if df is not None:
                 categorize_manager = CategorizeManager(df, self.research_q)
-                categorize_manager.categorize_articles()
+                categorize_manager.categorize_articles(input_text)
 
     def _summarize_categories(self):
         upload_manager = UploadManager()
         df = upload_manager.upload_file()
         if st.button("Summarize Categories"):
-
+            if df is not None:
+                summary_manager = SummarizeManager(df, self.research_q)
+                summary_manager.summarize_articles()
         
 class UploadManager:
     def upload_file(self):
