@@ -210,7 +210,6 @@ def fetch_full_text(pmids, access_token=lit_ap_config.LIBKEY_API_KEY):
 
     return pd.DataFrame(data)
 
-
 def make_initial_df(pm_connection, article_ids):
     articles_df = pm_connection.fetch_article_details(article_ids)
     
@@ -222,13 +221,7 @@ def make_initial_df(pm_connection, article_ids):
     
     # TODO: Wait until after categories are assigned
     # # add full text link and text if available
-    full_text_df = fetch_full_text(articles_df.PMID)
-    articles_df = pd.merge(articles_df, full_text_df, on="PMID", how="inner")
+    # full_text_df = fetch_full_text(articles_df.PMID)
+    # articles_df = pd.merge(articles_df, full_text_df, on="PMID", how="inner")
     
     return articles_df
-
-# Example usage
-# pmids = ["32076685","23376664","38289217","30995704","16178450","31562971","32242448","16934734","18893366","24880802","9952101","29342391","18354149","25587612", "8014946"]
-# access_token = 
-# full_text_df = fetch_full_text(pmids, access_token)
-# full_text_df.to_excel("/data/test_with_urls.xlsx")
