@@ -14,8 +14,8 @@ import ScopingReview_config.app_config as review_app_config
 import ScopingReview_config.config as review_config
 import ScopingReview.generate as review_generate
 import ScopingReview.data as review_data
-from ScopingReview.data import make_and_refine_query, search_and_compile, write_excel_output
-from ScopingReview.data import get_relevant_keywords, get_unique_keywords
+import ScopingReview.utils as review_utils
+# import ScopingReview.step3prompt as prompt
 
 import tempfile
 from datetime import datetime
@@ -89,6 +89,7 @@ def show_literature_page():
                         pm_connection, article_ids = search_and_compile(query, article_ids)
                         articles_df = pm_connection.fetch_article_details(article_ids)
                         
+                # step 1
                 if scoping_step == "first search":
                     with st.spinner("Compiling articles"):
                         articles_df = review_data.make_initial_df(pm_connection, article_ids)
@@ -142,8 +143,7 @@ def show_literature_page():
                                 data=file,
                                 file_name=review_config.SR_STEP2_FILENAME,
                                 mime="application/vnd.ms-excel"
-                            )                         
-
+                            ) 
             
         if scoping_step == "categorize articles":
             uploaded_file = st.file_uploader("Upload file with Y/N filled in", type=['xlsx'])
@@ -154,19 +154,10 @@ def show_literature_page():
                 input_text = st.text_area("Enter your list of categories, separated by commas:", "Category 1, Category 2, etc...")
 
                 if st.button('Categorize'):
-                    cost = 0.0
-                    input_list = input_text.split(',')
-                    input_list = [value.strip() for value in input_list if value.strip()]
-            
-                    for index, row in category_df.iterrows():
-                        data = row['abstract']
-                        result = prompt.chat.invoke(prompt.chat_prompt.format_prompt(categories=input_list, context=data).to_messages())
-                        category_df.at[index, 'category'] = result.content
-                    
-                    # save with nice formatting
-                    with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmpfile:
-                        # Use the xlsxwriter engine
-                        write_excel_output(tmpfile, category_df, research_q)
+                    category_df = review_generate.categorize(category_df, input_text)
+                            
+                    with tempfile.NamedTemporaryFile(delete=True, suffix='.xlsx') as tmpfile:
+                        review_utils.make_downloadable_excel(tmpfile, category_df, sheet2_text=None)
 
                         # Read the file in binary mode for the download button
                         with open(tmpfile.name, "rb") as file:
@@ -177,6 +168,31 @@ def show_literature_page():
                                 mime="application/vnd.ms-excel"
                             )
 
+        # step 4
+        if scoping_step == scoping_steps[3]:
+            uploaded_file = st.file_uploader("Corrected/confirmed categories", type=['xlsx'])
+            
+            if uploaded_file is not None:
+                category_df = pd.read_excel(uploaded_file)
+                
+                if st.button('Summarize'):
+                    with st.spinner("Summarizing. This may take a long time."):
+                        # TODO: are there streamlit progress bars?
+                        markdown_to_convert = review_generate.summarize_all_categories(category_df, research_q)
+                        docx_data = convert_markdown_docx(markdown_to_convert)
+                        
+                    if docx_data:
+                        st.balloons()
+                        st.write("Note that once you hit download, this form will reset.")
+
+                        st.download_button(
+                            label="Download Evaluation",
+                            data=docx_data,
+                            file_name="Literature_novelty_evaluation.docx",
+                            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"  # correct MIME type for docx
+                        )
+                        
+        
     else:
         if st.button("Search"):
             cost = 0.0
