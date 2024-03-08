@@ -64,6 +64,8 @@ class LiteraturePage:
             self._manage_iterate_search()
         elif self.scoping_step == "categorize articles":
             self._categorize_articles()
+        elif self.scoping_step == "summarize categories":
+            self._summarize_categories()
 
     def _manage_iterate_search(self):
         if 'button_clicked' not in st.session_state:
@@ -116,7 +118,12 @@ class LiteraturePage:
                 categorize_manager = CategorizeManager(df, self.research_q)
                 categorize_manager.categorize_articles()
 
+    def _summarize_categories(self):
+        upload_manager = UploadManager()
+        df = upload_manager.upload_file()
+        if st.button("Summarize Categories"):
 
+        
 class UploadManager:
     def upload_file(self):
         uploaded_file = st.file_uploader("Upload file with Y/N filled in", type=['xlsx'])
