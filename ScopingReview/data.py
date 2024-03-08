@@ -69,21 +69,22 @@ def check_relevance(row):
     author2_relevant = str(row["Author 2: Relevant Article? (Yes/No)"]).lower() in ["yes", "y", "true", "t"]
 
     if author1_relevant or author2_relevant:
-        return row['keywords']
+        return "True"
     else:
         return None
 
-def get_relevant_keywords(df):
-    df['Relevant Keywords'] = df.apply(check_relevance, axis=1)
-    relevant_df = df.dropna(subset=['Relevant Keywords'])
+def get_relevant_rows(df):
+    df['Relevant'] = df.apply(check_relevance, axis=1)
+    relevant_df = df.dropna(subset=['Relevant'])
     return relevant_df
 
+
 def get_unique_keywords(df):
-    df['Relevant Keywords'] = df.apply(check_relevance, axis=1)
-    relevant_df = df.dropna(subset=['Relevant Keywords'])
+    df['Relevant'] = df.apply(check_relevance, axis=1)
+    relevant_df = df.dropna(subset=['Relevant'])
 
     # Join all keywords into a single string, then split by comma
-    all_keywords = ",".join(relevant_df['Relevant Keywords']).split(',')
+    all_keywords = ",".join(relevant_df['keywords']).split(',')
 
     # Remove leading/trailing white spaces and convert to lower case
     all_keywords = [keyword.strip().lower() for keyword in all_keywords]

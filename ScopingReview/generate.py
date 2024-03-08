@@ -1,10 +1,11 @@
 import ScopingReview.prompts as ScopingReview_prompts
 import ScopingReview_config.config as ScopingReview_config
+import ScopingReview.data as review_data
 
 import openai
 
 from langchain_community.callbacks import get_openai_callback
-
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain.schema import HumanMessage, SystemMessage
 
 def generate_search_string(input_research_q, loop_n=0, last_query=""):
@@ -76,3 +77,59 @@ def generate_overall_introduction(question, abstracts, help_type):
       response = chat(messages)
 
   return response.content, response_meta
+
+
+def categorize(category_df, input_text):
+  reduced_df = review_data.get_relevant_rows(category_df)
+  cost = 0.0
+  input_list = input_text.split(',')
+  input_list = [value.strip() for value in input_list if value.strip()]
+
+  for index, row in reduced_df.iterrows():
+      data = row['abstract']
+      result = ScopingReview_config.CHAT.invoke(ScopingReview_prompts.categorization_chat_prompt.format_prompt(categories=input_list, context=data).to_messages())
+      reduced_df.at[index, 'category'] = result.content
+  return reduced_df
+
+def summarize_article_in_chunks(article_text):
+    # Splitting the article text into manageable chunks
+    text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(chunk_size=13000, chunk_overlap=1000)
+    texts = text_splitter.create_documents([article_text])
+
+    # Create the initial summary for the first chunk
+    summary = ScopingReview_config.SUMMARIZE_CHAT.invoke(ScopingReview_prompts.initial_summary_prompt.format(text=texts[0]))
+
+    # Iteratively refine the summary with each subsequent chunk
+    for text_chunk in texts[1:]:
+        summary = ScopingReview_config.SUMMARIZE_CHAT.invoke(ScopingReview_prompts.refine_summary_prompt.format(existing_summary=summary, text=text_chunk))
+
+    return summary
+  
+def summarize_all_categories(df, user_question):
+    # use abtract when text is not available.
+    df['Text'] = df.apply(lambda row: row['abstract'] if row['Text'] == 'Text not available' else row['Text'], axis=1)
+
+    # get categories
+    categories = df['category'].unique()
+    output = []
+    for current_category in categories:
+        filtered_rows = df[df['category'] == current_category]
+        article_summaries = []
+        for _, row in filtered_rows.iterrows():
+            article_summary = summarize_article_in_chunks(row.Text)
+            formatted_summary = f"APA Citation: {row.citation}\n\n Summary: {article_summary}\n\n --- "
+            article_summaries.append(formatted_summary)     
+        text_to_summarize = "\n\n".join(article_summaries)
+    # text_to_summarize = f"Category of current articles: {current_category} \n\n" + text_to_summarize
+        
+        result = ScopingReview_config.SUMMARIZE_CHAT.invoke(ScopingReview_prompts.category_summary_chat_prompt.format_prompt(
+            question=user_question,
+            category=current_category,
+            content=text_to_summarize
+            ).to_messages())
+   
+        output.append(
+            "# " + current_category + "\n\n" + result.content + "\n\n" + "\n\n".join(filtered_rows.citation)
+            )
+    return "\n\n".join(output)
+        
