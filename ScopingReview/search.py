@@ -87,11 +87,3 @@ class IterateSearchManager(SearchManager):
     def get_filename(self):
         return review_config.SR_STEP2_FILENAME
 
-
-class CategorizeManager:
-    def __init__(self, df, research_q):
-        self.df = df
-        self.research_q = research_q
-
-    def categorize_articles(self):
-        print("This is where the categorization specific logic will go")
