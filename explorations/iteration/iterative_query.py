@@ -26,19 +26,6 @@ def show_professional_development_page():
 
     uploaded_file = st.file_uploader("Upload a file", type=['csv', 'xlsx'])
      
-    system_template = prompts.ITER_PUBMED_PROMPT
-
-    human_template = """
-    CONTEXT:
-    {context}
-
-    OUTPUT:
-    """
-    system_message_prompt = SystemMessagePromptTemplate.from_template(system_template)
-    human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
-
-    chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, human_message_prompt])
-
     if uploaded_file is not None:
         df = pd.read_excel(uploaded_file)
         

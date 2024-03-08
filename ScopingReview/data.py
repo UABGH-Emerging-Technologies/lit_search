@@ -231,5 +231,3 @@ def make_initial_df(pm_connection, article_ids):
 # access_token = 
 # full_text_df = fetch_full_text(pmids, access_token)
 # full_text_df.to_excel("/data/test_with_urls.xlsx")
-
-    
