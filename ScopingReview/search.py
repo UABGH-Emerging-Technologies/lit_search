@@ -49,21 +49,20 @@ class SearchManager:
         st.session_state['lock'] = True  # Set the lock variable to True before starting the search
 
         # Generate and refine the query
-        with st.spinner("Generating pubmed search string."):
-            self.cost, self.loop_counter, self.previous_query, self.search_string = make_and_refine_query(self.previous_query, self.make_query(), self.cost, self.loop_counter)
+        while (len(self.article_ids) < review_config.MIN_ARTICLES) and (self.loop_counter < review_config.MAX_TRIES):
+            with st.spinner("Generating pubmed search string."):
+                self.cost, self.loop_counter, self.previous_query, self.search_string = make_and_refine_query(self.previous_query, self.make_query(), self.cost, self.loop_counter)
 
-        st.write(f"**Searching Pubmed with the query:** _{self.search_string}_")
-        self.pm_connection, self.article_ids = search_and_compile(self.search_string, self.article_ids)
-        articles_df = self._fetch_articles(self.search_string)
-        self._write_search_results(articles_df, self.make_query())
+            st.write(f"**Searching Pubmed with the query:** _{self.search_string}_")
+            self.pm_connection, self.article_ids = search_and_compile(self.search_string, self.article_ids)
+            articles_df = self._fetch_articles(self.search_string)
+            self._write_search_results(articles_df, self.make_query())
 
-        # Check if we finished the search
-        finished_search = len(self.article_ids) >= review_config.MIN_ARTICLES or self.loop_counter >= 6
-        st.session_state['search_finished'] = finished_search
+        st.session_state['search_finished'] = True
 
         st.session_state['lock'] = False  # Set the lock variable to False after finishing the search
 
-        return finished_search
+        return st.session_state['search_finished']
 
 class ArticleSearchManager(SearchManager):
     def __init__(self, scoping_step, research_q):
