@@ -1,6 +1,7 @@
 import ScopingReview.generate as review_generate
 import ScopingReview_config.config as review_config
 from ScopingReview.data import write_excel_output
+from llm_utils.text_format import convert_markdown_docx
 import pandas as pd
 import streamlit as st
 import tempfile
@@ -9,21 +10,10 @@ import tempfile
 class CompileManager:
     def __init__(self, df):
         self.df = df
-        
-    def _download_results(self, articles_df, supplemental=''):
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmpfile:
-            write_excel_output(tmpfile, articles_df, supplemental)
-            with open(tmpfile.name, "rb") as file:
-                st.download_button(
-                    label="Download Excel file",
-                    data=file,
-                    file_name=self.get_filename(),
-                    mime="application/vnd.ms-excel"
-                )
                 
     def get_filename(self):
-        # default implementation, subclasses can override this method
-        return review_config.SR_STEP4_FILENAME
+        # default implementation, subclasses MUST override this method
+        return ''
                     
 class CategorizeManager(CompileManager):
     def __init__(self, df, userdefined_categories):
@@ -31,6 +21,19 @@ class CategorizeManager(CompileManager):
         self.userdefined_categories = userdefined_categories
         st.session_state['file_uploaded_cate'] = False  # Initiate a unique file_uploaded variable for categorization
     
+    def _download_results(self, category_df):
+        st.write("Note that once you hit download, this form will reset.")
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmpfile:
+            write_excel_output(tmpfile, category_df, self.userdefined_categories)
+            with open(tmpfile.name, "rb") as file:
+                st.balloons()
+                st.download_button(
+                    label="Download Excel file",
+                    data=file,
+                    file_name=self.get_filename(),
+                    mime=review_config.EXCEL_MIME
+                )
+                
     def get_filename(self):
         # default implementation, subclasses can override this method
         return review_config.SR_STEP3_FILENAME
@@ -41,7 +44,7 @@ class CategorizeManager(CompileManager):
             st.session_state['file_uploaded_cate'] = True  # file is uploaded and ready to categorize
             with st.spinner("Categorizing contents of file..."):
                 category_df = review_generate.categorize(self.df, self.userdefined_categories)
-                self._download_results(category_df, self.userdefined_categories)
+                self._download_results(category_df)
 
 
 class SummarizeManager(CompileManager):
@@ -53,10 +56,21 @@ class SummarizeManager(CompileManager):
     def get_filename(self):
         return review_config.SR_STEP4_FILENAME
     
+    #TODO add write and second sheet + Generalize and move to parent
+    def _download_results(self, docx_data, research_q):
+        st.write("Note that once you hit download, this form will reset.")
+        st.download_button(
+            label="Download Evaluation",
+            data=docx_data,
+            file_name=self.get_filename(),
+            mime=review_config.DOCX_MIME  # correct MIME type for docx
+        )
+    
     def summarize_articles(self):
         if self.df is not None:
             st.session_state['file_uploaded_sum'] = True  # file is uploaded and ready to categorize
             with st.spinner("Summarizing categories of manuscripts..."):
-                summary_df = review_generate.summarize_all_categories(self.df, self.research_q)
-                self._download_results(summary_df)
+                markdown_to_convert = review_generate.summarize_all_categories(self.df, self.research_q)
+                docx_data = convert_markdown_docx(markdown_to_convert)
+                self._download_results(docx_data, self.research_q)
                 

@@ -20,7 +20,12 @@ ASSETS_DIR = Path(BASE_DIR, "assets")
 SR_STEP1_FILENAME="InitialSearch.xlsx"
 SR_STEP2_FILENAME="IteratedSearch.xlsx"
 SR_STEP3_FILENAME="CategorizedArticles.xlsx"
-SR_STEP4_FILENAME="SummarizedArticles.xlsx"
+SR_STEP4_FILENAME="SummarizedArticles.docx"
+
+#MIMES
+EXCEL_MIME = "application/vnd.ms-excel"
+DOCX_MIME = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+
 
 # LLM specific
 EMBEDDINGS = AzureOpenAIEmbeddings(

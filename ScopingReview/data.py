@@ -34,9 +34,9 @@ def search_and_compile(query, article_ids=[]):
     article_ids = list(set().union(article_ids, article_ids_new))
     return pm_connection, article_ids
 
-def write_excel_output(tmpfile, articles_df, unique_keywords_str):
+def write_excel_output(tmpfile, df, unique_keywords_str):
     with pd.ExcelWriter(tmpfile.name, engine='xlsxwriter') as writer:
-        articles_df.to_excel(writer, index=False, sheet_name='Sheet1')
+        df.to_excel(writer, index=False, sheet_name='Sheet1')
         
         # Convert string to dataFrame and save to excel
         df_keywords = pd.DataFrame([unique_keywords_str], columns=['Unique Keywords'])
@@ -50,9 +50,9 @@ def write_excel_output(tmpfile, articles_df, unique_keywords_str):
         wrap_format = workbook.add_format({'text_wrap': True})
 
         # Iterate over the DataFrame columns to set the column width
-        for idx, col in enumerate(articles_df.columns):
+        for idx, col in enumerate(df.columns):
             # Find the maximum length of data in the column
-            column_len = articles_df[col].astype(str).map(len).max()
+            column_len = df[col].astype(str).map(len).max()
             column_title_len = len(col)
             max_len = min(100,max(column_len, column_title_len))
 

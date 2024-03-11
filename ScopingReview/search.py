@@ -54,6 +54,7 @@ class SearchManager:
         st.write(f"**Searching Pubmed with the query:** _{self.search_string}_")
         self.pm_connection, self.article_ids = search_and_compile(self.search_string, self.article_ids)
         articles_df = self._fetch_articles(self.search_string)
+        st.balloons()
         self._write_search_results(articles_df, self.make_query())
 
         # Check if we finished the search
