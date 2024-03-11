@@ -8,15 +8,15 @@ from urllib.request import urlretrieve
 # So I want to shy away from this -RM
 
 
-pmid = '24958300'
+pmid = '8014946'
 
 url = metapub.FindIt(pmid).url
 
 print(url)
 
-final_pdf = f'{pmid}.pdf'
+# final_pdf = f'{pmid}.pdf'
 
-urlretrieve(url, final_pdf)
+# urlretrieve(url, final_pdf)
 
 # with open(final_pdf, "w") as textfile:
 #     textfile.write(textract.process(
