@@ -1,6 +1,6 @@
 import ScopingReview.generate as review_generate
 import ScopingReview_config.config as review_config
-from ScopingReview.data import write_excel_output
+from ScopingReview.data import write_excel_output, fetch_full_text
 from llm_utils.text_format import convert_markdown_docx
 import pandas as pd
 import streamlit as st
@@ -46,7 +46,12 @@ class CategorizeManager(CompileManager):
             st.session_state['file_uploaded_cate'] = True  # file is uploaded and ready to categorize
             with st.spinner("Categorizing contents of file..."):
                 category_df = review_generate.categorize(self.df, self.userdefined_categories)
-                self._download_results(category_df)
+                
+            with st.spinner("Getting full text"):
+                full_text_df = fetch_full_text(category_df.PMID)
+                category_df = pd.merge(category_df, full_text_df, on="PMID", how="inner")
+                
+            self._download_results(category_df)
 
 
 class SummarizeManager(CompileManager):

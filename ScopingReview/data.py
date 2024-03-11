@@ -9,11 +9,14 @@ from Bio import Entrez
 from llm_utils.call_pubmed_api import PubMedAPI
 from llm_utils.prep_pubmed_query import PubMedQueryGenerator
 import xml.etree.ElementTree as ET
-
+import os
+from urllib.request import urlretrieve
+import time
 
 # For NCBI interactions
 Entrez.email = review_config.DEV_EMAIL
-#os.environ['NCBI_API_KEY'] = lit_ap_config.NCBI_API_KEY
+# This is the only way to set the key in the packages we use :(
+os.environ['NCBI_API_KEY'] = lit_ap_config.NCBI_API_KEY
 
 #### MAIN Interface Functions ####
 def make_and_refine_query(previous_query, research_q, cost, loop_counter):
@@ -101,7 +104,6 @@ def get_unique_keywords(df):
 # Should some of these go into the pubmed api class (or similar new class) in LLM Utils?
 def get_pmcid_from_pubmed(pmid):
     # from https://www.biostars.org/p/321100/
-
     handle = Entrez.elink(dbfrom="pubmed", db="pmc", linkname="pubmed_pmc", id=pmid, retmode="text")
 
     handle_read = handle.read()
@@ -120,10 +122,19 @@ def get_pmcid_from_pubmed(pmid):
 def get_pmcids_from_pubmed(pmids):
     pmcids = []
     for pmid in pmids:
-        pmcid = get_pmcid_from_pubmed(pmid)
+        try:
+            pmcid = get_pmcid_from_pubmed(pmid)
+        except Exception as e:
+            print(f"First attempt failed to retrieve PMCID {pmid}: {e}")
+            print("Retrying in 5 seconds...")
+            time.sleep(5)  # Wait for 5 seconds before retrying
+            try:
+                pmcid = get_pmcid_from_pubmed(pmid)  # Retry
+            except Exception as e:
+                print(f"Second attempt failed to retrieve PMCID {pmid}: {e}")
+                pmcid = ""
         pmcids.append(pmcid)
     return pmcids
-
 def extract_text_from_pdf_bytes(pdf_bytes):
     text = ""
     with pdfplumber.open(BytesIO(pdf_bytes)) as pdf:
@@ -166,10 +177,8 @@ def fetch_full_text(pmids, access_token=lit_ap_config.LIBKEY_API_KEY):
     data = {'PMID': [], 'URL': [], 'Downloaded': [], 'Text': []}
 
     pmcids = get_pmcids_from_pubmed(pmids)
-    print(pmcids)
 
     for pmid, pmcid in zip(pmids, pmcids):
-        print(pmid)
         url = None
         downloaded = False
         text = None
@@ -221,7 +230,6 @@ def make_initial_df(pm_connection, article_ids):
     
     # TODO: Wait until after categories are assigned
     # # add full text link and text if available
-    # full_text_df = fetch_full_text(articles_df.PMID)
-    # articles_df = pd.merge(articles_df, full_text_df, on="PMID", how="inner")
+
     
     return articles_df
