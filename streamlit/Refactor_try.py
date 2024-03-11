@@ -64,9 +64,9 @@ class LiteraturePage:
         elif self.scoping_step == "iterate on search":
             self._manage_iterate_search()
         elif self.scoping_step == "categorize articles":
-            self._categorize_articles()
+            self._manage_categorize_articles()
         elif self.scoping_step == "summarize categories":
-            self._summarize_categories()
+            self._manage_summarize_categories()
 
     def _manage_iterate_search(self):
         if 'button_clicked' not in st.session_state:
@@ -74,7 +74,7 @@ class LiteraturePage:
             st.session_state['search_finished'] = False
 
         if not st.session_state['button_clicked'] and not st.session_state['search_finished']:
-            upload_manager = UploadManager()
+            upload_manager = UploadManager("Upload Excel File with Y/N selection", 'xlsx')
             df = upload_manager.upload_file()
             if st.button("Iterate Search"):
                 if df is not None:
@@ -99,41 +99,62 @@ class LiteraturePage:
                 st.session_state['button_clicked'] = st.session_state['search_finished']
 
         if st.session_state['search_finished']:
-            #st.session_state['button_clicked'] = False
+            st.session_state['button_clicked'] = False
             for key in st.session_state.keys():
                 del st.session_state[key]
 
-    def _iterate_search(self):
-        upload_manager = UploadManager()
-        df = upload_manager.upload_file()
-        if df is not None:
-            iterate_search_manager = IterateSearchManager(df)
-            iterate_search_manager.search_and_compile_articles()
+    def _manage_categorize_articles(self):
+        if 'button_clicked' not in st.session_state:
+            st.session_state['button_clicked'] = False
+        if 'categorization_finished' not in st.session_state:
+            st.session_state['categorization_finished'] = False
 
-    def _categorize_articles(self):
-        upload_manager = UploadManager()
-        df = upload_manager.upload_file()
-        input_text = st.text_area("Enter your list of categories, separated by commas:", "Category 1, Category 2, etc...")
+        if not st.session_state['button_clicked'] and not st.session_state['categorization_finished']:
+            upload_manager = UploadManager(message = "Upload Excel File for Categorization", 
+                                           file_type = 'xlsx')
+            df = upload_manager.upload_file()
+            userdefined_categories = st.text_area("Enter your list of categories, separated by commas:", "Category 1, Category 2, etc...")
 
-        if st.button("Categorize Topics"):
-            if df is not None:
-                categorize_manager = CategorizeManager(df, self.research_q)
-                categorize_manager.categorize_articles(input_text)
+            if st.button("Categorize Topics"):
+                if df is not None:
+                    st.session_state['categorization_manager'] = CategorizeManager(df, userdefined_categories)
+                st.session_state['categorization_finished'] = st.session_state['categorization_manager'].categorize_articles()
+                st.session_state['button_clicked'] = st.session_state['categorization_finished']
 
-    def _summarize_categories(self):
-        upload_manager = UploadManager()
-        df = upload_manager.upload_file()
-        if st.button("Summarize Categories"):
-            if df is not None:
-                summary_manager = SummarizeManager(df, self.research_q)
-                summary_manager.summarize_articles()
+        if st.session_state['categorization_finished']:
+            for key in st.session_state.keys():
+                del st.session_state[key]
+
+    def _manage_summarize_categories(self):
+        if 'button_clicked' not in st.session_state:
+            st.session_state['button_clicked'] = False
+        if 'summarization_finished' not in st.session_state:
+            st.session_state['summarization_finished'] = False
+
+        if not st.session_state['button_clicked'] and not st.session_state['summarization_finished']:
+            upload_manager = UploadManager(message = "Upload Excel file with Category labels to summarize", 
+                                        file_type = "xlsx")            
+            df = upload_manager.upload_file()
+
+            if st.button("Summarize Categories"):
+                if df is not None:
+                    st.session_state['summarization_finished'] = SummarizeManager(df, self.research_q)
+                st.session_state['summarization_finished'] = st.session_state['summarization_finished'].summarize_articles()
+                st.session_state['button_clicked'] = st.session_state['summarization_finished']
         
 class UploadManager:
+    def __init__(self, message:str, file_type:str):
+        self.message = message
+        self.file_type = file_type
+        
     def upload_file(self):
-        uploaded_file = st.file_uploader("Upload file with Y/N filled in", type=['xlsx'])
-        return pd.read_excel(uploaded_file) if uploaded_file is not None else None
-
-
+        uploaded_file = st.file_uploader(self.message, type=[self.file_type])
+        if self.file_type == 'xlsx':
+            return pd.read_excel(uploaded_file) if uploaded_file is not None else None
+        elif self.file_type == 'docx':
+            #TODO -update this part for step 5
+            pass
+            
 if __name__ == "__main__":
     literature_page = LiteraturePage()
     literature_page.show()
