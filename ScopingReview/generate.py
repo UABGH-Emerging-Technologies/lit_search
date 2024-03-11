@@ -80,12 +80,13 @@ def generate_overall_introduction(question, abstracts, help_type):
 
 
 def categorize(category_df, input_text):
-  reduced_df = review_data.get_relevant_rows(category_df)
+  reduced_df = review_data.get_relevant_rows(category_df).copy()
   cost = 0.0
   input_list = input_text.split(',')
   input_list = [value.strip() for value in input_list if value.strip()]
 
   for index, row in reduced_df.iterrows():
+      print(index)
       data = row['abstract']
       result = ScopingReview_config.CHAT.invoke(ScopingReview_prompts.categorization_chat_prompt.format_prompt(categories=input_list, context=data).to_messages())
       reduced_df.at[index, 'category'] = result.content
