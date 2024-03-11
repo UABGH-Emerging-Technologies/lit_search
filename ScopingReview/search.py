@@ -67,7 +67,6 @@ class SearchManager:
 class ArticleSearchManager(SearchManager):
     def __init__(self, scoping_step, research_q):
         super().__init__(scoping_step, research_q)
-        self.articles_downloaded = False
         
     def get_filename(self):
         return review_config.SR_STEP1_FILENAME
