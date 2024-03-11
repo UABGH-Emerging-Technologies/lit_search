@@ -23,6 +23,7 @@ class SearchManager:
         return articles_df
 
     def _write_search_results(self, articles_df, query):
+        st.balloons()
         with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmpfile:
             write_excel_output(tmpfile, articles_df, query)
             with open(tmpfile.name, "rb") as file:
@@ -54,7 +55,6 @@ class SearchManager:
         st.write(f"**Searching Pubmed with the query:** _{self.search_string}_")
         self.pm_connection, self.article_ids = search_and_compile(self.search_string, self.article_ids)
         articles_df = self._fetch_articles(self.search_string)
-        st.balloons()
         self._write_search_results(articles_df, self.make_query())
 
         # Check if we finished the search
