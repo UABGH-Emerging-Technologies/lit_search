@@ -68,24 +68,6 @@ class LiteraturePage:
         elif self.scoping_step == "summarize categories":
             self._manage_summarize_categories()
 
-    def _manage_iterate_search(self):
-        if 'button_clicked' not in st.session_state:
-            st.session_state['button_clicked'] = False
-            st.session_state['search_finished'] = False
-
-        if not st.session_state['button_clicked'] and not st.session_state['search_finished']:
-            upload_manager = UploadManager("Upload Excel File with Y/N selection", 'xlsx')
-            df = upload_manager.upload_file()
-            if st.button("Iterate Search"):
-                if df is not None:
-                    st.session_state['search_manager'] = IterateSearchManager(df)
-                st.session_state['search_finished'] = st.session_state['search_manager'].search_and_compile_articles()
-                st.session_state['button_clicked'] = st.session_state['search_finished']
-
-        if st.session_state['search_finished']:
-            for key in st.session_state.keys():
-                del st.session_state[key]
-
     def _manage_search(self):
         # Check if 'button_clicked' is already a key in session_state
         if 'button_clicked' not in st.session_state:
@@ -100,6 +82,25 @@ class LiteraturePage:
 
         if st.session_state['search_finished']:
             st.session_state['button_clicked'] = False
+            for key in st.session_state.keys():
+                del st.session_state[key]
+                
+    def _manage_iterate_search(self):
+        if 'button_clicked' not in st.session_state:
+            st.session_state['button_clicked'] = False
+            st.session_state['search_finished'] = False
+
+        if not st.session_state['button_clicked'] and not st.session_state['search_finished']:
+            upload_manager = UploadManager(message="Upload Excel File with Y/N selection", 
+                                           file_type = 'xlsx')
+            df = upload_manager.upload_file()
+            if st.button("Iterate Search"):
+                if df is not None:
+                    st.session_state['search_manager'] = IterateSearchManager(df)
+                st.session_state['search_finished'] = st.session_state['search_manager'].search_and_compile_articles()
+                st.session_state['button_clicked'] = st.session_state['search_finished']
+
+        if st.session_state['search_finished']:
             for key in st.session_state.keys():
                 del st.session_state[key]
 
@@ -141,6 +142,10 @@ class LiteraturePage:
                     st.session_state['summarization_finished'] = SummarizeManager(df, self.research_q)
                 st.session_state['summarization_finished'] = st.session_state['summarization_finished'].summarize_articles()
                 st.session_state['button_clicked'] = st.session_state['summarization_finished']
+                
+        if st.session_state['summarization_finished']:
+            for key in st.session_state.keys():
+                del st.session_state[key]
         
 class UploadManager:
     def __init__(self, message:str, file_type:str):

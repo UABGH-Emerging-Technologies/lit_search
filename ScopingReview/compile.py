@@ -37,6 +37,8 @@ class CategorizeManager(CompileManager):
     def get_filename(self):
         # default implementation, subclasses can override this method
         return review_config.SR_STEP3_FILENAME
+    
+    #TODO add get_mime_type()
                 
     def categorize_articles(self):
         #uploaded_file = st.file_uploader("Upload file with Y/N filled in for categorizing", type=['xlsx'], key="uploader_cat")  # Add unique key

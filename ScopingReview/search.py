@@ -71,18 +71,19 @@ class ArticleSearchManager(SearchManager):
         
     def get_filename(self):
         return review_config.SR_STEP1_FILENAME
-
-    def download_articles(self):
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmpfile:
-            articles_df = self._fetch_articles(self.query)
-            write_excel_output(tmpfile, articles_df, self.research_q)
-            with open(tmpfile.name, "rb") as file:
-                st.download_button(
-                    label="Download Excel file",
-                    data=file,
-                    file_name="Testing.xlsx",
-                    mime="application/vnd.ms-excel"
-                )
+    
+    # TODO - confirm can delete
+    # def download_articles(self):
+    #     with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmpfile:
+    #         articles_df = self._fetch_articles(self.query)
+    #         write_excel_output(tmpfile, articles_df, self.research_q)
+    #         with open(tmpfile.name, "rb") as file:
+    #             st.download_button(
+    #                 label="Download Excel file",
+    #                 data=file,
+    #                 file_name="Testing.xlsx",
+    #                 mime="application/vnd.ms-excel"
+    #             )
 
 class IterateSearchManager(SearchManager):
     def __init__(self, df):
