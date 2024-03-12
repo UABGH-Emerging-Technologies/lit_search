@@ -26,6 +26,10 @@ SR_STEP4_FILENAME="SummarizedArticles.docx"
 EXCEL_MIME = "application/vnd.ms-excel"
 DOCX_MIME = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 
+#BUTTON LABELS
+EXCEL_DOWNLOAD_LABEL = "Download Excel File"
+DOCX_DOWNLOAD_LABEL = "Download Word Document"
+
 #LOOP Counting
 MAX_TRIES = 6
 
