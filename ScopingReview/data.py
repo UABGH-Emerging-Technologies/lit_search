@@ -83,6 +83,9 @@ def get_relevant_rows(df):
 
 
 def get_unique_keywords(df):
+    #TODO fix issue regarding warning here:
+    #  A value is trying to be set on a copy of a slice from a DataFrame.
+    # Try using .loc[row_indexer,col_indexer] = value instead
     df['Relevant'] = df.apply(check_relevance, axis=1)
     relevant_df = df.dropna(subset=['Relevant'])
 
