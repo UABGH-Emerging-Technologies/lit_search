@@ -67,7 +67,9 @@ class LiteraturePage:
             self._manage_categorize_articles()
         elif self.scoping_step == "summarize categories":
             self._manage_summarize_categories()
-
+        elif self.scoping_step == "draft article":
+            self._manage_summarize_categories()
+            
     def _manage_search(self):
         # Check if 'button_clicked' is already a key in session_state
         if 'button_clicked' not in st.session_state:
@@ -144,6 +146,27 @@ class LiteraturePage:
                 st.session_state['button_clicked'] = st.session_state['summarization_finished']
                 
         if st.session_state['summarization_finished']:
+            for key in st.session_state.keys():
+                del st.session_state[key]
+                
+    def _manage_draft_article(self):
+        if 'button_clicked' not in st.session_state:
+            st.session_state['button_clicked'] = False
+        if 'draft_complete' not in st.session_state:
+            st.session_state['draft_complete'] = False
+            
+        if not st.session_state['button_clicked'] and not st.session_state['draft_complete']:
+            upload_manager = UploadManager(message = "Upload document of summaries to draft scoping review", 
+                                        file_type = "docx")            
+            df = upload_manager.upload_file()
+
+            if st.button("Draft Review"):
+                if df is not None:
+                    st.session_state['draft_complete'] = DraftReviewManager(df, self.research_q)
+                st.session_state['draft_complete'] = st.session_state['draft_complete'].draft_review()
+                st.session_state['button_clicked'] = st.session_state['draft_complete']
+                
+        if st.session_state['draft_complete']:
             for key in st.session_state.keys():
                 del st.session_state[key]
         
