@@ -32,12 +32,16 @@ class SearchManager:
                     label="Download Excel file",
                     data=file,
                     file_name=self.get_filename(),
-                    mime="application/vnd.ms-excel"
+                    mime=self.get_mime_type()
                 )
 
     def get_filename(self):
-        # default implementation, subclasses can override this method
-        return review_config.SR_STEP1_FILENAME
+        # default implementation, subclasses MUST override this method to work
+        pass
+    
+    def get_mime_type(self):
+        return review_config.EXCEL_MIME
+
 
     def make_query(self):
         # default implementation, subclasses can override this method
@@ -71,6 +75,7 @@ class ArticleSearchManager(SearchManager):
         
     def get_filename(self):
         return review_config.SR_STEP1_FILENAME
+    
     
 class IterateSearchManager(SearchManager):
     def __init__(self, df):
