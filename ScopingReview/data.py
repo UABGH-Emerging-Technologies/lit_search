@@ -12,6 +12,7 @@ import xml.etree.ElementTree as ET
 import os
 from urllib.request import urlretrieve
 import time
+import re
 
 # For NCBI interactions
 Entrez.email = review_config.DEV_EMAIL
@@ -79,8 +80,49 @@ def check_relevance(row):
 def get_relevant_rows(df):
     df['Relevant'] = df.apply(check_relevance, axis=1)
     relevant_df = df.dropna(subset=['Relevant'])
-    return relevant_df
+    return relevant_df  
 
+def clean_keywords(keywords):
+    cleaned_keywords = []
+    for keyword in keywords:
+        # Remove surrounding single quotes and extra whitespace
+        keyword = keyword.strip().replace("'", "").replace("*", "").replace("[", "").replace("]", "").replace("/", ", ").replace("&", "")
+        cleaned_keywords.append(keyword)
+
+    # no need to join the cleaned keywords with commas as they are already separate keywords
+    return cleaned_keywords
+
+def get_keywords(df):
+    df['Relevant'] = df.apply(check_relevance, axis=1)
+    relevant_df = df.dropna(subset=['Relevant'])
+    all_keywords = []
+    for keywords in relevant_df['keywords']:
+        keywords_list = [keyword.strip().lower() for keyword in keywords.split(',')]
+        for complex_keyword in keywords_list:
+            # Split complex keywords into individual words
+            all_keywords.extend(complex_keyword.split())
+
+    keywords_frequency = {}
+    for keyword in all_keywords:
+        keywords_frequency[keyword] = keywords_frequency.get(keyword, 0) + 1
+
+    primary_keywords = [k for k, v in keywords_frequency.items() if v > 5]
+    secondary_keywords = [k for k, v in keywords_frequency.items() if 2 <= v <= 5]
+    exclusion_keywords = [k for k, v in keywords_frequency.items() if v == 1]
+
+    # Ensure that 'headache' is in primary_keywords if it's anywhere in the data
+    if 'headache' in all_keywords and 'headache' not in primary_keywords:
+        primary_keywords.append('headache')
+
+    print('primary - ', primary_keywords)
+    print('secondary - ', secondary_keywords)
+    print('exclusion - ', exclusion_keywords)
+
+    primary_keywords = clean_keywords(primary_keywords)
+    secondary_keywords = clean_keywords(secondary_keywords)
+    exclusion_keywords = clean_keywords(exclusion_keywords)
+
+    return primary_keywords, secondary_keywords, exclusion_keywords
 
 def get_unique_keywords(df):
     #TODO fix issue regarding warning here:
