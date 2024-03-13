@@ -2,6 +2,12 @@ import streamlit as st
 import pandas as pd
 from ScopingReview.search import ArticleSearchManager, IterateSearchManager
 from ScopingReview.compile import CategorizeManager, SummarizeManager
+import ScopingReview.generate as review_generate
+from ScopingReview.data import write_excel_output
+import tempfile
+import ScopingReview_config.config as review_config
+
+
 
 from llm_utils.streamlit_common import hide_streamlit_branding, apply_uab_font
 
@@ -136,13 +142,47 @@ class LiteraturePage:
             upload_manager = UploadManager(message = "Upload Excel file with Category labels to summarize", 
                                         file_type = "xlsx")            
             df = upload_manager.upload_file()
-
-            if st.button("Summarize Categories"):
-                if df is not None:
-                    st.session_state['summarization_finished'] = SummarizeManager(df, self.research_q)
-                st.session_state['summarization_finished'] = st.session_state['summarization_finished'].summarize_articles()
-                st.session_state['button_clicked'] = st.session_state['summarization_finished']
+            
+            # checking the no. of articles in each category
+            categories_exceeding_limit = []
+            categories_exceeding_limit = review_generate.categories_limit_check(df)
+            sub_categories = ""
+            categories_str  = ""
+                # TODO :   move this               
+            def _download_results(category_df, updatedCategories):
+                st.write("Note that once you hit download, this form will reset.")
+                with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmpfile:
+                    write_excel_output(tmpfile, category_df, updatedCategories)
+                    with open(tmpfile.name, "rb") as file:
+                        st.balloons()
+                        st.download_button(
+                            label="Download Excel file",
+                            data=file,
+                            file_name="updatedCategories.xlsx",
+                            mime=review_config.EXCEL_MIME
+                        )
+    
+            # perfoming categorization on the exceeding limit categories
+            if categories_exceeding_limit:
+                categories_string = ", ".join(categories_exceeding_limit)
+                sub_categories = st.text_area("More than 40 articles belong to the following category(ies). Suggest sub-categories for the following main category(ies), and separate them by commas:", categories_string)
+                if st.button("Categorize Topics"):
+                    df, categories_str = review_generate.sub_categorize(df, categories_exceeding_limit, sub_categories)
+                    _download_results(df, ",".split(categories_str))
+                    
+                st.write("You must download and review the Excel file before continuing.")
+                st.write("Refresh the page to summarize the articles.")
+                            
+            else:
+                 # Summarizing
+                if st.button("Summarize Categories"):
+                    if df is not None:
+                        st.session_state['summarization_finished'] = SummarizeManager(df, self.research_q)
+                    st.session_state['summarization_finished'] = st.session_state['summarization_finished'].summarize_articles()
+                    st.session_state['button_clicked'] = st.session_state['summarization_finished']
+                    
                 
+                    
         if st.session_state['summarization_finished']:
             for key in st.session_state.keys():
                 del st.session_state[key]

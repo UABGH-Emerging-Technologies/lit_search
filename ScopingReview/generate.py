@@ -3,7 +3,7 @@ import ScopingReview_config.config as ScopingReview_config
 import ScopingReview.data as review_data
 
 import openai
-
+import pandas as pd
 from langchain_community.callbacks import get_openai_callback
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain.schema import HumanMessage, SystemMessage
@@ -80,16 +80,51 @@ def generate_overall_introduction(question, abstracts, help_type):
 
 
 def categorize(category_df, input_text):
-  reduced_df = review_data.get_relevant_rows(category_df)
+    # TODO: change the category_df to reduced_df --- in all places
+#   reduced_df = review_data.get_relevant_rows(category_df)
   cost = 0.0
   input_list = input_text.split(',')
   input_list = [value.strip() for value in input_list if value.strip()]
 
-  for index, row in reduced_df.iterrows():
-      data = row['abstract']
+  for index, row in category_df.iterrows():
+      data = row[['abstract', 'title']]
       result = ScopingReview_config.CHAT.invoke(ScopingReview_prompts.categorization_chat_prompt.format_prompt(categories=input_list, context=data).to_messages())
-      reduced_df.at[index, 'category'] = result.content
-  return reduced_df
+      category_df.at[index, 'category'] = result.content
+  return category_df
+
+def categories_limit_check(df):
+    categories_exceeding_limit = []
+    if df is not None:
+        unique_values_counts = df['category'].value_counts()
+
+        for category, count in unique_values_counts.items():
+            if count > 40:
+                categories_exceeding_limit.append(category)
+        
+    return categories_exceeding_limit
+
+def sub_categorize(df, categories_exceeding_limit, sub_categories):
+    reduced_df = review_data.get_relevant_rows(df)
+    unique_values_list = list(df['category'].unique())
+    # finding data that belongs to the exceeding categories
+    for remove_category in categories_exceeding_limit:
+        filtered_rows = df[df['category'] == remove_category]
+
+    sub_categories = sub_categories.split(',')
+    sub_categories = [value.strip() for value in sub_categories if value.strip()]
+    # Modifying the original categories list
+    unique_values_list = [x for x in unique_values_list if x not in categories_exceeding_limit]
+    unique_values_list.extend(sub_categories)
+    
+    # Categorization
+    for index, row in filtered_rows.iterrows():
+        data = row[['abstract', 'title']]
+        result = ScopingReview_config.CHAT.invoke(ScopingReview_prompts.categorization_chat_prompt.format_prompt(categories=unique_values_list, context=data).to_messages())
+        reduced_df.at[index, 'category'] = result.content
+    return reduced_df, ''.join(unique_values_list)
+
+
+    
 
 def summarize_article_in_chunks(article_text):
     # Splitting the article text into manageable chunks
@@ -97,11 +132,11 @@ def summarize_article_in_chunks(article_text):
     texts = text_splitter.create_documents([article_text])
 
     # Create the initial summary for the first chunk
-    summary = ScopingReview_config.SUMMARIZE_CHAT.invoke(ScopingReview_prompts.initial_summary_prompt.format(text=texts[0]))
+    summary = ScopingReview_config.FASTER_CHAT.invoke(ScopingReview_prompts.initial_summary_prompt.format(text=texts[0]))
 
     # Iteratively refine the summary with each subsequent chunk
     for text_chunk in texts[1:]:
-        summary = ScopingReview_config.SUMMARIZE_CHAT.invoke(ScopingReview_prompts.refine_summary_prompt.format(existing_summary=summary, text=text_chunk))
+        summary = ScopingReview_config.FASTER_CHAT.invoke(ScopingReview_prompts.refine_summary_prompt.format(existing_summary=summary, text=text_chunk))
 
     return summary
   
@@ -117,6 +152,9 @@ def summarize_all_categories(df, user_question):
         article_summaries = []
         for _, row in filtered_rows.iterrows():
             article_summary = summarize_article_in_chunks(row.Text)
+            #TODO: nice to haves
+            # filtered_rows.loc[idx, 'Article Summary'] = article_summary
+
             formatted_summary = f"APA Citation: {row.citation}\n\n Summary: {article_summary}\n\n --- "
             article_summaries.append(formatted_summary)     
         text_to_summarize = "\n\n".join(article_summaries)
@@ -131,5 +169,7 @@ def summarize_all_categories(df, user_question):
         output.append(
             "# " + current_category + "\n\n" + result.content + "\n\n" + "\n\n".join(filtered_rows.citation)
             )
+        
+        
     return "\n\n".join(output)
         
