@@ -1,5 +1,6 @@
 import ScopingReview.prompts as ScopingReview_prompts
 import ScopingReview_config.config as ScopingReview_config
+import ScopingReview_config.boilerplate as ScopingReview_boilerplate
 import ScopingReview.data as review_data
 
 import openai
@@ -172,4 +173,56 @@ def summarize_all_categories(df, user_question):
         
         
     return "\n\n".join(output)
-        
+
+# TODO: find better place for this. Used by write_first_draft()
+def extract_apa_citations(markdown_text):
+    # Split the document into paragraphs
+    paragraphs = markdown_text.split("\n\n")
+
+    # Filter paragraphs that contain "PMID"
+    citations = [para for para in paragraphs if "PMID" in para]
+    non_citations = [para for para in paragraphs if "PMID" not in para]
+
+    return citations, non_citations
+
+def write_first_draft(summaries_markdown, user_question):
+    citations, non_citations = extract_apa_citations(summaries_markdown)
+    
+    introduction_result = ScopingReview_config.SUMMARIZE_CHAT.invoke(
+        ScopingReview_prompts.draft_introduction_prompt.format_prompt(
+            question=user_question,
+            summaries="\n\n".join(non_citations)
+        ).to_messages()
+    )
+    
+    conclusion_result = ScopingReview_config.SUMMARIZE_CHAT.invoke(
+        ScopingReview_prompts.draft_conclusion_prompt.format_prompt(
+            question=user_question,
+            summaries="\n\n".join(non_citations),
+            introduction=introduction_result.content   
+        ).to_messages()
+    )
+
+    abstract_result = ScopingReview_config.SUMMARIZE_CHAT.invoke(
+        ScopingReview_prompts.draft_abstract_prompt.format_prompt(
+            question=user_question,
+            summaries="\n\n".join(non_citations),
+            introduction=introduction_result.content,
+            methodology=ScopingReview_boilerplate.METHDOLOGY,
+            conclusion=conclusion_result.content
+        ).to_messages()
+    )
+    
+    assembled_draft = (
+        abstract_result.content + "\n\n" +
+        introduction_result.content + "\n\n" + 
+        ScopingReview_boilerplate.METHDOLOGY + "\n\n" + 
+        "Results/Discussion \n\n" +
+        "\n\n".join(non_citations) + "\n\n" +
+        conclusion_result.content + "\n\n" + 
+        "#References \n\n" + "\n\n".join(citations)
+    )
+    
+    return assembled_draft
+
+    

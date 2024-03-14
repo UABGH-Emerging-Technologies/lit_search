@@ -65,8 +65,7 @@ class CategorizeManager(CompileManager):
 
 
 class SummarizeManager(CompileManager):
-    def __init__(self, df, research_q):
-        super().__init__(df)
+    def __init__(self, summaries, research_q):
         self.research_q = research_q
         st.session_state['file_uploaded_sum'] = False  # Initiate a unique file_uploaded variable for summarization
 
@@ -95,5 +94,31 @@ class SummarizeManager(CompileManager):
                 self._download_results(docx_data, self.research_q)
                 
 class DraftReviewManager(CompileManager):
-    def __init():
-        pass
+    def __init__(self, summaries, research_q):
+        super().__init__(None)
+        self.research_q = research_q
+        self.summaries = summaries
+        st.session_state['file_uploaded_dra'] = False  # Initiate a unique file_uploaded variable for drafting
+
+    def get_filename(self):
+        return review_config.SR_STEP5_FILENAME
+    
+    def get_download_button_label(self):
+        return review_config.DOCX_DOWNLOAD_LABEL
+    
+    def _download_results(self, docx_data):
+        st.write("Note that once you hit download, this form will reset.")
+        st.download_button(
+            label=self.get_download_button_label(),
+            data=docx_data,
+            file_name=self.get_filename(),
+            mime=review_config.DOCX_MIME  # correct MIME type for docx
+        )
+    
+    def draft_review(self):
+        if self.summaries is not None:
+            st.session_state['file_uploaded_dra'] = True  # file is uploaded and ready to draft
+            with st.spinner("Preparing first draft of article..."):
+                markdown_to_convert = review_generate.write_first_draft(self.summaries, self.research_q)
+                docx_data = convert_markdown_docx(markdown_to_convert)
+                self._download_results(docx_data)
