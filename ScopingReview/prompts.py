@@ -9,18 +9,21 @@ from langchain.prompts import (
 
 PUBMED_PROMPT = """Given the following research question, suggest a PubMed search string to find relevant articles:\n\n{}. Make the query sufficiently broad to be used to evaluate novelty of the project. Return only the pubmed search string, as your response will be used directly as an input to a function that takes in pubmed search strings."""
 
-EXTRACT_KEYWORDS_PROMPT = """Given the scientific research question and a list of lists of keywords, each corresponding to a specific scholarly work from a PubMed search, your task is to analyze these inputs and determine three separate lists:
+GENERATE_HUMAN_KEYWORD_PROMPT = """Given the scientific research question, a list of titles of scholarly publications, and a corresponding list of lists of keywords, each corresponding to a specific scholarly work from a PubMed search, your task is to analyze these inputs and determine three separate lists:
 
-Primary Keywords: These are the most relevant keywords that appear more frequently in the keyword lists and are directly related to the research question. The presence of these keywords in an article is a strong indicator that it could be useful for the research question.
+Primary Keywords: These are the most relevant keywords that appear more frequently in the titles and keyword lists and are directly related to the research question. The presence of these keywords in an article title is a strong indicator that it could be useful for the research question.
 Secondary Keywords: These are the less frequent but still relevant keywords. They are related to the research question but might not have as direct of a correlation to the main topic as the primary keywords.
 Exclusion Keywords: These are the keywords that have the potential to lead the search off-topic. They might be found in the keyword lists but they are not relevant to the research question and may lead to articles that are not useful.
-Please note that the frequency thresholds for determining the primary and secondary keywords might vary and it would be ideal for them to be configurable.
 
-Research Question: [Your specific research question]
+Research Question: \n\n{question}
 
-List of keyword lists: [Your list of lists of keywords]
+List of Publication Titles: \n\n{titles}
 
-Please provide the primary, secondary, and exclusion keyword lists related to the given research question based on the provided keyword lists from the PubMed search."""
+List of keyword lists: \n\n{keywords_list}
+
+Please provide the primary, secondary, and exclusion keyword lists related to the given research question based on the provided keywords and titles lists from the PubMed search in JSON format."""
+
+GENERATE_SYSTEM_KEYWORD_PROMPT = """ You are an expert clinical researcher. """
 
 ITER_PUBMED_PROMPT = """Given the following list of keywords from articles selected by a human, suggest a PubMed search string to find more articles consistent with the relevant keywrods:\n\n{}. Make the query as succint as possible by combining similar keywords into the concepts they represent to return the most closely related articles given the set of keywords. Return only the pubmed search string, as your response will be used directly as an input to a function that takes in pubmed search string."""
 
@@ -46,6 +49,12 @@ SUMMARIZE_HUMAN_TEMPLATE = """
 Content to summarize:
 {content}
 """
+
+generate_sys_keywords_prompt = SystemMessagePromptTemplate.from_template(GENERATE_SYSTEM_KEYWORD_PROMPT)
+
+generate_human_keywords_prompt = HumanMessagePromptTemplate.from_template(GENERATE_HUMAN_KEYWORD_PROMPT)
+
+keyword_chat_prompt = ChatPromptTemplate.from_messages([generate_sys_keywords_prompt,generate_human_keywords_prompt])
 
 summarize_system_message_prompt = SystemMessagePromptTemplate.from_template(SUMMARIZE_CATEGORY_TEMPLATE)
 

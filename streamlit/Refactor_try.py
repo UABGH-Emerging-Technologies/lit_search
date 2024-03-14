@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
+from ScopingReview.compile import CategorizeManager, SummarizeManager, DraftReviewManager
 from ScopingReview.search import ArticleSearchManager, IterateSearchManager
-from ScopingReview.compile import CategorizeManager, SummarizeManager
 import ScopingReview.generate as review_generate
 from ScopingReview.data import write_excel_output
 import tempfile
@@ -103,7 +103,7 @@ class LiteraturePage:
                                         file_type = 'xlsx')
             df = upload_manager.upload_file()
             if df is not None:
-                st.session_state['search_manager'] = IterateSearchManager(df)
+                st.session_state['search_manager'] = IterateSearchManager(df, self.research_q)
                 # This line is new and edits the search terms after uploading the dataframe
                 self._manage_edit_search_terms(st.session_state['search_manager']) 
 

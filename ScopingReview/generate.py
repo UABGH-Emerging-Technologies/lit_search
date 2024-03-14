@@ -1,7 +1,6 @@
 import ScopingReview.prompts as ScopingReview_prompts
 import ScopingReview_config.config as ScopingReview_config
 import ScopingReview.data as review_data
-
 import openai
 import pandas as pd
 from langchain_community.callbacks import get_openai_callback
@@ -122,8 +121,6 @@ def sub_categorize(df, categories_exceeding_limit, sub_categories):
         result = ScopingReview_config.CHAT.invoke(ScopingReview_prompts.categorization_chat_prompt.format_prompt(categories=unique_values_list, context=data).to_messages())
         reduced_df.at[index, 'category'] = result.content
     return reduced_df, ''.join(unique_values_list)
-
-
     
 
 def summarize_article_in_chunks(article_text):
@@ -172,4 +169,32 @@ def summarize_all_categories(df, user_question):
         
         
     return "\n\n".join(output)
+
+def generate_keywords(df, research_question):
+    relevant_rows = review_data.get_relevant_rows(df)
+    all_keywords = []
+    for keywords in relevant_rows['keywords']:
+        keywords_list = [keyword.strip().lower() for keyword in keywords.split(',')]
+        clean_keywords_list = review_data.clean_keywords(keywords_list)
+        all_keywords.append(clean_keywords_list)
+    
+    all_titles = []   
+    for title in relevant_rows['title']:
+        titles_list = review_data.clean_title(title)
+        all_titles.append(titles_list)
         
+    formatted_prompt = ScopingReview_prompts.keyword_chat_prompt.format_prompt(
+        question=research_question,
+        titles=all_titles,
+        keywords_list=all_keywords
+    )
+    result = ScopingReview_config.SUMMARIZE_CHAT.invoke(formatted_prompt.to_messages())
+
+
+    print("Result - ", result)
+    return result.content
+    # primary_keywords = []
+    # secondary_keywords = []
+    # exclusion_keywords = []
+    # return primary_keywords, secondary_keywords, exclusion_keywords
+    
