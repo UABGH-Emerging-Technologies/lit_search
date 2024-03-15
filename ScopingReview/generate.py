@@ -102,7 +102,7 @@ def categories_limit_check(df):
         df_exploded = df.explode('category')
             
         unique_values_counts = df_exploded['category'].value_counts()
-        print(unique_values_counts)
+        # print(unique_values_counts)
         for category, count in unique_values_counts.items():
             if count > 40:
                 categories_exceeding_limit.append(category)
@@ -146,7 +146,6 @@ def sub_categorize(df, categories_exceeding_limit, sub_categories):
     # Split and explode categories
     reduced_df['category'] = reduced_df['category'].str.split(', ')
     df_exploded = reduced_df.explode('category')
-    unique_values_list = [str(item) for item in unique_values_list]
 
     # Prepare new sub-categories
     sub_categories = [value.strip() for value in sub_categories.split(',') if value.strip()]
@@ -164,7 +163,8 @@ def sub_categorize(df, categories_exceeding_limit, sub_categories):
             )
             print(result.content)
             df_exploded.at[index, 'category'] = result.content
-
+            
+    unique_values_list = list(df_exploded['category'].unique())
     # Reverse the explode operation to update original dataframe
     df = df_exploded.groupby(df_exploded.index).agg({'category': lambda x: ', '.join(x), 'Relevant': 'first'})
 
