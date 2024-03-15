@@ -193,8 +193,3 @@ def generate_keywords(df, research_question):
 
     print("Result - ", result)
     return result.content
-    # primary_keywords = []
-    # secondary_keywords = []
-    # exclusion_keywords = []
-    # return primary_keywords, secondary_keywords, exclusion_keywords
-    

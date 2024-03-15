@@ -88,7 +88,6 @@ class IterateSearchManager(SearchManager):
 
     def make_query(self):
         generated_keywords_json = generate_keywords(self.df, self.research_q)
-        #TODO parse json output here and make variables for 92
         self.primary_keywords, self.secondary_keywords, self.exclusion_keywords = parse_keywords(str(generated_keywords_json))
         self.query_terms = self.primary_keywords + self.secondary_keywords + self.exclusion_keywords 
         return ", ".join(self.query_terms)
