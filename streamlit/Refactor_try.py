@@ -156,7 +156,7 @@ class LiteraturePage:
             # checking the no. of articles in each category
             categories_exceeding_limit = []
             categories_exceeding_limit = review_generate.categories_limit_check(df)
-            print(categories_exceeding_limit)
+            # print(categories_exceeding_limit)
             sub_categories = ""
             categories_str  = ""
                 # TODO :   move this               
