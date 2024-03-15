@@ -89,7 +89,8 @@ def categorize(category_df, input_text):
   for index, row in category_df.iterrows():
       data = row[['abstract', 'title']]
       result = ScopingReview_config.CHAT.invoke(ScopingReview_prompts.categorization_chat_prompt.format_prompt(categories=input_list, context=data).to_messages())
-      category_df.at[index, 'category'] = result.content
+      keyword_list = review_data.clean_keywords(result.content)
+      category_df.at[index, 'category'] = ",".join(keyword_list)
   return category_df
 
 def categories_limit_check(df):
