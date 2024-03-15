@@ -1,6 +1,6 @@
 import ScopingReview.generate as review_generate
 import ScopingReview_config.config as review_config
-from ScopingReview.data import write_excel_output
+from ScopingReview.data import write_excel_output, fetch_full_text
 from llm_utils.text_format import convert_markdown_docx
 import pandas as pd
 import streamlit as st
@@ -13,13 +13,42 @@ class CompileManager:
                 
     def get_filename(self):
         # default implementation, subclasses MUST override this method
-        return ''
-                    
+        pass
+    
+    def get_mime_type(self):
+        # default implementation, subclasses MUST override this method
+        pass    
+  
+            
+                  
 class CategorizeManager(CompileManager):
     def __init__(self, df, userdefined_categories):
         super().__init__(df)
         self.userdefined_categories = userdefined_categories
         st.session_state['file_uploaded_cate'] = False  # Initiate a unique file_uploaded variable for categorization
+                
+    def get_mime_type(self):
+        return review_config.EXCEL_MIME
+            
+    def get_filename(self):
+        # default implementation, subclasses can override this method
+        return review_config.SR_STEP3_FILENAME
+    
+    def get_download_button_label(self):
+        return review_config.EXCEL_DOWNLOAD_LABEL
+                        
+    def categorize_articles(self):
+        #uploaded_file = st.file_uploader("Upload file with Y/N filled in for categorizing", type=['xlsx'], key="uploader_cat")  # Add unique key
+        if self.df is not None:
+            st.session_state['file_uploaded_cate'] = True  # file is uploaded and ready to categorize
+            with st.spinner("Categorizing contents of file..."):
+                category_df = review_generate.categorize(self.df, self.userdefined_categories)
+                
+            with st.spinner("Getting full text"):
+                full_text_df = fetch_full_text(category_df.PMID)
+                category_df = pd.merge(category_df, full_text_df, on="PMID", how="inner")
+                
+            self._download_results(category_df)
     
     def _download_results(self, category_df):
         st.write("Note that once you hit download, this form will reset.")
@@ -28,41 +57,29 @@ class CategorizeManager(CompileManager):
             with open(tmpfile.name, "rb") as file:
                 st.balloons()
                 st.download_button(
-                    label="Download Excel file",
+                    label=self.get_download_button_label(),
                     data=file,
                     file_name=self.get_filename(),
-                    mime=review_config.EXCEL_MIME
-                )
-                
-    def get_filename(self):
-        # default implementation, subclasses can override this method
-        return review_config.SR_STEP3_FILENAME
-    
-    #TODO add get_mime_type()
-                
-    def categorize_articles(self):
-        #uploaded_file = st.file_uploader("Upload file with Y/N filled in for categorizing", type=['xlsx'], key="uploader_cat")  # Add unique key
-        if self.df is not None:
-            st.session_state['file_uploaded_cate'] = True  # file is uploaded and ready to categorize
-            with st.spinner("Categorizing contents of file..."):
-                category_df = review_generate.categorize(self.df, self.userdefined_categories)
-                self._download_results(category_df)
+                    mime=self.get_mime_type()
+                )      
 
 
 class SummarizeManager(CompileManager):
-    def __init__(self, df, research_q):
-        super().__init__(df)
+    def __init__(self, summaries, research_q):
         self.research_q = research_q
         st.session_state['file_uploaded_sum'] = False  # Initiate a unique file_uploaded variable for summarization
 
     def get_filename(self):
         return review_config.SR_STEP4_FILENAME
     
+    def get_download_button_label(self):
+        return review_config.DOCX_DOWNLOAD_LABEL
+    
     #TODO add write and second sheet + Generalize and move to parent
     def _download_results(self, docx_data, research_q):
         st.write("Note that once you hit download, this form will reset.")
         st.download_button(
-            label="Download Evaluation",
+            label=self.get_download_button_label(),
             data=docx_data,
             file_name=self.get_filename(),
             mime=review_config.DOCX_MIME  # correct MIME type for docx
@@ -76,3 +93,32 @@ class SummarizeManager(CompileManager):
                 docx_data = convert_markdown_docx(markdown_to_convert)
                 self._download_results(docx_data, self.research_q)
                 
+class DraftReviewManager(CompileManager):
+    def __init__(self, summaries, research_q):
+        super().__init__(None)
+        self.research_q = research_q
+        self.summaries = summaries
+        st.session_state['file_uploaded_dra'] = False  # Initiate a unique file_uploaded variable for drafting
+
+    def get_filename(self):
+        return review_config.SR_STEP5_FILENAME
+    
+    def get_download_button_label(self):
+        return review_config.DOCX_DOWNLOAD_LABEL
+    
+    def _download_results(self, docx_data):
+        st.write("Note that once you hit download, this form will reset.")
+        st.download_button(
+            label=self.get_download_button_label(),
+            data=docx_data,
+            file_name=self.get_filename(),
+            mime=review_config.DOCX_MIME  # correct MIME type for docx
+        )
+    
+    def draft_review(self):
+        if self.summaries is not None:
+            st.session_state['file_uploaded_dra'] = True  # file is uploaded and ready to draft
+            with st.spinner("Preparing first draft of article..."):
+                markdown_to_convert = review_generate.write_first_draft(self.summaries, self.research_q)
+                docx_data = convert_markdown_docx(markdown_to_convert)
+                self._download_results(docx_data)

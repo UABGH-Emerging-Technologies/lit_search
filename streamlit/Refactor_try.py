@@ -1,7 +1,8 @@
 import streamlit as st
 import pandas as pd
+import pypandoc
 from ScopingReview.search import ArticleSearchManager, IterateSearchManager
-from ScopingReview.compile import CategorizeManager, SummarizeManager
+from ScopingReview.compile import CategorizeManager, SummarizeManager, DraftReviewManager
 import ScopingReview.generate as review_generate
 from ScopingReview.data import write_excel_output
 import tempfile
@@ -73,7 +74,9 @@ class LiteraturePage:
             self._manage_categorize_articles()
         elif self.scoping_step == "summarize categories":
             self._manage_summarize_categories()
-
+        elif self.scoping_step == "draft article":
+            self._manage_draft_article()
+            
     def _manage_search(self):
         # Check if 'button_clicked' is already a key in session_state
         if 'button_clicked' not in st.session_state:
@@ -98,17 +101,24 @@ class LiteraturePage:
 
         if not st.session_state['button_clicked'] and not st.session_state['search_finished']:
             upload_manager = UploadManager(message="Upload Excel File with Y/N selection", 
-                                           file_type = 'xlsx')
+                                        file_type = 'xlsx')
             df = upload_manager.upload_file()
+            if df is not None:
+                st.session_state['search_manager'] = IterateSearchManager(df)
+                # This line is new and edits the search terms after uploading the dataframe
+                self._manage_edit_search_terms(st.session_state['search_manager']) 
+
             if st.button("Iterate Search"):
-                if df is not None:
-                    st.session_state['search_manager'] = IterateSearchManager(df)
                 st.session_state['search_finished'] = st.session_state['search_manager'].search_and_compile_articles()
                 st.session_state['button_clicked'] = st.session_state['search_finished']
 
         if st.session_state['search_finished']:
             for key in st.session_state.keys():
                 del st.session_state[key]
+                
+    def _manage_edit_search_terms(self, search_manager):
+        st.subheader("Edit Search Terms")
+        search_manager.edit_query_terms()
 
     def _manage_categorize_articles(self):
         if 'button_clicked' not in st.session_state:
@@ -186,6 +196,27 @@ class LiteraturePage:
         if st.session_state['summarization_finished']:
             for key in st.session_state.keys():
                 del st.session_state[key]
+                
+    def _manage_draft_article(self):
+        if 'button_clicked' not in st.session_state:
+            st.session_state['button_clicked'] = False
+        if 'draft_complete' not in st.session_state:
+            st.session_state['draft_complete'] = False
+            
+        if not st.session_state['button_clicked'] and not st.session_state['draft_complete']:
+            upload_manager = UploadManager(message = "Upload document of summaries to draft scoping review", 
+                                        file_type = "docx")            
+            summaries = upload_manager.upload_file()
+
+            if st.button("Draft Review"):
+                if summaries is not None:
+                    st.session_state['draft_complete'] = DraftReviewManager(summaries, self.research_q)
+                st.session_state['draft_complete'] = st.session_state['draft_complete'].draft_review()
+                st.session_state['button_clicked'] = st.session_state['draft_complete']
+                
+        if st.session_state['draft_complete']:
+            for key in st.session_state.keys():
+                del st.session_state[key]
         
 class UploadManager:
     def __init__(self, message:str, file_type:str):
@@ -197,9 +228,19 @@ class UploadManager:
         if self.file_type == 'xlsx':
             return pd.read_excel(uploaded_file) if uploaded_file is not None else None
         elif self.file_type == 'docx':
-            #TODO -update this part for step 5
-            pass
-            
+            if uploaded_file is not None:
+            # Save the uploaded Word document to a temporary file
+                with tempfile.NamedTemporaryFile(delete=True, suffix='.docx') as tmp:
+                    tmp.write(uploaded_file.getvalue())
+                    tmp_path = tmp.name
+
+                    # Convert the temporary Word document to Markdown
+                    converted = pypandoc.convert_file(tmp_path, 'markdown')
+                    return converted
+            else:
+                return None
+                    
+                
 if __name__ == "__main__":
     literature_page = LiteraturePage()
     literature_page.show()
