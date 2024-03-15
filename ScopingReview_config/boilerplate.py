@@ -1,4 +1,4 @@
-METHDOLOGY = """
+METHODOLOGY = """
 # Methodology
 Paraphrase this methodology section: 
 
