@@ -109,8 +109,9 @@ def categories_limit_check(df):
         
     return categories_exceeding_limit
 
-def sub_categorize(df, categories_exceeding_limit, sub_categories):
-    reduced_df = review_data.get_relevant_rows(df)
+def sub_categorize(original_df, categories_exceeding_limit, sub_categories):
+    df_copy = original_df.copy()
+    reduced_df = review_data.get_relevant_rows(df_copy)
     # should already be transformed to a python list by categories_limit_check()
     df_exploded = reduced_df.explode('category')
 
@@ -137,13 +138,12 @@ def sub_categorize(df, categories_exceeding_limit, sub_categories):
     # Reverse the explode operation to update original dataframe
     df = df_exploded.groupby(df_exploded.index).agg({'category': lambda x: ', '.join(x), 'Relevant': 'first'})
 
-    # Merging other columns back into the df (assuming other columns need to be retained)
-    # Why do we need this?
-    # df = df.merge(df.drop(columns=['category', 'Relevant']), left_index=True, right_index=True, how='left')
+    # Merging other columns back into the df
+    df_final = df_copy.drop(columns=['category', 'Relevant']).merge(df, left_index=True, right_index=True, how='right')
     
     # test set MRI, blood patch, cranial hypotension
 
-    return df, ''.join(unique_values_list)
+    return df_final, ''.join(unique_values_list)
 
 
     
