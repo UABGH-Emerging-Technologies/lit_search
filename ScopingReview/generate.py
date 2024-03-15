@@ -139,6 +139,41 @@ def sub_categorize(df, categories_exceeding_limit, sub_categories):
         filtered_rows.at[index, 'category'] = result.content
     return df, ''.join(unique_values_list)
 
+def sub_categorize(df, categories_exceeding_limit, sub_categories):
+    # Filter the dataframe for relevant rows
+    reduced_df = review_data.get_relevant_rows(df)
+
+    # Split and explode categories
+    reduced_df['category'] = reduced_df['category'].str.split(', ')
+    df_exploded = reduced_df.explode('category')
+    unique_values_list = [str(item) for item in unique_values_list]
+
+    # Prepare new sub-categories
+    sub_categories = [value.strip() for value in sub_categories.split(',') if value.strip()]
+
+    # Replace categories exceeding limit with sub-categories
+    for remove_category in categories_exceeding_limit:
+        mask = df_exploded['category'] == remove_category
+        for index, row in df_exploded[mask].iterrows():
+            data = row[['abstract', 'title']]
+            # Assuming your categorization process is correctly set up
+            result = ScopingReview_config.CHAT.invoke(
+                ScopingReview_prompts.categorization_chat_prompt.format_prompt(
+                    categories=sub_categories, context=data
+                ).to_messages()
+            )
+            print(result.content)
+            df_exploded.at[index, 'category'] = result.content
+
+    # Reverse the explode operation to update original dataframe
+    df = df_exploded.groupby(df_exploded.index).agg({'category': lambda x: ', '.join(x), 'Relevant': 'first'})
+
+    # Merging other columns back into the df (assuming other columns need to be retained)
+    # Why do we need this?
+    # df = df.merge(df.drop(columns=['category', 'Relevant']), left_index=True, right_index=True, how='left')
+
+    return df, ''.join(unique_values_list)
+
 
     
 
