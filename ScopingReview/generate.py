@@ -208,7 +208,7 @@ def write_first_draft(summaries_markdown, user_question):
             question=user_question,
             summaries="\n\n".join(non_citations),
             introduction=introduction_result.content,
-            methodology=ScopingReview_boilerplate.METHDOLOGY,
+            methodology=ScopingReview_boilerplate.METHODOLOGY,
             conclusion=conclusion_result.content
         ).to_messages()
     )
@@ -216,11 +216,11 @@ def write_first_draft(summaries_markdown, user_question):
     assembled_draft = (
         abstract_result.content + "\n\n" +
         introduction_result.content + "\n\n" + 
-        ScopingReview_boilerplate.METHDOLOGY + "\n\n" + 
-        "Results/Discussion \n\n" +
+        ScopingReview_boilerplate.METHODOLOGY + "\n\n" + 
+        "# Results/Discussion \n\n" +
         "\n\n".join(non_citations) + "\n\n" +
         conclusion_result.content + "\n\n" + 
-        "#References \n\n" + "\n\n".join(citations)
+        "# References \n\n" + "\n\n".join(citations)
     )
     
     return assembled_draft
