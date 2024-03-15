@@ -111,47 +111,16 @@ def categories_limit_check(df):
 
 def sub_categorize(df, categories_exceeding_limit, sub_categories):
     reduced_df = review_data.get_relevant_rows(df)
-    # finding data that belongs to the exceeding categories
-    
-    df['category'] = df['category'].str.split(', ')
-    df_exploded = df.explode('category')
-    
-    unique_values_list = list(df_exploded['category'].unique())
-
-    
-    for remove_category in categories_exceeding_limit:
-        filtered_rows = df_exploded[df_exploded['category'] == remove_category]
-        
-    # new categories list 
-    sub_categories = sub_categories.split(',')
-    sub_categories = [value.strip() for value in sub_categories if value.strip()]
-    
-    # Modifying the original categories list
-    unique_values_list = [x for x in unique_values_list if x not in categories_exceeding_limit]
-    unique_values_list.extend(sub_categories)
-    unique_values_list = [str(item) for item in unique_values_list]
-
-    # Categorization
-    for index, row in filtered_rows.iterrows():
-        data = row[['abstract', 'title']]
-        result = ScopingReview_config.CHAT.invoke(ScopingReview_prompts.categorization_chat_prompt.format_prompt(categories=unique_values_list, context=data).to_messages())
-        print(result.content)
-        filtered_rows.at[index, 'category'] = result.content
-    return df, ''.join(unique_values_list)
-
-def sub_categorize(df, categories_exceeding_limit, sub_categories):
-    # Filter the dataframe for relevant rows
-    reduced_df = review_data.get_relevant_rows(df)
-
-    # Split and explode categories
-    reduced_df['category'] = reduced_df['category'].str.split(', ')
+    # should already be transformed to a python list by categories_limit_check()
     df_exploded = reduced_df.explode('category')
 
     # Prepare new sub-categories
     sub_categories = [value.strip() for value in sub_categories.split(',') if value.strip()]
-
     # Replace categories exceeding limit with sub-categories
     for remove_category in categories_exceeding_limit:
+        remove_category = remove_category.strip()
+        remove_category = remove_category.lower()
+        df_exploded['category'] = df_exploded['category'].str.lower()
         mask = df_exploded['category'] == remove_category
         for index, row in df_exploded[mask].iterrows():
             data = row[['abstract', 'title']]
@@ -161,8 +130,8 @@ def sub_categorize(df, categories_exceeding_limit, sub_categories):
                     categories=sub_categories, context=data
                 ).to_messages()
             )
-            print(result.content)
-            df_exploded.at[index, 'category'] = result.content
+            category_to_write = result.content.replace("'", "")
+            df_exploded.at[index, 'category'] = category_to_write.lower()
             
     unique_values_list = list(df_exploded['category'].unique())
     # Reverse the explode operation to update original dataframe
@@ -171,6 +140,8 @@ def sub_categorize(df, categories_exceeding_limit, sub_categories):
     # Merging other columns back into the df (assuming other columns need to be retained)
     # Why do we need this?
     # df = df.merge(df.drop(columns=['category', 'Relevant']), left_index=True, right_index=True, how='left')
+    
+    # test set MRI, blood patch, cranial hypotension
 
     return df, ''.join(unique_values_list)
 
