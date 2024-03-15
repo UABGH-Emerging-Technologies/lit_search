@@ -97,15 +97,19 @@ class IterateSearchManager(SearchManager):
             self.iteration_count += 1
             self.make_query()
         else:
-            primary_keywords_str = st.text_area("Primary Keywords (comma-separated):", ", ".join(self.primary_keywords))
-            secondary_keywords_str = st.text_area("Secondary Keywords (comma-separated):", ", ".join(self.secondary_keywords))
-            exclusion_keywords_str = st.text_area("Exclusion Keywords (comma-separated):", ", ".join(self.exclusion_keywords))
+            with st.form("my_form"):
+                primary_keywords_str = st.text_area("Primary Keywords (comma-separated):", ", ".join(self.primary_keywords))
+                secondary_keywords_str = st.text_area("Secondary Keywords (comma-separated):", ", ".join(self.secondary_keywords))
+                exclusion_keywords_str = st.text_area("Exclusion Keywords (comma-separated):", ", ".join(self.exclusion_keywords))
+                
+                keywords_submitted = st.form_submit_button("Looks good!")
+                if keywords_submitted:
+                    self.primary_keywords = [keyword.strip() for keyword in primary_keywords_str.split(",")]
+                    self.secondary_keywords = [keyword.strip() for keyword in secondary_keywords_str.split(",")]
+                    self.exclusion_keywords = [keyword.strip() for keyword in exclusion_keywords_str.split(",")]
 
-            self.primary_keywords = [keyword.strip() for keyword in primary_keywords_str.split(",")]
-            self.secondary_keywords = [keyword.strip() for keyword in secondary_keywords_str.split(",")]
-            self.exclusion_keywords = [keyword.strip() for keyword in exclusion_keywords_str.split(",")]
-
-            self.query_terms = self.primary_keywords + self.secondary_keywords + self.exclusion_keywords
+                    self.query_terms = self.primary_keywords + self.secondary_keywords + self.exclusion_keywords
+                    st.session_state['keywords_finalized'] = True
 
     def get_filename(self):
         return review_config.SR_STEP2_FILENAME

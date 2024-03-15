@@ -97,6 +97,10 @@ class LiteraturePage:
         if 'button_clicked' not in st.session_state:
             st.session_state['button_clicked'] = False
             st.session_state['search_finished'] = False
+            st.session_state['keywords_finalized'] = False
+        
+        if 'keywords_finalized' not in st.session_state:
+            st.session_state['keywords_finalized'] = False
 
         if not st.session_state['button_clicked'] and not st.session_state['search_finished']:
             upload_manager = UploadManager(message="Upload Excel File with Y/N selection", 
@@ -107,7 +111,7 @@ class LiteraturePage:
                 # This line is new and edits the search terms after uploading the dataframe
                 self._manage_edit_search_terms(st.session_state['search_manager']) 
 
-            if st.button("Iterate Search"):
+            if st.session_state['keywords_finalized']:
                 st.session_state['search_finished'] = st.session_state['search_manager'].search_and_compile_articles()
                 st.session_state['button_clicked'] = st.session_state['search_finished']
 
