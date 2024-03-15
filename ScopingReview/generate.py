@@ -95,7 +95,11 @@ def categorize(category_df, input_text):
 def categories_limit_check(df):
     categories_exceeding_limit = []
     if df is not None:
-        unique_values_counts = df['category'].value_counts()
+        
+        df['category'] = df['category'].str.split(', ')
+        df_exploded = df.explode('category')
+            
+        unique_values_counts = df_exploded['category'].value_counts()
 
         for category, count in unique_values_counts.items():
             if count > 40:
@@ -105,10 +109,16 @@ def categories_limit_check(df):
 
 def sub_categorize(df, categories_exceeding_limit, sub_categories):
     reduced_df = review_data.get_relevant_rows(df)
-    unique_values_list = list(df['category'].unique())
     # finding data that belongs to the exceeding categories
+    
+    df['category'] = df['category'].str.split(', ')
+    df_exploded = df.explode('category')
+    
+    unique_values_list = list(df_exploded['category'].unique())
+
+    
     for remove_category in categories_exceeding_limit:
-        filtered_rows = df[df['category'] == remove_category]
+        filtered_rows = df_exploded[df_exploded['category'] == remove_category]
 
     sub_categories = sub_categories.split(',')
     sub_categories = [value.strip() for value in sub_categories if value.strip()]
@@ -144,8 +154,14 @@ def summarize_all_categories(df, user_question):
     # use abtract when text is not available.
     df['Text'] = df.apply(lambda row: row['abstract'] if row['Text'] == 'Text not available' else row['Text'], axis=1)
 
+    # takes in multiple categories and assigns them in each row
+    # TODO change the coln name from Catoegory to Categories
+    df['category'] = df['category'].str.split(', ')
+    df_exploded = df.explode('category')
+    
     # get categories
-    categories = df['category'].unique()
+    categories = df_exploded['category'].unique()
+
     output = []
     for current_category in categories:
         filtered_rows = df[df['category'] == current_category]
@@ -167,7 +183,7 @@ def summarize_all_categories(df, user_question):
             ).to_messages())
    
         output.append(
-            "# " + current_category + "\n\n" + result.content + "\n\n" + "\n\n".join(filtered_rows.citation)
+            "# " + str(current_category) + "\n\n" + result.content + "\n\n" + "\n\n".join(filtered_rows.citation)
             )
         
         
