@@ -87,6 +87,7 @@ def clean_keywords(keywords):
     for keyword in keywords:
         # Remove surrounding single quotes and extra whitespace
         keyword = keyword.strip().replace("'", "").replace("*", "").replace("[", "").replace("]", "").replace("/", ", ").replace("&", "")
+        print(keyword)
         cleaned_keywords.append(keyword)
 
     # no need to join the cleaned keywords with commas as they are already separate keywords
@@ -171,8 +172,6 @@ def get_pmcids_from_pubmed(pmids):
             pmcid = get_pmcid_from_pubmed(pmid)
         except Exception as e:
             print(f"First attempt failed to retrieve PMCID {pmid}: {e}")
-            print("Retrying in 5 seconds...")
-            time.sleep(5)  # Wait for 5 seconds before retrying
             try:
                 pmcid = get_pmcid_from_pubmed(pmid)  # Retry
             except Exception as e:
