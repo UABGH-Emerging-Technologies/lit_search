@@ -9,11 +9,15 @@ from Bio import Entrez
 from llm_utils.call_pubmed_api import PubMedAPI
 from llm_utils.prep_pubmed_query import PubMedQueryGenerator
 import xml.etree.ElementTree as ET
-
+import os
+from urllib.request import urlretrieve
+import time
+import re
 
 # For NCBI interactions
 Entrez.email = review_config.DEV_EMAIL
-#os.environ['NCBI_API_KEY'] = lit_ap_config.NCBI_API_KEY
+# This is the only way to set the key in the packages we use :(
+os.environ['NCBI_API_KEY'] = lit_ap_config.NCBI_API_KEY
 
 #### MAIN Interface Functions ####
 def make_and_refine_query(previous_query, research_q, cost, loop_counter):
@@ -76,10 +80,54 @@ def check_relevance(row):
 def get_relevant_rows(df):
     df['Relevant'] = df.apply(check_relevance, axis=1)
     relevant_df = df.dropna(subset=['Relevant'])
-    return relevant_df
+    return relevant_df  
 
+def clean_keywords(keywords):
+    cleaned_keywords = []
+    for keyword in keywords:
+        # Remove surrounding single quotes and extra whitespace
+        keyword = keyword.strip().replace("'", "").replace("*", "").replace("[", "").replace("]", "").replace("/", ", ").replace("&", "")
+        cleaned_keywords.append(keyword)
+
+    # no need to join the cleaned keywords with commas as they are already separate keywords
+    return cleaned_keywords
+
+def get_keywords(df):
+    df['Relevant'] = df.apply(check_relevance, axis=1)
+    relevant_df = df.dropna(subset=['Relevant'])
+    all_keywords = []
+    for keywords in relevant_df['keywords']:
+        keywords_list = [keyword.strip().lower() for keyword in keywords.split(',')]
+        for complex_keyword in keywords_list:
+            # Split complex keywords into individual words
+            all_keywords.extend(complex_keyword.split())
+
+    keywords_frequency = {}
+    for keyword in all_keywords:
+        keywords_frequency[keyword] = keywords_frequency.get(keyword, 0) + 1
+
+    primary_keywords = [k for k, v in keywords_frequency.items() if v > 5]
+    secondary_keywords = [k for k, v in keywords_frequency.items() if 2 <= v <= 5]
+    exclusion_keywords = [k for k, v in keywords_frequency.items() if v == 1]
+
+    # Ensure that 'headache' is in primary_keywords if it's anywhere in the data
+    if 'headache' in all_keywords and 'headache' not in primary_keywords:
+        primary_keywords.append('headache')
+
+    print('primary - ', primary_keywords)
+    print('secondary - ', secondary_keywords)
+    print('exclusion - ', exclusion_keywords)
+
+    primary_keywords = clean_keywords(primary_keywords)
+    secondary_keywords = clean_keywords(secondary_keywords)
+    exclusion_keywords = clean_keywords(exclusion_keywords)
+
+    return primary_keywords, secondary_keywords, exclusion_keywords
 
 def get_unique_keywords(df):
+    #TODO fix issue regarding warning here:
+    #  A value is trying to be set on a copy of a slice from a DataFrame.
+    # Try using .loc[row_indexer,col_indexer] = value instead
     df['Relevant'] = df.apply(check_relevance, axis=1)
     relevant_df = df.dropna(subset=['Relevant'])
 
@@ -101,7 +149,6 @@ def get_unique_keywords(df):
 # Should some of these go into the pubmed api class (or similar new class) in LLM Utils?
 def get_pmcid_from_pubmed(pmid):
     # from https://www.biostars.org/p/321100/
-
     handle = Entrez.elink(dbfrom="pubmed", db="pmc", linkname="pubmed_pmc", id=pmid, retmode="text")
 
     handle_read = handle.read()
@@ -120,10 +167,19 @@ def get_pmcid_from_pubmed(pmid):
 def get_pmcids_from_pubmed(pmids):
     pmcids = []
     for pmid in pmids:
-        pmcid = get_pmcid_from_pubmed(pmid)
+        try:
+            pmcid = get_pmcid_from_pubmed(pmid)
+        except Exception as e:
+            print(f"First attempt failed to retrieve PMCID {pmid}: {e}")
+            print("Retrying in 5 seconds...")
+            time.sleep(5)  # Wait for 5 seconds before retrying
+            try:
+                pmcid = get_pmcid_from_pubmed(pmid)  # Retry
+            except Exception as e:
+                print(f"Second attempt failed to retrieve PMCID {pmid}: {e}")
+                pmcid = ""
         pmcids.append(pmcid)
     return pmcids
-
 def extract_text_from_pdf_bytes(pdf_bytes):
     text = ""
     with pdfplumber.open(BytesIO(pdf_bytes)) as pdf:
@@ -166,10 +222,8 @@ def fetch_full_text(pmids, access_token=lit_ap_config.LIBKEY_API_KEY):
     data = {'PMID': [], 'URL': [], 'Downloaded': [], 'Text': []}
 
     pmcids = get_pmcids_from_pubmed(pmids)
-    print(pmcids)
 
     for pmid, pmcid in zip(pmids, pmcids):
-        print(pmid)
         url = None
         downloaded = False
         text = None
@@ -221,7 +275,6 @@ def make_initial_df(pm_connection, article_ids):
     
     # TODO: Wait until after categories are assigned
     # # add full text link and text if available
-    # full_text_df = fetch_full_text(articles_df.PMID)
-    # articles_df = pd.merge(articles_df, full_text_df, on="PMID", how="inner")
+
     
     return articles_df
