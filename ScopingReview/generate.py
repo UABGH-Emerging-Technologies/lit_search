@@ -90,8 +90,8 @@ def categorize(category_df, input_text):
   for index, row in category_df.iterrows():
       data = row[['abstract', 'title']]
       result = ScopingReview_config.CHAT.invoke(ScopingReview_prompts.categorization_chat_prompt.format_prompt(categories=input_list, context=data).to_messages())
-      keyword_list = review_data.clean_keywords(result.content)
-      category_df.at[index, 'category'] = ",".join(keyword_list)
+      keyword_list = result.content.replace("'", "")
+      category_df.at[index, 'category'] = keyword_list.lower()
   return category_df
 
 def categories_limit_check(df):
@@ -102,7 +102,7 @@ def categories_limit_check(df):
         df_exploded = df.explode('category')
             
         unique_values_counts = df_exploded['category'].value_counts()
-
+        print(unique_values_counts)
         for category, count in unique_values_counts.items():
             if count > 40:
                 categories_exceeding_limit.append(category)
@@ -121,19 +121,23 @@ def sub_categorize(df, categories_exceeding_limit, sub_categories):
     
     for remove_category in categories_exceeding_limit:
         filtered_rows = df_exploded[df_exploded['category'] == remove_category]
-
+        
+    # new categories list 
     sub_categories = sub_categories.split(',')
     sub_categories = [value.strip() for value in sub_categories if value.strip()]
+    
     # Modifying the original categories list
     unique_values_list = [x for x in unique_values_list if x not in categories_exceeding_limit]
     unique_values_list.extend(sub_categories)
-    
+    unique_values_list = [str(item) for item in unique_values_list]
+
     # Categorization
     for index, row in filtered_rows.iterrows():
         data = row[['abstract', 'title']]
         result = ScopingReview_config.CHAT.invoke(ScopingReview_prompts.categorization_chat_prompt.format_prompt(categories=unique_values_list, context=data).to_messages())
-        reduced_df.at[index, 'category'] = result.content
-    return reduced_df, ''.join(unique_values_list)
+        print(result.content)
+        filtered_rows.at[index, 'category'] = result.content
+    return df, ''.join(unique_values_list)
 
 
     
