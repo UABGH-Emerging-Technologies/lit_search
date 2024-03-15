@@ -106,6 +106,7 @@ class LiteraturePage:
                 st.session_state['search_manager'] = IterateSearchManager(df, self.research_q)
                 # This line is new and edits the search terms after uploading the dataframe
                 self._manage_edit_search_terms(st.session_state['search_manager']) 
+                st.session_state['search_manager'].extract_keywords()
 
             if st.button("Iterate Search"):
                 st.session_state['search_finished'] = st.session_state['search_manager'].search_and_compile_articles()
