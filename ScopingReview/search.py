@@ -1,5 +1,5 @@
 from ScopingReview.data import make_and_refine_query, search_and_compile, write_excel_output
-from ScopingReview.data import get_relevant_rows, make_initial_df, parse_keywords
+from ScopingReview.data import get_relevant_rows, make_initial_df, parse_keywords, get_unique_keywords
 from ScopingReview.generate import generate_keywords
 import ScopingReview_config.config as review_config
 import streamlit as st
@@ -83,19 +83,27 @@ class IterateSearchManager(SearchManager):
         super().__init__(None, research_q)
         self.df = df
         self.selected_articles_df = get_relevant_rows(df)
-        self.make_query()
         self.iteration_count = 1
-
+        self.primary_keywords = []
+        self.secondary_keywords = []
+        self.exclusion_keywords = []
+        
     def make_query(self):
-        generated_keywords_json = generate_keywords(self.df, self.research_q)
+        keywords_to_requery = get_relevant_rows(self.df)
+        return get_unique_keywords(keywords_to_requery)
+
+    def extract_keywords(self):
+        with st.spinner("Extracting Keywords"):
+            generated_keywords_json = generate_keywords(self.df, self.research_q)
         self.primary_keywords, self.secondary_keywords, self.exclusion_keywords = parse_keywords(str(generated_keywords_json))
         self.query_terms = self.primary_keywords + self.secondary_keywords + self.exclusion_keywords 
         return ", ".join(self.query_terms)
 
     def edit_query_terms(self):
+        #TODO Fix reload when edit keywords
         if self.iteration_count == 0:
             self.iteration_count += 1
-            self.make_query()
+            self.extract_keywords()
         else:
             primary_keywords_str = st.text_area("Primary Keywords (comma-separated):", ", ".join(self.primary_keywords))
             secondary_keywords_str = st.text_area("Secondary Keywords (comma-separated):", ", ".join(self.secondary_keywords))
