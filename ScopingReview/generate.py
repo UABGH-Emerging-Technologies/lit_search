@@ -80,7 +80,7 @@ def generate_overall_introduction(question, abstracts, help_type):
 
 def categorize(category_df, input_text):
     # TODO: change the category_df to reduced_df --- in all places
-#   reduced_df = review_data.get_relevant_rows(category_df)
+    # reduced_df = review_data.get_relevant_rows(category_df)
   cost = 0.0
   input_list = input_text.split(',')
   input_list = [value.strip() for value in input_list if value.strip()]
