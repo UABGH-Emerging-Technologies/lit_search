@@ -114,17 +114,19 @@ class LiteraturePage:
 
             if isinstance(st.session_state['search_manager'], IterateSearchManager):
                 if not st.session_state['button_clicked'] and not st.session_state['search_finished']:
-
-                    if st.button("Iterate Search"):
+                    
+                    # Needed, or always good to go?
+                    # if st.button("Iterate Search"):
                         
-                        if st.session_state["keywords_finalized"]:
-                            st.session_state['search_finished'] = st.session_state['search_manager'].search_and_compile_articles()
-                        else:
-                            st.write("Please finalize keywords before continuing...")
-                            
-            if st.session_state['search_finished']:
-                for key in st.session_state.keys():
-                    del st.session_state[key]
+                    if st.session_state["keywords_finalized"]:
+                        st.session_state['search_finished'] = st.session_state['search_manager'].search_and_compile_articles()
+                    else:
+                        st.write("Please finalize keywords before continuing...")
+                        
+            # moved to callback function for _write_search_results()
+            # if st.session_state['search_finished']:
+            #     for key in st.session_state.keys():
+            #         del st.session_state[key]
                 
     def _manage_edit_search_terms(self, search_manager):
         st.subheader("Edit Search Terms")
