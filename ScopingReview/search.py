@@ -92,14 +92,23 @@ class ArticleSearchManager(SearchManager):
     
 class IterateSearchManager(SearchManager):
     def __init__(self, df, research_q):
-        print("Reinitializing")
+        print("Reinitializing IterateSearchManager")
         super().__init__(None, research_q)
         self.df = df
-        self.selected_articles_df = get_relevant_rows(df)     
+        self.selected_articles_df = get_relevant_rows(df)   
+        # print("Session State init ISM- ", st.session_state)  
         if 'query_terms' not in st.session_state:
+            print("Initializing query terms")
             st.session_state['query_terms'] = []
+            st.session_state['primary_keywords'] = []
+            st.session_state['secondary_keywords'] = []
+            st.session_state['exclusion_keywords'] = []
         else:
+            ("Pulling query terms from session")
             self.query_terms = st.session_state['query_terms']
+            self.primary_keywords = [keyword.strip() for keyword in str(st.session_state['primary_keywords']).split(",")]
+            self.secondary_keywords = [keyword.strip() for keyword in str(st.session_state['secondary_keywords']).split(",")]
+            self.exclusion_keywords = [keyword.strip() for keyword in str(st.session_state['exclusion_keywords']).split(",")]
 
     def make_initial_query(self):
         with st.spinner("Extracting and grouping keywords from uploaded file"):
@@ -107,6 +116,7 @@ class IterateSearchManager(SearchManager):
                 generated_keywords_json = generate_keywords(self.df, self.research_q)
                 self.primary_keywords, self.secondary_keywords, self.exclusion_keywords = parse_keywords(str(generated_keywords_json))
                 self.query_terms = self.primary_keywords + self.secondary_keywords + self.exclusion_keywords 
+                print("Succesfully made initial query (pks) - ", self.primary_keywords)
                 return ", ".join(self.query_terms)
         
     def make_query(self):
@@ -114,24 +124,27 @@ class IterateSearchManager(SearchManager):
             st.write('Initlization failure - try again')
         else:
             print('query made')
-            return st.session_state['query_terms']
-       
+            return [st.session_state['query_terms']]
+        
     def edit_query_terms(self):
         with st.form("my_form"):
-            st.session_state["primary_keywords"] = st.text_area("Primary Keywords (comma-separated):", ", ".join(self.primary_keywords))
-            st.session_state["secondary_keywords"] = st.text_area("Secondary Keywords (comma-separated):", ", ".join(self.secondary_keywords))
-            st.session_state["exclusion_keywords"]  = st.text_area("Exclusion Keywords (comma-separated):", ", ".join(self.exclusion_keywords))
-            
+            st.session_state['primary_keywords'] = st.text_area("Primary Keywords (comma-separated):", ", ".join(self.primary_keywords))
+            st.session_state['secondary_keywords'] = st.text_area("Secondary Keywords (comma-separated):", ", ".join(self.secondary_keywords))
+            st.session_state['exclusion_keywords']  = st.text_area("Exclusion Keywords (comma-separated):", ", ".join(self.exclusion_keywords))
+           
             keywords_submitted = st.form_submit_button("Looks good!")
             if keywords_submitted: 
-                print("keyword session state 1 = ", st.session_state["keywords_finalized"])
-                self.primary_keywords = [keyword.strip() for keyword in st.session_state["primary_keywords"].split(",")]
-                self.secondary_keywords = [keyword.strip() for keyword in st.session_state["secondary_keywords"].split(",")]
-                self.exclusion_keywords = [keyword.strip() for keyword in st.session_state["exclusion_keywords"] .split(",")]
-                self.query_terms = self.primary_keywords + self.secondary_keywords + self.exclusion_keywords
+                primary_keywords = [keyword.strip() for keyword in str(st.session_state['primary_keywords']).split(",")]
+                secondary_keywords = [keyword.strip() for keyword in str(st.session_state['secondary_keywords']).split(",")]
+                exclusion_keywords = [keyword.strip() for keyword in str(st.session_state['exclusion_keywords']).split(",")]
+                self.query_terms = primary_keywords + secondary_keywords 
+                self.exclusion_terms = exclusion_keywords
                 st.session_state['query_terms'] = self.query_terms
+                st.session_state['primary_keywords'] = primary_keywords
+                st.session_state['secondary_keywords'] = secondary_keywords
+                st.session_state['exclusion_terms'] = self.exclusion_terms
                 st.session_state['keywords_finalized'] = True       
-                print("keyword session state 2= ", st.session_state["keywords_finalized"])
+                print("keywords finalized session state = ", st.session_state)
 
     def perform_search(self, search_string):
         # Reindex dataframes and Append new results to it
