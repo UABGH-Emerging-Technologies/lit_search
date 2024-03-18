@@ -106,7 +106,7 @@ class LiteraturePage:
             upload_manager = UploadManager(message="Upload Excel File with Y/N selection", 
                                         file_type = 'xlsx')
             df = upload_manager.upload_file()
-            if df is not None:
+            if (df is not None) and (not st.session_state['keywords_finalized']):
                 st.session_state['search_manager'] = IterateSearchManager(df, self.research_q)
                 # This line is new and edits the search terms after uploading the dataframe
                 self._manage_edit_search_terms(st.session_state['search_manager']) 
@@ -129,7 +129,7 @@ class LiteraturePage:
         if 'categorization_finished' not in st.session_state:
             st.session_state['categorization_finished'] = False
 
-        if not st.session_state['button_clicked'] and not st.session_state['categorization_finished']:
+        if (not st.session_state['button_clicked']) and (not st.session_state['categorization_finished']):
             upload_manager = UploadManager(message = "Upload Excel File for Categorization", 
                                            file_type = 'xlsx')
             df = upload_manager.upload_file()
