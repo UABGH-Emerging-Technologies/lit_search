@@ -97,31 +97,34 @@ class LiteraturePage:
         if 'button_clicked' not in st.session_state:
             st.session_state['button_clicked'] = False
             st.session_state['search_finished'] = False
-            st.session_state['keywords_finalized'] = False
-        
-        if 'keywords_finalized' not in st.session_state:
-            st.session_state['keywords_finalized'] = False
 
         if not st.session_state['button_clicked'] and not st.session_state['search_finished']:
             upload_manager = UploadManager(message="Upload Excel File with Y/N selection", 
                                         file_type = 'xlsx')
             df = upload_manager.upload_file()
-            if (df is not None) and (not st.session_state['keywords_finalized']):
+            if df is not None:
                 st.session_state['search_manager'] = IterateSearchManager(df, self.research_q)
-                # This line is new and edits the search terms after uploading the dataframe
-                self._manage_edit_search_terms(st.session_state['search_manager']) 
+                # initate keyword extraction right after file upload
+                st.session_state['search_manager'].manage_keyword_extraction_and_editing()
 
-            if st.session_state['keywords_finalized']:
-                st.session_state['search_finished'] = st.session_state['search_manager'].search_and_compile_articles()
-                st.session_state['button_clicked'] = st.session_state['search_finished']
+            if 'button_clicked' not in st.session_state:
+                st.session_state['button_clicked'] = False
+                st.session_state['search_finished'] = False
 
-        if st.session_state['search_finished']:
-            for key in st.session_state.keys():
-                del st.session_state[key]
+            if isinstance(st.session_state['search_manager'], IterateSearchManager):
+                if not st.session_state['button_clicked'] and not st.session_state['search_finished']:
+
+                    if st.button("Iterate Search"):
+                        st.session_state['search_finished'] = st.session_state['search_manager'].search_and_compile_articles()
+                        st.session_state['button_clicked'] = st.session_state['search_finished']
+
+            if st.session_state['search_finished']:
+                for key in st.session_state.keys():
+                    del st.session_state[key]
                 
     def _manage_edit_search_terms(self, search_manager):
         st.subheader("Edit Search Terms")
-        search_manager.edit_query_terms()
+        search_manager.generate_and_refine_query()
 
     def _manage_categorize_articles(self):
         if 'button_clicked' not in st.session_state:
@@ -159,9 +162,8 @@ class LiteraturePage:
                 st.session_state['summarization_manager'] = SummarizeManager(df, self.research_q)
                 # checking the no. of articles in each category and subcategorizing as needed.
                 st.session_state['summarization_manager'].subcategorize()         
-                
                      
-                # Summarizing
+            # Summarizing
             if st.button("Summarize Categories"):
                 st.spinner("Summarizing articles")
                 st.session_state['summarization_finished'] = st.session_state['summarization_finished'].summarize_articles()
