@@ -96,7 +96,14 @@ class LiteraturePage:
     def _manage_iterate_search(self):
         if 'button_clicked' not in st.session_state:
             st.session_state['button_clicked'] = False
+        
+        if 'search_finished' not in st.session_state:
             st.session_state['search_finished'] = False
+            
+        if 'keywords_extracted' not in st.session_state:
+            st.session_state['keywords_extracted'] = False        
+        if 'keywords_finalized' not in st.session_state:
+            st.session_state['keywords_finalized'] = False        
 
         if not st.session_state['button_clicked'] and not st.session_state['search_finished']:
             upload_manager = UploadManager(message="Upload Excel File with Y/N selection", 
@@ -115,9 +122,11 @@ class LiteraturePage:
                 if not st.session_state['button_clicked'] and not st.session_state['search_finished']:
 
                     if st.button("Iterate Search"):
-                        st.session_state['search_finished'] = st.session_state['search_manager'].search_and_compile_articles()
-                        st.session_state['button_clicked'] = st.session_state['search_finished']
-
+                        if st.session_state["keyword_finalized"]:
+                            st.session_state['search_finished'] = st.session_state['search_manager'].search_and_compile_articles()
+                            st.session_state['button_clicked'] = st.session_state['search_finished']
+                    else:
+                        st.write("Please finalize keywords before continuing...")
             if st.session_state['search_finished']:
                 for key in st.session_state.keys():
                     del st.session_state[key]
