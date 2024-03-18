@@ -83,33 +83,38 @@ class IterateSearchManager(SearchManager):
         super().__init__(None, research_q)
         self.df = df
         self.selected_articles_df = get_relevant_rows(df)
-        self.make_query()
+        self.make_initial_query()
         self.iteration_count = 1
 
-    def make_query(self):
-        generated_keywords_json = generate_keywords(self.df, self.research_q)
-        self.primary_keywords, self.secondary_keywords, self.exclusion_keywords = parse_keywords(str(generated_keywords_json))
-        self.query_terms = self.primary_keywords + self.secondary_keywords + self.exclusion_keywords 
+    def make_initial_query(self):
+        with st.spinner("Extracting and grouping keywords from uploaded file"):
+            generated_keywords_json = generate_keywords(self.df, self.research_q)
+            self.primary_keywords, self.secondary_keywords, self.exclusion_keywords = parse_keywords(str(generated_keywords_json))
+            self.query_terms = self.primary_keywords + self.secondary_keywords + self.exclusion_keywords 
         return ", ".join(self.query_terms)
+    
+    def make_query(self):
+        return self.query_terms
 
     def edit_query_terms(self):
-        if self.iteration_count == 0:
-            self.iteration_count += 1
-            self.make_query()
-        else:
+        
+        if not st.session_state["keywords_finalized"]:
             with st.form("my_form"):
-                primary_keywords_str = st.text_area("Primary Keywords (comma-separated):", ", ".join(self.primary_keywords))
-                secondary_keywords_str = st.text_area("Secondary Keywords (comma-separated):", ", ".join(self.secondary_keywords))
-                exclusion_keywords_str = st.text_area("Exclusion Keywords (comma-separated):", ", ".join(self.exclusion_keywords))
+                st.session_state["primary_keywords"] = st.text_area("Primary Keywords (comma-separated):", ", ".join(self.primary_keywords))
+                st.session_state["secondary_keywords"] = st.text_area("Secondary Keywords (comma-separated):", ", ".join(self.secondary_keywords))
+                st.session_state["exclusion_keywords"]  = st.text_area("Exclusion Keywords (comma-separated):", ", ".join(self.exclusion_keywords))
                 
                 keywords_submitted = st.form_submit_button("Looks good!")
                 if keywords_submitted:
-                    self.primary_keywords = [keyword.strip() for keyword in primary_keywords_str.split(",")]
-                    self.secondary_keywords = [keyword.strip() for keyword in secondary_keywords_str.split(",")]
-                    self.exclusion_keywords = [keyword.strip() for keyword in exclusion_keywords_str.split(",")]
+                    st.session_state['keywords_finalized'] = True                
 
-                    self.query_terms = self.primary_keywords + self.secondary_keywords + self.exclusion_keywords
-                    st.session_state['keywords_finalized'] = True
+        if st.session_state['keywords_finalized']:
+            self.primary_keywords = [keyword.strip() for keyword in st.session_state["primary_keywords"].split(",")]
+            self.secondary_keywords = [keyword.strip() for keyword in st.session_state["secondary_keywords"].split(",")]
+            self.exclusion_keywords = [keyword.strip() for keyword in st.session_state["exclusion_keywords"] .split(",")]
+            self.query_terms = self.primary_keywords + self.secondary_keywords + self.exclusion_keywords
+            print("Keywords finalized")
+          
 
     def get_filename(self):
         return review_config.SR_STEP2_FILENAME
