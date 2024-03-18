@@ -30,6 +30,7 @@ DOCX_MIME = "application/vnd.openxmlformats-officedocument.wordprocessingml.docu
 #BUTTON LABELS
 EXCEL_DOWNLOAD_LABEL = "Download Excel File"
 DOCX_DOWNLOAD_LABEL = "Download Word Document"
+BOTH_FILES = "Download Files"
 
 #LOOP Counting
 MAX_TRIES = 6

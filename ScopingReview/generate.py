@@ -168,7 +168,6 @@ def summarize_all_categories(df, user_question):
 
     # takes in multiple categories and assigns them in each row
     # TODO change the coln name from Catoegory to Categories
-    df['category'] = df['category'].str.split(', ')
     df_exploded = df.explode('category')
     
     # get categories
@@ -176,18 +175,16 @@ def summarize_all_categories(df, user_question):
 
     output = []
     for current_category in categories:
-        filtered_rows = df[df['category'] == current_category]
+        filtered_rows = df_exploded[df_exploded['category'] == current_category]
         article_summaries = []
-        for _, row in filtered_rows.iterrows():
+        for idx , row in filtered_rows.iterrows():
             article_summary = summarize_article_in_chunks(row.Text)
             #TODO: nice to haves
-            # filtered_rows.loc[idx, 'Article Summary'] = article_summary
-
+            # df_exploded.at[idx, 'Article Summary'] = article_summary
             formatted_summary = f"APA Citation: {row.citation}\n\n Summary: {article_summary}\n\n --- "
             article_summaries.append(formatted_summary)     
         text_to_summarize = "\n\n".join(article_summaries)
-    # text_to_summarize = f"Category of current articles: {current_category} \n\n" + text_to_summarize
-        
+
         result = ScopingReview_config.SUMMARIZE_CHAT.invoke(ScopingReview_prompts.category_summary_chat_prompt.format_prompt(
             question=user_question,
             category=current_category,
@@ -197,8 +194,6 @@ def summarize_all_categories(df, user_question):
         output.append(
             "# " + str(current_category) + "\n\n" + result.content + "\n\n" + "\n\n".join(filtered_rows.citation)
             )
-        
-        
     return "\n\n".join(output)
 
 # TODO: find better place for this. Used by write_first_draft()

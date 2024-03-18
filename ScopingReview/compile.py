@@ -65,7 +65,9 @@ class CategorizeManager(CompileManager):
 
 
 class SummarizeManager(CompileManager):
-    def __init__(self, summaries, research_q):
+    def __init__(self, df, research_q):
+        super().__init__(df)
+
         self.research_q = research_q
         st.session_state['file_uploaded_sum'] = False  # Initiate a unique file_uploaded variable for summarization
 
@@ -73,10 +75,10 @@ class SummarizeManager(CompileManager):
         return review_config.SR_STEP4_FILENAME
     
     def get_download_button_label(self):
-        return review_config.DOCX_DOWNLOAD_LABEL
+        return review_config.BOTH_FILES
     
     #TODO add write and second sheet + Generalize and move to parent
-    def _download_results(self, docx_data, research_q):
+    def _download_results(self, docx_data):
         st.write("Note that once you hit download, this form will reset.")
         st.download_button(
             label=self.get_download_button_label(),
@@ -84,6 +86,13 @@ class SummarizeManager(CompileManager):
             file_name=self.get_filename(),
             mime=review_config.DOCX_MIME  # correct MIME type for docx
         )
+        
+        # st.download_button(
+        #     label=self.get_download_button_label(),
+        #     data=updated_dataframe,
+        #     file_name="IndividualArticleSummaries.xlsx",
+        #     mime=review_config.EXCEL_MIME  # correct MIME type for docx
+        # )
     
     def summarize_articles(self):
         if self.df is not None:
@@ -91,7 +100,7 @@ class SummarizeManager(CompileManager):
             with st.spinner("Summarizing categories of manuscripts..."):
                 markdown_to_convert = review_generate.summarize_all_categories(self.df, self.research_q)
                 docx_data = convert_markdown_docx(markdown_to_convert)
-                self._download_results(docx_data, self.research_q)
+                self._download_results(docx_data)
                 
 class DraftReviewManager(CompileManager):
     def __init__(self, summaries, research_q):
