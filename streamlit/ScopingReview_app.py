@@ -7,7 +7,7 @@ from ScopingReview.data import write_excel_output
 import tempfile
 import ScopingReview_config.config as review_config
 from ScopingReview.states import StateMachineSearch, StateMachineIterate, StateMachineSummarize, StateMachineCategorize, StateMachineDraft
-
+import pypandoc
 
 from llm_utils.streamlit_common import hide_streamlit_branding, apply_uab_font
 
@@ -188,11 +188,14 @@ class UploadManager:
         
     def upload_file(self):
         uploaded_file = st.file_uploader(self.message, type=[self.file_type])
-        if self.file_type == 'xlsx':
-            return pd.read_excel(uploaded_file) if uploaded_file is not None else None
-        elif self.file_type == 'docx':
-            #TODO -update this part for step 5
-            pass
+        if uploaded_file is not None:
+            if self.file_type == 'xlsx':
+                return pd.read_excel(uploaded_file)
+            elif self.file_type == 'docx':
+                with tempfile.NamedTemporaryFile(delete=False, suffix=".docx") as tmpfile:
+                    tmpfile.write(uploaded_file.getvalue())
+                    return pypandoc.convert_file(tmpfile.name, 'markdown')
+        return None
             
 if __name__ == "__main__":
     literature_page = LiteraturePage()
