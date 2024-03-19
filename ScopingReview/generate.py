@@ -103,7 +103,7 @@ def categories_limit_check(df):
         unique_values_counts = df_exploded['category'].value_counts()
         # print(unique_values_counts)
         for category, count in unique_values_counts.items():
-            if count > 40:
+            if count > ScopingReview_config.SUBCLASS_THRESHOLD:
                 categories_exceeding_limit.append(category)
         
     return categories_exceeding_limit

@@ -36,6 +36,9 @@ BOTH_FILES = "Download Files"
 #LOOP Counting
 MAX_TRIES = 6
 
+#Sub Classificaiton threshold
+SUBCLASS_THRESHOLD = 40
+
 # LLM specific
 EMBEDDINGS = AzureOpenAIEmbeddings(
     azure_deployment="NewAda2",
