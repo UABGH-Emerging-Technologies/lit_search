@@ -137,7 +137,10 @@ A brief summary of the review, including the purpose, methodology, main findings
 """
 
 
+generate_sys_keywords_prompt = SystemMessagePromptTemplate.from_template(GENERATE_SYSTEM_KEYWORD_PROMPT)
+generate_human_keywords_prompt = HumanMessagePromptTemplate.from_template(GENERATE_HUMAN_KEYWORD_PROMPT)
 
+keyword_chat_prompt = ChatPromptTemplate.from_messages([generate_sys_keywords_prompt,generate_human_keywords_prompt])
 
 
 summarize_system_message_prompt = SystemMessagePromptTemplate.from_template(SUMMARIZE_CATEGORY_TEMPLATE)
