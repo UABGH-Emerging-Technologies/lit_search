@@ -184,8 +184,6 @@ class LiteraturePage:
                         st.session_state['button_clicked'] = st.session_state['summarization_finished']
                 
         if st.session_state['summarization_finished'] or st.session_state['subcategorize_complete']:
-            print("CLEANING UP")
-            print('Summary State = ', st.session_state )
             smsummarize.cleanup_states()
                 
     def _manage_draft_article(self):
