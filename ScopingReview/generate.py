@@ -2,7 +2,6 @@ import ScopingReview.prompts as ScopingReview_prompts
 import ScopingReview_config.config as ScopingReview_config
 import ScopingReview_config.boilerplate as ScopingReview_boilerplate
 import ScopingReview.data as review_data
-
 import openai
 import pandas as pd
 from langchain_community.callbacks import get_openai_callback
@@ -82,7 +81,7 @@ def generate_overall_introduction(question, abstracts, help_type):
 
 def categorize(category_df, input_text):
     # TODO: change the category_df to reduced_df --- in all places
-#   reduced_df = review_data.get_relevant_rows(category_df)
+    # reduced_df = review_data.get_relevant_rows(category_df)
   cost = 0.0
   input_list = input_text.split(',')
   input_list = [value.strip() for value in input_list if value.strip()]
@@ -141,11 +140,12 @@ def sub_categorize(original_df, categories_exceeding_limit, sub_categories):
     # Merging other columns back into the df
     df_final = df_copy.drop(columns=['category', 'Relevant']).merge(df, left_index=True, right_index=True, how='right')
     
-    # test set MRI, blood patch, cranial hypotension
-
-    return df_final, ''.join(unique_values_list)
-
-
+    # Categorization
+    for index, row in filtered_rows.iterrows():
+        data = row[['abstract', 'title']]
+        result = ScopingReview_config.CHAT.invoke(ScopingReview_prompts.categorization_chat_prompt.format_prompt(categories=unique_values_list, context=data).to_messages())
+        reduced_df.at[index, 'category'] = result.content
+    return reduced_df, ''.join(unique_values_list)
     
 
 def summarize_article_in_chunks(article_text):
@@ -230,7 +230,7 @@ def write_first_draft(summaries_markdown, user_question):
             question=user_question,
             summaries="\n\n".join(non_citations),
             introduction=introduction_result.content,
-            methodology=ScopingReview_boilerplate.METHDOLOGY,
+            methodology=ScopingReview_boilerplate.METHODOLOGY,
             conclusion=conclusion_result.content
         ).to_messages()
     )
@@ -238,13 +238,36 @@ def write_first_draft(summaries_markdown, user_question):
     assembled_draft = (
         abstract_result.content + "\n\n" +
         introduction_result.content + "\n\n" + 
-        ScopingReview_boilerplate.METHDOLOGY + "\n\n" + 
-        "Results/Discussion \n\n" +
+        ScopingReview_boilerplate.METHODOLOGY + "\n\n" + 
+        "# Results/Discussion \n\n" +
         "\n\n".join(non_citations) + "\n\n" +
         conclusion_result.content + "\n\n" + 
-        "#References \n\n" + "\n\n".join(citations)
+        "# References \n\n" + "\n\n".join(citations)
     )
     
     return assembled_draft
 
     
+def generate_keywords(df, research_question):
+    relevant_rows = review_data.get_relevant_rows(df)
+    all_keywords = []
+    for keywords in relevant_rows['keywords']:
+        keywords_list = [keyword.strip().lower() for keyword in keywords.split(',')]
+        clean_keywords_list = review_data.clean_keywords(keywords_list)
+        all_keywords.append(clean_keywords_list)
+    
+    all_titles = []   
+    for title in relevant_rows['title']:
+        titles_list = review_data.clean_title(title)
+        all_titles.append(titles_list)
+        
+    formatted_prompt = ScopingReview_prompts.keyword_chat_prompt.format_prompt(
+        question=research_question,
+        titles=all_titles,
+        keywords_list=all_keywords
+    )
+    result = ScopingReview_config.SUMMARIZE_CHAT.invoke(formatted_prompt.to_messages())
+
+
+    print("Result - ", result)
+    return result.content
