@@ -17,9 +17,7 @@ class CompileManager:
     
     def get_mime_type(self):
         # default implementation, subclasses MUST override this method
-        pass    
-  
-            
+        pass     
                   
 class CategorizeManager(CompileManager):
     def __init__(self, df, userdefined_categories):
@@ -69,6 +67,9 @@ class SummarizeManager(CompileManager):
         super().__init__(df)
 
         self.research_q = research_q
+        self.categories = []
+        self.sub_categories = ""
+        self.categories_str  = ""
         st.session_state['file_uploaded_sum'] = False  # Initiate a unique file_uploaded variable for summarization
 
     def get_filename(self):
@@ -87,13 +88,24 @@ class SummarizeManager(CompileManager):
             mime=review_config.DOCX_MIME  # correct MIME type for docx
         )
         
-        # st.download_button(
-        #     label=self.get_download_button_label(),
-        #     data=updated_dataframe,
-        #     file_name="IndividualArticleSummaries.xlsx",
-        #     mime=review_config.EXCEL_MIME  # correct MIME type for docx
-        # )
+    def check_limits(self):
+        categories_exceeding_limit = review_generate.categories_limit_check
+        return categories_exceeding_limit
     
+    def subcategorize(self):
+        categories_exceeding_limit = self.check_limits()
+        # perfoming categorization on the exceeding limit categories
+        if categories_exceeding_limit:
+            categories_string = ", ".join(categories_exceeding_limit)
+            sub_categories = st.text_area("More than 40 articles belong to the following category(ies). Suggest sub-categories for the following main category(ies), and separate them by commas:", categories_string)
+            if st.button("Subcategorize Topics"):
+                df, categories_str = review_generate.sub_categorize(df, categories_exceeding_limit, sub_categories)
+                self._download_results(df, ",".split(categories_str))
+            
+            st.write("You must download and review the Excel file before continuing.")
+            st.write("Refresh the page to summarize the articles.")
+       
+                    
     def summarize_articles(self):
         if self.df is not None:
             st.session_state['file_uploaded_sum'] = True  # file is uploaded and ready to categorize
