@@ -51,7 +51,9 @@ class StateMachineCategorize(StateMachine):
     def initialize_states(self):
         super().initialize_states() 
         if 'categorization_finished' not in st.session_state:
-            st.session_state['categorization_finished'] = False     
+            st.session_state['categorization_finished'] = False   
+        if 'categorization_manager' not in st.session_state:
+            st.session_state['categorization_manager'] = None  
             
 ## Step 4 - create summaries of each subcategory    
 class StateMachineSummarize(StateMachine):
