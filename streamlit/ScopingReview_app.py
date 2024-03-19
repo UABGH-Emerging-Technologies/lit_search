@@ -6,7 +6,7 @@ import ScopingReview.generate as review_generate
 from ScopingReview.data import write_excel_output
 import tempfile
 import ScopingReview_config.config as review_config
-
+from ScopingReview.states import StateMachineSearch, StateMachineIterate, StateMachineSummarize, StateMachineCategorize, StateMachineDraft
 
 
 from llm_utils.streamlit_common import hide_streamlit_branding, apply_uab_font
@@ -78,9 +78,10 @@ class LiteraturePage:
             
     def _manage_search(self):
         # Check if 'button_clicked' is already a key in session_state
-        if 'button_clicked' not in st.session_state:
-            st.session_state['button_clicked'] = False
-            st.session_state['search_finished'] = False
+        smsearch = StateMachineSearch()
+        smsearch.initialize_states()
+        if not st.session_state['button_clicked'] and not st.session_state['search_finished']:
+
             st.session_state['search_manager'] = ArticleSearchManager(self.scoping_step, self.research_q)
 
         if not st.session_state['button_clicked'] and not st.session_state['search_finished']:
@@ -89,24 +90,12 @@ class LiteraturePage:
                 st.session_state['button_clicked'] = st.session_state['search_finished']
 
         if st.session_state['search_finished']:
-            st.session_state['button_clicked'] = False
-            for key in st.session_state.keys():
-                del st.session_state[key]
+            smsearch.cleanup_states()
                 
-    def _initialize_states(self):
-        if 'button_clicked' not in st.session_state:
-            st.session_state['button_clicked'] = False
-        if 'search_finished' not in st.session_state:
-            st.session_state['search_finished'] = False     
-        if 'keywords_extracted' not in st.session_state:
-            st.session_state['keywords_extracted'] = False        
-        if 'keywords_finalized' not in st.session_state:
-            st.session_state['keywords_finalized'] = False 
-        if 'search_manager' not in st.session_state:
-            st.session_state['search_manager'] = None
             
     def _manage_iterate_search(self):       
-        self._initialize_states()
+        smi = StateMachineIterate()
+        smi.initialize_states()
         if not st.session_state['button_clicked'] and not st.session_state['search_finished']:
             upload_manager = UploadManager(message="Upload Excel File with Y/N selection", 
                                         file_type = 'xlsx')
@@ -127,21 +116,15 @@ class LiteraturePage:
                             st.write("Please finalize keywords before continuing...")
                             
         if st.session_state['search_finished'] and st.session_state['button_clicked']:
-            del st.session_state['search_finished']
-            del st.session_state['button_clicked']
-            del st.session_state['search_manager']
-            st.session_state["keywords_finalized"] = False
+            smi.cleanup_states()
                 
     def _manage_edit_search_terms(self, search_manager):
         st.subheader("Edit Search Terms")
         search_manager.generate_and_refine_query()
 
     def _manage_categorize_articles(self):
-        if 'button_clicked' not in st.session_state:
-            st.session_state['button_clicked'] = False
-        if 'categorization_finished' not in st.session_state:
-            st.session_state['categorization_finished'] = False
-
+        smc = StateMachineCategorize()
+        smc.initialize_states()
         if (not st.session_state['button_clicked']) and (not st.session_state['categorization_finished']):
             upload_manager = UploadManager(message = "Upload Excel File for Categorization", 
                                            file_type = 'xlsx')
@@ -155,15 +138,11 @@ class LiteraturePage:
                 st.session_state['button_clicked'] = st.session_state['categorization_finished']
 
         if st.session_state['categorization_finished']:
-            for key in st.session_state.keys():
-                del st.session_state[key]
-
+            smc.cleanup_states()
+    
     def _manage_summarize_categories(self):
-        if 'button_clicked' not in st.session_state:
-            st.session_state['button_clicked'] = False
-        if 'summarization_finished' not in st.session_state:
-            st.session_state['summarization_finished'] = False
-
+        smsummarize = StateMachineSummarize()
+        smsummarize.initialize_states()
         if not st.session_state['button_clicked'] and not st.session_state['summarization_finished']:
             upload_manager = UploadManager(message = "Upload Excel file with Category labels to summarize", 
                                         file_type = "xlsx")            
@@ -175,34 +154,32 @@ class LiteraturePage:
                      
             # Summarizing
             if st.button("Summarize Categories"):
-                st.spinner("Summarizing articles")
-                st.session_state['summarization_finished'] = st.session_state['summarization_finished'].summarize_articles()
-                st.session_state['button_clicked'] = st.session_state['summarization_finished']
+                if st.session_state['subcategorize_complete']:
+                    st.spinner("Summarizing articles")
+                    st.session_state['summarization_finished'] = st.session_state['summarization_manager'].summarize_articles()
+                    st.session_state['button_clicked'] = st.session_state['summarization_finished']
+                else: 
+                    st.write("Please execute subcategorization first")
                 
         if st.session_state['summarization_finished']:
-            for key in st.session_state.keys():
-                del st.session_state[key]
+            smsummarize.cleanup_states()
                 
     def _manage_draft_article(self):
-        if 'button_clicked' not in st.session_state:
-            st.session_state['button_clicked'] = False
-        if 'draft_complete' not in st.session_state:
-            st.session_state['draft_complete'] = False
-            
+        smd = StateMachineDraft()
+        smd.initialize_states()
         if not st.session_state['button_clicked'] and not st.session_state['draft_complete']:
             upload_manager = UploadManager(message = "Upload document of summaries to draft scoping review", 
                                         file_type = "docx")            
-            df = upload_manager.upload_file()
-
+            summary_data = upload_manager.upload_file()
+            print("SUMMARY UPLOADED - ", summary_data)
             if st.button("Draft Review"):
-                if df is not None:
-                    st.session_state['draft_complete'] = DraftReviewManager(df, self.research_q)
-                st.session_state['draft_complete'] = st.session_state['draft_complete'].draft_review()
+                if summary_data is not None:
+                    st.session_state['draft_manager'] = DraftReviewManager(summary_data, self.research_q)
+                st.session_state['draft_complete'] = st.session_state['draft_manager'].draft_review()
                 st.session_state['button_clicked'] = st.session_state['draft_complete']
                 
         if st.session_state['draft_complete']:
-            for key in st.session_state.keys():
-                del st.session_state[key]
+            smd.cleanup_states()
         
 class UploadManager:
     def __init__(self, message:str, file_type:str):
