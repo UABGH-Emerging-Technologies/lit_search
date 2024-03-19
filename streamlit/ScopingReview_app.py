@@ -74,7 +74,7 @@ class LiteraturePage:
         elif self.scoping_step == "summarize categories":
             self._manage_summarize_categories()
         elif self.scoping_step == "draft article":
-            self._manage_summarize_categories()
+            self._manage_draft_article()
             
     def _manage_search(self):
         # Check if 'button_clicked' is already a key in session_state
