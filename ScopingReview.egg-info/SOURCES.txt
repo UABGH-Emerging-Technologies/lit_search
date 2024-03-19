@@ -16,4 +16,5 @@ ScopingReview.egg-info/requires.txt
 ScopingReview.egg-info/top_level.txt
 ScopingReview_config/__init__.py
 ScopingReview_config/app_config.py
+ScopingReview_config/boilerplate.py
 ScopingReview_config/config.py
