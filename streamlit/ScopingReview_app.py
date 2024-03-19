@@ -152,14 +152,12 @@ class LiteraturePage:
                 # checking the no. of articles in each category and subcategorizing as needed.
                 st.session_state['summarization_manager'].subcategorize()         
                      
-            # Summarizing
-            if st.button("Summarize Categories"):
-                if st.session_state['subcategorize_complete']:
+                # Summarizing
+
+                if st.button("Summarize Categories"):
                     st.spinner("Summarizing articles")
                     st.session_state['summarization_finished'] = st.session_state['summarization_manager'].summarize_articles()
                     st.session_state['button_clicked'] = st.session_state['summarization_finished']
-                else: 
-                    st.write("Please execute subcategorization first")
                 
         if st.session_state['summarization_finished']:
             smsummarize.cleanup_states()
@@ -171,7 +169,6 @@ class LiteraturePage:
             upload_manager = UploadManager(message = "Upload document of summaries to draft scoping review", 
                                         file_type = "docx")            
             summary_data = upload_manager.upload_file()
-            print("SUMMARY UPLOADED - ", summary_data)
             if st.button("Draft Review"):
                 if summary_data is not None:
                     st.session_state['draft_manager'] = DraftReviewManager(summary_data, self.research_q)
