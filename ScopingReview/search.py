@@ -137,13 +137,9 @@ class IterateSearchManager(SearchManager):
                 primary_keywords = [keyword.strip() for keyword in str(st.session_state['primary_keywords']).split(",")]
                 secondary_keywords = [keyword.strip() for keyword in str(st.session_state['secondary_keywords']).split(",")]
                 exclusion_keywords = [keyword.strip() for keyword in str(st.session_state['exclusion_keywords']).split(",")]
-                self.query_terms = primary_keywords + secondary_keywords 
-                self.exclusion_terms = exclusion_keywords
+                self.query_terms = primary_keywords + secondary_keywords + exclusion_keywords
                 st.session_state['query_terms'] = self.query_terms
-                st.session_state['primary_keywords'] = primary_keywords
-                st.session_state['secondary_keywords'] = secondary_keywords
-                st.session_state['exclusion_terms'] = self.exclusion_terms
-                st.session_state['keywords_finalized'] = True       
+                st.session_state['keywords_finalized']=True
                 print("keywords finalized session state = ", st.session_state)
 
     def perform_search(self, search_string):
