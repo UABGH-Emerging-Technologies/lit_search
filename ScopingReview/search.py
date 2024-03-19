@@ -26,14 +26,15 @@ class SearchManager:
 
     def _write_search_results(self, articles_df, query):
         st.balloons()
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmpfile:
+        with tempfile.NamedTemporaryFile(delete=True, suffix='.xlsx') as tmpfile:
             write_excel_output(tmpfile, articles_df, query)
             with open(tmpfile.name, "rb") as file:
                 st.download_button(
                     label="Download Excel file",
                     data=file,
                     file_name=self.get_filename(),
-                    mime=self.get_mime_type()
+                    mime=self.get_mime_type(),
+                    on_click=self._cleanup_session()
                 )
 
     def get_filename(self):
@@ -42,6 +43,10 @@ class SearchManager:
     
     def get_mime_type(self):
         return review_config.EXCEL_MIME
+    
+    def _cleanup_session(self):
+        for key in st.session_state.keys():
+            del st.session_state[key]
 
 
     def make_query(self):
