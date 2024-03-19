@@ -153,12 +153,8 @@ def get_pmcids_from_pubmed(pmids):
         try:
             pmcid = get_pmcid_from_pubmed(pmid)
         except Exception as e:
-            print(f"First attempt failed to retrieve PMCID {pmid}: {e}")
-            try:
-                pmcid = get_pmcid_from_pubmed(pmid)  # Retry
-            except Exception as e:
-                print(f"Second attempt failed to retrieve PMCID {pmid}: {e}")
-                pmcid = ""
+            print(f"Second attempt failed to retrieve PMCID {pmid}: {e}")
+            pmcid = ""
         pmcids.append(pmcid)
     return pmcids
 def extract_text_from_pdf_bytes(pdf_bytes):
@@ -220,20 +216,20 @@ def fetch_full_text(pmids, access_token=lit_ap_config.LIBKEY_API_KEY):
             if not downloaded:
                 # Check if LibKey provides a direct PDF link
                 libkey_url = get_libkey_text_link(pmid, access_token)
-                if libkey_url and libkey_url.endswith('.pdf'):
-                    try:
-                        headers = {
-                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.3'
-                        }
-                        response = requests.get(libkey_url, timeout=20, headers=headers)
-                        if response.ok:
-                            text = extract_text_from_pdf_bytes(response.content)
-                            url = libkey_url
-                            downloaded = True
-                    except Exception as e:
-                        print(f"Error during LibKey PDF download for PMID {pmid}: {e}")
-                else:
-                    url = libkey_url  # Record the URL provided by LibKey, even if not a direct PDF
+                try:
+                    headers = {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.3'
+                    }
+                    response = requests.get(url=libkey_url, timeout=20, headers=headers, allow_redirects=True)
+                    if response.ok and response.url.lower().endswith('.pdf'):
+                        text = extract_text_from_pdf_bytes(response.content)
+                        url = libkey_url
+                        downloaded = True
+                    else:
+                        url=libkey_url
+                except Exception as e:
+                    print(f"Error during LibKey PDF download for PMID {pmid}, {libkey_url}: {e}")
+                    url = libkey_url
 
         except Exception as e:
             print(f"Error during processing PMID {pmid}: {e}")
