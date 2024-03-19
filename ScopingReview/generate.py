@@ -123,16 +123,18 @@ def sub_categorize(original_df, categories_exceeding_limit, sub_categories):
         df_exploded['category'] = df_exploded['category'].str.lower()
         mask = df_exploded['category'] == remove_category
         for index, row in df_exploded[mask].iterrows():
-            data = row[['abstract', 'title']]
-            # Assuming your categorization process is correctly set up
-            result = ScopingReview_config.CHAT.invoke(
-                ScopingReview_prompts.categorization_chat_prompt.format_prompt(
-                    categories=sub_categories, context=data
-                ).to_messages()
-            )
-            category_to_write = result.content.replace("'", "")
-            df_exploded.at[index, 'category'] = category_to_write.lower()
-            
+            # index is preserved across the explode
+            if row.category == remove_category:
+                data = row[['abstract', 'title']]
+                # Assuming your categorization process is correctly set up
+                result = ScopingReview_config.CHAT.invoke(
+                    ScopingReview_prompts.categorization_chat_prompt.format_prompt(
+                        categories=sub_categories, context=data
+                    ).to_messages()
+                )
+                category_to_write = result.content.replace("'", "")
+                df_exploded.at[index, 'category'] = category_to_write.lower()
+                
     unique_values_list = list(df_exploded['category'].unique())
     # Reverse the explode operation to update original dataframe
     df = df_exploded.groupby(df_exploded.index).agg({'category': lambda x: ', '.join(x), 'Relevant': 'first'})
