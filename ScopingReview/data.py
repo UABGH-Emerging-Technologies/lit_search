@@ -34,7 +34,7 @@ def parse_keywords(content):
 def make_and_refine_query(previous_query, research_q, cost, loop_counter):
     query_maker = PubMedQueryGenerator(research_q)
     search_string, response_meta = query_maker.generate_search_string(
-        PUBMED_CHAT = review_config.CHAT,
+        PUBMED_CHAT = review_config.TURBO_CHAT,
         loop_n=loop_counter, 
         last_query=previous_query
         )

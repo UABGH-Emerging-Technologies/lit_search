@@ -81,3 +81,13 @@ FASTER_CHAT = AzureChatOpenAI(
     model_name="gpt-35-turbo-16",
     openai_api_key=lit_app_config.GPT4_KEY
 )
+
+TURBO_CHAT = AzureChatOpenAI(
+    azure_endpoint="https://nlp-openai-svc.openai.azure.com",
+    openai_api_version="2023-03-15-preview",
+    azure_deployment="GPT4Turbo",
+    openai_api_type="azure",
+    temperature=0,
+    model_name="gpt-4",
+    openai_api_key=lit_app_config.OPENAI_API_KEY
+)

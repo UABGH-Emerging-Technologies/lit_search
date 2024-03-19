@@ -28,7 +28,7 @@ def generate_search_string(input_research_q, loop_n=0, last_query=""):
     model.
     """
     prompt = ScopingReview_prompts.PUBMED_PROMPT.format(input_research_q)
-    chat=ScopingReview_config.PUBMED_CHAT
+    chat=ScopingReview_config.TURBO_CHAT
     if loop_n>0:
         prompt = prompt + ScopingReview_prompts.FEW_RESULTS_PROMPT + last_query
     with get_openai_callback() as response_meta:
@@ -45,6 +45,7 @@ def generate_search_string(input_research_q, loop_n=0, last_query=""):
     return response.content, response_meta
   
 def generate_overall_introduction(question, abstracts, help_type):
+    # pretty sure this is deprecated infavor of SummarizeManager()
     """
     The function `generate_overall_introduction` takes a question, a list of abstracts, and a help type
     as input, and generates an overall introduction by summarizing the literature related to the
@@ -64,7 +65,7 @@ def generate_overall_introduction(question, abstracts, help_type):
     model.
     """
     prompt = ScopingReview_prompts.SUMMARIZE_LITERATURE_PROMPT.format(question, help_type, abstracts)
-    chat=ScopingReview_config.CHAT
+    chat=ScopingReview_config.TURBO_CHAT
     with get_openai_callback() as response_meta:
         messages = [
             SystemMessage(
@@ -88,7 +89,7 @@ def categorize(category_df, input_text):
 
   for index, row in category_df.iterrows():
       data = row[['abstract', 'title']]
-      result = ScopingReview_config.CHAT.invoke(ScopingReview_prompts.categorization_chat_prompt.format_prompt(categories=input_list, context=data).to_messages())
+      result = ScopingReview_config.TURBO_CHAT.invoke(ScopingReview_prompts.categorization_chat_prompt.format_prompt(categories=input_list, context=data).to_messages())
       keyword_list = result.content.replace("'", "")
       category_df.at[index, 'category'] = keyword_list.lower()
   return category_df
@@ -127,7 +128,7 @@ def sub_categorize(original_df, categories_exceeding_limit, sub_categories):
             if row.category == remove_category:
                 data = row[['abstract', 'title']]
                 # Assuming your categorization process is correctly set up
-                result = ScopingReview_config.CHAT.invoke(
+                result = ScopingReview_config.TURBO_CHAT.invoke(
                     ScopingReview_prompts.categorization_chat_prompt.format_prompt(
                         categories=sub_categories, context=data
                     ).to_messages()
@@ -144,7 +145,7 @@ def sub_categorize(original_df, categories_exceeding_limit, sub_categories):
     # Categorization
     for index, row in df_final.iterrows():
         data = row[['abstract', 'title']]
-        result = ScopingReview_config.CHAT.invoke(ScopingReview_prompts.categorization_chat_prompt.format_prompt(categories=unique_values_list, context=data).to_messages())
+        result = ScopingReview_config.TURBO_CHAT.invoke(ScopingReview_prompts.categorization_chat_prompt.format_prompt(categories=unique_values_list, context=data).to_messages())
         reduced_df.at[index, 'category'] = result.content
     return reduced_df, ''.join(unique_values_list)
     
@@ -155,11 +156,11 @@ def summarize_article_in_chunks(article_text):
     texts = text_splitter.create_documents([article_text])
 
     # Create the initial summary for the first chunk
-    summary = ScopingReview_config.FASTER_CHAT.invoke(ScopingReview_prompts.initial_summary_prompt.format(text=texts[0]))
+    summary = ScopingReview_config.TURBO_CHAT.invoke(ScopingReview_prompts.initial_summary_prompt.format(text=texts[0]))
 
     # Iteratively refine the summary with each subsequent chunk
     for text_chunk in texts[1:]:
-        summary = ScopingReview_config.FASTER_CHAT.invoke(ScopingReview_prompts.refine_summary_prompt.format(existing_summary=summary, text=text_chunk))
+        summary = ScopingReview_config.TURBO_CHAT.invoke(ScopingReview_prompts.refine_summary_prompt.format(existing_summary=summary, text=text_chunk))
 
     return summary
   
@@ -186,7 +187,7 @@ def summarize_all_categories(df, user_question):
             article_summaries.append(formatted_summary)     
         text_to_summarize = "\n\n".join(article_summaries)
 
-        result = ScopingReview_config.SUMMARIZE_CHAT.invoke(ScopingReview_prompts.category_summary_chat_prompt.format_prompt(
+        result = ScopingReview_config.TURBO_CHAT.invoke(ScopingReview_prompts.category_summary_chat_prompt.format_prompt(
             question=user_question,
             category=current_category,
             content=text_to_summarize
@@ -211,14 +212,14 @@ def extract_apa_citations(markdown_text):
 def write_first_draft(summaries_markdown, user_question):
     citations, non_citations = extract_apa_citations(summaries_markdown)
     
-    introduction_result = ScopingReview_config.SUMMARIZE_CHAT.invoke(
+    introduction_result = ScopingReview_config.TURBO_CHAT.invoke(
         ScopingReview_prompts.draft_introduction_prompt.format_prompt(
             question=user_question,
             summaries="\n\n".join(non_citations)
         ).to_messages()
     )
     
-    conclusion_result = ScopingReview_config.SUMMARIZE_CHAT.invoke(
+    conclusion_result = ScopingReview_config.TURBO_CHAT.invoke(
         ScopingReview_prompts.draft_conclusion_prompt.format_prompt(
             question=user_question,
             summaries="\n\n".join(non_citations),
@@ -226,7 +227,7 @@ def write_first_draft(summaries_markdown, user_question):
         ).to_messages()
     )
 
-    abstract_result = ScopingReview_config.SUMMARIZE_CHAT.invoke(
+    abstract_result = ScopingReview_config.TURBO_CHAT.invoke(
         ScopingReview_prompts.draft_abstract_prompt.format_prompt(
             question=user_question,
             summaries="\n\n".join(non_citations),
@@ -267,7 +268,7 @@ def generate_keywords(df, research_question):
         titles=all_titles,
         keywords_list=all_keywords
     )
-    result = ScopingReview_config.SUMMARIZE_CHAT.invoke(formatted_prompt.to_messages())
+    result = ScopingReview_config.TURBO_CHAT.invoke(formatted_prompt.to_messages())
 
 
     print("Result - ", result)
