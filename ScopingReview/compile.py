@@ -89,7 +89,7 @@ class SummarizeManager(CompileManager):
         )
         
     def check_limits(self):
-        categories_exceeding_limit = review_generate.categories_limit_check
+        categories_exceeding_limit = review_generate.categories_limit_check(self.df)
         return categories_exceeding_limit
     
     def subcategorize(self):
@@ -99,16 +99,17 @@ class SummarizeManager(CompileManager):
             categories_string = ", ".join(categories_exceeding_limit)
             sub_categories = st.text_area("More than 40 articles belong to the following category(ies). Suggest sub-categories for the following main category(ies), and separate them by commas:", categories_string)
             if st.button("Subcategorize Topics"):
-                df, categories_str = review_generate.sub_categorize(df, categories_exceeding_limit, sub_categories)
-                self._download_results(df, ",".split(categories_str))
+                self.df, self.categories_str = review_generate.sub_categorize(self.df, categories_exceeding_limit, sub_categories)
+                st.session_state['subcategorize_complete'] = True
+                # self._download_results(",".split(categories_str))
             
-            st.write("You must download and review the Excel file before continuing.")
-            st.write("Refresh the page to summarize the articles.")
+            # st.write("You must download and review the Excel file before continuing.")
+            # st.write("Refresh the page to summarize the articles.")
        
                     
     def summarize_articles(self):
         if self.df is not None:
-            st.session_state['file_uploaded_sum'] = True  # file is uploaded and ready to categorize
+              # file is uploaded and ready to categorize
             with st.spinner("Summarizing categories of manuscripts..."):
                 markdown_to_convert = review_generate.summarize_all_categories(self.df, self.research_q)
                 docx_data = convert_markdown_docx(markdown_to_convert)
