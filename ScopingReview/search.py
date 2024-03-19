@@ -33,8 +33,7 @@ class SearchManager:
                     label="Download Excel file",
                     data=file,
                     file_name=self.get_filename(),
-                    mime=self.get_mime_type(),
-                    on_click=self._cleanup_session()
+                    mime=self.get_mime_type()
                 )
 
     def get_filename(self):
@@ -142,7 +141,8 @@ class IterateSearchManager(SearchManager):
                 primary_keywords = [keyword.strip() for keyword in str(st.session_state['primary_keywords']).split(",")]
                 secondary_keywords = [keyword.strip() for keyword in str(st.session_state['secondary_keywords']).split(",")]
                 exclusion_keywords = [keyword.strip() for keyword in str(st.session_state['exclusion_keywords']).split(",")]
-                self.query_terms = primary_keywords + secondary_keywords + exclusion_keywords
+                self.query_terms = primary_keywords + secondary_keywords 
+                #TODO Make better way to add exclusion keywords (adding to query terms was not effective)
                 st.session_state['query_terms'] = self.query_terms
                 st.session_state['keywords_finalized']=True
                 print("keywords finalized session state = ", st.session_state)

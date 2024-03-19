@@ -102,6 +102,8 @@ class LiteraturePage:
             st.session_state['keywords_extracted'] = False        
         if 'keywords_finalized' not in st.session_state:
             st.session_state['keywords_finalized'] = False 
+        if 'search_manager' not in st.session_state:
+            st.session_state['search_manager'] = None
             
     def _manage_iterate_search(self):       
         self._initialize_states()
