@@ -167,7 +167,7 @@ class LiteraturePage:
     def _manage_summarize_categories(self):
         smsummarize = StateMachineSummarize()
         smsummarize.initialize_states()
-        if not st.session_state['button_clicked'] and not st.session_state['summarization_finished']:
+        if not st.session_state['button_clicked']:
             upload_manager = UploadManager(message = "Upload Excel file with Category labels to summarize", 
                                         file_type = "xlsx")            
             df = upload_manager.upload_file()
@@ -175,15 +175,17 @@ class LiteraturePage:
                 st.session_state['summarization_manager'] = SummarizeManager(df, self.research_q)
                 # checking the no. of articles in each category and subcategorizing as needed.
                 st.session_state['summarization_manager'].subcategorize()         
-                     
-                # Summarizing
-
-                if st.button("Summarize Categories"):
-                    st.spinner("Summarizing articles")
-                    st.session_state['summarization_finished'] = st.session_state['summarization_manager'].summarize_articles()
-                    st.session_state['button_clicked'] = st.session_state['summarization_finished']
                 
-        if st.session_state['summarization_finished']:
+                if st.session_state['subcategorize_complete'] and (not st.session_state['limit_exceeded']):     
+                    # Summarizing
+                    if st.button("Summarize Categories"):
+                        st.spinner("Summarizing articles")
+                        st.session_state['summarization_finished'] = st.session_state['summarization_manager'].summarize_articles()
+                        st.session_state['button_clicked'] = st.session_state['summarization_finished']
+                
+        if st.session_state['summarization_finished'] or st.session_state['subcategorize_complete']:
+            print("CLEANING UP")
+            print('Summary State = ', st.session_state )
             smsummarize.cleanup_states()
                 
     def _manage_draft_article(self):

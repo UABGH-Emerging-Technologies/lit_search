@@ -59,6 +59,7 @@ class StateMachineCategorize(StateMachine):
 class StateMachineSummarize(StateMachine):
     def __init__(self):
         pass
+    
     def initialize_states(self):
         super().initialize_states() 
         if 'summarization_finished' not in st.session_state:
@@ -67,7 +68,17 @@ class StateMachineSummarize(StateMachine):
             st.session_state['subcategorize_complete'] = False
         if 'summarization_manager' not in st.session_state:
             st.session_state['summarization_manager'] = None
-
+        if 'limit_exceeded' not in st.session_state:
+            st.session_state['limit_exceeded'] = False
+        if 'button_clicked' not in st.session_state:
+            st.session_state['button_clicked'] = False
+    
+    def cleanup_states(self):
+        del st.session_state['summarization_manager']
+        del st.session_state['button_clicked']
+        del st.session_state['summarization_finished']
+        del st.session_state['limit_exceeded']
+        
 ## Step 5 - Summarize Summaries and compile draft
 class StateMachineDraft(StateMachine):
     def __init__(self):
