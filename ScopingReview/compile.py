@@ -48,6 +48,7 @@ class CategorizeManager(CompileManager):
             self._download_results(category_df)
     
     def _download_results(self, category_df):
+        category_df.drop_duplicates(subset='PMID', keep='first', inplace=True)
         st.write("Note that once you hit download, this form will reset.")
         with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmpfile:
             write_excel_output(tmpfile, category_df, self.userdefined_categories)
@@ -80,6 +81,7 @@ class SummarizeManager(CompileManager):
     
     #TODO add write and second sheet + Generalize and move to parent
     def _download_excel_results(self, categories_str):
+        self.df.drop_duplicates(subset='PMID', keep='first', inplace=True)
         st.write("Note that once you hit download, this form will reset.")
         with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmpfile:
             write_excel_output(tmpfile, self.df, categories_str)
@@ -114,6 +116,7 @@ class SummarizeManager(CompileManager):
             sub_categories = st.text_area("More than 40 articles belong to the following category(ies). Suggest sub-categories for the following main category(ies), and separate them by commas:", categories_string)
             if st.button("Subcategorize Topics"):
                 self.df, self.categories_str = review_generate.sub_categorize(self.df, categories_exceeding_limit, sub_categories)
+                self.df.drop_duplicates(subset='PMID', keep='first', inplace=True)
                 self._download_excel_results(",".split(self.categories_str))
                 st.session_state['subcategorize_complete'] = True
             

@@ -25,6 +25,8 @@ class SearchManager:
         return articles_df
 
     def _write_search_results(self, articles_df, query):
+        # dedub by PMID
+        articles_df.drop_duplicates(subset="PMID")
         st.balloons()
         with tempfile.NamedTemporaryFile(delete=True, suffix='.xlsx') as tmpfile:
             write_excel_output(tmpfile, articles_df, query)
@@ -171,7 +173,7 @@ class IterateSearchManager(SearchManager):
         articles_df.drop_duplicates(subset='PMID', keep='first', inplace=True)
 
         # Call parent method to write the combined results to excel
-        super()._write_search_results(articles_df, query)
+        super()._write_search_results(articles_df, query)  
 
     def manage_keyword_extraction_and_editing(self):
 

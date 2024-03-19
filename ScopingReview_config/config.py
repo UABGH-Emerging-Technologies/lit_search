@@ -75,7 +75,7 @@ MAX_ARTICLES_SR = 200
 MAX_ARTICLES_LR = 50
 
 # remove this later
-FASTER_CHAT = AzureChatOpenAI(
+CHAT35 = AzureChatOpenAI(
     azure_endpoint="https://nlp-ai-svc.openai.azure.com/",
     openai_api_version="2024-02-15-preview",
     azure_deployment="ChatGPT16k",
