@@ -31,7 +31,7 @@ FEW_RESULTS_PROMPT = """\n\n The following query returned no or few results. Ple
 
 SUMMARIZE_LITERATURE_PROMPT = """I am considering a clinical research project to address this question: '{}'\n\n I want to {} and understand how my project is situated in existing literature. Write a paragrph summarizing of the following article abstracts and addressing how my proposed project fits in to existing literature.\n\n{}\n\nCite each article in the paragraph in APA format."""
 
-CATEGORIZE_SYSTEM_TEMPLATE = """ Help categorize the input data into the categories given by the user. Return comma separated category(ies) as output(assign categories that matters the most)."""
+CATEGORIZE_SYSTEM_TEMPLATE = """ Help categorize the input data into the categories given by the user. Return comma separated category(ies) as output(assign categories that matters the most). Use only the categories given by the user to categorize the input"""
 
 HUMAN_TEMPLATE = """
 CONTEXT:
