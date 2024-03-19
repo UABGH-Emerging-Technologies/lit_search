@@ -20,7 +20,8 @@ ASSETS_DIR = Path(BASE_DIR, "assets")
 SR_STEP1_FILENAME="InitialSearch.xlsx"
 SR_STEP2_FILENAME="IteratedSearch.xlsx"
 SR_STEP3_FILENAME="CategorizedArticles.xlsx"
-SR_STEP4_FILENAME="SummarizedArticles.docx"
+SR_STEP4_DOCX_FILENAME="SummarizedArticles.docx"
+SR_STEP4_EXCEL_FILENAME="SubcategorizedArticles.xlsx"
 SR_STEP5_FILENAME="ScopingReviewFirstDraft.docx"
 
 #MIMES

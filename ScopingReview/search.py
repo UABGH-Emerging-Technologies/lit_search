@@ -76,7 +76,6 @@ class SearchManager:
             return False
 
         st.session_state['lock'] = True  # Set the lock variable to True before starting the search
-
         articles_df = self.search_loop()
 
         if write_excel:
@@ -109,13 +108,13 @@ class IterateSearchManager(SearchManager):
             st.session_state['query_terms'] = []
             st.session_state['primary_keywords'] = []
             st.session_state['secondary_keywords'] = []
-            st.session_state['exclusion_keywords'] = []
+            #st.session_state['exclusion_keywords'] = []
         else:
             ("Pulling query terms from session")
             self.query_terms = st.session_state['query_terms']
             self.primary_keywords = [keyword.strip() for keyword in str(st.session_state['primary_keywords']).split(",")]
             self.secondary_keywords = [keyword.strip() for keyword in str(st.session_state['secondary_keywords']).split(",")]
-            self.exclusion_keywords = [keyword.strip() for keyword in str(st.session_state['exclusion_keywords']).split(",")]
+            #self.exclusion_keywords = [keyword.strip() for keyword in str(st.session_state['exclusion_keywords']).split(",")]
 
     def make_initial_query(self):
         with st.spinner("Extracting and grouping keywords from uploaded file"):
@@ -137,13 +136,13 @@ class IterateSearchManager(SearchManager):
         with st.form("my_form"):
             st.session_state['primary_keywords'] = st.text_area("Primary Keywords (comma-separated):", ", ".join(self.primary_keywords))
             st.session_state['secondary_keywords'] = st.text_area("Secondary Keywords (comma-separated):", ", ".join(self.secondary_keywords))
-            st.session_state['exclusion_keywords']  = st.text_area("Exclusion Keywords (comma-separated):", ", ".join(self.exclusion_keywords))
+            #st.session_state['exclusion_keywords']  = st.text_area("Exclusion Keywords (comma-separated):", ", ".join(self.exclusion_keywords))
            
             keywords_submitted = st.form_submit_button("Looks good!")
             if keywords_submitted: 
                 primary_keywords = [keyword.strip() for keyword in str(st.session_state['primary_keywords']).split(",")]
                 secondary_keywords = [keyword.strip() for keyword in str(st.session_state['secondary_keywords']).split(",")]
-                exclusion_keywords = [keyword.strip() for keyword in str(st.session_state['exclusion_keywords']).split(",")]
+                #exclusion_keywords = [keyword.strip() for keyword in str(st.session_state['exclusion_keywords']).split(",")]
                 self.query_terms = primary_keywords + secondary_keywords 
                 #TODO Make better way to add exclusion keywords (adding to query terms was not effective)
                 st.session_state['query_terms'] = self.query_terms
