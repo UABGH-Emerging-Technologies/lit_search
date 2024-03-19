@@ -110,7 +110,7 @@ class SummarizeManager(CompileManager):
     def summarize_articles(self):
         if self.df is not None:
               # file is uploaded and ready to categorize
-            with st.spinner("Summarizing categories of manuscripts..."):
+            with st.spinner("Summarizing..."):
                 markdown_to_convert = review_generate.summarize_all_categories(self.df, self.research_q)
                 docx_data = convert_markdown_docx(markdown_to_convert)
                 self._download_results(docx_data)
