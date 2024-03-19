@@ -16,10 +16,7 @@ class LiteraturePage:
         self.page_title = "Literature Search"
         self.page_icon = "📚"
         self.search_type_options = [
-            "assess the novelty of my idea",
-            "get a jump start on my literature search",
-            "estimate the complexity and feasibility of my idea",
-            "identify weaknesses or gaps in the literature that serve as the key support for a proposed NIH-style grant",
+            "initial literature search",
             "work on scoping review"
         ]
         self.query_type = None
@@ -45,7 +42,7 @@ class LiteraturePage:
             self.scoping_step = st.radio("What step of the scoping review do you want to work on?", self.scoping_steps)
             self._manage_scoping_review()
         else:
-            self._manage_search()
+            self._manage_initial_lit_review()
 
     def _set_page_config(self):
         st.set_page_config(page_title=self.page_title, page_icon=self.page_icon)
@@ -87,10 +84,37 @@ class LiteraturePage:
         if not st.session_state['button_clicked'] and not st.session_state['search_finished']:
             if st.button("Find Articles"):
                 st.session_state['search_finished'] = st.session_state['search_manager'].search_and_compile_articles()
+                # for non-scoping, then summarize and download
                 st.session_state['button_clicked'] = st.session_state['search_finished']
 
         if st.session_state['search_finished']:
             smsearch.cleanup_states()
+            
+    def _manage_initial_lit_review(self):
+        # Check if 'button_clicked' is already a key in session_state
+        smsearch = StateMachineSearch()
+        smsearch.initialize_states()
+        smsummarize = StateMachineSummarize()
+        smsummarize.initialize_states()
+        if not st.session_state['button_clicked'] and not st.session_state['search_finished']:
+
+            st.session_state['search_manager'] = ArticleSearchManager(self.scoping_step, self.research_q)
+
+        if not st.session_state['button_clicked'] and not st.session_state['search_finished']:
+            if st.button("Find Articles"):
+                df = st.session_state['search_manager'].search_and_compile_articles(write_excel=False)
+                df = df.head(40) # for now, GPT limitation
+                df['Author 1: Relevant Article? (Yes/No)'] = "Yes"
+                df['category'] = "Initial Search"
+                df['Text'] = "Text not available"
+                # for non-scoping, then summarize and download
+                st.session_state['summarization_manager'] = SummarizeManager(df, self.research_q)
+                st.session_state['summarization_finished'] = st.session_state['summarization_manager'].summarize_articles()
+                st.session_state['button_clicked'] = st.session_state['summarization_finished']
+
+        if st.session_state['summarization_finished']:
+            smsearch.cleanup_states()
+            smsummarize.cleanup_states()
                 
             
     def _manage_iterate_search(self):       
@@ -131,11 +155,11 @@ class LiteraturePage:
             df = upload_manager.upload_file()
             userdefined_categories = st.text_area("Enter your list of categories, separated by commas:", "Category 1, Category 2, etc...")
 
-            if st.button("Categorize Topics"):
-                if df is not None:
+            if df is not None:
+                if st.button("Categorize Topics"):
                     st.session_state['categorization_manager'] = CategorizeManager(df, userdefined_categories)
-                st.session_state['categorization_finished'] = st.session_state['categorization_manager'].categorize_articles()
-                st.session_state['button_clicked'] = st.session_state['categorization_finished']
+                    st.session_state['categorization_finished'] = st.session_state['categorization_manager'].categorize_articles()
+                    st.session_state['button_clicked'] = st.session_state['categorization_finished']
 
         if st.session_state['categorization_finished']:
             smc.cleanup_states()

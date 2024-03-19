@@ -71,7 +71,7 @@ class SearchManager:
 
         return articles_df
 
-    def search_and_compile_articles(self):
+    def search_and_compile_articles(self, write_excel=True):
         if st.session_state['lock']:  # If the lock is True, then return False
             return False
 
@@ -79,12 +79,15 @@ class SearchManager:
 
         articles_df = self.search_loop()
 
-        self._write_search_results(articles_df, self.make_query())
+        if write_excel:
+            self._write_search_results(articles_df, self.make_query())
 
-        st.session_state['search_finished'] = True
-        st.session_state['lock'] = False  # Set the lock variable to False after finishing the search
+            st.session_state['search_finished'] = True
+            st.session_state['lock'] = False  # Set the lock variable to False after finishing the search
 
-        return st.session_state['search_finished']
+            return st.session_state['search_finished']
+        else:
+            return articles_df
     
 class ArticleSearchManager(SearchManager):
     def __init__(self, scoping_step, research_q):
