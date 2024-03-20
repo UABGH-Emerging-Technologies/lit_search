@@ -54,8 +54,8 @@ def write_excel_output(tmpfile, df, input_search_terms, query_strings=""):
         df.to_excel(writer, index=False, sheet_name='Sheet1')
         
         # Convert string to dataFrame and save to excel
-        data = {'Input Search Terms': [input_search_terms],
-                'PubMed Querey Used': [query_strings]}
+        data = {'Input Terms': [input_search_terms],
+                'PubMed Querey': [query_strings]}
         df_keywords = pd.DataFrame(data)
         df_keywords.to_excel(writer, index=False, sheet_name='Sheet2')
 
