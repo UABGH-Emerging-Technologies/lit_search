@@ -13,7 +13,7 @@ class StateMachine():
             del st.session_state[key]                
             
 ## Step 1 - initial search
-class StateMachineSearch(StateMachine):
+class SearchHandler(StateMachine):
     def __init__(self):
         pass 
     
@@ -24,7 +24,7 @@ class StateMachineSearch(StateMachine):
             
 
 ## Step 2 - iterate on initial search and refine with keywords
-class StateMachineIterate(StateMachine): 
+class IterateHandler(StateMachine): 
     def __init__(self):
         pass
     
@@ -44,7 +44,7 @@ class StateMachineIterate(StateMachine):
         st.session_state["keywords_finalized"] = False    
 
 ## Step 3 - categorize search results into user defined categories
-class StateMachineCategorize(StateMachine):
+class CategorizeHandler(StateMachine):
     def __init__(self):
         pass
     
@@ -56,7 +56,7 @@ class StateMachineCategorize(StateMachine):
             st.session_state['categorization_manager'] = None  
             
 ## Step 4 - create summaries of each subcategory    
-class StateMachineSummarize(StateMachine):
+class SummarizeHandler(StateMachine):
     def __init__(self):
         pass
     
@@ -80,7 +80,7 @@ class StateMachineSummarize(StateMachine):
         del st.session_state['limit_exceeded']
         
 ## Step 5 - Summarize Summaries and compile draft
-class StateMachineDraft(StateMachine):
+class DraftHandler(StateMachine):
     def __init__(self):
         pass
     def initialize_states(self):
@@ -89,4 +89,12 @@ class StateMachineDraft(StateMachine):
             st.session_state['draft_complete'] = False
         if 'draft_manager' not in st.session_state:
             st.session_state['draft_manager'] = None            
-            
+
+## Step 6 - Generate Bibtex
+class BibtexHandler(StateMachine):
+    def initialize_states(self):
+        super().initialize_states() 
+        if 'bibtex_complete' not in st.session_state:
+            st.session_state['bibtex_complete'] = False
+        if 'bibtex_manager' not in st.session_state:
+            st.session_state['bibtex_manager'] = None      

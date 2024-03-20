@@ -22,7 +22,8 @@ SR_STEP2_FILENAME="IteratedSearch.xlsx"
 SR_STEP3_FILENAME="CategorizedArticles.xlsx"
 SR_STEP4_DOCX_FILENAME="SummarizedArticles.docx"
 SR_STEP4_EXCEL_FILENAME="SubcategorizedArticles.xlsx"
-SR_STEP5_FILENAME="ScopingReviewFirstDraft.docx"
+SR_STEP5_FILENAME="ScopingReview_FirstDraft.docx"
+SR_STEP6_FILENAME="ScopingReview_Bibliography.bib"
 
 #MIMES
 EXCEL_MIME = "application/vnd.ms-excel"
@@ -32,6 +33,7 @@ DOCX_MIME = "application/vnd.openxmlformats-officedocument.wordprocessingml.docu
 EXCEL_DOWNLOAD_LABEL = "Download Excel File"
 DOCX_DOWNLOAD_LABEL = "Download Word Document"
 BOTH_FILES = "Download Files"
+BIB_DOWNLOAD_LABEL = "Download .bib File"
 
 #LOOP Counting
 MAX_TRIES = 6
