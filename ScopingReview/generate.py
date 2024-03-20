@@ -145,13 +145,13 @@ def sub_categorize(original_df, categories_exceeding_limit, sub_categories):
     # Merging other columns back into the df
     df_final = df_copy.drop(columns=['category', 'Relevant']).merge(df, left_index=True, right_index=True, how='right')
     # Categorization
-    for index, row in df_final.iterrows():
-        data = row[['abstract', 'title']]
-        result = ScopingReview_config.CHAT.invoke(ScopingReview_prompts.categorization_chat_prompt.format_prompt(categories=unique_values_list, context=data).to_messages())
-        reduced_df.at[index, 'category'] = result.content
+    # for index, row in df_final.iterrows():
+    #     data = row[['abstract', 'title']]
+    #     result = ScopingReview_config.CHAT.invoke(ScopingReview_prompts.categorization_chat_prompt.format_prompt(categories=unique_values_list, context=data).to_messages())
+    #     reduced_df.at[index, 'category'] = result.content
 
     # Convert list items to string before joining
-    return reduced_df, ''.join(map(str, unique_values_list))
+    return df_final, ''.join(map(str, unique_values_list))
     
 
 def summarize_article_in_chunks(article_text):
