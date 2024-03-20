@@ -157,6 +157,7 @@ def get_pmcids_from_pubmed(pmids):
             pmcid = ""
         pmcids.append(pmcid)
     return pmcids
+
 def extract_text_from_pdf_bytes(pdf_bytes):
     text = ""
     with pdfplumber.open(BytesIO(pdf_bytes)) as pdf:
