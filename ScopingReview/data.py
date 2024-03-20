@@ -49,7 +49,7 @@ def search_and_compile(query, article_ids=[]):
     article_ids = list(set().union(article_ids, article_ids_new))
     return pm_connection, article_ids
 
-def write_excel_output(tmpfile, df, input_search_terms, query_strings):
+def write_excel_output(tmpfile, df, input_search_terms, query_strings=""):
     with pd.ExcelWriter(tmpfile.name, engine='xlsxwriter') as writer:
         df.to_excel(writer, index=False, sheet_name='Sheet1')
         
