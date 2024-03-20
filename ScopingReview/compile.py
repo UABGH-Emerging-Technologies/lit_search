@@ -114,8 +114,8 @@ class SummarizeManager(CompileManager):
         if categories_exceeding_limit:
             st.session_state['limit_exceeded'] = True
             categories_string = ", ".join(categories_exceeding_limit)
-            text_box_str = "More than "+ str(review_config.SUBCLASS_THRESHOLD)+ " articles belong to the following category(ies). Suggest sub-categories for the following main category(ies), and separate them by commas: "+ categories_string
-            sub_categories = st.text_area(text_box_str)
+            text_box_str = "More than "+ str(review_config.SUBCLASS_THRESHOLD)+ " articles belong to the following category(ies). Suggest sub-categories for the following main category(ies), and separate them by commas: "
+            sub_categories = st.text_area(text_box_str,  categories_string)
             if st.button("Subcategorize Topics"):
                 self.df, self.categories_str = review_generate.sub_categorize(self.df, categories_exceeding_limit, sub_categories)
                 self._download_excel_results(",".split(self.categories_str))
