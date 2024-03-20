@@ -121,6 +121,5 @@ def pmid2bibtex(pmids:list):
         line12 = '}'
         #print(line12)
         bibtex_fmt = bibtex_fmt + "".join([line12])
-        print(bibtex_fmt)
         whole_bibtex= whole_bibtex + bibtex_fmt + '\n'
     return whole_bibtex
