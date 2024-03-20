@@ -117,9 +117,10 @@ class SummarizeManager(CompileManager):
             text_box_str = "More than "+ str(review_config.SUBCLASS_THRESHOLD)+ " articles belong to the following category(ies). Suggest sub-categories for the following main category(ies), and separate them by commas: "
             sub_categories = st.text_area(text_box_str,  categories_string)
             if st.button("Subcategorize Topics"):
-                self.df, self.categories_str = review_generate.sub_categorize(self.df, categories_exceeding_limit, sub_categories)
-                self._download_excel_results(",".split(self.categories_str))
-                st.session_state['subcategorize_complete'] = True
+                with st.spinner("Subcategorization in progress"):
+                    self.df, self.categories_str = review_generate.sub_categorize(self.df, categories_exceeding_limit, sub_categories)
+                    self._download_excel_results(",".split(self.categories_str))
+                    st.session_state['subcategorize_complete'] = True
             
                 st.write("You must download and review the Excel file before continuing.")
         else: 
