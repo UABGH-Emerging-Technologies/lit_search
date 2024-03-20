@@ -78,6 +78,8 @@ class SummarizeManager(CompileManager):
         return review_config.SR_STEP4_EXCEL_FILENAME
     def get_download_button_label(self):
         return review_config.BOTH_FILES
+    def get_mime_type(self):
+        return review_config.DOCX_MIME
     
     #TODO add write and second sheet + Generalize and move to parent
     def _download_excel_results(self, categories_str):
@@ -99,7 +101,7 @@ class SummarizeManager(CompileManager):
             label=self.get_download_button_label(),
             data=docx_data,
             file_name=self.get_doc_filename(),
-            mime=review_config.DOCX_MIME  # correct MIME type for docx
+            mime=  self.get_mime_type() 
         )   
             
     def check_limits(self):
@@ -112,7 +114,8 @@ class SummarizeManager(CompileManager):
         if categories_exceeding_limit:
             st.session_state['limit_exceeded'] = True
             categories_string = ", ".join(categories_exceeding_limit)
-            sub_categories = st.text_area("More than 40 articles belong to the following category(ies). Suggest sub-categories for the following main category(ies), and separate them by commas:", categories_string)
+            text_box_str = "More than "+ str(review_config.SUBCLASS_THRESHOLD)+ " articles belong to the following category(ies). Suggest sub-categories for the following main category(ies), and separate them by commas: "+ categories_string
+            sub_categories = st.text_area(text_box_str)
             if st.button("Subcategorize Topics"):
                 self.df, self.categories_str = review_generate.sub_categorize(self.df, categories_exceeding_limit, sub_categories)
                 self._download_excel_results(",".split(self.categories_str))
