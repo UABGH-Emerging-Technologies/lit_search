@@ -134,8 +134,11 @@ def sub_categorize(original_df, categories_exceeding_limit, sub_categories):
                 )
                 category_to_write = result.content.replace("'", "")
                 df_exploded.at[index, 'category'] = category_to_write.lower()
-                
-    unique_values_list = list(df_exploded['category'].unique())
+
+    # Convert all unique categories to string before forming the list
+    unique_values_list = list(df_exploded['category'].astype(str).unique())
+    # Convert the 'category' column to string
+    df_exploded['category'] = df_exploded['category'].astype(str)
     # Reverse the explode operation to update original dataframe
     df = df_exploded.groupby(df_exploded.index).agg({'category': lambda x: ', '.join(x), 'Relevant': 'first'})
 
@@ -146,7 +149,9 @@ def sub_categorize(original_df, categories_exceeding_limit, sub_categories):
         data = row[['abstract', 'title']]
         result = ScopingReview_config.CHAT.invoke(ScopingReview_prompts.categorization_chat_prompt.format_prompt(categories=unique_values_list, context=data).to_messages())
         reduced_df.at[index, 'category'] = result.content
-    return reduced_df, ''.join(unique_values_list)
+
+    # Convert list items to string before joining
+    return reduced_df, ''.join(map(str, unique_values_list))
     
 
 def summarize_article_in_chunks(article_text):
