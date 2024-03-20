@@ -1,6 +1,7 @@
 import ScopingReview.generate as review_generate
 import ScopingReview_config.config as review_config
 from ScopingReview.data import write_excel_output, fetch_full_text
+from ScopingReview.utils import pmid2bibtex
 from llm_utils.text_format import convert_markdown_docx
 import pandas as pd
 import streamlit as st
@@ -160,3 +161,41 @@ class DraftReviewManager(CompileManager):
                 markdown_to_convert = review_generate.write_first_draft(self.summaries, self.research_q)
                 docx_data = convert_markdown_docx(markdown_to_convert)
                 self._download_results(docx_data)
+                
+class BibtexManager(CompileManager):
+    def __init__(self, df):
+        self.df = df
+        
+    def _get_PMID_list(self):
+        if 'PMID' in self.df.columns:
+            return self.df['PMID'].astype(str).tolist()
+        else:
+            return "The dataframe doesn't contain a 'PMID' column."
+    
+    def get_filename(self):
+        return review_config.SR_STEP6_FILENAME
+    
+    def get_download_button_label(self):
+        return review_config.BIB_DOWNLOAD_LABEL
+    
+    # def write_bibtex_to_file(filename, text):
+    #     path = Path(filename)
+    #     path.parent.mkdir(parents=True, exist_ok=True)
+    #     with open(filename, 'w') as f:
+    #         f.write(text)
+    
+    def _download_results(self, bibtex_text):
+        st.write("Note that once you hit download, this form will reset.")
+        st.download_button(
+            label=self.get_download_button_label(),
+            data=bibtex_text,
+            file_name=self.get_filename()
+        )
+
+    def convert_pmid_to_bibtex(self):
+        pmid_list = self._get_PMID_list()
+        bibtex_text = pmid2bibtex(pmid_list)
+        self._download_results(bibtex_text)
+        
+        st.write("Thanks for playing! Please email feedback to rmelvin@uabmc.edu")
+        return True

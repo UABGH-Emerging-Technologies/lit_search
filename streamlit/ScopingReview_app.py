@@ -1,12 +1,12 @@
 import streamlit as st
 import pandas as pd
-from ScopingReview.compile import CategorizeManager, SummarizeManager, DraftReviewManager
+from ScopingReview.compile import CategorizeManager, SummarizeManager, DraftReviewManager, BibtexManager
 from ScopingReview.search import ArticleSearchManager, IterateSearchManager
 import ScopingReview.generate as review_generate
 from ScopingReview.data import write_excel_output
 import tempfile
 import ScopingReview_config.config as review_config
-from ScopingReview.states import StateMachineSearch, StateMachineIterate, StateMachineSummarize, StateMachineCategorize, StateMachineDraft
+from ScopingReview.states import SearchHandler, IterateHandler, SummarizeHandler, CategorizeHandler, DraftHandler, BibtexHandler
 import pypandoc
 
 from llm_utils.streamlit_common import hide_streamlit_branding, apply_uab_font
@@ -27,7 +27,8 @@ class LiteraturePage:
             "iterate on search",
             "categorize articles",
             "summarize categories",
-            "draft article"
+            "draft article",
+            "generate bibtex file"
         ]
 
     def show(self):
@@ -72,10 +73,12 @@ class LiteraturePage:
             self._manage_summarize_categories()
         elif self.scoping_step == "draft article":
             self._manage_draft_article()
+        elif self.scoping_step == "generate bibtex file":
+            self._manage_bibtex()
             
     def _manage_search(self):
         # Check if 'button_clicked' is already a key in session_state
-        smsearch = StateMachineSearch()
+        smsearch = SearchHandler()
         smsearch.initialize_states()
         if not st.session_state['button_clicked'] and not st.session_state['search_finished']:
 
@@ -92,9 +95,9 @@ class LiteraturePage:
             
     def _manage_initial_lit_review(self):
         # Check if 'button_clicked' is already a key in session_state
-        smsearch = StateMachineSearch()
+        smsearch = SearchHandler()
         smsearch.initialize_states()
-        smsummarize = StateMachineSummarize()
+        smsummarize = SummarizeHandler()
         smsummarize.initialize_states()
         if not st.session_state['button_clicked'] and not st.session_state['search_finished']:
 
@@ -115,10 +118,9 @@ class LiteraturePage:
         if st.session_state['summarization_finished']:
             smsearch.cleanup_states()
             smsummarize.cleanup_states()
-                
-            
+     
     def _manage_iterate_search(self):       
-        smi = StateMachineIterate()
+        smi = IterateHandler()
         smi.initialize_states()
         if not st.session_state['button_clicked'] and not st.session_state['search_finished']:
             upload_manager = UploadManager(message="Upload Excel File with Y/N selection", 
@@ -147,7 +149,7 @@ class LiteraturePage:
         search_manager.generate_and_refine_query()
 
     def _manage_categorize_articles(self):
-        smc = StateMachineCategorize()
+        smc = CategorizeHandler()
         smc.initialize_states()
         if (not st.session_state['button_clicked']) and (not st.session_state['categorization_finished']):
             upload_manager = UploadManager(message = "Upload Excel File for Categorization", 
@@ -165,7 +167,7 @@ class LiteraturePage:
             smc.cleanup_states()
     
     def _manage_summarize_categories(self):
-        smsummarize = StateMachineSummarize()
+        smsummarize = SummarizeHandler()
         smsummarize.initialize_states()
         if not st.session_state['button_clicked']:
             upload_manager = UploadManager(message = "Upload Excel file with Category labels to summarize", 
@@ -187,7 +189,7 @@ class LiteraturePage:
             smsummarize.cleanup_states()
                 
     def _manage_draft_article(self):
-        smd = StateMachineDraft()
+        smd = DraftHandler()
         smd.initialize_states()
         if not st.session_state['button_clicked'] and not st.session_state['draft_complete']:
             upload_manager = UploadManager(message = "Upload document of summaries to draft scoping review", 
@@ -201,6 +203,24 @@ class LiteraturePage:
                 
         if st.session_state['draft_complete']:
             smd.cleanup_states()
+            
+    def _manage_bibtex(self):
+        smb = BibtexHandler()
+        smb.initialize_states()
+        if not st.session_state['button_clicked'] and not st.session_state['bibtex_complete']:
+            upload_manager = UploadManager(message = "Upload Finalized Excel sheet (CategorizeArticles.xlsx)", 
+                                        file_type = "xlsx")            
+            pmid_data = upload_manager.upload_file()
+            if st.button("Create Bibtex"):
+                if pmid_data is not None:
+                    st.session_state['bibtex_manager'] = BibtexManager(pmid_data)
+                    st.session_state['bibtex_complete'] = st.session_state['bibtex_manager'].convert_pmid_to_bibtex()
+                    st.session_state['button_clicked'] = st.session_state['bibtex_complete']
+                else:
+                    st.write("Make sure input data is loaded")
+                                
+        if st.session_state['bibtex_complete']:
+            smb.cleanup_states()
         
 class UploadManager:
     def __init__(self, message:str, file_type:str):

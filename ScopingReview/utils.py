@@ -4,6 +4,7 @@ import requests
 import xml.etree.ElementTree as ET
 import sys
 import calendar
+from pathlib import Path
 
 def make_downloadable_excel(local_file, df, sheet2_text=None):
     with pd.ExcelWriter(local_file.name, engine='xlsxwriter') as writer:
@@ -26,7 +27,9 @@ def make_downloadable_excel(local_file, df, sheet2_text=None):
             # Set the column width with some extra margin
             worksheet.set_column(idx, idx, max_len + 1, wrap_format)
 
+        
 def pmid2bibtex(pmids:list):
+    ## Adapted from: https://gist.github.com/tommycarstensen/ec3c57761f3846c339de925b66f4ac1b
     ## Fetch XML data from Entrez.
     efetch = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi'
     r = requests.get(
@@ -56,15 +59,15 @@ def pmid2bibtex(pmids:list):
                 continue
             authors.append('{}, {}'.format(LastName, ForeName))
         ## Use InvestigatorList instead of AuthorList
-        if len(authors) == 0:
-            ## './MedlineCitation/Article/Journal/InvestigatorList'
-            for Investigator in PubmedArticle.iter('Investigator'):
-                try:
-                    LastName = Investigator.find('LastName').text
-                    ForeName = Investigator.find('ForeName').text
-                except AttributeError:  # e.g. CollectiveName
-                    continue
-                authors.append('{}, {}'.format(LastName, ForeName))
+        # if len(authors) == 0:
+        #     ## './MedlineCitation/Article/Journal/InvestigatorList'
+        #     for Investigator in PubmedArticle.iter('Investigator'):
+        #         try:
+        #             LastName = Investigator.find('LastName').text
+        #             ForeName = Investigator.find('ForeName').text
+        #         except AttributeError:  # e.g. CollectiveName
+        #             continue
+        #         authors.append('{}, {}'.format(LastName, ForeName))
         if Year is None:
             _ = PubmedArticle.find('./MedlineCitation/Article/Journal/JournalIssue/PubDate/MedlineDate')
             Year = _.text[:4]
@@ -92,7 +95,7 @@ def pmid2bibtex(pmids:list):
             print('IndexError', pmids, file=sys.stderr, flush=True)
         except AttributeError:
             print('AttributeError', pmids, file=sys.stderr, flush=True)
-        line2 = ' Author="{}",'.format(' AND '.join(authors))
+        line2 = ' Author="{}",'.format(' and '.join(authors))
         line3 = ' Title={{{}}},'.format(ArticleTitle.text)
         line4 = ' Journal={{{}}},'.format(Title.text) 
         line5 = ' Year={{{}}},'.format(Year)
@@ -119,7 +122,6 @@ def pmid2bibtex(pmids:list):
             bibtex_fmt = bibtex_fmt + "".join([line11,'\n'])
 
         line12 = '}'
-        #print(line12)
         bibtex_fmt = bibtex_fmt + "".join([line12])
         whole_bibtex= whole_bibtex + bibtex_fmt + '\n'
     return whole_bibtex
