@@ -88,7 +88,7 @@ def categorize(category_df, input_text):
 
   for index, row in category_df.iterrows():
       data = row[['abstract', 'title']]
-      result = ScopingReview_config.CHAT.invoke(ScopingReview_prompts.categorization_chat_prompt.format_prompt(categories=input_list, context=data).to_messages())
+      result = ScopingReview_config.CHAT35.invoke(ScopingReview_prompts.categorization_chat_prompt.format_prompt(categories=input_list, context=data).to_messages())
       keyword_list = result.content.replace("'", "")
       category_df.at[index, 'category'] = keyword_list.lower()
   return category_df
@@ -127,7 +127,7 @@ def sub_categorize(original_df, categories_exceeding_limit, sub_categories):
             if row.category == remove_category:
                 data = row[['abstract', 'title']]
                 # Assuming your categorization process is correctly set up
-                result = ScopingReview_config.CHAT.invoke(
+                result = ScopingReview_config.CHAT35.invoke(
                     ScopingReview_prompts.categorization_chat_prompt.format_prompt(
                         categories=sub_categories, context=data
                     ).to_messages()
