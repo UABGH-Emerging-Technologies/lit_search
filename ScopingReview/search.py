@@ -108,20 +108,20 @@ class IterateSearchManager(SearchManager):
             st.session_state['query_terms'] = []
             st.session_state['primary_keywords'] = []
             st.session_state['secondary_keywords'] = []
-            #st.session_state['exclusion_keywords'] = []
+            st.session_state['exclusion_keywords'] = []
         else:
             ("Pulling query terms from session")
             self.query_terms = st.session_state['query_terms']
             self.primary_keywords = [keyword.strip() for keyword in str(st.session_state['primary_keywords']).split(",")]
             self.secondary_keywords = [keyword.strip() for keyword in str(st.session_state['secondary_keywords']).split(",")]
-            #self.exclusion_keywords = [keyword.strip() for keyword in str(st.session_state['exclusion_keywords']).split(",")]
+            self.exclusion_keywords = [keyword.strip() for keyword in str(st.session_state['exclusion_keywords']).split(",")]
 
     def make_initial_query(self):
         with st.spinner("Extracting and grouping keywords from uploaded file"):
             if not st.session_state["keywords_finalized"]:
                 generated_keywords_json = generate_keywords(self.df, self.research_q)
                 self.primary_keywords, self.secondary_keywords, self.exclusion_keywords = parse_keywords(str(generated_keywords_json))
-                self.query_terms = self.primary_keywords + self.secondary_keywords + self.exclusion_keywords 
+                self.query_terms = self.primary_keywords + self.secondary_keywords
                 print("Succesfully made initial query (pks) - ", self.primary_keywords)
                 return ", ".join(self.query_terms)
         
@@ -136,15 +136,14 @@ class IterateSearchManager(SearchManager):
         with st.form("my_form"):
             st.session_state['primary_keywords'] = st.text_area("Primary Keywords (comma-separated):", ", ".join(self.primary_keywords))
             st.session_state['secondary_keywords'] = st.text_area("Secondary Keywords (comma-separated):", ", ".join(self.secondary_keywords))
-            #st.session_state['exclusion_keywords']  = st.text_area("Exclusion Keywords (comma-separated):", ", ".join(self.exclusion_keywords))
+            st.session_state['exclusion_keywords']  = st.text_area("Exclusion Keywords (comma-separated):", ", ".join(self.exclusion_keywords))
            
             keywords_submitted = st.form_submit_button("Looks good!")
             if keywords_submitted: 
-                primary_keywords = [keyword.strip() for keyword in str(st.session_state['primary_keywords']).split(",")]
-                secondary_keywords = [keyword.strip() for keyword in str(st.session_state['secondary_keywords']).split(",")]
-                #exclusion_keywords = [keyword.strip() for keyword in str(st.session_state['exclusion_keywords']).split(",")]
-                self.query_terms = primary_keywords + secondary_keywords 
-                #TODO Make better way to add exclusion keywords (adding to query terms was not effective)
+                # primary_keywords = [keyword.strip() for keyword in str(st.session_state['primary_keywords']).split(",")]
+                # secondary_keywords = [keyword.strip() for keyword in str(st.session_state['secondary_keywords']).split(",")]
+                # exclusion_keywords = [keyword.strip() for keyword in str(st.session_state['exclusion_keywords']).split(",")]
+                self.query_terms = "Primary keywords to include in query: " + st.session_state['primary_keywords'] + ".  Secondary keywords to include query: " + st.session_state['secondary_keywords'] + ".  Here's a set of keywords to exclude in query contstruction " + st.session_state['exclusion_keywords'] 
                 st.session_state['query_terms'] = self.query_terms
                 st.session_state['keywords_finalized']=True
                 print("keywords finalized session state = ", st.session_state)
