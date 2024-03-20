@@ -58,16 +58,6 @@ def pmid2bibtex(pmids:list):
             except AttributeError:  # e.g. CollectiveName
                 continue
             authors.append('{}, {}'.format(LastName, ForeName))
-        ## Use InvestigatorList instead of AuthorList
-        # if len(authors) == 0:
-        #     ## './MedlineCitation/Article/Journal/InvestigatorList'
-        #     for Investigator in PubmedArticle.iter('Investigator'):
-        #         try:
-        #             LastName = Investigator.find('LastName').text
-        #             ForeName = Investigator.find('ForeName').text
-        #         except AttributeError:  # e.g. CollectiveName
-        #             continue
-        #         authors.append('{}, {}'.format(LastName, ForeName))
         if Year is None:
             _ = PubmedArticle.find('./MedlineCitation/Article/Journal/JournalIssue/PubDate/MedlineDate')
             Year = _.text[:4]

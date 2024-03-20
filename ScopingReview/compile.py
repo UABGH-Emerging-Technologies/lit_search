@@ -177,13 +177,7 @@ class BibtexManager(CompileManager):
     
     def get_download_button_label(self):
         return review_config.BIB_DOWNLOAD_LABEL
-    
-    # def write_bibtex_to_file(filename, text):
-    #     path = Path(filename)
-    #     path.parent.mkdir(parents=True, exist_ok=True)
-    #     with open(filename, 'w') as f:
-    #         f.write(text)
-    
+        
     def _download_results(self, bibtex_text):
         st.write("Note that once you hit download, this form will reset.")
         st.download_button(
