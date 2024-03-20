@@ -152,7 +152,7 @@ class LiteraturePage:
         smc = CategorizeHandler()
         smc.initialize_states()
         if (not st.session_state['button_clicked']) and (not st.session_state['categorization_finished']):
-            upload_manager = UploadManager(message = "Upload Excel File for Categorization", 
+            upload_manager = UploadManager(message = "Upload Excel File with Y/N selection for Categorization", 
                                            file_type = 'xlsx')
             df = upload_manager.upload_file()
             userdefined_categories = st.text_area("Enter your list of categories, separated by commas:", "Category 1, Category 2, etc...")

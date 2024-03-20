@@ -49,12 +49,14 @@ def search_and_compile(query, article_ids=[]):
     article_ids = list(set().union(article_ids, article_ids_new))
     return pm_connection, article_ids
 
-def write_excel_output(tmpfile, df, unique_keywords_str):
+def write_excel_output(tmpfile, df, input_search_terms, query_strings):
     with pd.ExcelWriter(tmpfile.name, engine='xlsxwriter') as writer:
         df.to_excel(writer, index=False, sheet_name='Sheet1')
         
         # Convert string to dataFrame and save to excel
-        df_keywords = pd.DataFrame([unique_keywords_str], columns=['Unique Keywords'])
+        data = {'Input Search Terms': [input_search_terms],
+                'PubMed Querey Used': [query_strings]}
+        df_keywords = pd.DataFrame(data)
         df_keywords.to_excel(writer, index=False, sheet_name='Sheet2')
 
         # Get the xlsxwriter workbook and worksheet objects

@@ -24,10 +24,10 @@ class SearchManager:
         articles_df = make_initial_df(pm_connection, article_ids)  
         return articles_df
 
-    def _write_search_results(self, articles_df, query):
+    def _write_search_results(self, articles_df, query, query_string=""):
         st.balloons()
         with tempfile.NamedTemporaryFile(delete=True, suffix='.xlsx') as tmpfile:
-            write_excel_output(tmpfile, articles_df, query)
+            write_excel_output(tmpfile, articles_df, query, query_string)
             with open(tmpfile.name, "rb") as file:
                 st.download_button(
                     label="Download Excel file",
@@ -69,17 +69,17 @@ class SearchManager:
             query_string = self.generate_and_refine_query()
             articles_df = self.perform_search(query_string)
 
-        return articles_df
+        return articles_df, query_string
 
     def search_and_compile_articles(self, write_excel=True):
         if st.session_state['lock']:  # If the lock is True, then return False
             return False
 
         st.session_state['lock'] = True  # Set the lock variable to True before starting the search
-        articles_df = self.search_loop()
+        articles_df, query_string = self.search_loop()
 
         if write_excel:
-            self._write_search_results(articles_df, self.make_query())
+            self._write_search_results(articles_df, self.make_query(), query_string)
 
             st.session_state['search_finished'] = True
             st.session_state['lock'] = False  # Set the lock variable to False after finishing the search
@@ -140,7 +140,7 @@ class IterateSearchManager(SearchManager):
            
             keywords_submitted = st.form_submit_button("Looks good!")
             if keywords_submitted: 
-                self.query_terms = "Primary keywords to include in query: " + st.session_state['primary_keywords'] + ".  Secondary keywords to include query: " + st.session_state['secondary_keywords'] + ".  Here's a set of keywords to exclude in query contstruction " + st.session_state['exclusion_keywords'] 
+                self.query_terms = "Primary keywords to include in query: " + st.session_state['primary_keywords'] + ".  Secondary keywords to include in query: " + st.session_state['secondary_keywords'] + ".  Here's a set of keywords to exclude in query contstruction " + st.session_state['exclusion_keywords'] 
                 st.session_state['query_terms'] = self.query_terms
                 st.session_state['keywords_finalized']=True
                 print("keywords finalized session state = ", st.session_state)
@@ -157,7 +157,7 @@ class IterateSearchManager(SearchManager):
     def get_filename(self):
         return review_config.SR_STEP2_FILENAME
     
-    def _write_search_results(self, articles_df, query):
+    def _write_search_results(self, articles_df, query, query_string):
 
         # Reindex dataframes and Append new results to it
         self.selected_articles_df.reset_index(drop=True, inplace=True)
@@ -167,7 +167,7 @@ class IterateSearchManager(SearchManager):
         articles_df.drop_duplicates(subset='PMID', keep='first', inplace=True)
 
         # Call parent method to write the combined results to excel
-        super()._write_search_results(articles_df, query)
+        super()._write_search_results(articles_df, query, query_string)
 
     def manage_keyword_extraction_and_editing(self):
 
