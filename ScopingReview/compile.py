@@ -204,7 +204,6 @@ class BibtexManager(CompileManager):
 
     def convert_pmid_to_bibtex(self):
         pmid_list = self._get_PMID_list()
-        print("PMID LIST _ ", pmid_list)
         bibtex_text = pmid2bibtex(pmid_list)
         self._download_results(bibtex_text)
         
