@@ -13,6 +13,7 @@ import os
 from urllib.request import urlretrieve
 import time
 import json
+import re
 
 # For NCBI interactions
 Entrez.email = review_config.DEV_EMAIL
@@ -261,3 +262,13 @@ def make_initial_df(pm_connection, article_ids):
 
     
     return articles_df
+
+def extract_pmids(text):
+    # Regular expression to find PMIDs
+    pattern = r'PMID: (\d+)'
+
+    # Find all PMIDs in the text
+    pmids = re.findall(pattern, text)
+
+    # Return as a DataFrame
+    return pd.DataFrame(pmids, columns=['PMID'])

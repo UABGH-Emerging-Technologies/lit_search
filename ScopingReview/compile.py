@@ -167,10 +167,11 @@ class DraftReviewManager(CompileManager):
                 self._download_results(docx_data)
                 
 class BibtexManager(CompileManager):
-    def __init__(self, df):
-        self.df = df
+    def __init__(self, df=None):
+        if df is not None:
+            self.df = df
         
-    def _get_PMID_list(self):
+    def _get_PMID_list_excel(self):
         if 'PMID' in self.df.columns:
             return self.df['PMID'].astype(str).tolist()
         else:
@@ -191,7 +192,7 @@ class BibtexManager(CompileManager):
         )
 
     def convert_pmid_to_bibtex(self):
-        pmid_list = self._get_PMID_list()
+        pmid_list = self._get_PMID_list_excel()
         bibtex_text = pmid2bibtex(pmid_list)
         self._download_results(bibtex_text)
         

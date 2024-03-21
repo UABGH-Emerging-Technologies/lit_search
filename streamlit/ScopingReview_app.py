@@ -3,7 +3,7 @@ import pandas as pd
 from ScopingReview.compile import CategorizeManager, SummarizeManager, DraftReviewManager, BibtexManager
 from ScopingReview.search import ArticleSearchManager, IterateSearchManager
 import ScopingReview.generate as review_generate
-from ScopingReview.data import write_excel_output
+from ScopingReview.data import write_excel_output, extract_pmids
 import tempfile
 import ScopingReview_config.config as review_config
 from ScopingReview.states import SearchHandler, IterateHandler, SummarizeHandler, CategorizeHandler, DraftHandler, BibtexHandler
@@ -211,11 +211,22 @@ class LiteraturePage:
             upload_manager = UploadManager(message = "Upload Finalized Excel sheet (CategorizeArticles.xlsx)", 
                                         file_type = "xlsx")            
             pmid_data = upload_manager.upload_file()
-            if st.button("Create Bibtex"):
+            st.markdown("""##### OR""")
+            # Parallel option (would be nice to clean this to one implementation here)            
+            upload_manager = UploadManager(message = "Upload Draft Document (ScopingReview_FirstDraft.docx)", 
+                                        file_type = "docx")   
+            pmid_data = upload_manager.upload_file()
+            if st.button("Create Bibtex from File"):
                 if pmid_data is not None:
-                    st.session_state['bibtex_manager'] = BibtexManager(pmid_data)
-                    st.session_state['bibtex_complete'] = st.session_state['bibtex_manager'].convert_pmid_to_bibtex()
-                    st.session_state['button_clicked'] = st.session_state['bibtex_complete']
+                    if upload_manager.file_type == "xlsx": 
+                        st.session_state['bibtex_manager'] = BibtexManager(pmid_data)
+                        st.session_state['bibtex_complete'] = st.session_state['bibtex_manager'].convert_pmid_to_bibtex()
+                        st.session_state['button_clicked'] = st.session_state['bibtex_complete']
+                    elif upload_manager.file_type == "docx":
+                        pmids = extract_pmids(pmid_data)
+                        st.session_state['bibtex_manager'] = BibtexManager(pmids)
+                        st.session_state['bibtex_complete'] = st.session_state['bibtex_manager'].convert_pmid_to_bibtex()
+                        st.session_state['button_clicked'] = st.session_state['bibtex_complete']
                 else:
                     st.write("Make sure input data is loaded")
                                 
