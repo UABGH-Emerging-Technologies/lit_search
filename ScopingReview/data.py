@@ -260,7 +260,7 @@ def make_initial_df(pm_connection, article_ids):
     
     return articles_df
 
-def extract_pmids(text):
+def extract_docx_pmids(text):
     # Regular expression to find PMIDs
     pattern = r'PMID: (\d+)'
 

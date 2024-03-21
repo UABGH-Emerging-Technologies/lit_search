@@ -3,7 +3,8 @@ import pandas as pd
 from ScopingReview.compile import CategorizeManager, SummarizeManager, DraftReviewManager, BibtexManager
 from ScopingReview.search import ArticleSearchManager, IterateSearchManager
 import ScopingReview.generate as review_generate
-from ScopingReview.data import write_excel_output, extract_pmids
+from ScopingReview.data import write_excel_output
+from ScopingReview.upload import UploadManager
 import tempfile
 import ScopingReview_config.config as review_config
 from ScopingReview.states import SearchHandler, IterateHandler, SummarizeHandler, CategorizeHandler, DraftHandler, BibtexHandler
@@ -124,7 +125,7 @@ class LiteraturePage:
         smi.initialize_states()
         if not st.session_state['button_clicked'] and not st.session_state['search_finished']:
             upload_manager = UploadManager(message="Upload Excel File with Y/N selection", 
-                                        file_type = 'xlsx')
+                                        file_types = ['xlsx'])
             df = upload_manager.upload_file()
             if df is not None:
                 st.session_state['search_manager'] = IterateSearchManager(df, self.research_q)
@@ -153,7 +154,7 @@ class LiteraturePage:
         smc.initialize_states()
         if (not st.session_state['button_clicked']) and (not st.session_state['categorization_finished']):
             upload_manager = UploadManager(message = "Upload Excel File with Y/N selection for Categorization", 
-                                           file_type = 'xlsx')
+                                           file_types = ['xlsx'])
             df = upload_manager.upload_file()
             userdefined_categories = st.text_area("Enter your list of categories, separated by commas:", "Category 1, Category 2, etc...")
 
@@ -171,7 +172,7 @@ class LiteraturePage:
         smsummarize.initialize_states()
         if not st.session_state['button_clicked']:
             upload_manager = UploadManager(message = "Upload Excel file with Category labels to summarize", 
-                                        file_type = "xlsx")            
+                                        file_types = ["xlsx"])            
             df = upload_manager.upload_file()
             if df is not None:
                 st.session_state['summarization_manager'] = SummarizeManager(df, self.research_q)
@@ -193,7 +194,7 @@ class LiteraturePage:
         smd.initialize_states()
         if not st.session_state['button_clicked'] and not st.session_state['draft_complete']:
             upload_manager = UploadManager(message = "Upload document of summaries to draft scoping review", 
-                                        file_type = "docx")            
+                                        file_types = ["docx"])            
             summary_data = upload_manager.upload_file()
             if st.button("Draft Review"):
                 if summary_data is not None:
@@ -209,22 +210,12 @@ class LiteraturePage:
         smb.initialize_states()
         if not st.session_state['button_clicked'] and not st.session_state['bibtex_complete']:
             upload_manager = UploadManager(message = "Upload Finalized Excel sheet (CategorizeArticles.xlsx)", 
-                                        file_type = "xlsx")            
-            pmid_data = upload_manager.upload_file()
-            st.markdown("""##### OR""")
-            # Parallel option (would be nice to clean this to one implementation here)            
-            upload_manager = UploadManager(message = "Upload Draft Document (ScopingReview_FirstDraft.docx)", 
-                                        file_type = "docx")   
-            pmid_data = upload_manager.upload_file()
+                                        file_types = ["xlsx", "docx"])            
+            
+            pmid_data, file_ext = upload_manager.upload_file()
             if st.button("Create Bibtex from File"):
                 if pmid_data is not None:
-                    if upload_manager.file_type == "xlsx": 
-                        st.session_state['bibtex_manager'] = BibtexManager(pmid_data)
-                        st.session_state['bibtex_complete'] = st.session_state['bibtex_manager'].convert_pmid_to_bibtex()
-                        st.session_state['button_clicked'] = st.session_state['bibtex_complete']
-                    elif upload_manager.file_type == "docx":
-                        pmids = extract_pmids(pmid_data)
-                        st.session_state['bibtex_manager'] = BibtexManager(pmids)
+                        st.session_state['bibtex_manager'] = BibtexManager(pmid_data, file_ext)
                         st.session_state['bibtex_complete'] = st.session_state['bibtex_manager'].convert_pmid_to_bibtex()
                         st.session_state['button_clicked'] = st.session_state['bibtex_complete']
                 else:
@@ -232,22 +223,6 @@ class LiteraturePage:
                                 
         if st.session_state['bibtex_complete']:
             smb.cleanup_states()
-        
-class UploadManager:
-    def __init__(self, message:str, file_type:str):
-        self.message = message
-        self.file_type = file_type
-        
-    def upload_file(self):
-        uploaded_file = st.file_uploader(self.message, type=[self.file_type])
-        if uploaded_file is not None:
-            if self.file_type == 'xlsx':
-                return pd.read_excel(uploaded_file)
-            elif self.file_type == 'docx':
-                with tempfile.NamedTemporaryFile(delete=False, suffix=".docx") as tmpfile:
-                    tmpfile.write(uploaded_file.getvalue())
-                    return pypandoc.convert_file(tmpfile.name, 'markdown')
-        return None
             
 if __name__ == "__main__":
     literature_page = LiteraturePage()

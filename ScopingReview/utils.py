@@ -60,8 +60,17 @@ def pmid2bibtex(pmids:list):
             authors.append('{}, {}'.format(LastName, ForeName))
         if Year is None:
             _ = PubmedArticle.find('./MedlineCitation/Article/Journal/JournalIssue/PubDate/MedlineDate')
+            print("Debugging: _.text is", _.text)
             Year = _.text[:4]
-            Month = '{:02d}'.format(list(calendar.month_abbr).index(_.text[5:8]))
+
+            month_abbr = ''
+            for month in calendar.month_abbr:
+                if _.text[5:8] in month:
+                    month_abbr = month[:3]
+                    break
+
+            Month = '{:02d}'.format(list(calendar.month_abbr).index(month_abbr))
+
         else:
             Year = Year.text
             if Month is not None:

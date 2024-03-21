@@ -1,6 +1,6 @@
 import ScopingReview.generate as review_generate
 import ScopingReview_config.config as review_config
-from ScopingReview.data import write_excel_output, fetch_full_text
+from ScopingReview.data import write_excel_output, fetch_full_text, extract_docx_pmids
 from ScopingReview.utils import pmid2bibtex
 from llm_utils.text_format import convert_markdown_docx
 import pandas as pd
@@ -170,15 +170,23 @@ class DraftReviewManager(CompileManager):
                 self._download_results(docx_data)
                 
 class BibtexManager(CompileManager):
-    def __init__(self, df=None):
+    def __init__(self, df, file_ext):
         if df is not None:
             self.df = df
-        
-    def _get_PMID_list_excel(self):
-        if 'PMID' in self.df.columns:
-            return self.df['PMID'].astype(str).tolist()
-        else:
-            return "The dataframe doesn't contain a 'PMID' column."
+            self.file_ext = file_ext
+           
+    def _get_PMID_list(self):
+        if self.file_ext == '.xlsx':
+            if 'PMID' in self.df.columns:
+                return self.df['PMID'].astype(str).tolist()
+            else:
+                return "The dataframe doesn't contain a 'PMID' column."
+        if self.file_ext == '.docx':
+            df = extract_docx_pmids(self.df)
+            if 'PMID' in df.columns:
+                return df['PMID'].astype(str).tolist()
+            else:
+                return "The dataframe doesn't contain a 'PMID' column."            
     
     def get_filename(self):
         return review_config.SR_STEP6_FILENAME
@@ -195,7 +203,8 @@ class BibtexManager(CompileManager):
         )
 
     def convert_pmid_to_bibtex(self):
-        pmid_list = self._get_PMID_list_excel()
+        pmid_list = self._get_PMID_list()
+        print("PMID LIST _ ", pmid_list)
         bibtex_text = pmid2bibtex(pmid_list)
         self._download_results(bibtex_text)
         
