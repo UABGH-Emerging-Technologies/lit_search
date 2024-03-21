@@ -81,17 +81,17 @@ def generate_overall_introduction(question, abstracts, help_type):
 
 def categorize(category_df, input_text):
     # TODO: change the category_df to reduced_df --- in all places
-    # reduced_df = review_data.get_relevant_rows(category_df)
-  cost = 0.0
-  input_list = input_text.split(',')
-  input_list = [value.strip() for value in input_list if value.strip()]
+    reduced_df = review_data.get_relevant_rows(category_df)
+    cost = 0.0
+    input_list = input_text.split(',')
+    input_list = [value.strip() for value in input_list if value.strip()]
 
-  for index, row in category_df.iterrows():
-      data = row[['abstract', 'title']]
-      result = ScopingReview_config.CHAT.invoke(ScopingReview_prompts.categorization_chat_prompt.format_prompt(categories=input_list, context=data).to_messages())
-      keyword_list = result.content.replace("'", "")
-      category_df.at[index, 'category'] = keyword_list.lower()
-  return category_df
+    for index, row in reduced_df.iterrows():
+        data = row[['abstract', 'title']]
+        result = ScopingReview_config.CHAT35.invoke(ScopingReview_prompts.categorization_chat_prompt.format_prompt(categories=input_list, context=data).to_messages())
+        keyword_list = result.content.replace("'", "")
+        reduced_df.at[index, 'category'] = keyword_list.lower()
+    return reduced_df
 
 def categories_limit_check(df):
     categories_exceeding_limit = []
@@ -127,7 +127,7 @@ def sub_categorize(original_df, categories_exceeding_limit, sub_categories):
             if row.category == remove_category:
                 data = row[['abstract', 'title']]
                 # Assuming your categorization process is correctly set up
-                result = ScopingReview_config.CHAT.invoke(
+                result = ScopingReview_config.CHAT35.invoke(
                     ScopingReview_prompts.categorization_chat_prompt.format_prompt(
                         categories=sub_categories, context=data
                     ).to_messages()
@@ -135,23 +135,25 @@ def sub_categorize(original_df, categories_exceeding_limit, sub_categories):
                 category_to_write = result.content.replace("'", "")
                 df_exploded.at[index, 'category'] = category_to_write.lower()
 
+
+    df_final, unique_values_list = recombine_categories(df_exploded, df_copy)
+    
+    return df_final, ''.join(map(str, unique_values_list))
+
+def recombine_categories(df, df_original):
     # Convert all unique categories to string before forming the list
-    unique_values_list = list(df_exploded['category'].astype(str).unique())
+    unique_values_list = list(df['category'].astype(str).unique())
     # Convert the 'category' column to string
-    df_exploded['category'] = df_exploded['category'].astype(str)
+    df['category'] = df['category'].astype(str)
+    # remove duplicates, possibly created by multiple categories being subcategorized
+    df.drop_duplicates(subset=['PMID', 'category'], keep='first', inplace=True)
     # Reverse the explode operation to update original dataframe
-    df = df_exploded.groupby(df_exploded.index).agg({'category': lambda x: ', '.join(x), 'Relevant': 'first'})
+    df = df.groupby(df.index).agg({'category': lambda x: ', '.join(x), 'Relevant': 'first'})
 
     # Merging other columns back into the df
-    df_final = df_copy.drop(columns=['category', 'Relevant']).merge(df, left_index=True, right_index=True, how='right')
-    # Categorization
-    for index, row in df_final.iterrows():
-        data = row[['abstract', 'title']]
-        result = ScopingReview_config.CHAT.invoke(ScopingReview_prompts.categorization_chat_prompt.format_prompt(categories=unique_values_list, context=data).to_messages())
-        reduced_df.at[index, 'category'] = result.content
-
-    # Convert list items to string before joining
-    return reduced_df, ''.join(map(str, unique_values_list))
+    df_final = df_original.drop(columns=['category', 'Relevant']).merge(df, left_index=True, right_index=True, how='right')
+    
+    return df_final, unique_values_list
     
 
 def summarize_article_in_chunks(article_text):
@@ -160,11 +162,11 @@ def summarize_article_in_chunks(article_text):
     texts = text_splitter.create_documents([article_text])
 
     # Create the initial summary for the first chunk
-    summary = ScopingReview_config.FASTER_CHAT.invoke(ScopingReview_prompts.initial_summary_prompt.format(text=texts[0]))
+    summary = ScopingReview_config.SUMMARIZE_CHAT.invoke(ScopingReview_prompts.initial_summary_prompt.format(text=texts[0]))
 
     # Iteratively refine the summary with each subsequent chunk
     for text_chunk in texts[1:]:
-        summary = ScopingReview_config.FASTER_CHAT.invoke(ScopingReview_prompts.refine_summary_prompt.format(existing_summary=summary, text=text_chunk))
+        summary = ScopingReview_config.SUMMARIZE_CHAT.invoke(ScopingReview_prompts.refine_summary_prompt.format(existing_summary=summary, text=text_chunk))
 
     return summary
   
