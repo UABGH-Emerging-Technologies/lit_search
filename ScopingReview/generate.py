@@ -239,7 +239,7 @@ def generate_keywords(df, research_question):
         titles=all_titles,
         keywords_list=all_keywords
     )
-    result = ScopingReview_config.SUMMARIZE_CHAT.invoke(formatted_prompt.to_messages())
+    result = ScopingReview_config.CHAT35.invoke(formatted_prompt.to_messages())
 
 
     print("Result - ", result)

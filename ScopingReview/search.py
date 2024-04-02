@@ -179,4 +179,23 @@ class IterateSearchManager(SearchManager):
             
         self.edit_query_terms()
             
-        
+class NewsletterSearchManager(SearchManager):
+    def __init__(self, scoping_step, predefined_query, research_q=""):
+        super().__init__(scoping_step, research_q)
+        self.predefined_query = predefined_query
+
+    def make_query(self):
+        # Use the predefined query instead of generating a new one
+        return self.predefined_query
+
+    def search_and_compile_articles(self):
+        articles_df = self.perform_search(self.predefined_query)
+        return articles_df
+
+    def perform_search(self, search_string):
+        self.pm_connection, self.article_ids = search_and_compile(search_string, self.article_ids)
+        if len(self.article_ids) >= 1:  # Check if at least 1 article is found
+            articles_df = self._fetch_articles(search_string)
+            return articles_df
+        else:
+            return None  # Return None if no articles are found
