@@ -6,6 +6,8 @@ from llm_utils.text_format import convert_markdown_docx
 import pandas as pd
 import streamlit as st
 import tempfile
+import datetime
+import os
 
 
 class CompileManager:
@@ -64,14 +66,16 @@ class CategorizeManager(CompileManager):
 
 
 class SummarizeManager(CompileManager):
-    def __init__(self, df, research_q):
+    def __init__(self, df, research_q, is_streamlit=True):
         super().__init__(df)
 
         self.research_q = research_q
+        self.is_streamlit = is_streamlit
         self.categories = []
         self.sub_categories = ""
         self.categories_str  = ""
-        st.session_state['file_uploaded_sum'] = False  # Initiate a unique file_uploaded variable for summarization
+        if self.is_streamlit:
+            st.session_state['file_uploaded_sum'] = False # Initiate a unique file_uploaded variable for summarization
 
     def get_doc_filename(self):
         return review_config.SR_STEP4_DOCX_FILENAME
@@ -138,6 +142,27 @@ class SummarizeManager(CompileManager):
                 markdown_to_convert = review_generate.summarize_all_categories(self.df, self.research_q)
                 docx_data = convert_markdown_docx(markdown_to_convert)
                 self._download_doc_results(docx_data)
+                
+    def write_newsletter(self, category, output_folder, template_location=None):
+        if self.df is not None:
+            markdown_to_convert = review_generate.summarize_all_categories(self.df, self.research_q)
+            docx_data = convert_markdown_docx(markdown_to_convert, template_location)
+            self.save_newsletter(docx_data, category, output_folder)
+
+    def save_newsletter(self, docx_data, category, output_folder):
+        # Ensure the output folder exists
+        if not os.path.exists(output_folder):
+            os.makedirs(output_folder)
+
+        # Format the filename
+        today_date = datetime.date.today().strftime("%Y-%m-%d")
+        filename = f"{category}_{today_date}.docx"
+        file_path = os.path.join(output_folder, filename)
+
+        # Save the document
+        with open(file_path, "wb") as file:
+            file.write(docx_data)
+        print(f"File saved: {file_path}")
                 
 class DraftReviewManager(CompileManager):
     def __init__(self, summaries, research_q):
