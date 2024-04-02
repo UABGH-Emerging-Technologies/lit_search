@@ -92,9 +92,11 @@ def check_relevance(row):
         return None
 
 def get_relevant_rows(df):
+    if not isinstance(df, pd.DataFrame):
+        raise ValueError('Expected input to be a pandas DataFrame')
     df['Relevant'] = df.apply(check_relevance, axis=1)
     relevant_df = df.dropna(subset=['Relevant'])
-    return relevant_df  
+    return relevant_df
 
 def clean_title(title):
     title = title.strip().replace("'", "").replace("*", "").replace("[", "").replace("]", "").replace("/", ", ").replace("&", "and")
