@@ -41,16 +41,18 @@ MAX_TRIES = 6
 #Sub Classificaiton threshold
 SUBCLASS_THRESHOLD = 40
 
-# LLM specific
-EMBEDDINGS = AzureOpenAIEmbeddings(
-    azure_deployment="NewAda2",
-    model="text-embedding-ada-002",
-    azure_endpoint="https://nlp-ai-svc.openai.azure.com/",
-    openai_api_type="azure",
-    chunk_size=1,
-    openai_api_key = lit_app_config.GPT4_KEY
-)
+# Newsletter
+NEWSLETTER_QUESTION = "Developments in {category} anesthesia that may impact clinical practice"
+NEWSLETTER_CATEGORIES = ["regional", "general"] #"cardiac", "OB", 
+NEWSLETTER_QUERIES = {
+    "cardiac": "cardiac anesthesia OR cardiac anaesthesia OR cardiac anesthesiology OR heart anesthesia OR cardiothoracic anesthesia OR cardiothoracic anesthesiology",
+    "OB": "obstetric anesthesia OR obstetric anaesthesia OR maternal anesthesia OR perinatal anesthesia",
+    "regional": "regional anesthesia OR regional anaesthesia OR nerve block OR spinal anesthesia OR epidural anesthesia",
+    "general": "general anesthesia OR general anaesthesia"
+}
 
+
+# LLM
 CHAT = AzureChatOpenAI(
     azure_endpoint="https://nlp-ai-svc.openai.azure.com/",
     openai_api_version="2023-06-01-preview",
