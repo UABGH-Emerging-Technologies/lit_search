@@ -8,6 +8,7 @@ ScopingReview/generate.py
 ScopingReview/main.py
 ScopingReview/prompts.py
 ScopingReview/search.py
+ScopingReview/states.py
 ScopingReview/utils.py
 ScopingReview.egg-info/PKG-INFO
 ScopingReview.egg-info/SOURCES.txt
