@@ -28,7 +28,7 @@ def get_last_week_dates():
 
 def format_query(base_query):
     start_date, end_date = get_last_week_dates()
-    return f'({base_query}) AND ("{start_date}"[Date - Publication] : "{end_date}"[Date - Publication])'
+    return f'({base_query}) AND ("{start_date}"[Date - Entrez] : "{end_date}"[Date - Entrez]) AND ("{start_date}"[Date - Publication] : "{end_date}"[Date - Publication])'
 
 category_queries = {
     Category.cardiac: format_query("cardiac anesthesia OR cardiac anaesthesia OR cardiac anesthesiology OR heart anesthesia OR cardiothoracic anesthesia OR cardiothoracic anesthesiology"),
@@ -37,35 +37,43 @@ category_queries = {
     Category.general: format_query("general anesthesia OR general anaesthesia")
 }
 
+ 
 class NewsletterManager:
     def __init__(self, scoping_step):
         self.scoping_step = scoping_step
 
-    def manage_initial_lit_review(self, category: str, output_folder: str, template_location: Optional[str]):
-        article_search_manager = NewsletterSearchManager(self.scoping_step, category)
-        category_df  = article_search_manager.search_and_compile_articles(write_excel=False)
-        
-        if df is not None and not df.empty:
-            category_df  = category_df .head(40)  # Limit due to GPT limitations
-            category_df ['Author 1: Relevant Article? (Yes/No)'] = "Yes"
-            category_df ['category'] = category
+    @profile
+    def manage_newsletter(self, category: str, query: str, output_folder: str, template_location: Optional[str]):
+        # Initialize NewsletterSearchManager with the predefined query
+        question = "Developments in " + category + " anesthesia that may impract clinical practice"
+        article_search_manager = NewsletterSearchManager(self.scoping_step, query, research_q=question)
+        category_df = article_search_manager.search_and_compile_articles()
+
+        if category_df is not None and not category_df.empty:
+            category_df = category_df.head(40)  # Limit due to GPT limitations
+            
+            # Fetch full text, merge, and process as before
             full_text_df = fetch_full_text(category_df['PMID'])
             category_df = pd.merge(category_df, full_text_df, on="PMID", how="inner")
+            category_df['Text'] = category_df['Text'].fillna("Text not available")
+            category_df['Author 1: Relevant Article? (Yes/No)'] = "Yes"
+            category_df['category'] = category
 
-            summarize_manager = SummarizeManager(category_df, category, is_streamlit=False)
-
+            summarize_manager = SummarizeManager(category_df, question, is_streamlit=False)
             summarize_manager.write_newsletter(category, output_folder, template_location)
             print("Newsletter generation complete.")
         else:
             print("No articles found for the category:", category)
 
+
 @app.command()
 def main(category: Category = typer.Argument(..., help="Category for the literature review"),
          output_folder: str = typer.Option(..., "--output", "-o", help="Output folder for the newsletter"),
          template_location: Optional[str] = typer.Option(None, "--template", "-t", help="Optional DOCX template location")):
-    scoping_step = 'initial'  # Adjust as needed
+    scoping_step = 'initial' # for compatability with functions that also work in st context
+    query = category_queries[category]
     nl_manager = NewsletterManager(scoping_step)
-    nl_manager.manage_initial_lit_review(category.name, output_folder, template_location)
+    nl_manager.manage_newsletter(category.name, query, output_folder, template_location)
 
 if __name__ == "__main__":
     app()

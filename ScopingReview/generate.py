@@ -2,8 +2,6 @@ import ScopingReview.prompts as ScopingReview_prompts
 import ScopingReview_config.config as ScopingReview_config
 import ScopingReview_config.boilerplate as ScopingReview_boilerplate
 import ScopingReview.data as review_data
-import openai
-import pandas as pd
 from langchain_community.callbacks import get_openai_callback
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain.schema import HumanMessage, SystemMessage
@@ -39,7 +37,7 @@ def generate_overall_introduction(question, abstracts, help_type):
                 content=prompt
             ),
         ]
-        response = chat(messages)
+        response = chat.invoke(messages)
 
     return response.content, response_meta
 

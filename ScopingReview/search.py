@@ -180,7 +180,7 @@ class IterateSearchManager(SearchManager):
         self.edit_query_terms()
             
 class NewsletterSearchManager(SearchManager):
-    def __init__(self, scoping_step, predefined_query, research_q=""):
+    def __init__(self, scoping_step, predefined_query, research_q):
         super().__init__(scoping_step, research_q)
         self.predefined_query = predefined_query
 
