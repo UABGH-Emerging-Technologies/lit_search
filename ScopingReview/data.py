@@ -226,7 +226,7 @@ def fetch_full_text(pmids, access_token=lit_ap_config.LIBKEY_API_KEY):
                     headers = {
                         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.3'
                     }
-                    response = requests.get(url=libkey_url, timeout=20, headers=headers, allow_redirects=True)
+                    response = requests.get(url=libkey_url, timeout=5, headers=headers, allow_redirects=True)
                     if response.ok and response.url.lower().endswith('.pdf'):
                         text = extract_text_from_pdf_bytes(response.content)
                         url = libkey_url

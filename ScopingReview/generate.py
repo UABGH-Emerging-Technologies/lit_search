@@ -128,8 +128,9 @@ def summarize_article_in_chunks(article_text):
     summary = ScopingReview_config.SUMMARIZE_CHAT.invoke(ScopingReview_prompts.initial_summary_prompt.format(text=texts[0]))
 
     # Iteratively refine the summary with each subsequent chunk
-    for text_chunk in texts[1:]:
-        summary = ScopingReview_config.SUMMARIZE_CHAT.invoke(ScopingReview_prompts.refine_summary_prompt.format(existing_summary=summary, text=text_chunk))
+    if len(texts)>1:
+        for text_chunk in texts[1:]:
+            summary = ScopingReview_config.SUMMARIZE_CHAT.invoke(ScopingReview_prompts.refine_summary_prompt.format(existing_summary=summary, text=text_chunk))
 
     return summary
   
