@@ -95,7 +95,6 @@ class LiteraturePage:
             smsearch.cleanup_states()
             
     def _manage_initial_lit_review(self):
-        # Check if 'button_clicked' is already a key in session_state
         smsearch = SearchHandler()
         smsearch.initialize_states()
         smsummarize = SummarizeHandler()
@@ -126,7 +125,8 @@ class LiteraturePage:
         if not st.session_state['button_clicked'] and not st.session_state['search_finished']:
             upload_manager = UploadManager(message="Upload Excel File with Y/N selection", 
                                         file_types = ['xlsx'])
-            df = upload_manager.upload_file()
+            df, file_ext = upload_manager.upload_file()
+            print("YOUR DF is - ", type(df))
             if df is not None:
                 st.session_state['search_manager'] = IterateSearchManager(df, self.research_q)
                 # initate keyword extraction right after file upload
@@ -155,7 +155,7 @@ class LiteraturePage:
         if (not st.session_state['button_clicked']) and (not st.session_state['categorization_finished']):
             upload_manager = UploadManager(message = "Upload Excel File with Y/N selection for Categorization", 
                                            file_types = ['xlsx'])
-            df = upload_manager.upload_file()
+            df, file_ext = upload_manager.upload_file()
             userdefined_categories = st.text_area("Enter your list of categories, separated by commas:", "Category 1, Category 2, etc...")
 
             if df is not None:
@@ -173,7 +173,7 @@ class LiteraturePage:
         if not st.session_state['button_clicked']:
             upload_manager = UploadManager(message = "Upload Excel file with Category labels to summarize", 
                                         file_types = ["xlsx"])            
-            df = upload_manager.upload_file()
+            df, file_ext = upload_manager.upload_file()
             if df is not None:
                 st.session_state['summarization_manager'] = SummarizeManager(df, self.research_q)
                 # checking the no. of articles in each category and subcategorizing as needed.
@@ -195,7 +195,7 @@ class LiteraturePage:
         if not st.session_state['button_clicked'] and not st.session_state['draft_complete']:
             upload_manager = UploadManager(message = "Upload document of summaries to draft scoping review", 
                                         file_types = ["docx"])            
-            summary_data = upload_manager.upload_file()
+            summary_data, file_ext = upload_manager.upload_file()
             if st.button("Draft Review"):
                 if summary_data is not None:
                     st.session_state['draft_manager'] = DraftReviewManager(summary_data, self.research_q)
