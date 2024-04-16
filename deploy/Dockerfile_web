@@ -25,6 +25,8 @@ RUN git -c credential.helper="" clone -b "develop" https://ai_web:xu3wm_hf-5pMMf
 RUN git config --local credential.helper ""
 
 RUN pip3 install -r requirements.txt
+RUN pip3 install --user pip setuptools wheel
+RUN pip3 install --user -e .
 
 EXPOSE 8501
 
