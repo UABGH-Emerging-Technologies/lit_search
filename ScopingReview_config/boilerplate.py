@@ -16,3 +16,29 @@ The synthesis of results involved a piecemeal approach, allowing for the thoroug
 
 This methodology underscores the symbiotic relationship between the generative AI tool and the human authors, combining the efficiency and analytical capabilities of AI with the critical and contextual expertise of researchers. The outcome is a meticulously curated and synthesized body of literature that addresses the defined research question in a comprehensive and targeted manner.
 """
+
+NEWSLETTER_FRONTMATTER = """
+### **Your Monthly AI Digest of the Latest in Anesthesiology Research**
+#### _The following is an entirely automated, AI-generated summary of articles published and listed on PubMed in the last month. It has not been checked for correctness by a human. It should be used for entertainment and informational purposes only. Nothing here is a substitute for your best clinical judgment._
+
+---
+"""
+
+NEWSLETTER_BACKMATTER = """
+#### **Want more?**
+
+For more literature summaries and other ai tools, visit our department's custom AI website.
+ 
+[ai.anesthesiology.uab.edu](https://ai.anesthesiology.uab.edu)
+
+---
+
+_We appreciate you reading this month's AI Digest. Remember, these summaries are AI-generated and are intended for entertainment and informational purposes. Always rely on your clinical judgment and expertise._
+
+---
+
+### **Stay Informed, Stay Ahead**
+#### _Your Monthly AI Digest in Anesthesiology_
+
+---
+"""

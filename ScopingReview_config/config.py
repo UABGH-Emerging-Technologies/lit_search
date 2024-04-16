@@ -43,12 +43,13 @@ SUBCLASS_THRESHOLD = 40
 
 # Newsletter
 NEWSLETTER_QUESTION = "Developments in {category} anesthesia that may impact clinical practice"
-NEWSLETTER_CATEGORIES = ["regional", "general"] #"cardiac", "OB", 
+NEWSLETTER_CATEGORIES = ["cardiac", "OB", "regional", "general", "critical care"]
 NEWSLETTER_QUERIES = {
     "cardiac": "cardiac anesthesia OR cardiac anaesthesia OR cardiac anesthesiology OR heart anesthesia OR cardiothoracic anesthesia OR cardiothoracic anesthesiology",
     "OB": "obstetric anesthesia OR obstetric anaesthesia OR maternal anesthesia OR perinatal anesthesia",
     "regional": "regional anesthesia OR regional anaesthesia OR nerve block OR spinal anesthesia OR epidural anesthesia",
-    "general": "general anesthesia OR general anaesthesia"
+    "general": "general anesthesia OR general anaesthesia",
+    "critical care": "critical care anesthesia OR critical care anaesthesia OR ICU anesthesia OR intensive care anesthesia"
 }
 
 

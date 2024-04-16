@@ -1,0 +1,40 @@
+version: '3.9'
+
+services:
+  newsletter_batch:
+    build:
+      context: .
+      dockerfile: deploy_newsletter/Dockerfile
+    ports:
+      - "8501:8501"
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - /mnt/t/AIMiniTools/ScopingReview:/data/results
+    secrets:
+      - db_server
+      - db_name
+      - db_user
+      - db_password
+      - openai_api_key 
+      - gpt4_api_key
+      - libkey_api_key
+      - ncbi_api_key
+secrets:
+  db_server:
+    file: secrets/db_server.txt
+  db_name:
+    file: secrets/db_name.txt
+  db_user:
+    file: secrets/db_user.txt
+  db_password:
+    file: secrets/db_password.txt
+  openai_api_key:
+    file: secrets/openai_api_key.txt
+  gpt4_api_key:
+    file: secrets/gpt4_api_key.txt
+  libkey_api_key:
+    file: secrets/libkey_api_key.txt
+  ncbi_api_key:
+    file: secrets/ncbi_api_key.txt
+
