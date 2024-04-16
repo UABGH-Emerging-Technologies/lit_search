@@ -2,15 +2,28 @@ version: '3.9'
 
 services:
   newsletter_batch:
+    profiles: ["newsletter"]
     build:
       context: .
-      dockerfile: deploy_newsletter/Dockerfile
-    ports:
-      - "8501:8501"
+      dockerfile: deploy/Dockerfile_news
     environment:
       - PYTHONUNBUFFERED=1
     volumes:
       - /mnt/t/AIMiniTools/ScopingReview:/data/results
+    secrets:
+      - openai_api_key 
+      - gpt4_api_key
+      - libkey_api_key
+      - ncbi_api_key
+  streamlit_app:
+    profiles: ["web"]
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile_web
+    ports:
+      - "8501:8501"
+    environment:
+      - PYTHONUNBUFFERED=1
     secrets:
       - db_server
       - db_name
