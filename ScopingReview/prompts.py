@@ -1,8 +1,9 @@
 from langchain.prompts import (
     ChatPromptTemplate,
-    SystemMessagePromptTemplate,
     HumanMessagePromptTemplate,
+    SystemMessagePromptTemplate,
 )
+
 # from langchain_openai import AzureChatOpenAI
 # import os
 
@@ -152,25 +153,41 @@ A brief summary of the review, including the purpose, methodology, main findings
 """
 
 
-generate_sys_keywords_prompt = SystemMessagePromptTemplate.from_template(GENERATE_SYSTEM_KEYWORD_PROMPT)
-generate_human_keywords_prompt = HumanMessagePromptTemplate.from_template(GENERATE_HUMAN_KEYWORD_PROMPT)
+generate_sys_keywords_prompt = SystemMessagePromptTemplate.from_template(
+    GENERATE_SYSTEM_KEYWORD_PROMPT
+)
+generate_human_keywords_prompt = HumanMessagePromptTemplate.from_template(
+    GENERATE_HUMAN_KEYWORD_PROMPT
+)
 
-keyword_chat_prompt = ChatPromptTemplate.from_messages([generate_sys_keywords_prompt,generate_human_keywords_prompt])
+keyword_chat_prompt = ChatPromptTemplate.from_messages(
+    [generate_sys_keywords_prompt, generate_human_keywords_prompt]
+)
 
 
-summarize_system_message_prompt = SystemMessagePromptTemplate.from_template(SUMMARIZE_CATEGORY_TEMPLATE)
-newsletter_system_message_prompt = SystemMessagePromptTemplate.from_template(SUMMARIZE_NEWSLETTER_TEMPLATE)
+summarize_system_message_prompt = SystemMessagePromptTemplate.from_template(
+    SUMMARIZE_CATEGORY_TEMPLATE
+)
+newsletter_system_message_prompt = SystemMessagePromptTemplate.from_template(
+    SUMMARIZE_NEWSLETTER_TEMPLATE
+)
 
 sumarize_human_message_prompt = HumanMessagePromptTemplate.from_template(SUMMARIZE_HUMAN_TEMPLATE)
 
-category_summary_chat_prompt = ChatPromptTemplate.from_messages([summarize_system_message_prompt, sumarize_human_message_prompt])
+category_summary_chat_prompt = ChatPromptTemplate.from_messages(
+    [summarize_system_message_prompt, sumarize_human_message_prompt]
+)
 
-newsletter_chat_prompt = ChatPromptTemplate.from_messages([newsletter_system_message_prompt, sumarize_human_message_prompt])
+newsletter_chat_prompt = ChatPromptTemplate.from_messages(
+    [newsletter_system_message_prompt, sumarize_human_message_prompt]
+)
 
 system_message_prompt = SystemMessagePromptTemplate.from_template(CATEGORIZE_SYSTEM_TEMPLATE)
 human_message_prompt = HumanMessagePromptTemplate.from_template(HUMAN_TEMPLATE)
 
-categorization_chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, human_message_prompt])
+categorization_chat_prompt = ChatPromptTemplate.from_messages(
+    [system_message_prompt, human_message_prompt]
+)
 
 draft_system_message_prompt = SystemMessagePromptTemplate.from_template(SYSTEM_DRAFT_TEMPLATE)
 
@@ -178,10 +195,15 @@ human_introduction_prompt = HumanMessagePromptTemplate.from_template(HUMAN_INTRO
 human_conclusion_prompt = HumanMessagePromptTemplate.from_template(HUMAN_CONCLUSION_TEMPLATE)
 human_abstract_prompt = HumanMessagePromptTemplate.from_template(HUMAN_ABSTRACT_TEMPLATE)
 
-draft_introduction_prompt = ChatPromptTemplate.from_messages([draft_system_message_prompt, human_introduction_prompt])
-draft_conclusion_prompt = ChatPromptTemplate.from_messages([draft_system_message_prompt, human_conclusion_prompt])
-draft_abstract_prompt = ChatPromptTemplate.from_messages([draft_system_message_prompt, human_abstract_prompt])
-
+draft_introduction_prompt = ChatPromptTemplate.from_messages(
+    [draft_system_message_prompt, human_introduction_prompt]
+)
+draft_conclusion_prompt = ChatPromptTemplate.from_messages(
+    [draft_system_message_prompt, human_conclusion_prompt]
+)
+draft_abstract_prompt = ChatPromptTemplate.from_messages(
+    [draft_system_message_prompt, human_abstract_prompt]
+)
 
 
 # Template for the initial summarization of the first chunk

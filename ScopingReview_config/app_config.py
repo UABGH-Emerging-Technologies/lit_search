@@ -1,5 +1,6 @@
+import os
+
 from llm_utils.sensitive import manage_sensitive
-import os 
 
 # Database
 DB_SERVER = manage_sensitive("db_server")
@@ -14,7 +15,7 @@ GPT4_KEY = manage_sensitive("gpt4_api_key")
 # libkey
 LIBKEY_API_KEY = manage_sensitive("libkey_api_key")
 
-#NCBI
+# NCBI
 NCBI_API_KEY = manage_sensitive("ncbi_api_key")
 
 UAB_LIBKEY_ID = "731"
