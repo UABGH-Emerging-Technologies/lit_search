@@ -21,7 +21,7 @@ RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
 ADD "https://www.random.org/cgi-bin/randbyte?nbytes=10&format=h" random
 RUN rm -rf random
 # Do not use a credential manager. Force ai_web user.
-RUN git -c credential.helper="" clone -b "feature/newsletter" https://ai_web:xu3wm_hf-5pMMfzXtWaG@gitlab.rc.uab.edu/anes_ai/llm_apps/irb_assistant.git .
+RUN git -c credential.helper="" clone -b "feature/newsletter" https://ai_web:xu3wm_hf-5pMMfzXtWaG@gitlab.rc.uab.edu/anes_ai/llm_apps/scopingreview.git .
 RUN git config --local credential.helper ""
 
 RUN pip3 install -r requirements.txt

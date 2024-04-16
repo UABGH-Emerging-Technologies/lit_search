@@ -61,7 +61,7 @@ CHAT = AzureChatOpenAI(
     openai_api_type="azure",
     temperature=0.8,
     model_name="gpt-4",
-    openai_api_key=lit_app_config.GPT4_KEY
+    api_key=lit_app_config.GPT4_KEY
 )
 
 SUMMARIZE_CHAT = AzureChatOpenAI(
@@ -71,7 +71,7 @@ SUMMARIZE_CHAT = AzureChatOpenAI(
     openai_api_type="azure",
     temperature=0,
     model_name="gpt-4-32k",
-    openai_api_key=lit_app_config.GPT4_KEY
+    api_key=lit_app_config.GPT4_KEY
 )
 
 # pubmed settings
@@ -87,5 +87,5 @@ CHAT35 = AzureChatOpenAI(
     openai_api_type="azure",
     temperature=0,
     model_name="gpt-35-turbo-16",
-    openai_api_key=lit_app_config.GPT4_KEY
+    api_key=lit_app_config.GPT4_KEY
 )
