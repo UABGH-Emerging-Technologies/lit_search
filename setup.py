@@ -20,7 +20,7 @@ setup(
     author_email="rmelvin@uabmc.edu",
     url="https://gitlab.rc.uab.edu/anes_ai/llm_apps/scopingreview.git",
     python_requires=">=3.8",
-    packages=find_packages(), # only look in directores with __init__.py
+    packages=find_packages(),  # only look in directores with __init__.py
     install_requires=[required_packages],
     extras_require={"dev": docs_packages + style_packages, "docs": docs_packages},
 )

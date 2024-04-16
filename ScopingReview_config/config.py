@@ -1,8 +1,8 @@
 # config.py
 import sys
 from pathlib import Path
-from langchain_openai import AzureOpenAIEmbeddings
-from langchain_openai import AzureChatOpenAI
+
+from langchain_openai import AzureChatOpenAI, AzureOpenAIEmbeddings
 
 import ScopingReview_config.app_config as lit_app_config
 
@@ -13,32 +13,32 @@ LOGS_DIR = Path(BASE_DIR, "logs")
 DEV_EMAIL = "rmelvin@uabmc.edu"
 
 
-#Assets
+# Assets
 ASSETS_DIR = Path(BASE_DIR, "assets")
 
-#ScopingReview_outname 
-SR_STEP1_FILENAME="InitialSearch.xlsx"
-SR_STEP2_FILENAME="IteratedSearch.xlsx"
-SR_STEP3_FILENAME="CategorizedArticles.xlsx"
-SR_STEP4_DOCX_FILENAME="SummarizedArticles.docx"
-SR_STEP4_EXCEL_FILENAME="SubcategorizedArticles.xlsx"
-SR_STEP5_FILENAME="ScopingReview_FirstDraft.docx"
-SR_STEP6_FILENAME="ScopingReview_Bibliography.bib"
+# ScopingReview_outname
+SR_STEP1_FILENAME = "InitialSearch.xlsx"
+SR_STEP2_FILENAME = "IteratedSearch.xlsx"
+SR_STEP3_FILENAME = "CategorizedArticles.xlsx"
+SR_STEP4_DOCX_FILENAME = "SummarizedArticles.docx"
+SR_STEP4_EXCEL_FILENAME = "SubcategorizedArticles.xlsx"
+SR_STEP5_FILENAME = "ScopingReview_FirstDraft.docx"
+SR_STEP6_FILENAME = "ScopingReview_Bibliography.bib"
 
-#MIMES
+# MIMES
 EXCEL_MIME = "application/vnd.ms-excel"
 DOCX_MIME = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 
-#BUTTON LABELS
+# BUTTON LABELS
 EXCEL_DOWNLOAD_LABEL = "Download Excel File"
 DOCX_DOWNLOAD_LABEL = "Download Word Document"
 BOTH_FILES = "Download Files"
 BIB_DOWNLOAD_LABEL = "Download .bib File"
 
-#LOOP Counting
+# LOOP Counting
 MAX_TRIES = 6
 
-#Sub Classificaiton threshold
+# Sub Classificaiton threshold
 SUBCLASS_THRESHOLD = 40
 
 # Newsletter
@@ -49,7 +49,7 @@ NEWSLETTER_QUERIES = {
     "OB": "obstetric anesthesia OR obstetric anaesthesia OR maternal anesthesia OR perinatal anesthesia",
     "regional": "regional anesthesia OR regional anaesthesia OR nerve block OR spinal anesthesia OR epidural anesthesia",
     "general": "general anesthesia OR general anaesthesia",
-    "critical care": "critical care anesthesia OR critical care anaesthesia OR ICU anesthesia OR intensive care anesthesia"
+    "critical care": "critical care anesthesia OR critical care anaesthesia OR ICU anesthesia OR intensive care anesthesia",
 }
 
 
@@ -61,7 +61,7 @@ CHAT = AzureChatOpenAI(
     openai_api_type="azure",
     temperature=0.8,
     model_name="gpt-4",
-    api_key=lit_app_config.GPT4_KEY
+    api_key=lit_app_config.GPT4_KEY,
 )
 
 SUMMARIZE_CHAT = AzureChatOpenAI(
@@ -71,7 +71,7 @@ SUMMARIZE_CHAT = AzureChatOpenAI(
     openai_api_type="azure",
     temperature=0,
     model_name="gpt-4-32k",
-    api_key=lit_app_config.GPT4_KEY
+    api_key=lit_app_config.GPT4_KEY,
 )
 
 # pubmed settings
@@ -87,5 +87,5 @@ CHAT35 = AzureChatOpenAI(
     openai_api_type="azure",
     temperature=0,
     model_name="gpt-35-turbo-16",
-    api_key=lit_app_config.GPT4_KEY
+    api_key=lit_app_config.GPT4_KEY,
 )
