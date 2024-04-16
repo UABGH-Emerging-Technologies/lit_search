@@ -2,10 +2,13 @@ import ScopingReview.generate as review_generate
 import ScopingReview_config.config as review_config
 from ScopingReview.data import write_excel_output, fetch_full_text, extract_docx_pmids
 from ScopingReview.utils import pmid2bibtex
+import ScopingReview_config.boilerplate as review_boilerplate
 from llm_utils.text_format import convert_markdown_docx
 import pandas as pd
 import streamlit as st
 import tempfile
+import datetime
+import os
 
 
 class CompileManager:
@@ -64,14 +67,16 @@ class CategorizeManager(CompileManager):
 
 
 class SummarizeManager(CompileManager):
-    def __init__(self, df, research_q):
+    def __init__(self, df, research_q, is_streamlit=True):
         super().__init__(df)
 
         self.research_q = research_q
+        self.is_streamlit = is_streamlit
         self.categories = []
         self.sub_categories = ""
         self.categories_str  = ""
-        st.session_state['file_uploaded_sum'] = False  # Initiate a unique file_uploaded variable for summarization
+        if self.is_streamlit:
+            st.session_state['file_uploaded_sum'] = False # Initiate a unique file_uploaded variable for summarization
 
     def get_doc_filename(self):
         return review_config.SR_STEP4_DOCX_FILENAME
@@ -103,7 +108,7 @@ class SummarizeManager(CompileManager):
             label=self.get_download_button_label(),
             data=docx_data,
             file_name=self.get_doc_filename(),
-            mime=  self.get_mime_type() 
+            mime= self.get_mime_type() 
         )   
             
     def check_limits(self):
@@ -134,10 +139,35 @@ class SummarizeManager(CompileManager):
         if self.df is not None:
             # file is uploaded and ready to categorize
               
-            with st.spinner("Summarizing categories of manuscripts..."):
+            with st.spinner("Summarizing..."):
                 markdown_to_convert = review_generate.summarize_all_categories(self.df, self.research_q)
                 docx_data = convert_markdown_docx(markdown_to_convert)
                 self._download_doc_results(docx_data)
+                
+    def write_newsletter(self, category, output_folder, template_location=None):
+        if self.df is not None:
+            newsletter_body = review_generate.summarize_all_categories(self.df, self.research_q, newsletter_flag=True)
+            markdown_to_convert = "## " + category.title() + " AI-Generated Literature Digest \n\n" +\
+                review_boilerplate.NEWSLETTER_FRONTMATTER +\
+                    "\n\n" + newsletter_body +\
+                        "\n\n" + review_boilerplate.NEWSLETTER_BACKMATTER
+            docx_data = convert_markdown_docx(markdown_to_convert, template_location)
+            self.save_newsletter(docx_data, category, output_folder)
+
+    def save_newsletter(self, docx_data, category, output_folder):
+        # Ensure the output folder exists
+        if not os.path.exists(output_folder):
+            os.makedirs(output_folder)
+
+        # Format the filename
+        today_date = datetime.date.today().strftime("%Y-%m-%d")
+        filename = f"{category}_{today_date}.docx"
+        file_path = os.path.join(output_folder, filename)
+
+        # Save the document
+        with open(file_path, "wb") as file:
+            file.write(docx_data)
+        print(f"File saved: {file_path}")
                 
 class DraftReviewManager(CompileManager):
     def __init__(self, summaries, research_q):

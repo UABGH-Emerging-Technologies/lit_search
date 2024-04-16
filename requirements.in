@@ -3,7 +3,7 @@ mkdocstrings==0.18.1
 rich==12.5.1
 black==22.6.0
 flake8==5.0.2
-typer==0.6.1
+typer
 pyodbc
 pip-tools
 mlflow
