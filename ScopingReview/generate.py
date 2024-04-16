@@ -2,8 +2,6 @@ import ScopingReview.prompts as ScopingReview_prompts
 import ScopingReview_config.config as ScopingReview_config
 import ScopingReview_config.boilerplate as ScopingReview_boilerplate
 import ScopingReview.data as review_data
-import openai
-import pandas as pd
 from langchain_community.callbacks import get_openai_callback
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain.schema import HumanMessage, SystemMessage
@@ -39,7 +37,7 @@ def generate_overall_introduction(question, abstracts, help_type):
                 content=prompt
             ),
         ]
-        response = chat(messages)
+        response = chat.invoke(messages)
 
     return response.content, response_meta
 
@@ -127,18 +125,21 @@ def summarize_article_in_chunks(article_text):
     texts = text_splitter.create_documents([article_text])
 
     # Create the initial summary for the first chunk
-    summary = ScopingReview_config.SUMMARIZE_CHAT.invoke(ScopingReview_prompts.initial_summary_prompt.format(text=texts[0]))
+    summary = ScopingReview_config.CHAT35.invoke(ScopingReview_prompts.initial_summary_prompt.format(text=texts[0]))
 
     # Iteratively refine the summary with each subsequent chunk
-    for text_chunk in texts[1:]:
-        summary = ScopingReview_config.SUMMARIZE_CHAT.invoke(ScopingReview_prompts.refine_summary_prompt.format(existing_summary=summary, text=text_chunk))
+    if len(texts)>1:
+        for text_chunk in texts[1:]:
+            summary = ScopingReview_config.CHAT35.invoke(ScopingReview_prompts.refine_summary_prompt.format(existing_summary=summary, text=text_chunk))
 
     return summary
   
-def summarize_all_categories(df, user_question):
+def summarize_all_categories(df, user_question, newsletter_flag=False):
     # use abtract when text is not available.
     df['Text'] = df.apply(lambda row: row['abstract'] if row['Text'] == 'Text not available' else row['Text'], axis=1)
 
+    # if no abstract or text, remove the article
+    df.dropna(inplace=True, subset=['Text'])
     # takes in multiple categories and assigns them in each row
     # TODO change the coln name from Catoegory to Categories
     df_exploded = df.explode('category')
@@ -157,16 +158,25 @@ def summarize_all_categories(df, user_question):
             formatted_summary = f"APA Citation: {row.citation}\n\n Summary: {article_summary}\n\n --- "
             article_summaries.append(formatted_summary)     
         text_to_summarize = "\n\n".join(article_summaries)
-
-        result = ScopingReview_config.SUMMARIZE_CHAT.invoke(ScopingReview_prompts.category_summary_chat_prompt.format_prompt(
-            question=user_question,
+        
+        if newsletter_flag:
+            result = ScopingReview_config.SUMMARIZE_CHAT.invoke(ScopingReview_prompts.newsletter_chat_prompt.format_prompt(
             category=current_category,
             content=text_to_summarize
             ).to_messages())
-   
-        output.append(
-            "# " + str(current_category) + "\n\n" + result.content + "\n\n" + "\n\n".join(filtered_rows.citation)
-            )
+
+            output.append(result.content)
+
+        else:
+            result = ScopingReview_config.SUMMARIZE_CHAT.invoke(ScopingReview_prompts.category_summary_chat_prompt.format_prompt(
+                question=user_question,
+                category=current_category,
+                content=text_to_summarize
+                ).to_messages())
+    
+            output.append(
+                "# " + str(current_category) + "\n\n" + result.content + "\n\n" + "\n\n".join(filtered_rows.citation)
+                )
     return "\n\n".join(output)
 
 # TODO: find better place for this. Used by write_first_draft()
@@ -239,7 +249,7 @@ def generate_keywords(df, research_question):
         titles=all_titles,
         keywords_list=all_keywords
     )
-    result = ScopingReview_config.SUMMARIZE_CHAT.invoke(formatted_prompt.to_messages())
+    result = ScopingReview_config.CHAT35.invoke(formatted_prompt.to_messages())
 
 
     print("Result - ", result)
