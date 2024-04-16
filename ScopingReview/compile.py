@@ -2,6 +2,7 @@ import ScopingReview.generate as review_generate
 import ScopingReview_config.config as review_config
 from ScopingReview.data import write_excel_output, fetch_full_text, extract_docx_pmids
 from ScopingReview.utils import pmid2bibtex
+import ScopingReview_config.boilerplate as review_boilerplate
 from llm_utils.text_format import convert_markdown_docx
 import pandas as pd
 import streamlit as st
@@ -107,7 +108,7 @@ class SummarizeManager(CompileManager):
             label=self.get_download_button_label(),
             data=docx_data,
             file_name=self.get_doc_filename(),
-            mime=  self.get_mime_type() 
+            mime= self.get_mime_type() 
         )   
             
     def check_limits(self):
@@ -145,7 +146,11 @@ class SummarizeManager(CompileManager):
                 
     def write_newsletter(self, category, output_folder, template_location=None):
         if self.df is not None:
-            markdown_to_convert = review_generate.summarize_all_categories(self.df, self.research_q)
+            newsletter_body = review_generate.summarize_all_categories(self.df, self.research_q, newsletter_flag=True)
+            markdown_to_convert = "## " + category.title() + " AI-Generated Literature Digest \n\n" +\
+                review_boilerplate.NEWSLETTER_FRONTMATTER +\
+                    "\n\n" + newsletter_body +\
+                        "\n\n" + review_boilerplate.NEWSLETTER_BACKMATTER
             docx_data = convert_markdown_docx(markdown_to_convert, template_location)
             self.save_newsletter(docx_data, category, output_folder)
 

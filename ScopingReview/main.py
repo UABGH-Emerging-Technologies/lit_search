@@ -10,6 +10,8 @@ from ScopingReview.compile import SummarizeManager
 from ScopingReview.data import fetch_full_text
 import ScopingReview_config.config as lit_config
 
+from langchain_community.callbacks import get_openai_callback
+
 # move to config
 
 # Initialize Typer CLI app
@@ -51,10 +53,11 @@ class NewsletterManager:
             category_df['Text'] = category_df['Text'].fillna("Text not available")
             category_df['Author 1: Relevant Article? (Yes/No)'] = "Yes"
             category_df['category'] = category
-
-            summarize_manager = SummarizeManager(category_df, question, is_streamlit=False)
-            summarize_manager.write_newsletter(category, output_folder, template_location)
-            print("Newsletter generation complete.")
+            with get_openai_callback() as response_meta:
+                summarize_manager = SummarizeManager(category_df, question, is_streamlit=False)
+                summarize_manager.write_newsletter(category, output_folder, template_location)
+            print(category, "newsletter generation complete. Cost: ", response_meta.total_cost)
+            
         else:
             print("No articles found for the category:", category)
 
