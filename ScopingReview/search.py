@@ -122,6 +122,7 @@ class IterateSearchManager(SearchManager):
         with st.spinner("Extracting and grouping keywords from uploaded file"):
             if not st.session_state["keywords_finalized"]:
                 generated_keywords_json = generate_keywords(self.df, self.research_q)
+                print(generated_keywords_json)
                 self.primary_keywords, self.secondary_keywords, self.exclusion_keywords = parse_keywords(str(generated_keywords_json))
                 self.query_terms = self.primary_keywords + self.secondary_keywords
                 print("Succesfully made initial query (pks) - ", self.primary_keywords)
