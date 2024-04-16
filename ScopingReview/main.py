@@ -1,5 +1,4 @@
 import warnings
-import enum
 import datetime
 import typer
 from typing import Optional
