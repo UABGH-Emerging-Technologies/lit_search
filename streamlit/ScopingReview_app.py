@@ -40,13 +40,9 @@ class LiteraturePage:
         hide_streamlit_branding()
         apply_uab_font()
         self._show_page_content()
-        self.query_type = st.radio(
-            "Which of these best describes what you want help with?", self.search_type_options
-        )
-        self.research_q = st.text_area(
-            "Enter your research question/topic (or for a grant, your specific aims)",
-            "Does a diagnosis of a connective tissue disease contribute to a post-dural spinal puncture headache?",
-        )
+        self.query_type = st.radio("Which of these best describes what you want help with?", self.search_type_options)
+        self.research_q = st.text_area("Enter your research question/topic (or for a grant, your specific aims)",
+                                value="", placeholder="Enter your research question here and press Ctrl+Enter or click outside the text box to update.")
         if self.query_type == "work on scoping review":
             self.scoping_step = st.radio(
                 "What step of the scoping review do you want to work on?", self.scoping_steps
@@ -75,19 +71,22 @@ class LiteraturePage:
         )
 
     def _manage_scoping_review(self):
-        if self.scoping_step in self.scoping_steps[:1]:
-            self._manage_search()
-        elif self.scoping_step == "iterate on search":
-            self._manage_iterate_search()
-        elif self.scoping_step == "categorize articles":
-            self._manage_categorize_articles()
-        elif self.scoping_step == "summarize categories":
-            self._manage_summarize_categories()
-        elif self.scoping_step == "draft article":
-            self._manage_draft_article()
-        elif self.scoping_step == "generate bibtex file":
-            self._manage_bibtex()
-
+        if self.research_q == "":
+            st.write("Please enter a research question to continue")
+        else:
+            if self.scoping_step in self.scoping_steps[:1]:
+                self._manage_search()
+            elif self.scoping_step == "iterate on search":
+                self._manage_iterate_search()
+            elif self.scoping_step == "categorize articles":
+                self._manage_categorize_articles()
+            elif self.scoping_step == "summarize categories":
+                self._manage_summarize_categories()
+            elif self.scoping_step == "draft article":
+                self._manage_draft_article()
+            elif self.scoping_step == "generate bibtex file":
+                self._manage_bibtex()
+            
     def _manage_search(self):
         # Check if 'button_clicked' is already a key in session_state
         smsearch = SearchHandler()

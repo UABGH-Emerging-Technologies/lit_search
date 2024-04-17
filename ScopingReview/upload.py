@@ -20,7 +20,6 @@ class UploadManager:
 
     def upload_file(self):
         self.uploaded_file = st.file_uploader(self.message, type=self.file_types)
-        print("Uploaded file - ", self.uploaded_file)
         if self.uploaded_file is not None:
             extension = self._get_file_extension()
             if extension == ".xlsx":
