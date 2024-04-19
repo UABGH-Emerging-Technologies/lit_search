@@ -35,12 +35,12 @@ def parse_keywords(content):
 
 
 #### MAIN Interface Functions ####
-def make_and_refine_query(previous_query, research_q, cost, loop_counter):
+def make_and_refine_query(previous_query, research_q, loop_counter):
     query_maker = PubMedQueryGenerator(research_q)
     search_string, response_meta = query_maker.generate_search_string(
         PUBMED_CHAT=review_config.CHAT, loop_n=loop_counter, last_query=previous_query
     )
-    cost += response_meta.total_cost
+    cost = response_meta.total_cost
     previous_query = search_string
     loop_counter += 1
     return cost, loop_counter, previous_query, search_string

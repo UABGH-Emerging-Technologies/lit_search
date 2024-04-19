@@ -54,8 +54,8 @@ class CategorizeManager(CompileManager):
                 "file_uploaded_cate"
             ] = True  # file is uploaded and ready to categorize
             with st.spinner("Categorizing contents of file..."):
-                category_df = review_generate.categorize(self.df, self.userdefined_categories)
-
+                category_df, response_meta = review_generate.categorize(self.df, self.userdefined_categories)
+            st.session_state["total_cost"] += response_meta.total_cost
             with st.spinner("Getting full text"):
                 full_text_df = fetch_full_text(category_df.PMID)
                 category_df = pd.merge(category_df, full_text_df, on="PMID", how="inner")
@@ -145,13 +145,13 @@ class SummarizeManager(CompileManager):
             sub_categories = st.text_area(text_box_str, categories_string)
             if st.button("Subcategorize Topics"):
                 with st.spinner("Subcategorization in progress"):
-                    self.df, self.categories_str = review_generate.sub_categorize(
+                    self.df, self.categories_str, response_meta = review_generate.sub_categorize(
                         self.df, categories_exceeding_limit, sub_categories
                     )
                     self.df.drop_duplicates(subset="PMID", keep="first", inplace=True)
                     self._download_excel_results(",".split(self.categories_str))
                     st.session_state["subcategorize_complete"] = True
-
+                st.session_state["total_cost"] += response_meta.total_cost
                 st.write("You must download and review the Excel file before continuing.")
         else:
             st.write("No single category exceeded limit - ", review_config.SUBCLASS_THRESHOLD)
@@ -162,15 +162,16 @@ class SummarizeManager(CompileManager):
             # file is uploaded and ready to categorize
 
             with st.spinner("Summarizing..."):
-                markdown_to_convert = review_generate.summarize_all_categories(
+                markdown_to_convert, response_meta = review_generate.summarize_all_categories(
                     self.df, self.research_q
                 )
                 docx_data = convert_markdown_docx(markdown_to_convert)
-                self._download_doc_results(docx_data)
+            st.session_state["total_cost"] += response_meta.total_cost
+            self._download_doc_results(docx_data)
 
     def write_newsletter(self, category, output_folder, template_location=None):
         if self.df is not None:
-            newsletter_body = review_generate.summarize_all_categories(
+            newsletter_body, response_meta = review_generate.summarize_all_categories(
                 self.df, self.research_q, newsletter_flag=True
             )
             markdown_to_convert = (
@@ -185,6 +186,7 @@ class SummarizeManager(CompileManager):
             )
             docx_data = convert_markdown_docx(markdown_to_convert, template_location)
             self.save_newsletter(docx_data, category, output_folder)
+            return response_meta
 
     def save_newsletter(self, docx_data, category, output_folder):
         # Ensure the output folder exists
@@ -230,9 +232,10 @@ class DraftReviewManager(CompileManager):
         if self.summaries is not None:
             st.session_state["file_uploaded_draft"] = True  # file is uploaded and ready to draft
             with st.spinner("Preparing first draft of article..."):
-                markdown_to_convert = review_generate.write_first_draft(
+                markdown_to_convert, response_meta = review_generate.write_first_draft(
                     self.summaries, self.research_q
                 )
+                st.session_state["total_cost"] += response_meta.total_cost
                 docx_data = convert_markdown_docx(markdown_to_convert)
                 self._download_results(docx_data)
 
