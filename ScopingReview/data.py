@@ -1,10 +1,10 @@
 import json
 import os
-import re
-import time
+import res
 import xml.etree.ElementTree as ET
 from io import BytesIO
 from urllib.request import urlretrieve
+import streamlit as st
 
 import pandas as pd
 import pdfplumber
@@ -12,6 +12,7 @@ import requests
 from Bio import Entrez
 from llm_utils.call_pubmed_api import PubMedAPI
 from llm_utils.prep_pubmed_query import PubMedQueryGenerator
+from llm_utils.database import get_db_connection
 
 import ScopingReview_config.app_config as lit_ap_config
 import ScopingReview_config.config as review_config
@@ -323,3 +324,40 @@ def extract_docx_pmids(text):
 
     # Return as a DataFrame
     return pd.DataFrame(pmids, columns=["PMID"])
+
+def write_to_db(research_q,
+                query_type,
+                input_time,
+                response_time,
+                cost):
+    try:
+        with get_db_connection(db_server=lit_ap_config.DB_SERVER,
+                                db_name=lit_ap_config.DB_NAME,
+                                db_user=lit_ap_config.DB_USER,
+                                db_password=lit_ap_config.DB_PASSWORD) as conn:
+            # tempting to move this into llm_utils, but the query will be unique to each app.
+            cursor = conn.cursor()
+            query = """
+                    INSERT INTO [dbo].[literature_helper] (
+                        research_idea, 
+                        purpose_request, 
+                        input_time, 
+                        response_time,
+                        total_cost
+                    ) VALUES (?, ?, ?, ?, ?)
+                    """
+
+            cursor.execute(
+                query,
+                (
+                    research_q,
+                    query_type,
+                    input_time,
+                    response_time,
+                    cost
+                )
+            )
+        st.success("To comply with a Health System Information Security request, submissions are recorded for potential review.")
+    except Exception as e:
+        st.error("Something went wrong, and your submission was not recorded for review. Give the following message when asking for help.")
+        st.error(e)
