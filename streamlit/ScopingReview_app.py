@@ -155,14 +155,14 @@ class LiteraturePage:
                 if (not st.session_state["button_clicked"]) and (
                     not st.session_state["search_finished"]
                 ):
-                    if st.button("Iterate Search"):
-                        if st.session_state["keywords_finalized"]:
+                    if st.session_state["keywords_finalized"]:
+                        if st.button("Iterate Search"):
                             st.session_state["search_finished"] = st.session_state[
                                 "search_manager"
                             ].search_and_compile_articles()
                             st.session_state["button_clicked"] = st.session_state["search_finished"]
-                        else:
-                            st.write("Please finalize keywords before continuing...")
+                    else:
+                        st.write("Please finalize keywords before continuing...")
 
         if st.session_state["search_finished"] and st.session_state["button_clicked"]:
             smi.cleanup_states()

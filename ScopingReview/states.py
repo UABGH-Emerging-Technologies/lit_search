@@ -32,6 +32,8 @@ class IterateHandler(StateMachine):
 
     def initialize_states(self):
         super().initialize_states()
+        if "search_manager" not in st.session_state:
+            st.session_state["search_manager"] = None
         if "keywords_extracted" not in st.session_state:
             st.session_state["keywords_extracted"] = False
         if "keywords_finalized" not in st.session_state:
