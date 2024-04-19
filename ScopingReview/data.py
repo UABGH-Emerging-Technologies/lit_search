@@ -1,6 +1,5 @@
 import json
 import os
-import res
 import xml.etree.ElementTree as ET
 from io import BytesIO
 from urllib.request import urlretrieve
