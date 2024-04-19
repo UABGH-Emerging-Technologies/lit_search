@@ -119,6 +119,7 @@ class SummarizeManager(CompileManager):
                 )
 
     def _download_doc_results(self, docx_data):
+        st.balloons()
         st.write("Note that once you hit download, this form will reset.")
         st.download_button(
             label=self.get_download_button_label(),
@@ -220,6 +221,7 @@ class DraftReviewManager(CompileManager):
         return review_config.DOCX_DOWNLOAD_LABEL
 
     def _download_results(self, docx_data):
+        st.balloons()
         st.write("Note that once you hit download, this form will reset.")
         st.download_button(
             label=self.get_download_button_label(),
@@ -266,6 +268,7 @@ class BibtexManager(CompileManager):
         return review_config.BIB_DOWNLOAD_LABEL
 
     def _download_results(self, bibtex_text):
+        st.balloons()
         st.write("Note that once you hit download, this form will reset.")
         st.download_button(
             label=self.get_download_button_label(), data=bibtex_text, file_name=self.get_filename()
