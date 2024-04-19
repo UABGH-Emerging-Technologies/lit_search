@@ -15,7 +15,9 @@ from ScopingReview.states import (
     SearchHandler,
     SummarizeHandler,
 )
+from ScopingReview.data import write_to_db
 from ScopingReview.upload import UploadManager
+from datetime import datetime
 
 
 class LiteraturePage:
@@ -91,6 +93,7 @@ class LiteraturePage:
         # Check if 'button_clicked' is already a key in session_state
         smsearch = SearchHandler()
         smsearch.initialize_states()
+        start_time = datetime.now()
         if not st.session_state["button_clicked"] and not st.session_state["search_finished"]:
             st.session_state["search_manager"] = ArticleSearchManager(
                 self.scoping_step, self.research_q
@@ -105,6 +108,11 @@ class LiteraturePage:
                 st.session_state["button_clicked"] = st.session_state["search_finished"]
 
         if st.session_state["search_finished"]:
+            write_to_db(self.research_q,
+                    self.query_type,
+                    start_time,
+                    datetime.now(),
+                    st.session_state["total_cost"])
             smsearch.cleanup_states()
 
     def _manage_initial_lit_review(self):
@@ -112,6 +120,7 @@ class LiteraturePage:
         smsearch.initialize_states()
         smsummarize = SummarizeHandler()
         smsummarize.initialize_states()
+        start_time = datetime.now()
         if not st.session_state["button_clicked"] and not st.session_state["search_finished"]:
             st.session_state["search_manager"] = ArticleSearchManager(
                 self.scoping_step, self.research_q
@@ -134,12 +143,18 @@ class LiteraturePage:
                 st.session_state["button_clicked"] = st.session_state["summarization_finished"]
 
         if st.session_state["summarization_finished"]:
+            write_to_db(self.research_q,
+                self.query_type,
+                start_time,
+                datetime.now(),
+                st.session_state["total_cost"])
             smsearch.cleanup_states()
             smsummarize.cleanup_states()
 
     def _manage_iterate_search(self):
         smi = IterateHandler()
         smi.initialize_states()
+        start_time = datetime.now()
         if not st.session_state["button_clicked"] and not st.session_state["search_finished"]:
             upload_manager = UploadManager(
                 message="Upload Excel File with Y/N selection", file_types=["xlsx"]
@@ -165,6 +180,11 @@ class LiteraturePage:
                         st.write("Please finalize keywords before continuing...")
 
         if st.session_state["search_finished"] and st.session_state["button_clicked"]:
+            write_to_db(self.research_q,
+                self.query_type,
+                start_time,
+                datetime.now(),
+                st.session_state["total_cost"])
             smi.cleanup_states()
 
     def _manage_edit_search_terms(self, search_manager):
@@ -174,6 +194,7 @@ class LiteraturePage:
     def _manage_categorize_articles(self):
         smc = CategorizeHandler()
         smc.initialize_states()
+        start_time = datetime.now()
         if (not st.session_state["button_clicked"]) and (
             not st.session_state["categorization_finished"]
         ):
@@ -198,11 +219,17 @@ class LiteraturePage:
                     st.session_state["button_clicked"] = st.session_state["categorization_finished"]
 
         if st.session_state["categorization_finished"]:
+            write_to_db(self.research_q,
+                self.query_type,
+                start_time,
+                datetime.now(),
+                st.session_state["total_cost"])
             smc.cleanup_states()
 
     def _manage_summarize_categories(self):
         smsummarize = SummarizeHandler()
         smsummarize.initialize_states()
+        start_time = datetime.now()
         if not st.session_state["button_clicked"]:
             upload_manager = UploadManager(
                 message="Upload Excel file with Category labels to summarize", file_types=["xlsx"]
@@ -227,11 +254,17 @@ class LiteraturePage:
                         ]
 
         if st.session_state["summarization_finished"] or st.session_state["subcategorize_complete"]:
+            write_to_db(self.research_q,
+                self.query_type,
+                start_time,
+                datetime.now(),
+                st.session_state["total_cost"])
             smsummarize.cleanup_states()
 
     def _manage_draft_article(self):
         smd = DraftHandler()
         smd.initialize_states()
+        start_time = datetime.now()
         if not st.session_state["button_clicked"] and not st.session_state["draft_complete"]:
             upload_manager = UploadManager(
                 message="Upload document of summaries to draft scoping review", file_types=["docx"]
@@ -248,11 +281,17 @@ class LiteraturePage:
                 st.session_state["button_clicked"] = st.session_state["draft_complete"]
 
         if st.session_state["draft_complete"]:
+            write_to_db(self.research_q,
+                self.query_type,
+                start_time,
+                datetime.now(),
+                st.session_state["total_cost"])
             smd.cleanup_states()
 
     def _manage_bibtex(self):
         smb = BibtexHandler()
         smb.initialize_states()
+        start_time = datetime.now()
         if not st.session_state["button_clicked"] and not st.session_state["bibtex_complete"]:
             upload_manager = UploadManager(
                 message="Upload Finalized Excel sheet (CategorizeArticles.xlsx)",
@@ -271,6 +310,11 @@ class LiteraturePage:
                     st.write("Make sure input data is loaded")
 
         if st.session_state["bibtex_complete"]:
+            write_to_db(self.research_q,
+                self.query_type,
+                start_time,
+                datetime.now(),
+                st.session_state["total_cost"])
             smb.cleanup_states()
 
 

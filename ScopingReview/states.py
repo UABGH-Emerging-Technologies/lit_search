@@ -9,7 +9,7 @@ class StateMachine:
         if "button_clicked" not in st.session_state:
             st.session_state["button_clicked"] = False
             st.session_state["total_cost"] = 0.0
-
+            
     def cleanup_states(self):
         for key in st.session_state.keys():
             del st.session_state[key]
