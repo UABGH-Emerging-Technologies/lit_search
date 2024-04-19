@@ -41,6 +41,7 @@ category_queries = {
 class NewsletterManager:
     def __init__(self, scoping_step):
         self.scoping_step = scoping_step
+        self.cost = 0.0
 
     def manage_newsletter(
         self, category: str, query: str, output_folder: str, template_location: Optional[str]
@@ -61,9 +62,8 @@ class NewsletterManager:
             category_df["Text"] = category_df["Text"].fillna("Text not available")
             category_df["Author 1: Relevant Article? (Yes/No)"] = "Yes"
             category_df["category"] = category
-            with get_openai_callback() as response_meta:
-                summarize_manager = SummarizeManager(category_df, question, is_streamlit=False)
-                summarize_manager.write_newsletter(category, output_folder, template_location)
+            summarize_manager = SummarizeManager(category_df, question, is_streamlit=False)
+            response_meta = summarize_manager.write_newsletter(category, output_folder, template_location)
             print(category, "newsletter generation complete. Cost: ", response_meta.total_cost)
 
         else:

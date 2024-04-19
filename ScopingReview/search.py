@@ -22,7 +22,6 @@ class SearchManager:
         self.research_q = research_q
         self.article_ids = []
         self.loop_counter = 0
-        self.cost = 0.0
         self.query = ""
         self.pm_connection = None
         self.previous_query = ""
@@ -65,15 +64,14 @@ class SearchManager:
 
     def generate_and_refine_query(self):
         with st.spinner("Generating pubmed search string."):
-            (
-                self.cost,
+            (   cost,
                 self.loop_counter,
                 self.previous_query,
                 self.search_string,
             ) = make_and_refine_query(
-                self.previous_query, self.make_query(), self.cost, self.loop_counter
+                self.previous_query, self.make_query(), self.loop_counter
             )
-
+        st.session_state["total_cost"] += cost
         st.write(f"**Searching Pubmed with the query:** _{self.search_string}_")
         return self.search_string
 
@@ -150,7 +148,7 @@ class IterateSearchManager(SearchManager):
     def make_initial_query(self):
         with st.spinner("Extracting and grouping keywords from uploaded file"):
             if not st.session_state["keywords_finalized"]:
-                generated_keywords_json = generate_keywords(self.df, self.research_q)
+                generated_keywords_json, response_meta = generate_keywords(self.df, self.research_q)
                 (
                     self.primary_keywords,
                     self.secondary_keywords,
@@ -158,6 +156,7 @@ class IterateSearchManager(SearchManager):
                 ) = parse_keywords(str(generated_keywords_json))
                 self.query_terms = self.primary_keywords + self.secondary_keywords
                 print("Succesfully made initial query (pks) - ", self.primary_keywords)
+                st.session_state["total_cost"] += response_meta.total_cost
                 return ", ".join(self.query_terms)
 
     def make_query(self):
