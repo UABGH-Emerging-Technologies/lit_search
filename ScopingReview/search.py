@@ -182,11 +182,11 @@ class IterateSearchManager(SearchManager):
             keywords_submitted = st.form_submit_button("Looks good!")
             if keywords_submitted:
                 self.query_terms = (
-                    "Primary keywords to include in query: "
+                    "Primary topics to include in query: "
                     + st.session_state["primary_keywords"]
-                    + ".  Secondary keywords to include in query: "
+                    + ".  Secondary topics to include in query: "
                     + st.session_state["secondary_keywords"]
-                    + ".  Here's a set of keywords to exclude in query contstruction "
+                    + ".  Here's a set of topics to exclude in query contstruction "
                     + st.session_state["exclusion_keywords"]
                 )
                 st.session_state["query_terms"] = self.query_terms
