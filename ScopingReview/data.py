@@ -3,18 +3,18 @@ import os
 import xml.etree.ElementTree as ET
 from io import BytesIO
 from urllib.request import urlretrieve
-import streamlit as st
 
 import pandas as pd
 import pdfplumber
 import requests
 from Bio import Entrez
 from llm_utils.call_pubmed_api import PubMedAPI
-from llm_utils.prep_pubmed_query import PubMedQueryGenerator
 from llm_utils.database import get_db_connection
+from llm_utils.prep_pubmed_query import PubMedQueryGenerator
 
 import ScopingReview_config.app_config as lit_ap_config
 import ScopingReview_config.config as review_config
+import streamlit as st
 
 # For NCBI interactions
 Entrez.email = review_config.DEV_EMAIL

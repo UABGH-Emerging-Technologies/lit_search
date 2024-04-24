@@ -1,4 +1,7 @@
+from datetime import datetime
+
 from llm_utils.streamlit_common import apply_uab_font, hide_streamlit_branding
+
 import streamlit as st
 from ScopingReview.compile import (
     BibtexManager,
@@ -6,6 +9,7 @@ from ScopingReview.compile import (
     DraftReviewManager,
     SummarizeManager,
 )
+from ScopingReview.data import write_to_db
 from ScopingReview.search import ArticleSearchManager, IterateSearchManager
 from ScopingReview.states import (
     BibtexHandler,
@@ -15,9 +19,7 @@ from ScopingReview.states import (
     SearchHandler,
     SummarizeHandler,
 )
-from ScopingReview.data import write_to_db
 from ScopingReview.upload import UploadManager
-from datetime import datetime
 
 
 class LiteraturePage:
