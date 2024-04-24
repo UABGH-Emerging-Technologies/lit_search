@@ -355,7 +355,6 @@ mergedeep==1.3.4
     # via
     #   llm-utils
     #   mkdocs
-    #   mkdocs-get-deps
 mistune==3.0.2
     # via nbconvert
 mkdocs==1.5.3
@@ -481,7 +480,6 @@ platformdirs==4.2.0
     #   jupyter-core
     #   llm-utils
     #   mkdocs
-    #   mkdocs-get-deps
     #   mkdocstrings
 prometheus-client==0.20.0
     # via jupyter-server
@@ -586,7 +584,6 @@ pyyaml==6.0.1
     #   langchain-core
     #   llm-utils
     #   mkdocs
-    #   mkdocs-get-deps
     #   pymdown-extensions
     #   pyyaml-env-tag
 pyyaml-env-tag==0.1
