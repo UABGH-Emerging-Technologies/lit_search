@@ -99,9 +99,9 @@ class SearchManager:
             self._write_search_results(articles_df, self.make_query(), query_string)
 
             st.session_state["search_finished"] = True
-            st.session_state["lock"] = (
-                False  # Set the lock variable to False after finishing the search
-            )
+            st.session_state[
+                "lock"
+            ] = False  # Set the lock variable to False after finishing the search
 
             return st.session_state["search_finished"]
         else:
