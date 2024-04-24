@@ -56,7 +56,7 @@ NEWSLETTER_QUERIES = {
 # LLM
 CHAT = AzureChatOpenAI(
     azure_endpoint="https://nlp-ai-svc.openai.azure.com/",
-    openai_api_version="2023-06-01-preview",
+    openai_api_version="2024-02-01",
     azure_deployment="ChatGPT4",
     openai_api_type="azure",
     temperature=0.8,
@@ -66,7 +66,7 @@ CHAT = AzureChatOpenAI(
 
 SUMMARIZE_CHAT = AzureChatOpenAI(
     azure_endpoint="https://nlp-ai-svc.openai.azure.com/",
-    openai_api_version="2023-06-01-preview",
+    openai_api_version="2024-02-01",
     azure_deployment="ChatGPT432k",
     openai_api_type="azure",
     temperature=0,
@@ -82,7 +82,7 @@ MAX_ARTICLES_LR = 50
 # remove this later
 CHAT35 = AzureChatOpenAI(
     azure_endpoint="https://nlp-ai-svc.openai.azure.com/",
-    openai_api_version="2024-02-15-preview",
+    openai_api_version="2024-02-01",
     azure_deployment="ChatGPT16k",
     openai_api_type="azure",
     temperature=0,
