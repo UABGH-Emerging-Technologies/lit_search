@@ -101,17 +101,13 @@ def summarize_article_in_chunks(article_text):
     )
     texts = text_splitter.create_documents([article_text])
     # Create the initial summary for the first chunk
-    summary = lit_config.CHAT35.invoke(
-        lit_prompts.initial_summary_prompt.format(text=texts[0])
-    )
+    summary = lit_config.CHAT35.invoke(lit_prompts.initial_summary_prompt.format(text=texts[0]))
 
     # Iteratively refine the summary with each subsequent chunk
     if len(texts) > 1:
         for text_chunk in texts[1:]:
             summary = lit_config.CHAT35.invoke(
-                lit_prompts.refine_summary_prompt.format(
-                    existing_summary=summary, text=text_chunk
-                )
+                lit_prompts.refine_summary_prompt.format(existing_summary=summary, text=text_chunk)
             )
 
     return summary
