@@ -34,9 +34,9 @@ class CategorizeManager(CompileManager):
     def __init__(self, df, userdefined_categories):
         super().__init__(df)
         self.userdefined_categories = userdefined_categories
-        st.session_state[
-            "file_uploaded_cate"
-        ] = False  # Initiate a unique file_uploaded variable for categorization
+        st.session_state["file_uploaded_cate"] = (
+            False  # Initiate a unique file_uploaded variable for categorization
+        )
 
     def get_mime_type(self):
         return review_config.EXCEL_MIME
@@ -50,11 +50,13 @@ class CategorizeManager(CompileManager):
 
     def categorize_articles(self):
         if self.df is not None:
-            st.session_state[
-                "file_uploaded_cate"
-            ] = True  # file is uploaded and ready to categorize
+            st.session_state["file_uploaded_cate"] = (
+                True  # file is uploaded and ready to categorize
+            )
             with st.spinner("Categorizing contents of file..."):
-                category_df, response_meta = review_generate.categorize(self.df, self.userdefined_categories)
+                category_df, response_meta = review_generate.categorize(
+                    self.df, self.userdefined_categories
+                )
             st.session_state["total_cost"] += response_meta.total_cost
             with st.spinner("Getting full text"):
                 full_text_df = fetch_full_text(category_df.PMID)
@@ -87,9 +89,9 @@ class SummarizeManager(CompileManager):
         self.sub_categories = ""
         self.categories_str = ""
         if self.is_streamlit:
-            st.session_state[
-                "file_uploaded_sum"
-            ] = False  # Initiate a unique file_uploaded variable for summarization
+            st.session_state["file_uploaded_sum"] = (
+                False  # Initiate a unique file_uploaded variable for summarization
+            )
 
     def get_doc_filename(self):
         return review_config.SR_STEP4_DOCX_FILENAME
@@ -210,9 +212,9 @@ class DraftReviewManager(CompileManager):
         super().__init__(None)
         self.research_q = research_q
         self.summaries = summaries
-        st.session_state[
-            "file_uploaded_draft"
-        ] = False  # Initiate a unique file_uploaded variable for drafting
+        st.session_state["file_uploaded_draft"] = (
+            False  # Initiate a unique file_uploaded variable for drafting
+        )
 
     def get_filename(self):
         return review_config.SR_STEP5_FILENAME

@@ -64,13 +64,12 @@ class SearchManager:
 
     def generate_and_refine_query(self):
         with st.spinner("Generating pubmed search string."):
-            (   cost,
+            (
+                cost,
                 self.loop_counter,
                 self.previous_query,
                 self.search_string,
-            ) = make_and_refine_query(
-                self.previous_query, self.make_query(), self.loop_counter
-            )
+            ) = make_and_refine_query(self.previous_query, self.make_query(), self.loop_counter)
         st.session_state["total_cost"] += cost
         st.write(f"**Searching Pubmed with the query:** _{self.search_string}_")
         return self.search_string
@@ -100,9 +99,9 @@ class SearchManager:
             self._write_search_results(articles_df, self.make_query(), query_string)
 
             st.session_state["search_finished"] = True
-            st.session_state[
-                "lock"
-            ] = False  # Set the lock variable to False after finishing the search
+            st.session_state["lock"] = (
+                False  # Set the lock variable to False after finishing the search
+            )
 
             return st.session_state["search_finished"]
         else:

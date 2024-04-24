@@ -7,6 +7,7 @@ import ScopingReview.prompts as ScopingReview_prompts
 import ScopingReview_config.boilerplate as ScopingReview_boilerplate
 import ScopingReview_config.config as ScopingReview_config
 
+
 def categorize(category_df, input_text):
     # TODO: change the category_df to reduced_df --- in all places
     reduced_df = review_data.get_relevant_rows(category_df)
