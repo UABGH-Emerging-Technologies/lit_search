@@ -2,7 +2,7 @@ import tempfile
 
 import pandas as pd
 
-import ScopingReview_config.config as review_config
+import ScopingReview_config.config as lit_config
 import streamlit as st
 from ScopingReview.data import (
     get_relevant_rows,
@@ -52,7 +52,7 @@ class SearchManager:
         pass
 
     def get_mime_type(self):
-        return review_config.EXCEL_MIME
+        return lit_config.EXCEL_MIME
 
     def _cleanup_session(self):
         for key in st.session_state.keys():
@@ -80,8 +80,8 @@ class SearchManager:
         return articles_df
 
     def search_loop(self):
-        while (len(self.article_ids) < review_config.MIN_ARTICLES) and (
-            self.loop_counter < review_config.MAX_TRIES
+        while (len(self.article_ids) < lit_config.MIN_ARTICLES) and (
+            self.loop_counter < lit_config.MAX_TRIES
         ):
             query_string = self.generate_and_refine_query()
             articles_df = self.perform_search(query_string)
@@ -113,7 +113,7 @@ class ArticleSearchManager(SearchManager):
         super().__init__(scoping_step, research_q)
 
     def get_filename(self):
-        return review_config.SR_STEP1_FILENAME
+        return lit_config.SR_STEP1_FILENAME
 
 
 class IterateSearchManager(SearchManager):
@@ -201,7 +201,7 @@ class IterateSearchManager(SearchManager):
         return articles_df
 
     def get_filename(self):
-        return review_config.SR_STEP2_FILENAME
+        return lit_config.SR_STEP2_FILENAME
 
     def _write_search_results(self, articles_df, query, query_string):
         # Reindex dataframes and Append new results to it
