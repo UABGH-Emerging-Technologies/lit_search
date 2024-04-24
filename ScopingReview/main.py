@@ -63,7 +63,9 @@ class NewsletterManager:
             category_df["Author 1: Relevant Article? (Yes/No)"] = "Yes"
             category_df["category"] = category
             summarize_manager = SummarizeManager(category_df, question, is_streamlit=False)
-            response_meta = summarize_manager.write_newsletter(category, output_folder, template_location)
+            response_meta = summarize_manager.write_newsletter(
+                category, output_folder, template_location
+            )
             print(category, "newsletter generation complete. Cost: ", response_meta.total_cost)
 
         else:
