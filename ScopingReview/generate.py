@@ -3,9 +3,9 @@ from langchain_community.callbacks import get_openai_callback
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 import ScopingReview.data as review_data
-import ScopingReview.prompts as ScopingReview_prompts
-import ScopingReview_config.boilerplate as ScopingReview_boilerplate
-import ScopingReview_config.config as ScopingReview_config
+import ScopingReview.prompts as lit_prompts
+import ScopingReview_config.boilerplate as lit_boilerplate
+import ScopingReview_config.config as lit_config
 
 
 def categorize(category_df, input_text):
@@ -18,8 +18,8 @@ def categorize(category_df, input_text):
     for index, row in reduced_df.iterrows():
         data = row[["abstract", "title"]]
         with get_openai_callback() as response_meta:
-            result = ScopingReview_config.CHAT35.invoke(
-                ScopingReview_prompts.categorization_chat_prompt.format_prompt(
+            result = lit_config.CHAT35.invoke(
+                lit_prompts.categorization_chat_prompt.format_prompt(
                     categories=input_list, context=data
                 ).to_messages()
             )
@@ -37,7 +37,7 @@ def categories_limit_check(df):
         unique_values_counts = df_exploded["category"].value_counts()
         # print(unique_values_counts)
         for category, count in unique_values_counts.items():
-            if count > ScopingReview_config.SUBCLASS_THRESHOLD:
+            if count > lit_config.SUBCLASS_THRESHOLD:
                 categories_exceeding_limit.append(category)
 
     return categories_exceeding_limit
@@ -63,8 +63,8 @@ def sub_categorize(original_df, categories_exceeding_limit, sub_categories):
                 data = row[["abstract", "title"]]
                 # Assuming your categorization process is correctly set up
                 with get_openai_callback() as response_meta:
-                    result = ScopingReview_config.CHAT35.invoke(
-                        ScopingReview_prompts.categorization_chat_prompt.format_prompt(
+                    result = lit_config.CHAT35.invoke(
+                        lit_prompts.categorization_chat_prompt.format_prompt(
                             categories=sub_categories, context=data
                         ).to_messages()
                     )
@@ -101,15 +101,15 @@ def summarize_article_in_chunks(article_text):
     )
     texts = text_splitter.create_documents([article_text])
     # Create the initial summary for the first chunk
-    summary = ScopingReview_config.CHAT35.invoke(
-        ScopingReview_prompts.initial_summary_prompt.format(text=texts[0])
+    summary = lit_config.CHAT35.invoke(
+        lit_prompts.initial_summary_prompt.format(text=texts[0])
     )
 
     # Iteratively refine the summary with each subsequent chunk
     if len(texts) > 1:
         for text_chunk in texts[1:]:
-            summary = ScopingReview_config.CHAT35.invoke(
-                ScopingReview_prompts.refine_summary_prompt.format(
+            summary = lit_config.CHAT35.invoke(
+                lit_prompts.refine_summary_prompt.format(
                     existing_summary=summary, text=text_chunk
                 )
             )
@@ -148,8 +148,8 @@ def summarize_all_categories(df, user_question, newsletter_flag=False):
             text_to_summarize = "\n\n".join(article_summaries)
 
             if newsletter_flag:
-                result = ScopingReview_config.SUMMARIZE_CHAT.invoke(
-                    ScopingReview_prompts.newsletter_chat_prompt.format_prompt(
+                result = lit_config.SUMMARIZE_CHAT.invoke(
+                    lit_prompts.newsletter_chat_prompt.format_prompt(
                         category=current_category, content=text_to_summarize
                     ).to_messages()
                 )
@@ -157,8 +157,8 @@ def summarize_all_categories(df, user_question, newsletter_flag=False):
                 output.append(result.content)
 
             else:
-                result = ScopingReview_config.SUMMARIZE_CHAT.invoke(
-                    ScopingReview_prompts.category_summary_chat_prompt.format_prompt(
+                result = lit_config.SUMMARIZE_CHAT.invoke(
+                    lit_prompts.category_summary_chat_prompt.format_prompt(
                         question=user_question, category=current_category, content=text_to_summarize
                     ).to_messages()
                 )
@@ -189,26 +189,26 @@ def extract_apa_citations(markdown_text):
 def write_first_draft(summaries_markdown, user_question):
     citations, non_citations = extract_apa_citations(summaries_markdown)
     with get_openai_callback() as response_meta:
-        introduction_result = ScopingReview_config.SUMMARIZE_CHAT.invoke(
-            ScopingReview_prompts.draft_introduction_prompt.format_prompt(
+        introduction_result = lit_config.SUMMARIZE_CHAT.invoke(
+            lit_prompts.draft_introduction_prompt.format_prompt(
                 question=user_question, summaries="\n\n".join(non_citations)
             ).to_messages()
         )
 
-        conclusion_result = ScopingReview_config.SUMMARIZE_CHAT.invoke(
-            ScopingReview_prompts.draft_conclusion_prompt.format_prompt(
+        conclusion_result = lit_config.SUMMARIZE_CHAT.invoke(
+            lit_prompts.draft_conclusion_prompt.format_prompt(
                 question=user_question,
                 summaries="\n\n".join(non_citations),
                 introduction=introduction_result.content,
             ).to_messages()
         )
 
-        abstract_result = ScopingReview_config.SUMMARIZE_CHAT.invoke(
-            ScopingReview_prompts.draft_abstract_prompt.format_prompt(
+        abstract_result = lit_config.SUMMARIZE_CHAT.invoke(
+            lit_prompts.draft_abstract_prompt.format_prompt(
                 question=user_question,
                 summaries="\n\n".join(non_citations),
                 introduction=introduction_result.content,
-                methodology=ScopingReview_boilerplate.METHODOLOGY,
+                methodology=lit_boilerplate.METHODOLOGY,
                 conclusion=conclusion_result.content,
             ).to_messages()
         )
@@ -218,7 +218,7 @@ def write_first_draft(summaries_markdown, user_question):
         + "\n\n"
         + introduction_result.content
         + "\n\n"
-        + ScopingReview_boilerplate.METHODOLOGY
+        + lit_boilerplate.METHODOLOGY
         + "\n\n"
         + "# Results/Discussion \n\n"
         + "\n\n".join(non_citations)
@@ -245,11 +245,11 @@ def generate_keywords(df, research_question):
         titles_list = review_data.clean_title(title)
         all_titles.append(titles_list)
 
-    formatted_prompt = ScopingReview_prompts.keyword_chat_prompt.format_prompt(
+    formatted_prompt = lit_prompts.keyword_chat_prompt.format_prompt(
         question=research_question, titles=all_titles, keywords_list=all_keywords
     )
     with get_openai_callback() as response_meta:
-        result = ScopingReview_config.CHAT35.invoke(formatted_prompt.to_messages())
+        result = lit_config.CHAT35.invoke(formatted_prompt.to_messages())
 
     print("Result - ", result)
     return result.content, response_meta

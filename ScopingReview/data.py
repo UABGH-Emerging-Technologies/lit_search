@@ -13,11 +13,11 @@ from llm_utils.database import get_db_connection
 from llm_utils.prep_pubmed_query import PubMedQueryGenerator
 
 import ScopingReview_config.app_config as lit_ap_config
-import ScopingReview_config.config as review_config
+import ScopingReview_config.config as lit_config
 import streamlit as st
 
 # For NCBI interactions
-Entrez.email = review_config.DEV_EMAIL
+Entrez.email = lit_config.DEV_EMAIL
 # This is the only way to set the key in the packages we use :(
 os.environ["NCBI_API_KEY"] = lit_ap_config.NCBI_API_KEY
 
@@ -38,7 +38,7 @@ def parse_keywords(content):
 def make_and_refine_query(previous_query, research_q, loop_counter):
     query_maker = PubMedQueryGenerator(research_q)
     search_string, response_meta = query_maker.generate_search_string(
-        PUBMED_CHAT=review_config.CHAT, loop_n=loop_counter, last_query=previous_query
+        PUBMED_CHAT=lit_config.CHAT, loop_n=loop_counter, last_query=previous_query
     )
     cost = response_meta.total_cost
     previous_query = search_string
@@ -48,8 +48,8 @@ def make_and_refine_query(previous_query, research_q, loop_counter):
 
 def search_and_compile(query, article_ids=[]):
     pm_connection = PubMedAPI(
-        email=review_config.DEV_EMAIL,
-        max_results=review_config.MAX_ARTICLES_SR,
+        email=lit_config.DEV_EMAIL,
+        max_results=lit_config.MAX_ARTICLES_SR,
         streamlit_context=True,
     )
     article_ids_new = pm_connection.search_pubmed_articles(query)
