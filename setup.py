@@ -7,9 +7,9 @@ BASE_DIR = Path(__file__).parent
 with open(Path(BASE_DIR, "requirements.txt")) as file:
     required_packages = [ln.strip() for ln in file.readlines()]
 
-docs_packages = ["mkdocs==1.3.1", "mkdocstrings==0.18.1"]
+docs_packages = ["mkdocs", "mkdocstrings"]
 
-style_packages = ["black==22.6.0", "flake8==5.0.2", "isort==5.10.1"]
+style_packages = ["black", "flake8", "isort"]
 
 # Define our package
 setup(
@@ -20,7 +20,7 @@ setup(
     author_email="rmelvin@uabmc.edu",
     url="https://gitlab.rc.uab.edu/anes_ai/llm_apps/scopingreview.git",
     python_requires=">=3.8",
-    packages=find_packages(), # only look in directores with __init__.py
+    packages=find_packages(),  # only look in directores with __init__.py
     install_requires=[required_packages],
     extras_require={"dev": docs_packages + style_packages, "docs": docs_packages},
 )

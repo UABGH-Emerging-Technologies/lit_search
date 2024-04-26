@@ -15,14 +15,14 @@
 
     "containerEnv": {
         "OPENAI_API_KEY": "${localEnv:OPENAI_API_KEY}"
+		"openai_api_key": "${localEnv:OPENAI_API_KEY}"
     },
 	// nvidia cuda
 	//"runArgs": ["--runtime=nvidia", "--gpus", "all"], 
 
 	// change for the specific project
 	"mounts": [
-		"source=/mnt/data/project/PerioperativeDataScience/LLM_Apps/ScopingReview,target=/data,type=bind,consistency=cached"
-	  ],
+		"source=/mnt/t/AIMiniTools/ScopingReview,target=/data,type=bind,consistency=cached"	  ],
 
 
 	// Set *default* container specific settings.json values on container create.
@@ -45,12 +45,13 @@
 
 	// Add the IDs of extensions you want installed when the container is created.
 	"extensions": [
-		"ms-python.python",
+		"donjayamanne.python-extension-pack",
 		"ms-python.vscode-pylance",
-        "ms-python.pylint",
+		"ms-toolsai.jupyter",
 		"teledemic.branch-warnings",
-        "mintlify.document",
-        "ms-azuretools.vscode-docker"
+		"mintlify.document",
+		"mechatroner.rainbow-csv",
+		"ms-azuretools.vscode-docker"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
