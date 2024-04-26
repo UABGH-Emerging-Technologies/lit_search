@@ -1,102 +1,91 @@
 # config.py
-import logging
 import sys
 from pathlib import Path
 
-import mlflow
-from rich.logging import RichHandler
+from langchain_openai import AzureChatOpenAI, AzureOpenAIEmbeddings
 
-from langchain.embeddings.openai import OpenAIEmbeddings
-from langchain.chat_models import AzureChatOpenAI
+import ScopingReview_config.app_config as lit_app_config
 
 # Development Directories
 BASE_DIR = Path(__file__).parent.parent.absolute()
 CONFIG_DIR = Path(BASE_DIR, "config")
 LOGS_DIR = Path(BASE_DIR, "logs")
+DEV_EMAIL = "rmelvin@uabmc.edu"
 
-# Data Directories
-DATA_DIR = Path("/data/DATASCI")
-RAW_DATA = Path(DATA_DIR, "raw")
-INTERMEDIATE_DIR = Path(DATA_DIR, "intermediate")
-RESULTS_DIR = Path(DATA_DIR, "results")
 
-# DATABASE Interface definitions
-DB_SERVER = manage_sensitive("db_server")
-DB_NAME = manage_sensitive("db_name")
-DB_USER = manage_sensitive("db_user")
-DB_PASSWORD = manage_sensitive("db_password")
-OPENAI_API_KEY = manage_sensitive("openai_api_key")
-
-# openai
-os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
-
-#Assets
+# Assets
 ASSETS_DIR = Path(BASE_DIR, "assets")
 
-ScopingReview_VECTORSTORE 
+# ScopingReview_outname
+SR_STEP1_FILENAME = "InitialSearch.xlsx"
+SR_STEP2_FILENAME = "IteratedSearch.xlsx"
+SR_STEP3_FILENAME = "CategorizedArticles.xlsx"
+SR_STEP4_DOCX_FILENAME = "SummarizedArticles.docx"
+SR_STEP4_EXCEL_FILENAME = "SubcategorizedArticles.xlsx"
+SR_STEP5_FILENAME = "ScopingReview_FirstDraft.docx"
+SR_STEP6_FILENAME = "ScopingReview_Bibliography.bib"
 
-# LLM specific
-EMBEDDINGS = OpenAIEmbeddings(
-            deployment="AdaEmbedding2",
-            model="text-embedding-ada-002",
-            openai_api_base="https://nlp-openai-svc.openai.azure.com",
-            openai_api_type="azure",
-            chunk_size=1
-        )
+# MIMES
+EXCEL_MIME = "application/vnd.ms-excel"
+DOCX_MIME = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 
+# BUTTON LABELS
+EXCEL_DOWNLOAD_LABEL = "Download Excel File"
+DOCX_DOWNLOAD_LABEL = "Download Word Document"
+BOTH_FILES = "Download Files"
+BIB_DOWNLOAD_LABEL = "Download .bib File"
+
+# LOOP Counting
+MAX_TRIES = 6
+
+# Sub Classificaiton threshold
+SUBCLASS_THRESHOLD = 40
+
+# Newsletter
+NEWSLETTER_QUESTION = "Developments in {category} anesthesia that may impact clinical practice"
+NEWSLETTER_CATEGORIES = ["cardiac", "OB", "regional", "general", "critical care"]
+NEWSLETTER_QUERIES = {
+    "cardiac": "cardiac anesthesia OR cardiac anaesthesia OR cardiac anesthesiology OR heart anesthesia OR cardiothoracic anesthesia OR cardiothoracic anesthesiology",
+    "OB": "obstetric anesthesia OR obstetric anaesthesia OR maternal anesthesia OR perinatal anesthesia",
+    "regional": "regional anesthesia OR regional anaesthesia OR nerve block OR spinal anesthesia OR epidural anesthesia",
+    "general": "general anesthesia OR general anaesthesia",
+    "critical care": "critical care anesthesia OR critical care anaesthesia OR ICU anesthesia OR intensive care anesthesia",
+}
+
+
+# LLM
 CHAT = AzureChatOpenAI(
-    openai_api_base="https://nlp-openai-svc.openai.azure.com",
-    openai_api_version="2023-03-15-preview",
-    deployment_name="ChatGPT35Turbo",
-    openai_api_type = "azure",
-    temperature=0
+    azure_endpoint="https://nlp-ai-svc.openai.azure.com/",
+    openai_api_version="2024-02-01",
+    azure_deployment="ChatGPT4",
+    openai_api_type="azure",
+    temperature=0.8,
+    model_name="gpt-4",
+    api_key=lit_app_config.GPT4_KEY,
 )
 
-# MLFlow model registry
-mlflow.set_tracking_uri("http://localhost:5000")
+SUMMARIZE_CHAT = AzureChatOpenAI(
+    azure_endpoint="https://nlp-ai-svc.openai.azure.com/",
+    openai_api_version="2024-02-01",
+    azure_deployment="ChatGPT432k",
+    openai_api_type="azure",
+    temperature=0,
+    model_name="gpt-4-32k",
+    api_key=lit_app_config.GPT4_KEY,
+)
 
-# Logger
-logging_config = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "minimal": {"format": "%(message)s"},
-        "detailed": {
-            "format": "%(levelname)s %(asctime)s [%(name)s:%(filename)s:%(funcName)s:%(lineno)d]\n%(message)s\n"
-        },
-    },
-    "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
-            "stream": sys.stdout,
-            "formatter": "minimal",
-            "level": logging.DEBUG,
-        },
-        "info": {
-            "class": "logging.handlers.RotatingFileHandler",
-            "filename": Path(LOGS_DIR, "info.log"),
-            "maxBytes": 10485760,  # 1 MB
-            "backupCount": 10,
-            "formatter": "detailed",
-            "level": logging.INFO,
-            "mode": "a+", 
-        },
-        "error": {
-            "class": "logging.handlers.RotatingFileHandler",
-            "filename": Path(LOGS_DIR, "error.log"),
-            "maxBytes": 10485760,  # 1 MB
-            "backupCount": 10,
-            "formatter": "detailed",
-            "level": logging.ERROR,
-            "mode": "a+", 
-        },
-    },
-    "root": {
-        "handlers": ["console", "info", "error"],
-        "level": logging.INFO,
-        "propagate": True,
-    },
-}
-logging.config.dictConfig(logging_config)
-logger = logging.getLogger()
-logger.handlers[0] = RichHandler(markup=True)
+# pubmed settings
+MIN_ARTICLES = 10
+MAX_ARTICLES_SR = 200
+MAX_ARTICLES_LR = 50
+
+# remove this later
+CHAT35 = AzureChatOpenAI(
+    azure_endpoint="https://nlp-ai-svc.openai.azure.com/",
+    openai_api_version="2024-02-01",
+    azure_deployment="ChatGPT16k",
+    openai_api_type="azure",
+    temperature=0,
+    model_name="gpt-35-turbo-16",
+    api_key=lit_app_config.GPT4_KEY,
+)

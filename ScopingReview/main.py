@@ -1,97 +1,93 @@
+import datetime
 import warnings
-import mlflow
+from typing import Optional
+
+import pandas as pd
 import typer
-import copy
-from ScopingReview import prompts
+from langchain_community.callbacks import get_openai_callback
 
-from ScopingReview_config import config
-from ScopingReview_config.config import logger
+import ScopingReview_config.config as lit_config
+from ScopingReview.compile import SummarizeManager
+from ScopingReview.data import fetch_full_text
+from ScopingReview.search import NewsletterSearchManager
 
-from ScopingReview.data import ingest_scoping_review_csv
-from ScopingReview.generate import search_scoping_review_vectorstore, get_scoping_review_response
+# move to config
 
 # Initialize Typer CLI app
 app = typer.Typer()
 warnings.filterwarnings("ignore")
 
+app = typer.Typer()
+
+
+# helper functions
+def get_last_week_dates():
+    end_date = datetime.date.today()
+    start_date = end_date - datetime.timedelta(days=7)
+    return start_date.strftime("%Y/%m/%d"), end_date.strftime("%Y/%m/%d")
+
+
+def format_query(base_query):
+    start_date, end_date = get_last_week_dates()
+    return f'({base_query}) AND ("{start_date}"[Date - Entrez] : "{end_date}"[Date - Entrez]) AND ("{start_date}"[Date - Publication] : "{end_date}"[Date - Publication])'
+
+
+# define each category query
+category_queries = {
+    category: format_query(query) for category, query in lit_config.NEWSLETTER_QUERIES.items()
+}
+
+
+class NewsletterManager:
+    def __init__(self, scoping_step):
+        self.scoping_step = scoping_step
+        self.cost = 0.0
+
+    def manage_newsletter(
+        self, category: str, query: str, output_folder: str, template_location: Optional[str]
+    ):
+        # Initialize NewsletterSearchManager with the predefined query
+        question = lit_config.NEWSLETTER_QUESTION.format(category=category)
+        article_search_manager = NewsletterSearchManager(
+            self.scoping_step, query, research_q=question
+        )
+        category_df = article_search_manager.search_and_compile_articles()
+
+        if category_df is not None and not category_df.empty:
+            category_df = category_df.head(40)  # Limit due to GPT limitations
+
+            # Fetch full text, merge, and process as before
+            full_text_df = fetch_full_text(category_df["PMID"])
+            category_df = pd.merge(category_df, full_text_df, on="PMID", how="inner")
+            category_df["Text"] = category_df["Text"].fillna("Text not available")
+            category_df["Author 1: Relevant Article? (Yes/No)"] = "Yes"
+            category_df["category"] = category
+            summarize_manager = SummarizeManager(category_df, question, is_streamlit=False)
+            response_meta = summarize_manager.write_newsletter(
+                category, output_folder, template_location
+            )
+            print(category, "newsletter generation complete. Cost: ", response_meta.total_cost)
+
+        else:
+            print("No articles found for the category:", category)
+
 
 @app.command()
-def ingest_scoping_review(
-    experiment_name: str = 'index_scoping_review',
-    run_name: str = "faiss",
-    test_run: bool = True,
+def main(
+    output_folder: str = typer.Option(
+        ..., "--output", "-o", help="Output folder for the newsletter"
+    ),
+    template_location: Optional[str] = typer.Option(
+        None, "--template", "-t", help="Optional DOCX template location"
+    ),
 ):
-    """
-    The `ingest` function preprocesses data and logs the csv ingestion steps using MLflow if `test_run`
-    is False.
-    
-    Args:
-      experiment_name (str): A string representing the name of the experiment to be logged in MLflow.
-    Defaults to index_scoping_review
-      run_name (str): The name of the MLflow run that will be created to log the preprocessing
-    information. Defaults to faiss
-      test_run (bool): The `test_run` parameter is a boolean flag that determines whether the function
-    should run in test mode or not. If `test_run` is set to `True`, the function will run in test mode
-    and skip certain steps that are not necessary for testing. If `test_run` is set to. Defaults to True
-    """
-    ingest_scoping_review_csv(path=config.ScopingReview_CSV, embeddings=config.EMBEDDINGS, out=config.ScopingReview_VECTORSTORE)
+    scoping_step = "initial"
+    nl_manager = NewsletterManager(scoping_step)
 
-    if not test_run:
-        #Log preproccesing
-        logger.info("✅ sucessfully preprocessed data")
-        mlflow.set_experiment(experiment_name)
-        with mlflow.start_run(run_name=run_name):
-            embeddings_args = copy.copy(config.EMBEDDINGS.__dict__)
-            del embeddings_args['openai_api_key']
-            mlflow.log_params(embeddings_args)
-            mlflow.log_param("output_filepath", config.ScopingReview_VECTORSTORE)
-            mlflow.log_param("input_filepath", config.scoping_review_CSV)
-   
-        
-@app.command()
-def generate_scoping_review(
-    query: str,
-    experiment_name: str = 'interrogate_scoping_review',
-    run_name: str = "qa",
-    mlflow_logging: bool = True,
-):
-    """
-    The function generates a response to a user query and logs the results using MLflow if specified.
-    
-    Args:
-      query (str): The user's query or input text that will be used to generate a response.
-      experiment_name (str): The name of the experiment to be logged in MLflow. An experiment is a
-    container for runs, which are executions of code against a specific version of code and data.
-    Defaults to interrogate_scoping_review
-      run_name (str): The name of the run for logging purposes. It is set to "qa" by default. Defaults
-    to qa
-      mlflow_logging (bool): mlflow_logging is a boolean parameter that determines whether to log the
-    results of the function using MLflow. If set to True, the function will log the experiment name, run
-    name, embeddings, model, user query, and model response using MLflow. If set to False, the function
-    will not. Defaults to True
-    """
-    docs = search_scoping_review_vectorstore(query,
-                                   embeddings=config.EMBEDDINGS,
-                                   store=config.ScopingReview_VECTORSTORE)
-    result = get_scoping_reviews_response(query,
-                                docs,
-                                chat=config.CHAT,
-                                chat_prompt=prompts.chat_prompt)
-    #Log 
-    if mlflow_logging:
-        logger.info("✅ sucessfully preprocessed data")
-        mlflow.set_experiment(experiment_name)
-        with mlflow.start_run(run_name=run_name):
-            embeddings_args = copy.copy(config.EMBEDDINGS.__dict__)
-            del embeddings_args['openai_api_key']
-            model_args = copy.copy(config.CHAT.__dict__)
-            del model_args['openai_api_key']
-            mlflow.log_params(embeddings_args)
-            mlflow.log_params(model_args)
-            mlflow.log_param("user_query", query)
-            mlflow.log_param("model_response", result.content)
-    return result.content
-            
+    for category in lit_config.NEWSLETTER_CATEGORIES:
+        query = category_queries[category]
+        nl_manager.manage_newsletter(category, query, output_folder, template_location)
+
 
 if __name__ == "__main__":
-    app()  # pragma: no cover, live app
+    app()
