@@ -9,7 +9,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
     volumes:
-      - /mnt/t/AIMiniTools/ScopingReview:/data/results
+      - /mnt/g/AINewsletter:/data/results
     secrets:
       - openai_api_key 
       - gpt4_api_key
