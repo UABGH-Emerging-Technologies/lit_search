@@ -10,12 +10,16 @@ import pdfplumber
 import requests
 from Bio import Entrez
 from llm_utils.call_pubmed_api import PubMedAPI
-from llm_utils.database import get_db_connection
 from llm_utils.prep_pubmed_query import PubMedQueryGenerator
 
 import ScopingReview_config.app_config as lit_ap_config
 import ScopingReview_config.config as lit_config
 import streamlit as st
+
+try:
+    from llm_utils.database import get_db_connection
+except ImportError:
+    print("Database prereqs not installed. This is expected if you are not in a streamlit context.")
 
 # For NCBI interactions
 Entrez.email = lit_config.DEV_EMAIL
