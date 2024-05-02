@@ -7,6 +7,7 @@ from pathlib import Path
 import pandas as pd
 import requests
 
+
 def pmid2bibtex(pmids: list):
     ## Adapted from: https://gist.github.com/tommycarstensen/ec3c57761f3846c339de925b66f4ac1b
     ## Fetch XML data from Entrez.

@@ -23,3 +23,7 @@ xlsxwriter
 pdfplumber
 pypandoc
 typer
+fastapi
+uvicorn
+python-multipart
+docx

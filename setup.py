@@ -11,6 +11,8 @@ docs_packages = ["mkdocs", "mkdocstrings"]
 
 style_packages = ["black", "flake8", "isort"]
 
+dev_packages = ["pytest", "pytest-asyncio", "pytest-mock"]
+
 # Define our package
 setup(
     name="ScopingReview",
@@ -22,5 +24,5 @@ setup(
     python_requires=">=3.8",
     packages=find_packages(),  # only look in directores with __init__.py
     install_requires=[required_packages],
-    extras_require={"dev": docs_packages + style_packages, "docs": docs_packages},
+    extras_require={"dev": docs_packages + style_packages + dev_packages, "docs": docs_packages},
 )
