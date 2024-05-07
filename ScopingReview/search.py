@@ -2,7 +2,7 @@ import tempfile
 
 import pandas as pd
 
-import ScopingReview_config.config as review_config
+import ScopingReview_config.config as lit_config
 import streamlit as st
 from ScopingReview.data import (
     get_relevant_rows,
@@ -22,7 +22,6 @@ class SearchManager:
         self.research_q = research_q
         self.article_ids = []
         self.loop_counter = 0
-        self.cost = 0.0
         self.query = ""
         self.pm_connection = None
         self.previous_query = ""
@@ -53,7 +52,7 @@ class SearchManager:
         pass
 
     def get_mime_type(self):
-        return review_config.EXCEL_MIME
+        return lit_config.EXCEL_MIME
 
     def _cleanup_session(self):
         for key in st.session_state.keys():
@@ -66,14 +65,12 @@ class SearchManager:
     def generate_and_refine_query(self):
         with st.spinner("Generating pubmed search string."):
             (
-                self.cost,
+                cost,
                 self.loop_counter,
                 self.previous_query,
                 self.search_string,
-            ) = make_and_refine_query(
-                self.previous_query, self.make_query(), self.cost, self.loop_counter
-            )
-
+            ) = make_and_refine_query(self.previous_query, self.make_query(), self.loop_counter)
+        st.session_state["total_cost"] += cost
         st.write(f"**Searching Pubmed with the query:** _{self.search_string}_")
         return self.search_string
 
@@ -83,8 +80,8 @@ class SearchManager:
         return articles_df
 
     def search_loop(self):
-        while (len(self.article_ids) < review_config.MIN_ARTICLES) and (
-            self.loop_counter < review_config.MAX_TRIES
+        while (len(self.article_ids) < lit_config.MIN_ARTICLES) and (
+            self.loop_counter < lit_config.MAX_TRIES
         ):
             query_string = self.generate_and_refine_query()
             articles_df = self.perform_search(query_string)
@@ -116,7 +113,7 @@ class ArticleSearchManager(SearchManager):
         super().__init__(scoping_step, research_q)
 
     def get_filename(self):
-        return review_config.SR_STEP1_FILENAME
+        return lit_config.SR_STEP1_FILENAME
 
 
 class IterateSearchManager(SearchManager):
@@ -150,7 +147,7 @@ class IterateSearchManager(SearchManager):
     def make_initial_query(self):
         with st.spinner("Extracting and grouping keywords from uploaded file"):
             if not st.session_state["keywords_finalized"]:
-                generated_keywords_json = generate_keywords(self.df, self.research_q)
+                generated_keywords_json, response_meta = generate_keywords(self.df, self.research_q)
                 (
                     self.primary_keywords,
                     self.secondary_keywords,
@@ -158,6 +155,7 @@ class IterateSearchManager(SearchManager):
                 ) = parse_keywords(str(generated_keywords_json))
                 self.query_terms = self.primary_keywords + self.secondary_keywords
                 print("Succesfully made initial query (pks) - ", self.primary_keywords)
+                st.session_state["total_cost"] += response_meta.total_cost
                 return ", ".join(self.query_terms)
 
     def make_query(self):
@@ -182,11 +180,11 @@ class IterateSearchManager(SearchManager):
             keywords_submitted = st.form_submit_button("Looks good!")
             if keywords_submitted:
                 self.query_terms = (
-                    "Primary keywords to include in query: "
+                    "Primary topics to include in query: "
                     + st.session_state["primary_keywords"]
-                    + ".  Secondary keywords to include in query: "
+                    + ".  Secondary topics to include in query: "
                     + st.session_state["secondary_keywords"]
-                    + ".  Here's a set of keywords to exclude in query contstruction "
+                    + ".  Here's a set of topics to exclude in query contstruction "
                     + st.session_state["exclusion_keywords"]
                 )
                 st.session_state["query_terms"] = self.query_terms
@@ -203,7 +201,7 @@ class IterateSearchManager(SearchManager):
         return articles_df
 
     def get_filename(self):
-        return review_config.SR_STEP2_FILENAME
+        return lit_config.SR_STEP2_FILENAME
 
     def _write_search_results(self, articles_df, query, query_string):
         # Reindex dataframes and Append new results to it

@@ -5,9 +5,9 @@ import tempfile
 import pandas as pd
 from llm_utils.text_format import convert_markdown_docx
 
-import ScopingReview.generate as review_generate
-import ScopingReview_config.boilerplate as review_boilerplate
-import ScopingReview_config.config as review_config
+import ScopingReview.generate as lit_generate
+import ScopingReview_config.boilerplate as lit_boilerplate
+import ScopingReview_config.config as lit_config
 import streamlit as st
 from ScopingReview.data import (
     extract_docx_pmids,
@@ -39,14 +39,14 @@ class CategorizeManager(CompileManager):
         ] = False  # Initiate a unique file_uploaded variable for categorization
 
     def get_mime_type(self):
-        return review_config.EXCEL_MIME
+        return lit_config.EXCEL_MIME
 
     def get_filename(self):
         # default implementation, subclasses can override this method
-        return review_config.SR_STEP3_FILENAME
+        return lit_config.SR_STEP3_FILENAME
 
     def get_download_button_label(self):
-        return review_config.EXCEL_DOWNLOAD_LABEL
+        return lit_config.EXCEL_DOWNLOAD_LABEL
 
     def categorize_articles(self):
         if self.df is not None:
@@ -54,8 +54,10 @@ class CategorizeManager(CompileManager):
                 "file_uploaded_cate"
             ] = True  # file is uploaded and ready to categorize
             with st.spinner("Categorizing contents of file..."):
-                category_df = review_generate.categorize(self.df, self.userdefined_categories)
-
+                category_df, response_meta = lit_generate.categorize(
+                    self.df, self.userdefined_categories
+                )
+            st.session_state["total_cost"] += response_meta.total_cost
             with st.spinner("Getting full text"):
                 full_text_df = fetch_full_text(category_df.PMID)
                 category_df = pd.merge(category_df, full_text_df, on="PMID", how="inner")
@@ -92,16 +94,16 @@ class SummarizeManager(CompileManager):
             ] = False  # Initiate a unique file_uploaded variable for summarization
 
     def get_doc_filename(self):
-        return review_config.SR_STEP4_DOCX_FILENAME
+        return lit_config.SR_STEP4_DOCX_FILENAME
 
     def get_excel_filename(self):
-        return review_config.SR_STEP4_EXCEL_FILENAME
+        return lit_config.SR_STEP4_EXCEL_FILENAME
 
     def get_download_button_label(self):
-        return review_config.BOTH_FILES
+        return lit_config.BOTH_FILES
 
     def get_mime_type(self):
-        return review_config.DOCX_MIME
+        return lit_config.DOCX_MIME
 
     # TODO add write and second sheet + Generalize and move to parent
     def _download_excel_results(self, categories_str):
@@ -115,10 +117,11 @@ class SummarizeManager(CompileManager):
                     label=self.get_download_button_label(),
                     data=file,
                     file_name=self.get_excel_filename(),
-                    mime=review_config.EXCEL_MIME,
+                    mime=lit_config.EXCEL_MIME,
                 )
 
     def _download_doc_results(self, docx_data):
+        st.balloons()
         st.write("Note that once you hit download, this form will reset.")
         st.download_button(
             label=self.get_download_button_label(),
@@ -128,7 +131,7 @@ class SummarizeManager(CompileManager):
         )
 
     def check_limits(self):
-        categories_exceeding_limit = review_generate.categories_limit_check(self.df)
+        categories_exceeding_limit = lit_generate.categories_limit_check(self.df)
         return categories_exceeding_limit
 
     def subcategorize(self):
@@ -139,22 +142,22 @@ class SummarizeManager(CompileManager):
             categories_string = ", ".join(categories_exceeding_limit)
             text_box_str = (
                 "More than "
-                + str(review_config.SUBCLASS_THRESHOLD)
+                + str(lit_config.SUBCLASS_THRESHOLD)
                 + " articles belong to the following category(ies). Suggest sub-categories for the following main category(ies), and separate them by commas: "
             )
             sub_categories = st.text_area(text_box_str, categories_string)
             if st.button("Subcategorize Topics"):
                 with st.spinner("Subcategorization in progress"):
-                    self.df, self.categories_str = review_generate.sub_categorize(
+                    self.df, self.categories_str, response_meta = lit_generate.sub_categorize(
                         self.df, categories_exceeding_limit, sub_categories
                     )
                     self.df.drop_duplicates(subset="PMID", keep="first", inplace=True)
                     self._download_excel_results(",".split(self.categories_str))
                     st.session_state["subcategorize_complete"] = True
-
+                st.session_state["total_cost"] += response_meta.total_cost
                 st.write("You must download and review the Excel file before continuing.")
         else:
-            st.write("No single category exceeded limit - ", review_config.SUBCLASS_THRESHOLD)
+            st.write("No single category exceeded limit - ", lit_config.SUBCLASS_THRESHOLD)
             st.session_state["subcategorize_complete"] = True
 
     def summarize_articles(self):
@@ -162,29 +165,31 @@ class SummarizeManager(CompileManager):
             # file is uploaded and ready to categorize
 
             with st.spinner("Summarizing..."):
-                markdown_to_convert = review_generate.summarize_all_categories(
+                markdown_to_convert, response_meta = lit_generate.summarize_all_categories(
                     self.df, self.research_q
                 )
                 docx_data = convert_markdown_docx(markdown_to_convert)
-                self._download_doc_results(docx_data)
+            st.session_state["total_cost"] += response_meta.total_cost
+            self._download_doc_results(docx_data)
 
     def write_newsletter(self, category, output_folder, template_location=None):
         if self.df is not None:
-            newsletter_body = review_generate.summarize_all_categories(
+            newsletter_body, response_meta = lit_generate.summarize_all_categories(
                 self.df, self.research_q, newsletter_flag=True
             )
             markdown_to_convert = (
                 "## "
                 + category.title()
                 + " AI-Generated Literature Digest \n\n"
-                + review_boilerplate.NEWSLETTER_FRONTMATTER
+                + lit_boilerplate.NEWSLETTER_FRONTMATTER
                 + "\n\n"
                 + newsletter_body
                 + "\n\n"
-                + review_boilerplate.NEWSLETTER_BACKMATTER
+                + lit_boilerplate.NEWSLETTER_BACKMATTER
             )
             docx_data = convert_markdown_docx(markdown_to_convert, template_location)
             self.save_newsletter(docx_data, category, output_folder)
+            return response_meta
 
     def save_newsletter(self, docx_data, category, output_folder):
         # Ensure the output folder exists
@@ -212,27 +217,29 @@ class DraftReviewManager(CompileManager):
         ] = False  # Initiate a unique file_uploaded variable for drafting
 
     def get_filename(self):
-        return review_config.SR_STEP5_FILENAME
+        return lit_config.SR_STEP5_FILENAME
 
     def get_download_button_label(self):
-        return review_config.DOCX_DOWNLOAD_LABEL
+        return lit_config.DOCX_DOWNLOAD_LABEL
 
     def _download_results(self, docx_data):
+        st.balloons()
         st.write("Note that once you hit download, this form will reset.")
         st.download_button(
             label=self.get_download_button_label(),
             data=docx_data,
             file_name=self.get_filename(),
-            mime=review_config.DOCX_MIME,  # correct MIME type for docx
+            mime=lit_config.DOCX_MIME,  # correct MIME type for docx
         )
 
     def draft_review(self):
         if self.summaries is not None:
             st.session_state["file_uploaded_draft"] = True  # file is uploaded and ready to draft
             with st.spinner("Preparing first draft of article..."):
-                markdown_to_convert = review_generate.write_first_draft(
+                markdown_to_convert, response_meta = lit_generate.write_first_draft(
                     self.summaries, self.research_q
                 )
+                st.session_state["total_cost"] += response_meta.total_cost
                 docx_data = convert_markdown_docx(markdown_to_convert)
                 self._download_results(docx_data)
 
@@ -257,12 +264,13 @@ class BibtexManager(CompileManager):
                 return "The dataframe doesn't contain a 'PMID' column."
 
     def get_filename(self):
-        return review_config.SR_STEP6_FILENAME
+        return lit_config.SR_STEP6_FILENAME
 
     def get_download_button_label(self):
-        return review_config.BIB_DOWNLOAD_LABEL
+        return lit_config.BIB_DOWNLOAD_LABEL
 
     def _download_results(self, bibtex_text):
+        st.balloons()
         st.write("Note that once you hit download, this form will reset.")
         st.download_button(
             label=self.get_download_button_label(), data=bibtex_text, file_name=self.get_filename()

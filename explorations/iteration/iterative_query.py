@@ -9,7 +9,7 @@ from langchain.prompts import (
 )
 from langchain_openai import AzureChatOpenAI
 
-import ScopingReview_config.config as review_config
+import ScopingReview_config.config as lit_config
 import streamlit as st
 from ScopingReview import prompts
 from ScopingReview.data import (
@@ -43,7 +43,7 @@ def show_professional_development_page():
             loop_counter = 0
             cost = 0.0
             query = ""
-            while len(article_ids) < review_config.MIN_ARTICLES and loop_counter < 6:
+            while len(article_ids) < lit_config.MIN_ARTICLES and loop_counter < 6:
                 with st.spinner("Generating pubmed search string."):
                     cost, loop_counter, query, _ = make_and_refine_query(
                         query, unique_keywords_str, cost, loop_counter
@@ -64,7 +64,7 @@ def show_professional_development_page():
                     st.download_button(
                         label="Download Excel file",
                         data=file,
-                        file_name=review_config.SR_STEP2_FILENAME,
+                        file_name=lit_config.SR_STEP2_FILENAME,
                         mime="application/vnd.ms-excel",
                     )
 
