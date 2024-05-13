@@ -15,7 +15,7 @@ import ScopingReview_config.config as lit_config
 import ScopingReview_config.app_config as lit_app_config
 
 
-from app.v01.articles.schemas import SearchRequest, SearchType
+from app.v01.schemas import SearchRequest
 import app.api_config as lit_api_config
 
 
@@ -25,6 +25,25 @@ async def get_summary_response(
     background_tasks: BackgroundTasks,
     research_question: str
 ) -> Tuple[str, FileResponse]:
+    """
+    This async function takes a research question, performs an initial literature search using an API,
+    summarizes the search results, generates a DOCX file with the summary, and writes relevant
+    information to a database as a background task.
+    
+    Args:
+      background_tasks (BackgroundTasks): The `background_tasks` parameter in the `get_summary_response`
+    function is used to schedule background tasks to be run after the main response has been returned to
+    the client. These tasks are typically non-blocking and can be used for operations like writing to a
+    database, sending emails, or other asynchronous operations that
+      research_question (str): The `research_question` parameter in the `get_summary_response` function
+    is a string that represents the question or topic for which the summary response is being generated.
+    This question is used in the function to perform an initial literature search and compile articles
+    related to the research question.
+    
+    Returns:
+      The function `get_summary_response` returns a tuple containing the temporary file path and a
+    `FileResponse` object.
+    """
     start = datetime.now()
 
     try:
@@ -71,9 +90,25 @@ async def get_summary_response(
 
     return temp_file_path, response
 
-@router.post("/search/v01/articles/summary/")
+@router.post("/search/v01/standalone/summary/")
 async def initial_literature_search(background_tasks: BackgroundTasks, query: SearchRequest):
-    # Instantiate the search manager with the query
+    """
+    Performs an initial literature search based on a provided research question, summarizes the findings, and generates a downloadable DOCX file containing the summary. This method leverages automated search and summarization tools to provide a concise overview of relevant literature.
+
+    The process includes:
+    - Searching for articles related to the research question.
+    - Compiling and summarizing the most relevant articles.
+    - Generating a summary document in DOCX format.
+
+    Parameters:
+        query (SearchRequest): A data model that includes the research question for which the literature search and summary need to be conducted.
+
+    Returns:
+        FileResponse: A response object that includes the file data for the generated summary. The file is temporarily stored and is available for download immediately after generation. Post-download, the file is cleaned up from the server to maintain security and efficiency.
+    
+    Raises:
+        HTTPException: Returns a 404 error if no articles are found, or a 500 error for any other processing failures during the search and summary generation process.
+    """
     
     temp_file_path, response = await get_summary_response(
         background_tasks, query.research_question
