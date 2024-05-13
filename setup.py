@@ -11,7 +11,7 @@ docs_packages = ["mkdocs", "mkdocstrings"]
 
 style_packages = ["black", "flake8", "isort"]
 
-dev_packages = ["pytest", "pytest-asyncio", "pytest-mock"]
+dev_packages = ["pip-tools", "pandas", "pytest", "pytest-asyncio", "pytest-mock"]
 
 # Define our package
 setup(

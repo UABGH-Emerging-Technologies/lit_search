@@ -25,6 +25,9 @@ class SearchManager:
         self.query = ""
         self.pm_connection = None
         self.previous_query = ""
+        # the st session state piece breaks with FastAPI
+        # can maybe do something with self.is_streamlit
+        # like the newsletter writer does
         st.session_state["lock"] = False
 
     def _fetch_articles(self, query):
@@ -242,3 +245,47 @@ class NewsletterSearchManager(SearchManager):
             return articles_df
         else:
             return None  # Return None if no articles are found
+
+
+class APISearchManager(SearchManager):
+    def __init__(self, scoping_step, research_q):
+        self.scoping_step = scoping_step
+        self.research_q = research_q
+        self.article_ids = []
+        self.loop_counter = 0
+        self.query = ""
+        self.pm_connection = None
+        self.previous_query = ""
+        self.cost = 0
+        
+    def search_loop(self):
+        while (len(self.article_ids) < lit_config.MIN_ARTICLES) and (
+            self.loop_counter < lit_config.MAX_TRIES
+        ):
+            query_string, cost = self.generate_and_refine_query()
+            articles_df = self.perform_search(query_string)
+        
+            self.cost += cost
+        return articles_df
+
+    def search_and_compile_articles(self):
+        articles_df = self.search_loop()
+        return articles_df
+    
+    def generate_and_refine_query(self):
+        (
+            cost,
+            self.loop_counter,
+            self.previous_query,
+            self.search_string,
+        ) = make_and_refine_query(self.previous_query, self.make_query(), self.loop_counter)
+
+        return self.search_string, cost
+
+    def perform_search(self, search_string):
+        self.pm_connection, self.article_ids = search_and_compile(search_string, self.article_ids)
+        if len(self.article_ids) >= 1:  # Check if at least 1 article is found
+            articles_df = self._fetch_articles(search_string)
+            return articles_df, self.cost
+        else:
+            return None, self.cost  # Return None if no articles are found

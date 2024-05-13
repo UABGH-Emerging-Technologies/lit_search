@@ -16,7 +16,7 @@ services:
       - libkey_api_key
       - ncbi_api_key
   streamlit_app:
-    profiles: ["web"]
+    profiles: ["streamlit"]
     build:
       context: .
       dockerfile: deploy/Dockerfile_web
