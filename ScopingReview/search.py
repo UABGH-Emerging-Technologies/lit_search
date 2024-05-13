@@ -266,11 +266,24 @@ class APISearchManager(SearchManager):
             articles_df = self.perform_search(query_string)
         
             self.cost += cost
-        return articles_df
+        return articles_df, query_string
+    
+    def _write_search_results(self, articles_df, query, query_string):
+        # dedup by PMID
+        articles_df.drop_duplicates(subset="PMID")
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmpfile:
+            write_excel_output(tmpfile, articles_df, query, query_string)
+        return tmpfile.name
 
-    def search_and_compile_articles(self):
-        articles_df = self.search_loop()
-        return articles_df
+    def search_and_compile_articles(self, write_excel=False):
+        articles_df, query_string = self.search_loop()
+        if write_excel:
+            if articles_df is not None:
+                return self._write_search_results(articles_df, self.make_query(), query_string), self.cost
+            else: 
+                return None, self.cost
+        else:
+            return articles_df, self.cost
     
     def generate_and_refine_query(self):
         (
@@ -286,6 +299,6 @@ class APISearchManager(SearchManager):
         self.pm_connection, self.article_ids = search_and_compile(search_string, self.article_ids)
         if len(self.article_ids) >= 1:  # Check if at least 1 article is found
             articles_df = self._fetch_articles(search_string)
-            return articles_df, self.cost
+            return articles_df
         else:
-            return None, self.cost  # Return None if no articles are found
+            return None # Return None if no articles are found
