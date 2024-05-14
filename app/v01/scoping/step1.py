@@ -9,15 +9,15 @@ from datetime import datetime
 from llm_utils.database import write_to_db
 
 from ScopingReview.search import APISearchManager
-import ScopingReview.data as lit_data
 import ScopingReview_config.config as lit_config
 import ScopingReview_config.app_config as lit_app_config
 
 
 from app.v01.schemas import SearchRequest
+import app.fastapi_config as lit_api_config
 
 # TODO: metadata
-router = APIRouter()
+router = APIRouter(**lit_api_config.SCOPING_STEP1_META)
 
 async def get_step1_response(
     background_tasks: BackgroundTasks,

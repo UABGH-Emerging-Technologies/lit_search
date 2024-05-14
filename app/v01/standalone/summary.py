@@ -16,10 +16,10 @@ import ScopingReview_config.app_config as lit_app_config
 
 
 from app.v01.schemas import SearchRequest
-import app.api_config as lit_api_config
+import app.fastapi_config as lit_api_config
 
 # TODO: meta data
-router = APIRouter()
+router = APIRouter(**lit_api_config.STANDALONE_SUMMARY_META)
 
 async def get_summary_response(
     background_tasks: BackgroundTasks,
@@ -55,7 +55,7 @@ async def get_summary_response(
         )
         articles_df, cost = article_search_manager.search_and_compile_articles()
         if not articles_df.empty:
-
+            # subclass of compile manager? Summarize manager?
             articles_df = articles_df.head(lit_config.SUBCLASS_THRESHOLD)
             articles_df["Author 1: Relevant Article? (Yes/No)"] = "Yes"
             articles_df["category"] = "Initial Search"
