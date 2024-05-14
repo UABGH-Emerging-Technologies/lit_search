@@ -15,11 +15,12 @@ from ScopingReview.data import (
     write_excel_output,
 )
 from ScopingReview.utils import pmid2bibtex
-
+from fastapi import HTTPException
 
 class CompileManager:
     def __init__(self, df):
         self.df = df
+        self.cost = 0
 
     def get_filename(self):
         # default implementation, subclasses MUST override this method
@@ -79,98 +80,42 @@ class CategorizeManager(CompileManager):
                 )
 
 
-class SummarizeManager(CompileManager):
-    def __init__(self, df, research_q, is_streamlit=True):
+class BaseSummarizeManager(CompileManager):
+    def __init__(self, df, research_q):
         super().__init__(df)
-
         self.research_q = research_q
-        self.is_streamlit = is_streamlit
         self.categories = []
         self.sub_categories = ""
         self.categories_str = ""
-        if self.is_streamlit:
-            st.session_state["file_uploaded_sum"] = (
-                False  # Initiate a unique file_uploaded variable for summarization
-            )
 
-    def get_doc_filename(self):
-        return lit_config.SR_STEP4_DOCX_FILENAME
-
-    def get_excel_filename(self):
-        return lit_config.SR_STEP4_EXCEL_FILENAME
-
-    def get_download_button_label(self):
-        return lit_config.BOTH_FILES
+    def get_filename(self):
+        raise NotImplementedError("This method must be implemented by subclasses.")
 
     def get_mime_type(self):
-        return lit_config.DOCX_MIME
-
-    # TODO add write and second sheet + Generalize and move to parent
-    def _download_excel_results(self, categories_str):
-        self.df.drop_duplicates(subset="PMID", keep="first", inplace=True)
-        st.write("Note that once you hit download, this form will reset.")
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmpfile:
-            write_excel_output(tmpfile, self.df, categories_str)
-            with open(tmpfile.name, "rb") as file:
-                st.balloons()
-                st.download_button(
-                    label=self.get_download_button_label(),
-                    data=file,
-                    file_name=self.get_excel_filename(),
-                    mime=lit_config.EXCEL_MIME,
-                )
-
-    def _download_doc_results(self, docx_data):
-        st.balloons()
-        st.write("Note that once you hit download, this form will reset.")
-        st.download_button(
-            label=self.get_download_button_label(),
-            data=docx_data,
-            file_name=self.get_doc_filename(),
-            mime=self.get_mime_type(),
-        )
+        raise NotImplementedError("This method must be implemented by subclasses.")
 
     def check_limits(self):
         categories_exceeding_limit = lit_generate.categories_limit_check(self.df)
         return categories_exceeding_limit
 
-    def subcategorize(self):
+    def subcategorize(self, sub_categories):
         categories_exceeding_limit = self.check_limits()
-        # perfoming categorization on the exceeding limit categories
         if categories_exceeding_limit:
-            st.session_state["limit_exceeded"] = True
-            categories_string = ", ".join(categories_exceeding_limit)
-            text_box_str = (
-                "More than "
-                + str(lit_config.SUBCLASS_THRESHOLD)
-                + " articles belong to the following category(ies). Suggest sub-categories for the following main category(ies), and separate them by commas: "
+            self.df, self.categories_str, response_meta = lit_generate.sub_categorize(
+                self.df, categories_exceeding_limit, sub_categories
             )
-            sub_categories = st.text_area(text_box_str, categories_string)
-            if st.button("Subcategorize Topics"):
-                with st.spinner("Subcategorization in progress"):
-                    self.df, self.categories_str, response_meta = lit_generate.sub_categorize(
-                        self.df, categories_exceeding_limit, sub_categories
-                    )
-                    self.df.drop_duplicates(subset="PMID", keep="first", inplace=True)
-                    self._download_excel_results(",".split(self.categories_str))
-                    st.session_state["subcategorize_complete"] = True
-                st.session_state["total_cost"] += response_meta.total_cost
-                st.write("You must download and review the Excel file before continuing.")
-        else:
-            st.write("No single category exceeded limit - ", lit_config.SUBCLASS_THRESHOLD)
-            st.session_state["subcategorize_complete"] = True
+            self.df.drop_duplicates(subset="PMID", keep="first", inplace=True)
+            return self.df, self.categories_str, response_meta
+        return None, None, None
 
     def summarize_articles(self):
         if self.df is not None:
-            # file is uploaded and ready to categorize
-
-            with st.spinner("Summarizing..."):
-                markdown_to_convert, response_meta = lit_generate.summarize_all_categories(
-                    self.df, self.research_q
-                )
-                docx_data = convert_markdown_docx(markdown_to_convert)
-            st.session_state["total_cost"] += response_meta.total_cost
-            self._download_doc_results(docx_data)
+            markdown_to_convert, response_meta = lit_generate.summarize_all_categories(
+                self.df, self.research_q
+            )
+            docx_data = convert_markdown_docx(markdown_to_convert)
+            self.cost += response_meta.total_cost
+            return docx_data, response_meta
 
     def write_newsletter(self, category, output_folder, template_location=None):
         if self.df is not None:
@@ -205,6 +150,120 @@ class SummarizeManager(CompileManager):
         with open(file_path, "wb") as file:
             file.write(docx_data)
         print(f"File saved: {file_path}")
+
+
+# keeping name for compatibility with previous implementations
+# eventually want this name to begin with Streamlit...
+class SummarizeManager(BaseSummarizeManager):
+    def __init__(self, df, research_q):
+        super().__init__(df, research_q)
+        st.session_state["file_uploaded_sum"] = False  # Initialize session state for summarization
+
+    def get_doc_filename(self):
+        return lit_config.SR_STEP4_DOCX_FILENAME
+
+    def get_excel_filename(self):
+        return lit_config.SR_STEP4_EXCEL_FILENAME
+
+    def get_download_button_label(self):
+        return lit_config.BOTH_FILES
+
+    def get_mime_type(self):
+        return lit_config.DOCX_MIME
+
+    def download_excel_results(self, categories_str):
+        self.df.drop_duplicates(subset="PMID", keep="first", inplace=True)
+        st.write("Note that once you hit download, this form will reset.")
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmpfile:
+            write_excel_output(tmpfile, self.df, categories_str)
+            with open(tmpfile.name, "rb") as file:
+                st.balloons()
+                st.download_button(
+                    label=self.get_download_button_label(),
+                    data=file,
+                    file_name=self.get_excel_filename(),
+                    mime=self.get_mime_type(),
+                )
+        self.update_session_cost()
+
+    def download_doc_results(self, docx_data):
+        st.balloons()
+        st.write("Note that once you hit download, this form will reset.")
+        st.download_button(
+            label=self.get_download_button_label(),
+            data=docx_data,
+            file_name=self.get_doc_filename(),
+            mime=self.get_mime_type(),
+        )
+        self.update_session_cost()
+
+    def update_session_cost(self):
+        if "cost" not in st.session_state:
+            st.session_state["total_cost"] = self.cost
+        else:
+            st.session_state["total_cost"] += self.cost
+
+    def subcategorize(self, sub_categories):
+        result = super().subcategorize(sub_categories)
+        if result[0] is not None:  # Check if categorization was successful
+            self.update_session_cost()
+        return result
+
+    def summarize_articles(self):
+        docx_data, response_meta = super().summarize_articles()
+        if docx_data is not None:
+            self.cost += response_meta.total_cost
+            return docx_data
+        return None
+    
+    
+import os
+import datetime
+from fastapi import HTTPException
+
+class FastAPISummarizeManager(BaseSummarizeManager):
+    def __init__(self, df, research_q):
+        super().__init__(df, research_q)
+
+    def summarize_and_save(self):
+        """
+        This method encapsulates the summarization of articles and saving the result as a DOCX file.
+        It returns the path to the saved file and the total cost associated with the operation.
+        """
+        try:
+            if self.df.empty:
+                raise HTTPException(status_code=404, detail="No articles found")
+
+            # Preparing the dataframe for summarization
+            self.df = self.df.head(lit_config.SUBCLASS_THRESHOLD)
+            self.df["Author 1: Relevant Article? (Yes/No)"] = "Yes"
+            self.df["category"] = "Initial Search"
+            self.df["Text"] = "Text not available"
+
+            # Summarizing articles
+            markdown_to_convert, response_meta = lit_generate.summarize_all_categories(self.df, self.research_q)
+            docx_data = convert_markdown_docx(markdown_to_convert)
+
+            # Save the DOCX file
+            temp_file_path = self.save_temp_docx(docx_data)
+
+            # Calculating total cost
+            total_cost = self.cost + response_meta.total_cost
+
+            return temp_file_path, total_cost
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+    def save_temp_docx(self, docx_data):
+        """
+        Saves the DOCX data to a temporary file and returns the file path.
+        """
+        temp_dir = tempfile.mkdtemp()
+        today_date = datetime.date.today().strftime("%Y-%m-%d")
+        temp_file_path = os.path.join(temp_dir, f"summary_{today_date}.docx")
+        with open(temp_file_path, "wb") as file:
+            file.write(docx_data)
+        return temp_file_path
 
 
 class DraftReviewManager(CompileManager):

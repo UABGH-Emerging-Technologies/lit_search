@@ -1,14 +1,14 @@
 
 import os
 from typing import Tuple
-from fastapi import APIRouter, BackgroundTasks, HTTPException
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Depends
 from fastapi.responses import FileResponse
 
 from datetime import datetime
 
 from llm_utils.database import write_to_db
 
-from ScopingReview.search import APISearchManager
+from ScopingReview.search import FastAPISearchManager
 import ScopingReview_config.config as lit_config
 import ScopingReview_config.app_config as lit_app_config
 
@@ -17,7 +17,7 @@ from app.v01.schemas import SearchRequest
 import app.fastapi_config as lit_api_config
 
 # TODO: metadata
-router = APIRouter(**lit_api_config.SCOPING_STEP1_META)
+router = APIRouter(tags=["scoping", "step1"])
 
 async def get_step1_response(
     background_tasks: BackgroundTasks,
@@ -26,42 +26,30 @@ async def get_step1_response(
     """
     This function performs an initial literature search based on a research question, saves the search
     results to an Excel file, and logs the search details to a database.
-    
-    Args:
-      background_tasks (BackgroundTasks): The `background_tasks` parameter in the `get_step1_response`
-    function is of type `BackgroundTasks`. It is used to add background tasks to be run after the main
-    response is returned to the client. In this case, a task is added to write some data to the database
-    after the file
-      research_question (str): The `research_question` parameter in the `get_step1_response` function is
-    a string that represents the research question for which the initial literature search is being
-    conducted. This research question is used by the `APISearchManager` to perform the search and
-    compile articles related to the question.
-    
-    Returns:
-      The function `get_step1_response` returns a tuple containing two elements: 
-    1. The temporary file path where the file is stored after the initial literature search.
-    2. A `FileResponse` object that represents the file to be returned to the client.
     """
     start = datetime.now()
 
     try:
-        # TODO: should we/ what's the best way to collapse this? A new class in the main package?
-        # Can't have any streamlit things. They don't place nice with fastapi
-        article_search_manager = APISearchManager(
+        # Utilizing the new FastAPISearchManager to perform the literature search
+        article_search_manager = FastAPISearchManager(
            scoping_step="initial literature search",
-           research_q = research_question
+           research_q=research_question
         )
         temp_file_path, cost = article_search_manager.search_and_compile_articles(write_excel=True)
         if temp_file_path is None:
             raise HTTPException(status_code=404, detail="No articles found")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
+
     finish = datetime.now()
-    response= FileResponse(path=temp_file_path,
-                    filename=lit_config.SR_STEP1_FILENAME,
-                    media_type=article_search_manager.get_mime_type()
-                    )
+    response = FileResponse(
+        path=temp_file_path,
+        filename=lit_config.SR_STEP1_FILENAME,
+        media_type=lit_api_config.XLSX_EXPECTED_TYPE
+    )
+
     try:
+        # Adding a background task to write search details to the database
         background_tasks.add_task(
             write_to_db,
             lit_app_config,
@@ -76,8 +64,8 @@ async def get_step1_response(
 
     return temp_file_path, response
 
-@router.post("/search/v01/scoping/step1/")
-async def perform_step1_scoping_search(background_tasks: BackgroundTasks, query: SearchRequest):
+@router.post("/search/v01/scoping/step1/", **lit_api_config.SCOPING_STEP1_META)
+async def perform_step1_scoping_search(background_tasks: BackgroundTasks, query: SearchRequest = Depends()) -> FileResponse:
     """
     Conducts an initial literature search based on the provided research question, compiles the results into an Excel file, and returns the file for download. This endpoint is particularly useful for the early stages of a scoping review or literature review, providing a comprehensive collection of relevant literature.
 

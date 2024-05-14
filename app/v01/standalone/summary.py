@@ -1,16 +1,15 @@
 
 import os
 from typing import Tuple
-from fastapi import APIRouter, BackgroundTasks, HTTPException
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Depends
 from fastapi.responses import FileResponse
 
 from datetime import datetime
 
-from llm_utils import api_utils
 from llm_utils.database import write_to_db
 
-from ScopingReview.search import APISearchManager
-import ScopingReview.generate as lit_generate
+from ScopingReview.search import FastAPISearchManager
+from ScopingReview.compile import FastAPISummarizeManager
 import ScopingReview_config.config as lit_config
 import ScopingReview_config.app_config as lit_app_config
 
@@ -19,14 +18,11 @@ from app.v01.schemas import SearchRequest
 import app.fastapi_config as lit_api_config
 
 # TODO: meta data
-router = APIRouter(**lit_api_config.STANDALONE_SUMMARY_META)
+router = APIRouter(tags=["standalone"])
 
-async def get_summary_response(
-    background_tasks: BackgroundTasks,
-    research_question: str
-) -> Tuple[str, FileResponse]:
+def get_summary_response(background_tasks: BackgroundTasks, research_question: str):
     """
-    This async function takes a research question, performs an initial literature search using an API,
+    This function takes a research question, performs an initial literature search using an API,
     summarizes the search results, generates a DOCX file with the summary, and writes relevant
     information to a database as a background task.
     
@@ -44,54 +40,36 @@ async def get_summary_response(
       The function `get_summary_response` returns a tuple containing the temporary file path and a
     `FileResponse` object.
     """
-    start = datetime.now()
-
     try:
-        # TODO: should we/ what's the best way to collapse this? A new class in the main package?
-        # Can't have any streamlit things. They don't place nice with fastapi
-        article_search_manager = APISearchManager(
-           scoping_step="initial literature search",
-           research_q = research_question
-        )
-        articles_df, cost = article_search_manager.search_and_compile_articles()
-        if not articles_df.empty:
-            # subclass of compile manager? Summarize manager?
-            articles_df = articles_df.head(lit_config.SUBCLASS_THRESHOLD)
-            articles_df["Author 1: Relevant Article? (Yes/No)"] = "Yes"
-            articles_df["category"] = "Initial Search"
-            articles_df["Text"] = "Text not available"
-            # Unclear if it's worth making a compile class just for this next line....
-            markdown_to_convert, response_meta = lit_generate.summarize_all_categories(
-                    articles_df, articles_df
-                )
-            temp_file_path = api_utils.prepare_docx_response(markdown_to_convert)
-            total_cost = cost + response_meta.total_cost
-        else:
-            raise HTTPException(status_code=404, detail="No articles found")
+        # Perform initial literature search and get DataFrame
+        article_search_manager = FastAPISearchManager(scoping_step="initial literature search", research_q=research_question)
+        articles_df, seach_cost = article_search_manager.search_and_compile_articles()
+
+        # Use FastAPISummarizeManager to summarize and save the result
+        summarize_manager = FastAPISummarizeManager(articles_df, research_question)
+        temp_file_path, compile_cost = summarize_manager.summarize_and_save()
+
+        # Creating the response
+        response = FileResponse(path=temp_file_path, filename=lit_config.SR_STEP4_DOCX_FILENAME, media_type=lit_api_config.DOCX_EXPECTED_TYPE)
+
+        # Schedule background tasks
+        total_cost = seach_cost + compile_cost
+        try: 
+            background_tasks.add_task(write_to_db,
+                                    lit_app_config,
+                                    f'{{"query":"{str(research_question)}"}}',
+                                    datetime.now(), datetime.now(),
+                                    total_cost, "_standalone")
+        except KeyError:
+            pass
+        return temp_file_path, response
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
-    finish = datetime.now()
-    response= FileResponse(path=temp_file_path,
-                    filename=lit_config.SR_STEP4_DOCX_FILENAME,
-                    media_type=lit_api_config.DOCX_EXPECTED_TYPE
-                    )
-    try:
-        background_tasks.add_task(
-            write_to_db,
-            lit_app_config,
-            f'{{"query":"{str(research_question)}"}}',
-            start,
-            finish,
-            total_cost,
-            "_standalone",
-        )
-    except KeyError:
-        pass
 
-    return temp_file_path, response
 
-@router.post("/search/v01/standalone/summary/")
-async def initial_literature_search(background_tasks: BackgroundTasks, query: SearchRequest):
+@router.post("/search/v01/standalone/summary/", **lit_api_config.STANDALONE_SUMMARY_META)
+async def initial_literature_search(background_tasks: BackgroundTasks, query: SearchRequest = Depends()):
     """
     Performs an initial literature search based on a provided research question, summarizes the findings, and generates a downloadable DOCX file containing the summary. This method leverages automated search and summarization tools to provide a concise overview of relevant literature.
 
@@ -110,7 +88,7 @@ async def initial_literature_search(background_tasks: BackgroundTasks, query: Se
         HTTPException: Returns a 404 error if no articles are found, or a 500 error for any other processing failures during the search and summary generation process.
     """
     
-    temp_file_path, response = await get_summary_response(
+    temp_file_path, response = get_summary_response(
         background_tasks, query.research_question
     )
     background_tasks.add_task(os.unlink, temp_file_path)  # Schedule cleanup of the temp file
