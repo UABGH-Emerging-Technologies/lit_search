@@ -39,3 +39,16 @@ SCOPING_STEP1_META = {
     },
     "operation_id": "ScopingStep1",
 }
+
+SCOPING_STEP2_META = {
+    "summary": "Iterate on a literature search for a scoping review.",
+    "description": "Takes the scoping review research question and output of step1 with user annotations in the first two columns indicating article relevance and returns a refined and expanded set of articles.",
+    "response_description": "Returns an XLSX file with one row per article.",
+    "responses": {
+        200: {
+            "content": {XLSX_EXPECTED_TYPE: {}},
+            "description": "An XLSX file.",
+        }
+    },
+    "operation_id": "ScopingStep2",
+}
