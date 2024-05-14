@@ -241,8 +241,12 @@ def generate_keywords(df, research_question):
         titles_list = review_data.clean_title(title)
         all_titles.append(titles_list)
 
+    # saw some absurd repetition in testing
+    all_keyword_dedup = []
+    [all_keyword_dedup.append(x) for x in all_titles if x not in all_keyword_dedup] 
+    
     formatted_prompt = lit_prompts.keyword_chat_prompt.format_prompt(
-        question=research_question, titles=all_titles, keywords_list=all_keywords
+        question=research_question, titles=all_keyword_dedup, keywords_list=all_keywords
     )
     with get_openai_callback() as response_meta:
         result = lit_config.CHAT35.invoke(formatted_prompt.to_messages())

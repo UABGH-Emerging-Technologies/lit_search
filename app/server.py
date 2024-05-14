@@ -4,11 +4,15 @@ from fastapi import FastAPI
 from app import fastapi_config
 from app.v01.standalone.summary import router as v01_standalone_summary_router
 from app.v01.scoping.step1 import router as v01_scoping_step1_router
+from app.v01.scoping.step2.keywords import router as v01_scoping_step2keywords_router
+from app.v01.scoping.step2.iteration import router as v01_scoping_step2iteration_router
 
 app = FastAPI(**fastapi_config.LIT_API_META)
 
 app.include_router(v01_standalone_summary_router)
 app.include_router(v01_scoping_step1_router)
+app.include_router(v01_scoping_step2keywords_router)
+app.include_router(v01_scoping_step2iteration_router)
 
 
 if __name__ == "__main__":

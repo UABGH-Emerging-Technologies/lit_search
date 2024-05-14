@@ -5,7 +5,7 @@ XLSX_EXPECTED_TYPE = lit_config.EXCEL_MIME
 
 LIT_API_META = {
     "summary": "Get help with a literature search.",
-    "description": "Takes in qeustions, xlsx, or docx files and returns the output of a literature search step.",
+    "description": "Takes in questions, xlsx, or docx files and returns the output of a literature search step.",
     "response_description": "XLSX or DOCX file.",
     "responses": {
         200: {
@@ -40,15 +40,27 @@ SCOPING_STEP1_META = {
     "operation_id": "ScopingStep1",
 }
 
-SCOPING_STEP2_META = {
+SCOPING_STEP2KEYWORDS_META = {
     "summary": "Iterate on a literature search for a scoping review.",
-    "description": "Takes the scoping review research question and output of step1 with user annotations in the first two columns indicating article relevance and returns a refined and expanded set of articles.",
-    "response_description": "Returns an XLSX file with one row per article.",
+    "description": "Takes the scoping review research question and output of step1 with user annotations in the first two columns indicating article relevance and returns a suggested set of search terms.",
+    "response_description": "Returns three lists of keywords for the user to revise.",
+    "responses": {
+        200: {
+            "description": "Three lists of keywords.",
+        }
+    },
+    "operation_id": "ScopingStep2Keywords",
+}
+
+SCOPING_STEP2EXCEL_META = {
+    "summary": "Iterate on a literature search for a scoping review.",
+    "description": "Takes the scoping review research question,  output of step1 with user annotations in the first two columns, and revised sets of keywords.",
+    "response_description": "Returns an excel file with the refined and expanded search results.",
     "responses": {
         200: {
             "content": {XLSX_EXPECTED_TYPE: {}},
             "description": "An XLSX file.",
         }
     },
-    "operation_id": "ScopingStep2",
+    "operation_id": "ScopingStep2Iteration",
 }
