@@ -15,7 +15,7 @@ from ScopingReview.data import (
 )
 from ScopingReview.generate import generate_keywords
 
-
+# TODO: make a child class that does the streamlit things when needed.
 class SearchManager:
     def __init__(self, scoping_step, research_q):
         self.scoping_step = scoping_step
@@ -246,7 +246,7 @@ class NewsletterSearchManager(SearchManager):
         else:
             return None  # Return None if no articles are found
 
-
+# TODO: Consider name. FastAPISearchManager
 class APISearchManager(SearchManager):
     def __init__(self, scoping_step, research_q):
         self.scoping_step = scoping_step
@@ -257,14 +257,15 @@ class APISearchManager(SearchManager):
         self.pm_connection = None
         self.previous_query = ""
         self.cost = 0
-        
+ 
+    # need to override because this is the only place cost from generate_and_refine can be captured
     def search_loop(self):
         while (len(self.article_ids) < lit_config.MIN_ARTICLES) and (
             self.loop_counter < lit_config.MAX_TRIES
         ):
             query_string, cost = self.generate_and_refine_query()
             articles_df = self.perform_search(query_string)
-        
+
             self.cost += cost
         return articles_df, query_string
     
