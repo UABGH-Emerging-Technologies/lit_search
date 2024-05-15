@@ -38,7 +38,6 @@ class BaseSearchManager:
         self.article_ids = []
         self.loop_counter = 0
         self.query = ""
-        self.pm_connection = None
         self.previous_query = ""
         self.total_cost = 0 
 
@@ -69,8 +68,9 @@ class BaseSearchManager:
         self.total_cost += cost
         return self.search_string
 
+    # TODO: _fetch_articles does search_and_compile
+    # where does it join with previous articles?
     def perform_search(self, search_string):
-        self.pm_connection, self.article_ids = search_and_compile(search_string, self.article_ids)
         articles_df = self._fetch_articles(search_string)
         return articles_df
 
@@ -176,11 +176,16 @@ class BaseIterateSearchManager(BaseSearchManager):
         return ", ".join(self.query_terms), response_meta.total_cost
 
     def make_query(self):
-        return [self.query_terms]
+        return self.query_terms
 
     def perform_search(self, search_string):
-        # Extend or modify search results handling as needed
+        # Reindex dataframes and Append new results to it
+        self.selected_articles_df.reset_index(drop=True, inplace=True)
         articles_df = super().perform_search(search_string)
+        articles_df = pd.concat([self.selected_articles_df, articles_df], ignore_index=True)
+        # Remove duplicates based on the 'PMID' column
+        articles_df.drop_duplicates(subset='PMID', keep='first', inplace=True)
+
         return articles_df
 
     def manage_keyword_extraction(self):
@@ -271,12 +276,8 @@ class NewsletterSearchManager(BaseSearchManager):
         return articles_df
 
     def perform_search(self, search_string):
-        self.pm_connection, self.article_ids = search_and_compile(search_string, self.article_ids)
-        if len(self.article_ids) >= 1:  # Check if at least 1 article is found
-            articles_df = self._fetch_articles(search_string)
-            return articles_df
-        else:
-            return None  # Return None if no articles are found
+        articles_df = self._fetch_articles(search_string)
+        return articles_df
 
 
 class FastAPISearchManager(BaseSearchManager):
@@ -309,20 +310,9 @@ class FastAPIIterateSearchManager(BaseIterateSearchManager):
     def __init__(self, df: pd.DataFrame, research_q: str):
         super().__init__(df, research_q)
 
+
 class FastAPIIterateSearchManager(BaseIterateSearchManager):
-    @staticmethod
-    async def read_excel(upload_file: UploadFile) -> pd.DataFrame:
-        try:
-            # Read the entire file content into a BytesIO object
-            contents = await upload_file.read()
-            df = pd.read_excel(BytesIO(contents))
-            return df
-        except Exception as e:
-            raise HTTPException(status_code=400, detail="Invalid Excel file") from e
-        finally:
-            await upload_file.close()  # Ensure to close the file after reading
-        
-    async def extract_and_return_keywords(self) -> KeywordsData:
+    def extract_and_return_keywords(self) -> KeywordsData:
         try:
             initial_query = self.manage_keyword_extraction() 
             return KeywordsData(
@@ -333,11 +323,11 @@ class FastAPIIterateSearchManager(BaseIterateSearchManager):
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
-    async def update_keywords_and_perform_search(self, keywords: KeywordsData) -> str:
+    def update_keywords_and_perform_search(self, keywords: KeywordsData) -> str:
         try:
             self.initialize_keywords(keywords.primary_keywords, keywords.secondary_keywords, keywords.exclusion_keywords)
             query = self.make_query()
-            articles_df = await self.perform_search(query)  # Ensure perform_search is handled correctly if it's asynchronous.
+            articles_df = self.perform_search(query)  # Ensure perform_search is handled correctly if it's asynchronous.
             if articles_df is None or articles_df.empty:
                 raise HTTPException(status_code=404, detail="No articles found with the revised keywords")
             temp_file_path = self.save_results_to_excel(articles_df)
