@@ -20,13 +20,11 @@ Research Question: \n\n{question}
 
 List of Publication Titles: \n\n{titles}
 
-List of keyword lists: \n\n{keywords_list}
+List of keyword lists with number of occurrences indicated by "x#": \n\n{keywords_list}
 
 Please provide the primary, secondary, and exclusion keyword lists related to the given research question based on the provided keywords and titles lists from the PubMed search in JSON format."""
 
 GENERATE_SYSTEM_KEYWORD_PROMPT = """ You are an expert clinical researcher. """
-
-ITER_PUBMED_PROMPT = """Given the following list of keywords from articles selected by a human, suggest a PubMed search string to find more articles consistent with the relevant keywrods:\n\n{}. Make the query as succint as possible by combining similar keywords into the concepts they represent to return the most closely related articles given the set of keywords. Return only the pubmed search string, as your response will be used directly as an input to a function that takes in pubmed search string."""
 
 FEW_RESULTS_PROMPT = """\n\n The following query returned no or few results. Please suggest a simpler one (i.e., with fewer query elements).\n\n"""
 

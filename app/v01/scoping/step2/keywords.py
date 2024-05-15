@@ -7,6 +7,7 @@ from llm_utils.database import write_to_db
 
 import ScopingReview_config.app_config as lit_app_config
 from ScopingReview.search import FastAPIIterateSearchManager
+from ScopingReview.upload import FastAPIUploadManager
 import app.fastapi_config as lit_api_config
 from app.v01.scoping.schemas import KeywordsData
 from app.v01.schemas import SearchRequest
@@ -18,9 +19,12 @@ router = APIRouter(tags=["scoping", "step2"])
 async def get_step2keywords_response(background_tasks: BackgroundTasks, question: str, file: UploadFile) -> KeywordsData:
     start = datetime.now()
     try:
-        df = await FastAPIIterateSearchManager.read_excel(file)
+        upload_manager = FastAPIUploadManager("Please upload your file", ["xlsx"])
+        df = await upload_manager.upload_file(file)
+        if df is None:
+            raise HTTPException(status_code=422, detail="Failed to process the file")
         manager = FastAPIIterateSearchManager(df, question)
-        keywords, cost = await manager.extract_and_return_keywords()
+        keywords, cost = manager.extract_and_return_keywords()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     finish = datetime.now()

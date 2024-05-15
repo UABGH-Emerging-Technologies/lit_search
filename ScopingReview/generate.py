@@ -228,28 +228,32 @@ def write_first_draft(summaries_markdown, user_question):
     return assembled_draft, response_meta
 
 
+from collections import Counter
+
 def generate_keywords(df, research_question):
     relevant_rows = review_data.get_relevant_rows(df)
+
     all_keywords = []
     for keywords in relevant_rows["keywords"]:
         keywords_list = [keyword.strip().lower() for keyword in keywords.split(",")]
         clean_keywords_list = review_data.clean_keywords(keywords_list)
-        all_keywords.append(clean_keywords_list)
+        all_keywords.extend(clean_keywords_list)  # Use extend to flatten the list
 
     all_titles = []
     for title in relevant_rows["title"]:
         titles_list = review_data.clean_title(title)
-        all_titles.append(titles_list)
+        all_titles.extend(titles_list)  # Assuming you need to flatten this list too
 
-    # saw some absurd repetition in testing
-    all_keyword_dedup = []
-    [all_keyword_dedup.append(x) for x in all_titles if x not in all_keyword_dedup] 
-    
+    # Count occurrences of each keyword and format them
+    keyword_counts = Counter(all_keywords)
+    formatted_keywords = [f"{k} x{v}" for k, v in keyword_counts.items()]
+
+    # Format the prompt with deduplicated and counted titles and keywords
     formatted_prompt = lit_prompts.keyword_chat_prompt.format_prompt(
-        question=research_question, titles=all_keyword_dedup, keywords_list=all_keywords
+        question=research_question, titles=all_titles, keywords_list=formatted_keywords
     )
     with get_openai_callback() as response_meta:
         result = lit_config.CHAT35.invoke(formatted_prompt.to_messages())
 
-    print("Result - ", result)
     return result.content, response_meta
+
