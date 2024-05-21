@@ -59,6 +59,7 @@ def search_and_compile(query, article_ids=[]):
     )
     print(query)
     article_ids_new = pm_connection.search_pubmed_articles(query)
+    print(article_ids_new)
     article_ids = list(set().union(article_ids, article_ids_new))
     return pm_connection, article_ids
 
