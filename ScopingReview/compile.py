@@ -31,38 +31,50 @@ class CompileManager:
         pass
 
 
-class CategorizeManager(CompileManager):
+class BaseCategorizeManager(CompileManager):
     def __init__(self, df, userdefined_categories):
         super().__init__(df)
         self.userdefined_categories = userdefined_categories
-        st.session_state["file_uploaded_cate"] = (
-            False  # Initiate a unique file_uploaded variable for categorization
-        )
 
     def get_mime_type(self):
-        return lit_config.EXCEL_MIME
-
+        raise lit_config.EXCEL_MIME
+    
     def get_filename(self):
-        # default implementation, subclasses can override this method
         return lit_config.SR_STEP3_FILENAME
+    
+    def categorize_articles(self):
+        if self.df is not None:
+            category_df, response_meta = lit_generate.categorize(self.df, self.userdefined_categories)
+            self.cost += response_meta.total_cost
+            full_text_df = fetch_full_text(category_df['PMID'])
+            category_df = pd.merge(category_df, full_text_df, on='PMID', how='inner')
+            return category_df
+
+    def save_results_to_excel(self, category_df):
+        category_df.drop_duplicates(subset="PMID", keep="first", inplace=True)
+        try:
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx", mode='wb') as tmpfile:
+                category_df.to_excel(tmpfile.name, index=False)
+                return tmpfile.name
+        except Exception as e:
+            print(f"Failed to save file: {str(e)}")
+            raise
+
+# TODO: Refactor as StreamlitCategorizeManager
+class CategorizeManager(BaseCategorizeManager):
+    def __init__(self, df, userdefined_categories):
+        super().__init__(df, userdefined_categories)
+        st.session_state["file_uploaded_cate"] = False
 
     def get_download_button_label(self):
         return lit_config.EXCEL_DOWNLOAD_LABEL
 
     def categorize_articles(self):
+        super().categorize_articles()
         if self.df is not None:
-            st.session_state["file_uploaded_cate"] = (
-                True  # file is uploaded and ready to categorize
-            )
+            st.session_state["file_uploaded_cate"] = True
             with st.spinner("Categorizing contents of file..."):
-                category_df, response_meta = lit_generate.categorize(
-                    self.df, self.userdefined_categories
-                )
-            st.session_state["total_cost"] += response_meta.total_cost
-            with st.spinner("Getting full text"):
-                full_text_df = fetch_full_text(category_df.PMID)
-                category_df = pd.merge(category_df, full_text_df, on="PMID", how="inner")
-
+                category_df = self.categorize_articles()
             self._download_results(category_df)
 
     def _download_results(self, category_df):
@@ -79,6 +91,38 @@ class CategorizeManager(CompileManager):
                     mime=self.get_mime_type(),
                 )
 
+
+from fastapi import HTTPException, UploadFile
+import pandas as pd
+import tempfile
+
+class FastAPICategorizeManager(BaseCategorizeManager):
+    def __init__(self, df: pd.DataFrame, userdefined_categories):
+        super().__init__(df, userdefined_categories)
+
+    def categorize_articles_and_save(self) -> str:
+        """
+        Perform the categorization and save the results to an Excel file.
+        Returns the path to the Excel file.
+        """
+        try:
+            category_df = self.categorize_articles()
+            if category_df.empty:
+                raise HTTPException(status_code=404, detail="No data to categorize or articles not found.")
+            return self.save_results_to_excel(category_df)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+    def save_results_to_excel(self, category_df: pd.DataFrame) -> str:
+        """
+        Save the categorized DataFrame to an Excel file and return the file path.
+        """
+        try:
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx", mode='w+b') as tmpfile:
+                write_excel_output(tmpfile, category_df, self.userdefined_categories)
+                return tmpfile.name
+        except Exception as e:
+            raise HTTPException(status_code=500, detail="Failed to save Excel file: " + str(e))
 
 class BaseSummarizeManager(CompileManager):
     def __init__(self, df, research_q):

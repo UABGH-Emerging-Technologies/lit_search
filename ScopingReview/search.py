@@ -156,6 +156,10 @@ class BaseIterateSearchManager(BaseSearchManager):
         self.secondary_keywords = []
         self.exclusion_keywords = []
         self.keywords_extracted = False  # Initialize the flag here
+        
+    def get_filename(self):
+        return lit_config.SR_STEP2_FILENAME
+    
 
     def initialize_keywords(self, primary, secondary, exclusion):
         self.primary_keywords = primary
