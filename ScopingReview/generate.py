@@ -6,11 +6,13 @@ import ScopingReview.data as review_data
 import ScopingReview.prompts as lit_prompts
 import ScopingReview_config.boilerplate as lit_boilerplate
 import ScopingReview_config.config as lit_config
+import pandas as pd
+from typing import Tuple, Any
 
 
-def categorize(category_df, input_text):
-    # TODO: change the category_df to reduced_df --- in all places
-    reduced_df = review_data.get_relevant_rows(category_df)
+def categorize(category_df: pd.DataFrame, input_text: str) -> Tuple[pd.DataFrame, Any]:
+    # using copy to stop view vs copy warning in pandas
+    reduced_df = review_data.get_relevant_rows(category_df).copy()
     cost = 0.0
     input_list = input_text.split(",")
     input_list = [value.strip() for value in input_list if value.strip()]
@@ -24,7 +26,7 @@ def categorize(category_df, input_text):
                 ).to_messages()
             )
         keyword_list = result.content.replace("'", "")
-        reduced_df.at[index, "category"] = keyword_list.lower()
+        reduced_df.loc[index, "category"] = keyword_list.lower()
     return reduced_df, response_meta
 
 

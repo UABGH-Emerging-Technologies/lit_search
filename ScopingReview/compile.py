@@ -37,7 +37,7 @@ class BaseCategorizeManager(CompileManager):
         self.userdefined_categories = userdefined_categories
 
     def get_mime_type(self):
-        raise lit_config.EXCEL_MIME
+        return lit_config.EXCEL_MIME
     
     def get_filename(self):
         return lit_config.SR_STEP3_FILENAME
@@ -46,8 +46,11 @@ class BaseCategorizeManager(CompileManager):
         if self.df is not None:
             category_df, response_meta = lit_generate.categorize(self.df, self.userdefined_categories)
             self.cost += response_meta.total_cost
-            full_text_df = fetch_full_text(category_df['PMID'])
-            category_df = pd.merge(category_df, full_text_df, on='PMID', how='inner')
+            try:
+                full_text_df = fetch_full_text(category_df['PMID'])
+                category_df = pd.merge(category_df, full_text_df, on='PMID', how='inner')
+            except Exception as e:
+                print(f"Failed while getting full texts: {str(e)}")
             return category_df
 
     def save_results_to_excel(self, category_df):
@@ -97,7 +100,7 @@ import pandas as pd
 import tempfile
 
 class FastAPICategorizeManager(BaseCategorizeManager):
-    def __init__(self, df: pd.DataFrame, userdefined_categories):
+    def __init__(self, df: pd.DataFrame, userdefined_categories: str):
         super().__init__(df, userdefined_categories)
 
     def categorize_articles_and_save(self) -> str:
@@ -122,7 +125,7 @@ class FastAPICategorizeManager(BaseCategorizeManager):
                 write_excel_output(tmpfile, category_df, self.userdefined_categories)
                 return tmpfile.name
         except Exception as e:
-            raise HTTPException(status_code=500, detail="Failed to save Excel file: " + str(e))
+            raise HTTPException(status_code=500, detail=str(e))
 
 class BaseSummarizeManager(CompileManager):
     def __init__(self, df, research_q):
