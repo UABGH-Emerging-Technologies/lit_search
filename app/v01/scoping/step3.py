@@ -40,8 +40,7 @@ async def get_step3_response(background_tasks: BackgroundTasks, user_defined_cat
         if df is None:
             raise HTTPException(status_code=422, detail="Failed to process the file")
 
-        categories = user_defined_categories.split(",")  # Assuming categories are passed as a comma-separated string
-        manager = FastAPICategorizeManager(df, categories)
+        manager = FastAPICategorizeManager(df, user_defined_categories)
         temp_file_path = manager.categorize_articles_and_save()
         response = FileResponse(
             path=temp_file_path, 
