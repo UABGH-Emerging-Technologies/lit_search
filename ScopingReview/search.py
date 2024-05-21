@@ -225,6 +225,7 @@ class IterateSearchManager(BaseIterateSearchManager):
                 for keyword in str(st.session_state["exclusion_keywords"]).split(",")
             ]
 
+# TODO: The `make_initial_query` naming throughout this file confused me. -RM
     def make_initial_query(self):
         with st.spinner("Extracting and grouping keywords from uploaded file"):
             initial_query, cost = super().make_initial_query()
@@ -309,9 +310,7 @@ class FastAPISearchManager(BaseSearchManager):
 class FastAPIIterateSearchManager(BaseIterateSearchManager):
     def __init__(self, df: pd.DataFrame, research_q: str):
         super().__init__(df, research_q)
-
-
-class FastAPIIterateSearchManager(BaseIterateSearchManager):
+        
     def extract_and_return_keywords(self) -> KeywordsData:
         try:
             initial_query = self.manage_keyword_extraction() 
@@ -322,12 +321,28 @@ class FastAPIIterateSearchManager(BaseIterateSearchManager):
             ), self.total_cost
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
+        
+    def edit_query_terms(self):
+        self.query_terms = (
+                self.research_q +
+                "\n\n Primary topics to include in query: " + ", ".join(self.primary_keywords) +
+                ". Secondary topics to include in query: " + ", ".join(self.secondary_keywords) +
+                ". Here's a set of topics to exclude in query construction: " + ", ".join(self.exclusion_keywords)
+            )
+        self.search_string = self.generate_and_refine_query()
+        print(self.search_string)
+        return self.search_string
+
 
     def update_keywords_and_perform_search(self, keywords: KeywordsData) -> str:
         try:
             self.initialize_keywords(keywords.primary_keywords, keywords.secondary_keywords, keywords.exclusion_keywords)
-            query = self.make_query()
-            articles_df = self.perform_search(query)  # Ensure perform_search is handled correctly if it's asynchronous.
+            # This was done by edit_keywords in the streamlit implementation
+            # Not sure if there's benefit to breaking it off here.
+
+            query = self.edit_query_terms()
+            print(query)
+            articles_df = self.perform_search(query)
             if articles_df is None or articles_df.empty:
                 raise HTTPException(status_code=404, detail="No articles found with the revised keywords")
             temp_file_path = self.save_results_to_excel(articles_df)
