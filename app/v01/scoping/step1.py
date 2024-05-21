@@ -44,8 +44,8 @@ async def get_step1_response(
     finish = datetime.now()
     response = FileResponse(
         path=temp_file_path,
-        filename=lit_config.SR_STEP1_FILENAME,
-        media_type=lit_api_config.XLSX_EXPECTED_TYPE
+        filename=article_search_manager.get_filename(),
+        media_type=article_search_manager.get_mime_type()
     )
 
     try:

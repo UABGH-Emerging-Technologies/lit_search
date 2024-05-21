@@ -8,6 +8,7 @@ from datetime import datetime
 from llm_utils.database import write_to_db
 
 import ScopingReview_config.app_config as lit_app_config
+import ScopingReview_config.config as lit_config
 from ScopingReview.search import FastAPIIterateSearchManager
 from ScopingReview.upload import FastAPIUploadManager
 import app.fastapi_config as lit_api_config
@@ -27,7 +28,9 @@ async def get_step2iteration_response(background_tasks: BackgroundTasks, questio
             raise HTTPException(status_code=422, detail="Failed to process the file")
         manager = FastAPIIterateSearchManager(df, question)
         temp_file_path = manager.update_keywords_and_perform_search(keywords)
-        response = FileResponse(path=temp_file_path, filename="Updated_Search_Results.xlsx", media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        response = FileResponse(path=temp_file_path, 
+                                filename=manager.get_filename(), 
+                                media_type=manager.get_mime_type())
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     finish = datetime.now()

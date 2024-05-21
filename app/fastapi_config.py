@@ -64,3 +64,17 @@ SCOPING_STEP2EXCEL_META = {
     },
     "operation_id": "ScopingStep2Iteration",
 }
+
+
+SCOPING_STEP3_META = {
+    "summary": "Categorize a finalized set of articles",
+    "description": "Takes in an excel spreadsheet and list of categories; assigns categories to articles.",
+    "response_description": "Returns an XLSX file with one row per article with a `category` column added.",
+    "responses": {
+        200: {
+            "content": {XLSX_EXPECTED_TYPE: {}},
+            "description": "An XLSX file.",
+        }
+    },
+    "operation_id": "ScopingStep3",
+}
