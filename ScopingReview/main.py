@@ -4,7 +4,7 @@ from typing import Optional
 
 import pandas as pd
 import typer
-from langchain_community.callbacks import get_openai_callback
+
 
 import ScopingReview_config.config as lit_config
 from ScopingReview.compile import SummarizeManager

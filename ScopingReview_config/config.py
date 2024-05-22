@@ -39,7 +39,7 @@ BIB_DOWNLOAD_LABEL = "Download .bib File"
 MAX_TRIES = 6
 
 # Sub Classificaiton threshold
-SUBCLASS_THRESHOLD = 40
+SUBCLASS_THRESHOLD = 60
 
 # Newsletter
 NEWSLETTER_QUESTION = "Developments in {category} anesthesia that may impact clinical practice"
@@ -67,10 +67,10 @@ CHAT = AzureChatOpenAI(
 SUMMARIZE_CHAT = AzureChatOpenAI(
     azure_endpoint="https://nlp-ai-svc.openai.azure.com/",
     openai_api_version="2024-02-01",
-    azure_deployment="ChatGPT432k",
+    azure_deployment="GPT4Turbo",
     openai_api_type="azure",
     temperature=0,
-    model_name="gpt-4-32k",
+    model_name="gpt-4",
     api_key=lit_app_config.GPT4_KEY,
 )
 

@@ -273,31 +273,12 @@ def fetch_full_text(pmids, access_token=lit_ap_config.LIBKEY_API_KEY):
                     print(f"Failed to download or process PDF from PMC for PMID {pmid}")
 
             if not downloaded:
-                # Check if LibKey provides a direct PDF link
+                # Check if LibKey provides link to full text
                 try:
                     libkey_url = get_libkey_text_link(pmid, access_token)
                     url = libkey_url
                 except Exception as e:
                     print(f"No libkey url for PMID {pmid}: {e}")
-                # This is really just a folly. The links are never pdfs
-                # if (libkey_url is not None) and (libkey_url != ""):
-                #     try:
-                #         headers = {
-                #             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.3"
-                #         }
-                #         response = requests.get(
-                #             url=libkey_url, timeout=5, headers=headers, allow_redirects=True
-                #         )
-                #         if response.ok and response.url.lower().endswith(".pdf"):
-                #             text = extract_text_from_pdf_bytes(response.content)
-                #             url = libkey_url
-                #             downloaded = True
-                #         else:
-                #             url = libkey_url
-                #     except Exception as e:
-                #         print(
-                #             f"Error during LibKey PDF download for PMID {pmid}, {libkey_url}: {e}"
-                #         )
         except Exception as e:
             print(f"Error during processing PMID {pmid}: {e}")
 
