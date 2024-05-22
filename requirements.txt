@@ -8,24 +8,16 @@ aiohttp==3.9.5
     # via
     #   langchain
     #   langchain-community
-    #   llm-utils
 aiosignal==1.3.1
-    # via
-    #   aiohttp
-    #   llm-utils
+    # via aiohttp
 altair==5.3.0
-    # via
-    #   llm-utils
-    #   streamlit
-annotated-types==0.6.0
-    # via
-    #   llm-utils
-    #   pydantic
+    # via streamlit
+annotated-types==0.7.0
+    # via pydantic
 anyio==4.3.0
     # via
     #   httpx
     #   jupyter-server
-    #   llm-utils
     #   openai
 argon2-cffi==23.1.0
     # via jupyter-server
@@ -41,14 +33,12 @@ async-timeout==4.0.3
     # via
     #   aiohttp
     #   langchain
-    #   llm-utils
 attrs==23.2.0
     # via
     #   aiohttp
     #   jsonschema
-    #   llm-utils
     #   referencing
-babel==2.14.0
+babel==2.15.0
     # via jupyterlab-server
 beautifulsoup4==4.12.3
     # via nbconvert
@@ -56,27 +46,22 @@ biopython==1.83
     # via
     #   -r requirements.in
     #   llm-utils
-black==24.4.0
+black==24.4.2
     # via
     #   -r requirements.in
     #   llm-utils
 bleach==6.1.0
     # via nbconvert
-blinker==1.7.0
-    # via
-    #   llm-utils
-    #   streamlit
+blinker==1.8.2
+    # via streamlit
 build==1.2.1
     # via pip-tools
 cachetools==5.3.3
-    # via
-    #   llm-utils
-    #   streamlit
+    # via streamlit
 certifi==2024.2.2
     # via
     #   httpcore
     #   httpx
-    #   llm-utils
     #   requests
 cffi==1.16.0
     # via
@@ -84,13 +69,11 @@ cffi==1.16.0
     #   cryptography
 charset-normalizer==3.3.2
     # via
-    #   llm-utils
     #   pdfminer-six
     #   requests
 click==8.1.7
     # via
     #   black
-    #   llm-utils
     #   mkdocs
     #   mkdocstrings
     #   pip-tools
@@ -102,15 +85,14 @@ comm==0.2.2
     #   ipywidgets
 contourpy==1.2.1
     # via matplotlib
-cryptography==42.0.5
+cryptography==42.0.7
     # via pdfminer-six
 cycler==0.12.1
     # via matplotlib
-dataclasses-json==0.6.4
+dataclasses-json==0.6.6
     # via
     #   langchain
     #   langchain-community
-    #   llm-utils
 debugpy==1.8.1
     # via ipykernel
 decorator==5.1.1
@@ -118,16 +100,13 @@ decorator==5.1.1
 defusedxml==0.7.1
     # via nbconvert
 distro==1.9.0
-    # via
-    #   llm-utils
-    #   openai
+    # via openai
 et-xmlfile==1.1.0
     # via openpyxl
 exceptiongroup==1.2.1
     # via
     #   anyio
     #   ipython
-    #   llm-utils
 executing==2.0.1
     # via stack-data
 faiss-cpu==1.8.0
@@ -146,42 +125,27 @@ frozenlist==1.4.1
     # via
     #   aiohttp
     #   aiosignal
-    #   llm-utils
 ghp-import==2.1.0
-    # via
-    #   llm-utils
-    #   mkdocs
+    # via mkdocs
 gitdb==4.0.11
-    # via
-    #   gitpython
-    #   llm-utils
+    # via gitpython
 gitpython==3.1.43
-    # via
-    #   llm-utils
-    #   streamlit
+    # via streamlit
 greenlet==3.0.3
-    # via
-    #   llm-utils
-    #   sqlalchemy
+    # via sqlalchemy
 h11==0.14.0
-    # via
-    #   httpcore
-    #   llm-utils
+    # via httpcore
 httpcore==1.0.5
-    # via
-    #   httpx
-    #   llm-utils
+    # via httpx
 httpx==0.27.0
     # via
     #   jupyterlab
-    #   llm-utils
     #   openai
 idna==3.7
     # via
     #   anyio
     #   httpx
     #   jsonschema
-    #   llm-utils
     #   requests
     #   yarl
 ipykernel==6.29.4
@@ -190,7 +154,7 @@ ipykernel==6.29.4
     #   jupyter-console
     #   jupyterlab
     #   qtconsole
-ipython==8.23.0
+ipython==8.24.0
     # via
     #   ipykernel
     #   ipywidgets
@@ -201,13 +165,12 @@ isoduration==20.11.0
     # via jsonschema
 jedi==0.19.1
     # via ipython
-jinja2==3.1.3
+jinja2==3.1.4
     # via
     #   altair
     #   jupyter-server
     #   jupyterlab
     #   jupyterlab-server
-    #   llm-utils
     #   mkdocs
     #   mkdocstrings
     #   nbconvert
@@ -215,26 +178,19 @@ jinja2==3.1.3
 json5==0.9.25
     # via jupyterlab-server
 jsonpatch==1.33
-    # via
-    #   langchain
-    #   langchain-core
-    #   llm-utils
+    # via langchain-core
 jsonpointer==2.4
     # via
     #   jsonpatch
     #   jsonschema
-    #   llm-utils
-jsonschema[format-nongpl]==4.21.1
+jsonschema[format-nongpl]==4.22.0
     # via
     #   altair
     #   jupyter-events
     #   jupyterlab-server
-    #   llm-utils
     #   nbformat
 jsonschema-specifications==2023.12.1
-    # via
-    #   jsonschema
-    #   llm-utils
+    # via jsonschema
 jupyter==1.0.0
     # via -r requirements.in
 jupyter-client==8.6.1
@@ -270,7 +226,7 @@ jupyter-server==2.14.0
     #   notebook-shim
 jupyter-server-terminals==0.5.3
     # via jupyter-server
-jupyterlab==4.1.6
+jupyterlab==4.2.0
     # via notebook
 jupyterlab-pygments==0.3.0
     # via nbconvert
@@ -282,108 +238,92 @@ jupyterlab-widgets==3.0.10
     # via ipywidgets
 kiwisolver==1.4.5
     # via matplotlib
-langchain==0.1.16
+langchain==0.2.0
+    # via
+    #   -r requirements.in
+    #   langchain-community
+    #   llm-utils
+langchain-community==0.2.0
     # via
     #   -r requirements.in
     #   llm-utils
-langchain-community==0.0.33
-    # via
-    #   -r requirements.in
-    #   langchain
-    #   llm-utils
-langchain-core==0.1.45
+langchain-core==0.2.1
     # via
     #   langchain
     #   langchain-community
     #   langchain-openai
     #   langchain-text-splitters
-    #   llm-utils
-langchain-openai==0.1.3
+langchain-openai==0.1.7
     # via
     #   -r requirements.in
     #   llm-utils
-langchain-text-splitters==0.0.1
-    # via
-    #   langchain
-    #   llm-utils
-langsmith==0.1.49
+langchain-text-splitters==0.2.0
+    # via langchain
+langsmith==0.1.60
     # via
     #   langchain
     #   langchain-community
     #   langchain-core
-    #   llm-utils
 llm-utils @ git+https://ai_web:xu3wm_hf-5pMMfzXtWaG@gitlab.rc.uab.edu/anes_ai/llm_apps/llm_utils.git@main
     # via -r requirements.in
 markdown==3.6
     # via
-    #   llm-utils
     #   mkdocs
     #   mkdocs-autorefs
     #   mkdocstrings
     #   pymdown-extensions
 markdown-it-py==3.0.0
-    # via
-    #   llm-utils
-    #   rich
+    # via rich
 markupsafe==2.1.5
     # via
     #   jinja2
-    #   llm-utils
     #   mkdocs
     #   mkdocs-autorefs
     #   mkdocstrings
     #   nbconvert
-marshmallow==3.21.1
-    # via
-    #   dataclasses-json
-    #   llm-utils
-matplotlib==3.8.4
+marshmallow==3.21.2
+    # via dataclasses-json
+matplotlib==3.9.0
     # via -r requirements.in
 matplotlib-inline==0.1.7
     # via
     #   ipykernel
     #   ipython
 mccabe==0.7.0
-    # via
-    #   flake8
-    #   llm-utils
+    # via flake8
 mdurl==0.1.2
-    # via
-    #   llm-utils
-    #   markdown-it-py
+    # via markdown-it-py
 mergedeep==1.3.4
     # via
-    #   llm-utils
     #   mkdocs
+    #   mkdocs-get-deps
 mistune==3.0.2
     # via nbconvert
-mkdocs==1.5.3
+mkdocs==1.6.0
     # via
     #   -r requirements.in
     #   llm-utils
     #   mkdocs-autorefs
     #   mkdocstrings
 mkdocs-autorefs==1.0.1
-    # via
-    #   llm-utils
-    #   mkdocstrings
-mkdocstrings==0.24.3
+    # via mkdocstrings
+mkdocs-get-deps==0.2.0
+    # via mkdocs
+mkdocstrings==0.25.1
     # via
     #   -r requirements.in
     #   llm-utils
 multidict==6.0.5
     # via
     #   aiohttp
-    #   llm-utils
     #   yarl
 mypy-extensions==1.0.0
     # via
     #   black
-    #   llm-utils
     #   typing-inspect
 nbclient==0.10.0
     # via nbconvert
-nbconvert==7.16.3
+nbconvert==7.16.4
     # via
     #   jupyter
     #   jupyter-server
@@ -394,7 +334,7 @@ nbformat==5.10.4
     #   nbconvert
 nest-asyncio==1.6.0
     # via ipykernel
-notebook==7.1.3
+notebook==7.2.0
     # via jupyter
 notebook-shim==0.2.4
     # via
@@ -408,23 +348,19 @@ numpy==1.26.4
     #   faiss-cpu
     #   langchain
     #   langchain-community
-    #   llm-utils
     #   matplotlib
     #   pandas
     #   pyarrow
     #   pydeck
     #   streamlit
-openai==1.23.2
+openai==1.30.1
     # via
     #   -r requirements.in
     #   langchain-openai
-    #   llm-utils
 openpyxl==3.1.2
     # via -r requirements.in
-orjson==3.10.1
-    # via
-    #   langsmith
-    #   llm-utils
+orjson==3.10.3
+    # via langsmith
 overrides==7.7.0
     # via jupyter-server
 packaging==23.2
@@ -437,7 +373,6 @@ packaging==23.2
     #   jupyterlab
     #   jupyterlab-server
     #   langchain-core
-    #   llm-utils
     #   marshmallow
     #   matplotlib
     #   mkdocs
@@ -449,7 +384,6 @@ pandas==2.2.2
     # via
     #   -r requirements.in
     #   altair
-    #   llm-utils
     #   streamlit
 pandocfilters==1.5.1
     # via nbconvert
@@ -458,7 +392,6 @@ parso==0.8.4
 pathspec==0.12.1
     # via
     #   black
-    #   llm-utils
     #   mkdocs
 pdfminer-six==20231228
     # via pdfplumber
@@ -468,18 +401,16 @@ pexpect==4.9.0
     # via ipython
 pillow==10.3.0
     # via
-    #   llm-utils
     #   matplotlib
     #   pdfplumber
     #   streamlit
 pip-tools==7.4.1
     # via -r requirements.in
-platformdirs==4.2.0
+platformdirs==4.2.2
     # via
     #   black
     #   jupyter-core
-    #   llm-utils
-    #   mkdocs
+    #   mkdocs-get-deps
     #   mkdocstrings
 prometheus-client==0.20.0
     # via jupyter-server
@@ -488,9 +419,7 @@ prompt-toolkit==3.0.43
     #   ipython
     #   jupyter-console
 protobuf==4.25.3
-    # via
-    #   llm-utils
-    #   streamlit
+    # via streamlit
 psutil==5.9.8
     # via ipykernel
 ptyprocess==0.7.0
@@ -499,53 +428,37 @@ ptyprocess==0.7.0
     #   terminado
 pure-eval==0.2.2
     # via stack-data
-pyarrow==15.0.2
-    # via
-    #   llm-utils
-    #   streamlit
+pyarrow==16.1.0
+    # via streamlit
 pycodestyle==2.11.1
-    # via
-    #   flake8
-    #   llm-utils
+    # via flake8
 pycparser==2.22
     # via cffi
-pydantic==2.7.0
+pydantic==2.7.1
     # via
     #   langchain
     #   langchain-core
     #   langsmith
-    #   llm-utils
     #   openai
-pydantic-core==2.18.1
-    # via
-    #   llm-utils
-    #   pydantic
-pydeck==0.8.1b0
-    # via
-    #   llm-utils
-    #   streamlit
+pydantic-core==2.18.2
+    # via pydantic
+pydeck==0.9.1
+    # via streamlit
 pyflakes==3.2.0
-    # via
-    #   flake8
-    #   llm-utils
-pygments==2.17.2
+    # via flake8
+pygments==2.18.0
     # via
     #   ipython
     #   jupyter-console
-    #   llm-utils
     #   nbconvert
     #   qtconsole
     #   rich
-pymdown-extensions==10.8
-    # via
-    #   llm-utils
-    #   mkdocstrings
-pymupdf==1.24.2
+pymdown-extensions==10.8.1
+    # via mkdocstrings
+pymupdf==1.24.4
     # via llm-utils
-pymupdfb==1.24.1
-    # via
-    #   llm-utils
-    #   pymupdf
+pymupdfb==1.24.3
+    # via pymupdf
 pyodbc==5.1.0
     # via
     #   -r requirements.in
@@ -556,9 +469,9 @@ pypandoc==1.13
     #   llm-utils
 pyparsing==3.1.2
     # via matplotlib
-pypdfium2==4.29.0
+pypdfium2==4.30.0
     # via pdfplumber
-pyproject-hooks==1.0.0
+pyproject-hooks==1.1.0
     # via
     #   build
     #   pip-tools
@@ -567,58 +480,49 @@ python-dateutil==2.9.0.post0
     #   arrow
     #   ghp-import
     #   jupyter-client
-    #   llm-utils
     #   matplotlib
     #   pandas
 python-json-logger==2.0.7
     # via jupyter-events
 pytz==2024.1
-    # via
-    #   llm-utils
-    #   pandas
+    # via pandas
 pyyaml==6.0.1
     # via
     #   jupyter-events
     #   langchain
     #   langchain-community
     #   langchain-core
-    #   llm-utils
     #   mkdocs
+    #   mkdocs-get-deps
     #   pymdown-extensions
     #   pyyaml-env-tag
 pyyaml-env-tag==0.1
-    # via
-    #   llm-utils
-    #   mkdocs
-pyzmq==26.0.2
+    # via mkdocs
+pyzmq==26.0.3
     # via
     #   ipykernel
     #   jupyter-client
     #   jupyter-console
     #   jupyter-server
     #   qtconsole
-qtconsole==5.5.1
+qtconsole==5.5.2
     # via jupyter
 qtpy==2.4.1
     # via qtconsole
-referencing==0.34.0
+referencing==0.35.1
     # via
     #   jsonschema
     #   jsonschema-specifications
     #   jupyter-events
-    #   llm-utils
-regex==2024.4.16
-    # via
-    #   llm-utils
-    #   tiktoken
-requests==2.31.0
+regex==2024.5.15
+    # via tiktoken
+requests==2.32.2
     # via
     #   -r requirements.in
     #   jupyterlab-server
     #   langchain
     #   langchain-community
     #   langsmith
-    #   llm-utils
     #   streamlit
     #   tiktoken
 rfc3339-validator==0.1.4
@@ -632,13 +536,11 @@ rfc3986-validator==0.1.1
 rich==13.7.1
     # via
     #   -r requirements.in
-    #   llm-utils
     #   streamlit
     #   typer
-rpds-py==0.18.0
+rpds-py==0.18.1
     # via
     #   jsonschema
-    #   llm-utils
     #   referencing
 send2trash==1.8.3
     # via jupyter-server
@@ -648,80 +550,64 @@ six==1.16.0
     # via
     #   asttokens
     #   bleach
-    #   llm-utils
     #   python-dateutil
     #   rfc3339-validator
 smmap==5.0.1
-    # via
-    #   gitdb
-    #   llm-utils
+    # via gitdb
 sniffio==1.3.1
     # via
     #   anyio
     #   httpx
-    #   llm-utils
     #   openai
 soupsieve==2.5
     # via beautifulsoup4
-sqlalchemy==2.0.29
+sqlalchemy==2.0.30
     # via
     #   langchain
     #   langchain-community
-    #   llm-utils
 stack-data==0.6.3
     # via ipython
-streamlit==1.33.0
+streamlit==1.34.0
     # via
     #   -r requirements.in
     #   llm-utils
-tenacity==8.2.3
+tenacity==8.3.0
     # via
     #   langchain
     #   langchain-community
     #   langchain-core
-    #   llm-utils
     #   streamlit
 terminado==0.18.1
     # via
     #   jupyter-server
     #   jupyter-server-terminals
-tiktoken==0.6.0
+tiktoken==0.7.0
     # via
     #   -r requirements.in
     #   langchain-openai
-    #   llm-utils
 tinycss2==1.3.0
     # via nbconvert
 toml==0.10.2
-    # via
-    #   llm-utils
-    #   streamlit
+    # via streamlit
 tomli==2.0.1
     # via
     #   black
     #   build
     #   jupyterlab
-    #   llm-utils
     #   pip-tools
-    #   pyproject-hooks
 toolz==0.12.1
-    # via
-    #   altair
-    #   llm-utils
+    # via altair
 tornado==6.4
     # via
     #   ipykernel
     #   jupyter-client
     #   jupyter-server
     #   jupyterlab
-    #   llm-utils
     #   notebook
     #   streamlit
     #   terminado
-tqdm==4.66.2
-    # via
-    #   llm-utils
-    #   openai
+tqdm==4.66.4
+    # via openai
 traitlets==5.14.3
     # via
     #   comm
@@ -750,7 +636,6 @@ typing-extensions==4.11.0
     #   async-lru
     #   black
     #   ipython
-    #   llm-utils
     #   openai
     #   pydantic
     #   pydantic-core
@@ -759,22 +644,15 @@ typing-extensions==4.11.0
     #   typer
     #   typing-inspect
 typing-inspect==0.9.0
-    # via
-    #   dataclasses-json
-    #   llm-utils
+    # via dataclasses-json
 tzdata==2024.1
-    # via
-    #   llm-utils
-    #   pandas
+    # via pandas
 uri-template==1.3.0
     # via jsonschema
 urllib3==2.2.1
-    # via
-    #   llm-utils
-    #   requests
+    # via requests
 watchdog==4.0.0
     # via
-    #   llm-utils
     #   mkdocs
     #   streamlit
 wcwidth==0.2.13
@@ -794,9 +672,7 @@ widgetsnbextension==4.0.10
 xlsxwriter==3.2.0
     # via -r requirements.in
 yarl==1.9.4
-    # via
-    #   aiohttp
-    #   llm-utils
+    # via aiohttp
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
