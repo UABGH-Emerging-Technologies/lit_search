@@ -78,3 +78,16 @@ SCOPING_STEP3_META = {
     },
     "operation_id": "ScopingStep3",
 }
+
+SCOPING_STEP4_META = {
+    "summary": "Get a summary of each category of articles",
+    "description": "Takes in an excel spreadsheet and the research question.",
+    "response_description": "Returns a DOCX file with a summary of each category.",
+    "responses": {
+        200: {
+            "content": {DOCX_EXPECTED_TYPE: {}},
+            "description": "An XLSX file.",
+        }
+    },
+    "operation_id": "ScopingStep3",
+}

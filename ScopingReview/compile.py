@@ -16,6 +16,9 @@ from ScopingReview.data import (
 )
 from ScopingReview.utils import pmid2bibtex
 from fastapi import HTTPException
+from typing import Tuple, Optional
+
+
 
 class CompileManager:
     def __init__(self, df):
@@ -94,11 +97,6 @@ class CategorizeManager(BaseCategorizeManager):
                     mime=self.get_mime_type(),
                 )
 
-
-from fastapi import HTTPException, UploadFile
-import pandas as pd
-import tempfile
-
 class FastAPICategorizeManager(BaseCategorizeManager):
     def __init__(self, df: pd.DataFrame, userdefined_categories: str):
         super().__init__(df, userdefined_categories)
@@ -127,7 +125,7 @@ class FastAPICategorizeManager(BaseCategorizeManager):
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
-class BaseSummarizeManager(CompileManager):
+class SummarizeManager(CompileManager):
     def __init__(self, df, research_q):
         super().__init__(df)
         self.research_q = research_q
@@ -201,7 +199,7 @@ class BaseSummarizeManager(CompileManager):
 
 # keeping name for compatibility with previous implementations
 # eventually want this name to begin with Streamlit...
-class SummarizeManager(BaseSummarizeManager):
+class StreamlitSummarizeManager(SummarizeManager):
     def __init__(self, df, research_q):
         super().__init__(df, research_q)
         st.session_state["file_uploaded_sum"] = False  # Initialize session state for summarization
@@ -264,15 +262,72 @@ class SummarizeManager(BaseSummarizeManager):
         return None
     
     
-import os
-import datetime
-from fastapi import HTTPException
-
-class FastAPISummarizeManager(BaseSummarizeManager):
-    def __init__(self, df, research_q):
+class FastAPISummarizeManager(SummarizeManager):
+    def __init__(self, df: pd.DataFrame, research_q: str):
         super().__init__(df, research_q)
 
-    def summarize_and_save(self):
+    def get_doc_filename(self) -> str:
+        """
+        Returns the default document filename from configuration or a static setting.
+        Can be overridden in subclasses to return different filenames based on the context.
+        """
+        return lit_config.SR_STEP4_DOCX_FILENAME
+    
+    def get_mime_type(self):
+        return lit_config.DOCX_MIME
+
+    def summarize_articles(self) -> Tuple[bytes, dict, Optional[str]]:
+        """
+        Summarize the articles using the provided research question.
+        Checks for category limits and warns if they are exceeded.
+        """
+        if self.df is not None:
+            categories_exceeding_limit = self.check_limits()
+            warning_msg = ""
+            if categories_exceeding_limit:
+                warning_msg = (f"Consider breaking the following categories into subcategories, "
+                               f"as there are more than {lit_config.SUBCLASS_THRESHOLD} articles in them: "
+                               f"{', '.join(categories_exceeding_limit)}.")
+
+            markdown_to_convert, response_meta = lit_generate.summarize_all_categories(
+                self.df, self.research_q
+            )
+            self.cost += response_meta.total_cost
+            docx_data = convert_markdown_docx(markdown_to_convert)
+            return docx_data, response_meta, warning_msg
+        else:
+            raise HTTPException(status_code=404, detail="No data available for summarization.")
+
+    def save_document(self, docx_data, filename=None) -> str:
+        """
+        Save the DOCX data to a file and return the file path.
+        Allows specifying a filename or uses the default from get_doc_filename().
+        """
+        if filename is None:
+            filename = self.get_doc_filename()
+        try:
+            temp_dir = tempfile.mkdtemp()
+            file_path = os.path.join(temp_dir, filename)
+            with open(file_path, "wb") as file:
+                file.write(docx_data)
+            return file_path
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to save DOCX file: {str(e)}")
+
+    def summarize_and_save(self) -> Tuple[str, float]:
+        """
+        Performs the complete summarization process and saves the result to a DOCX file,
+        returning any warnings related to category limits.
+        """
+        docx_data, response_meta, _ = self.summarize_articles()
+        self.cost += response_meta.total_cost
+        if docx_data:
+            file_path = self.save_document(docx_data)
+            return file_path
+        else:
+            raise HTTPException(status_code=404, detail="Failed to generate document data.")
+
+    def standalone_summarize_and_save(self):
         """
         This method encapsulates the summarization of articles and saving the result as a DOCX file.
         It returns the path to the saved file and the total cost associated with the operation.
@@ -289,28 +344,15 @@ class FastAPISummarizeManager(BaseSummarizeManager):
 
             # Summarizing articles
             markdown_to_convert, response_meta = lit_generate.summarize_all_categories(self.df, self.research_q)
+            self.cost += response_meta.total_cost
             docx_data = convert_markdown_docx(markdown_to_convert)
 
             # Save the DOCX file
             temp_file_path = self.save_temp_docx(docx_data)
 
-            # Calculating total cost
-            total_cost = self.cost + response_meta.total_cost
-
-            return temp_file_path, total_cost
+            return temp_file_path, self.cost
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
-
-    def save_temp_docx(self, docx_data):
-        """
-        Saves the DOCX data to a temporary file and returns the file path.
-        """
-        temp_dir = tempfile.mkdtemp()
-        today_date = datetime.date.today().strftime("%Y-%m-%d")
-        temp_file_path = os.path.join(temp_dir, f"summary_{today_date}.docx")
-        with open(temp_file_path, "wb") as file:
-            file.write(docx_data)
-        return temp_file_path
 
 
 class DraftReviewManager(CompileManager):

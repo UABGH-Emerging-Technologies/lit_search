@@ -47,7 +47,7 @@ def get_summary_response(background_tasks: BackgroundTasks, research_question: s
 
         # Use FastAPISummarizeManager to summarize and save the result
         summarize_manager = FastAPISummarizeManager(articles_df, research_question)
-        temp_file_path, compile_cost = summarize_manager.summarize_and_save()
+        temp_file_path, compile_cost = summarize_manager.standalone_summarize_and_save()
 
         # Creating the response
         response = FileResponse(path=temp_file_path, filename=lit_config.SR_STEP4_DOCX_FILENAME, media_type=lit_api_config.DOCX_EXPECTED_TYPE)

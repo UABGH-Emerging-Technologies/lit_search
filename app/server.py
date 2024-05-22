@@ -7,6 +7,8 @@ from app.v01.scoping.step1 import router as v01_scoping_step1_router
 from app.v01.scoping.step2.keywords import router as v01_scoping_step2keywords_router
 from app.v01.scoping.step2.iteration import router as v01_scoping_step2iteration_router
 from app.v01.scoping.step3 import router as v01_scoping_step3_router
+from app.v01.scoping.step4 import router as v01_scoping_step4_router
+
 
 app = FastAPI(**fastapi_config.LIT_API_META)
 
@@ -15,6 +17,7 @@ app.include_router(v01_scoping_step1_router)
 app.include_router(v01_scoping_step2keywords_router)
 app.include_router(v01_scoping_step2iteration_router)
 app.include_router(v01_scoping_step3_router)
+app.include_router(v01_scoping_step4_router)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
