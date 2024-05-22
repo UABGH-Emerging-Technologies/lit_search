@@ -50,7 +50,7 @@ async def get_step4_response(background_tasks: BackgroundTasks, research_questio
             headers = {}
         response = FileResponse(
             path=temp_file_path, 
-            filename=summarize_manager.get_filename(),
+            filename=summarize_manager.get_doc_filename(),
             media_type=summarize_manager.get_mime_type(),
             headers=headers
         )

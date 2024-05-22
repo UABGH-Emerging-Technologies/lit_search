@@ -319,11 +319,11 @@ class FastAPISummarizeManager(SummarizeManager):
         Performs the complete summarization process and saves the result to a DOCX file,
         returning any warnings related to category limits.
         """
-        docx_data, response_meta, _ = self.summarize_articles()
+        docx_data, response_meta, warning_message = self.summarize_articles()
         self.cost += response_meta.total_cost
         if docx_data:
             file_path = self.save_document(docx_data)
-            return file_path
+            return file_path, warning_message
         else:
             raise HTTPException(status_code=404, detail="Failed to generate document data.")
 

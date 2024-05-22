@@ -89,5 +89,5 @@ SCOPING_STEP4_META = {
             "description": "An XLSX file.",
         }
     },
-    "operation_id": "ScopingStep3",
+    "operation_id": "ScopingStep4",
 }

@@ -124,7 +124,6 @@ def summarize_all_categories(df, user_question, newsletter_flag=False):
     # if no abstract or text, remove the article
     df.dropna(inplace=True, subset=["Text"])
     # takes in multiple categories and assigns them in each row
-    # TODO change the coln name from Catoegory to Categories
     df_exploded = df.explode("category")
 
     # get categories
@@ -132,10 +131,12 @@ def summarize_all_categories(df, user_question, newsletter_flag=False):
 
     output = []
     for current_category in categories:
+        print(current_category)
         with get_openai_callback() as response_meta:
             filtered_rows = df_exploded[df_exploded["category"] == current_category]
             article_summaries = []
             for idx, row in filtered_rows.iterrows():
+                print(row.title)
                 article_summary = summarize_article_in_chunks(row.Text)
                 # TODO: nice to haves
                 # df_exploded.at[idx, 'Article Summary'] = article_summary
