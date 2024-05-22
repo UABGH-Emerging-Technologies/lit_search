@@ -16,7 +16,8 @@ from ScopingReview.data import (
 )
 from ScopingReview.utils import pmid2bibtex
 from fastapi import HTTPException
-from typing import Tuple, Optional
+from fastapi.responses import Response
+from typing import Tuple, Optional, Union
 
 
 class CompileManager:
@@ -453,42 +454,74 @@ class FastAPIDraftReviewManager(DraftReviewManager):
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Failed to save draft review document: {str(e)}")
 
+
 class BibtexManager(CompileManager):
-    def __init__(self, df, file_ext):
-        if df is not None:
-            self.df = df
-            self.file_ext = file_ext
+    def __init__(self, file_contents, file_ext):
+        super().__init__(file_contents)
+        if file_contents is not None:
+            self.df = file_contents
+        self.file_ext = file_ext
 
     def _get_PMID_list(self):
         if self.file_ext == ".xlsx":
             if "PMID" in self.df.columns:
                 return self.df["PMID"].astype(str).tolist()
             else:
-                return "The dataframe doesn't contain a 'PMID' column."
-        if self.file_ext == ".docx":
+                raise ValueError("PMIDs missing.")
+        elif self.file_ext == ".docx":
             df = extract_docx_pmids(self.df)
             if "PMID" in df.columns:
                 return df["PMID"].astype(str).tolist()
             else:
-                return "The dataframe doesn't contain a 'PMID' column."
+                raise ValueError("Bibliography not in expected format.")
 
     def get_filename(self):
         return lit_config.SR_STEP6_FILENAME
 
-    def get_download_button_label(self):
-        return lit_config.BIB_DOWNLOAD_LABEL
+    def convert_pmid_to_bibtex(self):
+        pmid_list = self._get_PMID_list()
+        if not pmid_list:
+            raise ValueError("No PMIDs found to convert to BibTeX.")
+        bibtex_text = pmid2bibtex(pmid_list)
+        return bibtex_text
+
+
+class StreamlitBibtexManager(BibtexManager):
+    def __init__(self, df, file_ext):
+        super().__init__(df, file_ext)
+        st.session_state["file_uploaded_bibtex"] = False  # Unique file_uploaded variable for bibtex management
 
     def _download_results(self, bibtex_text):
         st.balloons()
         st.write("Note that once you hit download, this form will reset.")
         st.download_button(
-            label=self.get_download_button_label(), data=bibtex_text, file_name=self.get_filename()
+            label=self.get_download_button_label(),
+            data=bibtex_text,
+            file_name=self.get_filename(),
+            mime="text/plain",
         )
-
-    def convert_pmid_to_bibtex(self):
-        pmid_list = self._get_PMID_list()
-        bibtex_text = pmid2bibtex(pmid_list)
-        self._download_results(bibtex_text)
-
         st.write("Thanks for playing! Please email feedback to rmelvin@uabmc.edu")
-        return True
+
+
+class FastAPIBibtexManager(BibtexManager):
+    def __init__(self, content: Union[pd.DataFrame, str], file_ext: str) -> Response:
+        super().__init__(content, file_ext)
+
+    def convert_and_download_bibtex(self):
+        """
+        Asynchronously converts PMIDs to BibTeX format and prepares it for download.
+        Raises HTTPException if no PMIDs are found or if the BibTeX conversion fails.
+        """
+        try:
+            pmid_list = self._get_PMID_list()
+            if not pmid_list:
+                raise ValueError("No PMIDs found to convert to BibTeX.")
+
+            bibtex_text = pmid2bibtex(pmid_list)
+            return Response(content=bibtex_text, media_type="application/x-bibtex", headers={
+                "Content-Disposition": f"attachment; filename={self.get_filename()}"
+            })
+        except ValueError as e:
+            raise HTTPException(status_code=422, detail=str(e))
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"An error occurred while converting PMIDs to BibTeX: {str(e)}")

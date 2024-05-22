@@ -20,7 +20,7 @@ async def get_step2keywords_response(background_tasks: BackgroundTasks, question
     start = datetime.now()
     try:
         upload_manager = FastAPIUploadManager("Please upload your file", ["xlsx"])
-        df = await upload_manager.upload_file(file)
+        df, _ = await upload_manager.upload_file(file)
         if df is None:
             raise HTTPException(status_code=422, detail="Failed to process the file")
         manager = FastAPIIterateSearchManager(df, question)

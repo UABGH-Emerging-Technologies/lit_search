@@ -8,6 +8,7 @@ from io import BytesIO
 import pandas as pd
 import tempfile
 import pypandoc
+from typing import Union, Tuple
 
 class BaseUploadManager:
     def __init__(self, message: str, file_types: list):
@@ -41,7 +42,7 @@ class UploadManager(BaseUploadManager):
 
 
 class FastAPIUploadManager(BaseUploadManager):
-    async def read_file(self, file: UploadFile):
+    async def read_file(self, file: UploadFile) -> Tuple[Union[pd.DataFrame, str], str]:
         try:
             extension = Path(file.filename).suffix
             print("Extension - ", extension)
@@ -49,12 +50,12 @@ class FastAPIUploadManager(BaseUploadManager):
 
             if extension == ".xlsx":
                 print("Opening Excel file")
-                return pd.read_excel(BytesIO(contents))
+                return pd.read_excel(BytesIO(contents)), extension
             elif extension == ".docx":
                 print("Opening Word file")
                 with tempfile.NamedTemporaryFile(delete=False, suffix=".docx") as tmpfile:
                     tmpfile.write(contents)
-                    return pypandoc.convert_file(tmpfile.name, "markdown")
+                    return pypandoc.convert_file(tmpfile.name, "markdown"), extension
             else:
                 return None
         except Exception as e:

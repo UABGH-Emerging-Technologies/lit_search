@@ -27,6 +27,20 @@ STANDALONE_SUMMARY_META = {
     "operation_id": "StandaloneSummary",
 }
 
+
+STANDALONE_BIBLIOGRAPHY_META = {
+    "summary": "Get an overview of literature relevant to a research question.",
+    "description": "Takes question as a string and returns a DOCX file with gauranteed-real citations.",
+    "response_description": "Returns a DOCX literature summary with no citation hallucination",
+    "responses": {
+        200: {
+            "content": {DOCX_EXPECTED_TYPE: {}},
+            "description": "A DOCX file.",
+        }
+    },
+    "operation_id": "StandaloneSummary",
+}
+
 SCOPING_STEP1_META = {
     "summary": "Start a scoping review by getting an Excel file from an initial literature search",
     "description": "Takes in a scoping review research question and returns an Excel file with each row representing a published article.",
