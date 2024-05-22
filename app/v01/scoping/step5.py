@@ -36,7 +36,7 @@ async def get_step5_response(background_tasks: BackgroundTasks, research_questio
     start = datetime.datetime.now()
     try:
         upload_manager = FastAPIUploadManager("Please upload your file", ["docx"])
-        summaries_markdown = await upload_manager.upload_file(file)
+        summaries_markdown, _ = await upload_manager.upload_file(file)
         if summaries_markdown is None:
             raise HTTPException(status_code=422, detail="Failed to process the file or unsupported file type")
 

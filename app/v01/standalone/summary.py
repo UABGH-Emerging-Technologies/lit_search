@@ -18,7 +18,7 @@ from app.v01.schemas import SearchRequest
 import app.fastapi_config as lit_api_config
 
 # TODO: meta data
-router = APIRouter(tags=["standalone"])
+router = APIRouter(tags=["standalone", "summary"])
 
 def get_summary_response(background_tasks: BackgroundTasks, research_question: str):
     """
