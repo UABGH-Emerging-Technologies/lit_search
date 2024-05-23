@@ -50,18 +50,19 @@ class FastAPIUploadManager(BaseUploadManager):
 
             if extension == ".xlsx":
                 print("Opening Excel file")
-                return pd.read_excel(BytesIO(contents)), extension
+                # looks like for async, you need explicit tuples in return
+                return (pd.read_excel(BytesIO(contents)), extension)
             elif extension == ".docx":
                 print("Opening Word file")
-                with tempfile.NamedTemporaryFile(delete=False, suffix=".docx") as tmpfile:
+                with tempfile.NamedTemporaryFile(delete=True, suffix=".docx") as tmpfile:
                     tmpfile.write(contents)
-                    return pypandoc.convert_file(tmpfile.name, "markdown"), extension
+                    md = pypandoc.convert_file(tmpfile.name, "markdown")
+                    return (md, extension)
             else:
-                return None
+                return (None, None)
         except Exception as e:
             raise HTTPException(status_code=400, detail="Invalid file format or corrupted file.") from e
-        finally:
-            await file.close()  # Ensure to close the file after reading
 
-    async def upload_file(self, upload_file: UploadFile):
-        return await self.read_file(upload_file)
+    async def upload_file(self, upload_file: UploadFile) -> Tuple[Union[pd.DataFrame, str], str]:
+        out = await self.read_file(upload_file)
+        return out[0], out[1]

@@ -29,16 +29,16 @@ STANDALONE_SUMMARY_META = {
 
 
 STANDALONE_BIBLIOGRAPHY_META = {
-    "summary": "Get an overview of literature relevant to a research question.",
-    "description": "Takes question as a string and returns a DOCX file with gauranteed-real citations.",
-    "response_description": "Returns a DOCX literature summary with no citation hallucination",
+    "summary": "Generate a bibliography importable to a citation manager.",
+    "description": "Takes a DOCX or XLXS file created by one of our tools and returns a bibtex file. All programmatic, no AI.",
+    "response_description": "Returns a bibtex file.",
     "responses": {
         200: {
-            "content": {DOCX_EXPECTED_TYPE: {}},
-            "description": "A DOCX file.",
+            "content": {"application/x-bibtex": {}},
+            "description": "a BIB file",
         }
     },
-    "operation_id": "StandaloneSummary",
+    "operation_id": "StandaloneBibliography",
 }
 
 SCOPING_STEP1_META = {

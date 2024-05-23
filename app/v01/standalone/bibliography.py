@@ -21,8 +21,9 @@ router = APIRouter(tags=["standalone", "bibliography"])
 
 async def get_bibtex_response(file: UploadFile) -> Response:
     try:
-        upload_manager = FastAPIUploadManager()
-        content, file_ext = await upload_manager.upload_file(file)  # Handles both .docx and .xlsx files
+        upload_manager = FastAPIUploadManager("Please upload your file", ["xlsx", "docx"])
+        # Handles both .docx and .xlsx files
+        content, file_ext = await upload_manager.upload_file(file)  
         if content is None:
             raise HTTPException(status_code=422, detail="Failed to process the file or unsupported file type")
         
@@ -34,7 +35,7 @@ async def get_bibtex_response(file: UploadFile) -> Response:
     return response
 
     
-@router.post("/search/v01/standalone/bibliography/", **lit_api_config.STANDALONE_BIBTEX_META)
+@router.post("/search/v01/standalone/bibliography/", **lit_api_config.STANDALONE_BIBLIOGRAPHY_META)
 async def initial_literature_search(file: UploadFile) -> Response:
-    response = get_bibtex_response(file)
+    response = await get_bibtex_response(file)
     return response
