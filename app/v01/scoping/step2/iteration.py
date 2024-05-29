@@ -1,38 +1,44 @@
+import base64
 import os
-from typing import Tuple, List
-from fastapi import File, UploadFile, APIRouter, HTTPException, BackgroundTasks, Form, Depends
-from fastapi.responses import FileResponse
+from fastapi import APIRouter, HTTPException, BackgroundTasks
 
 from datetime import datetime
 
 from llm_utils.database import write_to_db
 
 import ScopingReview_config.app_config as lit_app_config
-import ScopingReview_config.config as lit_config
 from ScopingReview.search import FastAPIIterateSearchManager
 from ScopingReview.upload import FastAPIUploadManager
 import app.fastapi_config as lit_api_config
 from app.v01.scoping.schemas import KeywordsData
 from app.v01.scoping.step2.validators import validate_keywords_data
-from app.v01.schemas import SearchRequest
+from app.v01.scoping.step2.schemas import IterationRequest
+from app.v01.schemas import MSExcelResponse
+from llm_utils import api_utils
 
 # TODO: metadata
 router = APIRouter(tags=["scoping", "step2"])
 
-async def get_step2iteration_response(background_tasks: BackgroundTasks, question: str, file: UploadFile, keywords: KeywordsData) -> Tuple[str, FileResponse]:
+def get_step2iteration_response(
+    background_tasks: BackgroundTasks,
+    question: str,
+    xlsx_bytes: bytes,
+    keywords: KeywordsData
+    ) -> MSExcelResponse:
     start = datetime.now()
     try:
         upload_manager = FastAPIUploadManager("Please upload your file", ["xlsx"])
-        df, _ = await upload_manager.upload_file(file)
+        df = upload_manager.read_file(xlsx_bytes, extension=".xlsx")
         if df is None:
             raise HTTPException(status_code=422, detail="Failed to process the file")
+        # TODO: standardize whether manager returns cost or just has it as an attribute
         manager = FastAPIIterateSearchManager(df, question)
         temp_file_path = manager.update_keywords_and_perform_search(keywords)
-        response = FileResponse(path=temp_file_path, 
-                                filename=manager.get_filename(), 
-                                media_type=manager.get_mime_type())
+        encoded_file = api_utils.file_to_base64(temp_file_path)
+        background_tasks.add_task(os.unlink, temp_file_path)
+        response = MSExcelResponse(encoded_xlsx=encoded_file)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
     finish = datetime.now()
     
     try:
@@ -48,24 +54,23 @@ async def get_step2iteration_response(background_tasks: BackgroundTasks, questio
     except KeyError:
         pass
     
-    return temp_file_path, response
+    return response
 
 @router.post("/search/v01/scoping/step2/iteration/", **lit_api_config.SCOPING_STEP2EXCEL_META)
 async def update_keywords_and_search(
     background_tasks: BackgroundTasks,
-    primary_keywords: List[str] = Form(...),
-    secondary_keywords: List[str] = Form(...),
-    exclusion_keywords: List[str] = Form(...),
-    query: SearchRequest = Depends(),
-    file: UploadFile = File(...)
-) -> FileResponse:
+    request: IterationRequest,
+) -> MSExcelResponse:
 
     keywords = validate_keywords_data(
-        primary_keywords, 
-        secondary_keywords, 
-        exclusion_keywords)
+        request.primary_keywords,
+        request.secondary_keywords,
+        request.exclusion_keywords
+        )
 
-    
-    temp_file_path, response = await get_step2iteration_response(background_tasks, query.research_question, file, keywords)
-    background_tasks.add_task(os.unlink, temp_file_path)
+    file_bytes = base64.b64decode(request.xlsx_encoded)
+    response = get_step2iteration_response(background_tasks,
+                                           request.research_question,
+                                           file_bytes,
+                                           keywords)
     return response

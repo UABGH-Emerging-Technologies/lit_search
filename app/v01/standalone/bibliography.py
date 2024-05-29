@@ -2,19 +2,12 @@
 import os
 import base64
 
-from typing import Tuple
-from fastapi import APIRouter, BackgroundTasks, HTTPException, Depends, UploadFile, File
-from fastapi.responses import Response
-from datetime import datetime
+from fastapi import APIRouter, BackgroundTasks, HTTPException
 
-from llm_utils.database import write_to_db
 from llm_utils import api_utils
 
 from ScopingReview.upload import FastAPIUploadManager
 from ScopingReview.compile import FastAPIBibtexManager
-import ScopingReview_config.config as lit_config
-import ScopingReview_config.app_config as lit_app_config
-
 
 from app.v01.schemas import UploadableFiles
 from app.v01.standalone.schemas import BibliographyResponse, BibliographyRequest
