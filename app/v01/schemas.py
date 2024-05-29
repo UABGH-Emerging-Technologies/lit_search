@@ -17,3 +17,7 @@ class MSWordResponse(BaseModel):
 
 class BibTexResponse(BaseModel):
     encoded_docx: str = Field(..., description="Base64-encoded BIB file. Decode to obtain the BIB file.")
+    
+    
+class MSExcelResponse(BaseModel):
+    encoded_xlsx: str = Field(..., description="Base64-encoded XLSX file. Decode to obtain the DOCX file.")
