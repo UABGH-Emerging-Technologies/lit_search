@@ -350,7 +350,7 @@ class FastAPISummarizeManager(SummarizeManager):
             docx_data = convert_markdown_docx(markdown_to_convert)
 
             # Save the DOCX file
-            temp_file_path = self.save_temp_docx(docx_data)
+            temp_file_path = self.save_document(docx_data)
 
             return temp_file_path, self.cost
         except Exception as e:
@@ -518,10 +518,14 @@ class FastAPIBibtexManager(BibtexManager):
                 raise ValueError("No PMIDs found to convert to BibTeX.")
 
             bibtex_text = pmid2bibtex(pmid_list)
-            return Response(content=bibtex_text, media_type="application/x-bibtex", headers={
-                "Content-Disposition": f"attachment; filename={self.get_filename()}"
-            })
         except ValueError as e:
             raise HTTPException(status_code=422, detail=str(e))
+            
+        try:
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".bib", mode='w', encoding='utf-8') as tmpfile:
+                tmpfile.write(bibtex_text)
+                tmpfile_name = tmpfile.name
+            return tmpfile_name
+
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"An error occurred while converting PMIDs to BibTeX: {str(e)}")

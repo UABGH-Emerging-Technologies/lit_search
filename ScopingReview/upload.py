@@ -42,27 +42,35 @@ class UploadManager(BaseUploadManager):
 
 
 class FastAPIUploadManager(BaseUploadManager):
-    async def read_file(self, file: UploadFile) -> Tuple[Union[pd.DataFrame, str], str]:
-        try:
-            extension = Path(file.filename).suffix
-            print("Extension - ", extension)
-            contents = await file.read()  # Read the content asynchronously
+    def read_file(self, file_bytes: bytes, extension: str) -> Union[pd.DataFrame, str]:
+        """
+        Reads the file from byte string based on the file extension and returns
+        either a DataFrame or a markdown string.
+        
+        Args:
+            file_bytes (bytes): The byte-encoded content of the file.
+            extension (str): The file extension indicating the file type.
 
+        Returns:
+            Union[pd.DataFrame, str]: Depending on the file extension, either returns a DataFrame for Excel files
+            or a markdown string for DOCX files.
+
+        Raises:
+            HTTPException: If the file format is unsupported or if an error occurs during processing.
+        """
+        try:
+            print("Processing file with extension - ", extension)
+            
             if extension == ".xlsx":
                 print("Opening Excel file")
-                # looks like for async, you need explicit tuples in return
-                return (pd.read_excel(BytesIO(contents)), extension)
+                return pd.read_excel(BytesIO(file_bytes))
             elif extension == ".docx":
-                print("Opening Word file")
+                print("Converting Word file to Markdown")
                 with tempfile.NamedTemporaryFile(delete=True, suffix=".docx") as tmpfile:
-                    tmpfile.write(contents)
-                    md = pypandoc.convert_file(tmpfile.name, "markdown")
-                    return (md, extension)
+                    tmpfile.write(file_bytes)
+                    tmpfile.seek(0)
+                    return pypandoc.convert_file(tmpfile.name, "markdown")
             else:
-                return (None, None)
+                raise HTTPException(status_code=400, detail=f"Unsupported file extension: {extension}")
         except Exception as e:
-            raise HTTPException(status_code=400, detail="Invalid file format or corrupted file.") from e
-
-    async def upload_file(self, upload_file: UploadFile) -> Tuple[Union[pd.DataFrame, str], str]:
-        out = await self.read_file(upload_file)
-        return out[0], out[1]
+            raise HTTPException(status_code=400, detail=f"Invalid file format or corrupted file: {str(e)}")
