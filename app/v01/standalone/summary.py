@@ -7,6 +7,7 @@ from fastapi.responses import FileResponse
 from datetime import datetime
 
 from llm_utils.database import write_to_db
+from llm_utils import api_utils
 
 from ScopingReview.search import FastAPISearchManager
 from ScopingReview.compile import FastAPISummarizeManager
@@ -14,13 +15,13 @@ import ScopingReview_config.config as lit_config
 import ScopingReview_config.app_config as lit_app_config
 
 
-from app.v01.schemas import SearchRequest
+from app.v01.schemas import SearchRequest, MSWordResponse
 import app.fastapi_config as lit_api_config
 
 # TODO: meta data
 router = APIRouter(tags=["standalone", "summary"])
 
-def get_summary_response(background_tasks: BackgroundTasks, research_question: str):
+def get_summary_response(background_tasks: BackgroundTasks, research_question: str) -> MSWordResponse:
     """
     This function takes a research question, performs an initial literature search using an API,
     summarizes the search results, generates a DOCX file with the summary, and writes relevant
@@ -48,10 +49,11 @@ def get_summary_response(background_tasks: BackgroundTasks, research_question: s
         # Use FastAPISummarizeManager to summarize and save the result
         summarize_manager = FastAPISummarizeManager(articles_df, research_question)
         temp_file_path, compile_cost = summarize_manager.standalone_summarize_and_save()
+        encoded_file = api_utils.file_to_base64(temp_file_path)  # Convert the file to a base64 string
 
-        # Creating the response
-        response = FileResponse(path=temp_file_path, filename=lit_config.SR_STEP4_DOCX_FILENAME, media_type=lit_api_config.DOCX_EXPECTED_TYPE)
-
+        background_tasks.add_task(os.unlink, temp_file_path)  # Cleanup temporary file
+        response = MSWordResponse(encoded_docx=encoded_file)
+        
         # Schedule background tasks
         total_cost = seach_cost + compile_cost
         try: 
@@ -62,14 +64,14 @@ def get_summary_response(background_tasks: BackgroundTasks, research_question: s
                                     total_cost, "_standalone")
         except KeyError:
             pass
-        return temp_file_path, response
+        return response
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.post("/search/v01/standalone/summary/", **lit_api_config.STANDALONE_SUMMARY_META)
-async def initial_literature_search(background_tasks: BackgroundTasks, query: SearchRequest = Depends()):
+async def initial_literature_search(background_tasks: BackgroundTasks, query: SearchRequest = Depends()) -> MSWordResponse:
     """
     Performs an initial literature search based on a provided research question, summarizes the findings, and generates a downloadable DOCX file containing the summary. This method leverages automated search and summarization tools to provide a concise overview of relevant literature.
 
@@ -88,8 +90,7 @@ async def initial_literature_search(background_tasks: BackgroundTasks, query: Se
         HTTPException: Returns a 404 error if no articles are found, or a 500 error for any other processing failures during the search and summary generation process.
     """
     
-    temp_file_path, response = get_summary_response(
+    response = get_summary_response(
         background_tasks, query.research_question
     )
-    background_tasks.add_task(os.unlink, temp_file_path)  # Schedule cleanup of the temp file
     return response

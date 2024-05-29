@@ -20,8 +20,7 @@ STANDALONE_SUMMARY_META = {
     "response_description": "Returns a DOCX literature summary with no citation hallucination",
     "responses": {
         200: {
-            "content": {DOCX_EXPECTED_TYPE: {}},
-            "description": "A DOCX file.",
+            "description": "A DOCX file as a byte-encoded string",
         }
     },
     "operation_id": "StandaloneSummary",
@@ -30,12 +29,11 @@ STANDALONE_SUMMARY_META = {
 
 STANDALONE_BIBLIOGRAPHY_META = {
     "summary": "Generate a bibliography importable to a citation manager.",
-    "description": "Takes a DOCX or XLXS file created by one of our tools and returns a bibtex file. All programmatic, no AI.",
+    "description": "Takes a DOCX or XLXS file as a byte-enocided string created by one of our tools and returns a bibtex file. All programmatic, no AI.",
     "response_description": "Returns a bibtex file.",
     "responses": {
         200: {
-            "content": {"application/x-bibtex": {}},
-            "description": "a BIB file",
+            "description": "a BIB file as a byte-encoded string",
         }
     },
     "operation_id": "StandaloneBibliography",
