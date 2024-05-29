@@ -16,7 +16,7 @@ import ScopingReview_config.config as lit_config
 import ScopingReview_config.app_config as lit_app_config
 
 
-from app.v01.schemas import SearchRequest, UploadableFiles
+from app.v01.schemas import UploadableFiles
 from app.v01.standalone.schemas import BibliographyResponse, BibliographyRequest
 import app.fastapi_config as lit_api_config
 
