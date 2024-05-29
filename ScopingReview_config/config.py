@@ -26,7 +26,7 @@ SR_STEP5_FILENAME = "ScopingReview_FirstDraft.docx"
 SR_STEP6_FILENAME = "ScopingReview_Bibliography.bib"
 
 # MIMES
-EXCEL_MIME = "application/vnd.ms-excel"
+EXCEL_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 DOCX_MIME = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 
 # BUTTON LABELS
