@@ -17,7 +17,7 @@ import app.fastapi_config as lit_api_config
 router = APIRouter(tags=["standalone", "bibliography"])
 
 def get_bibtex_response(
-    encoded_file: bytes,
+    encoded_file: str,
     file_extension: UploadableFiles,
     background_tasks: BackgroundTasks
     ) -> BibliographyResponse:
@@ -42,9 +42,9 @@ def get_bibtex_response(
     encoded BibTeX file as a base64 string.
     """
     try:
-        upload_manager = FastAPIUploadManager("Please upload your file", ["xlsx", "docx"])
+        upload_manager = FastAPIUploadManager()
         # Handles both .docx and .xlsx files
-        content = upload_manager.read_file(encoded_file, file_extension)  
+        content = upload_manager.read_and_validate_file(encoded_file, file_extension)
         if content is None:
             raise HTTPException(status_code=422, detail="Failed to process the file or unsupported file type")
         
@@ -69,9 +69,8 @@ async def bibliography_download(
     and returns the BibTeX bibliography as a base64 encoded string. This endpoint is ideal for users who need
     to quickly convert bibliographic data from documents into a format suitable for citation management tools.
     """
-    file_bytes = base64.b64decode(request.file_encoded)
     response = get_bibtex_response(
-        file_bytes,
+        request.file_encoded,
         request.file_extension,
         background_tasks
         )
