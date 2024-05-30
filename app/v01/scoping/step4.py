@@ -1,6 +1,4 @@
-from fastapi import APIRouter, HTTPException, BackgroundTasks, UploadFile, File
-from fastapi.responses import FileResponse
-from typing import Tuple
+from fastapi import APIRouter, HTTPException, BackgroundTasks, Response
 import datetime
 from llm_utils.database import write_to_db
 from ScopingReview.compile import FastAPISummarizeManager
@@ -8,52 +6,29 @@ from ScopingReview.upload import FastAPIUploadManager
 import ScopingReview_config.app_config as lit_app_config
 import os
 import app.fastapi_config as lit_api_config
+from app.v01.schemas import MSWordResponse
+from app.v01.scoping.schemas import SummariesRequest
+from llm_utils import api_utils
 
 router = APIRouter(tags=["scoping", "step4"])
 
-async def get_step4_response(background_tasks: BackgroundTasks, research_question: str, file: UploadFile) -> Tuple[str, FileResponse]:
-    """
-    The function `get_step4_response` processes an uploaded Excel file, summarizes it based on a
-    research question, saves the summary to a temporary file, and logs the processing details to a
-    database.
-    
-    Args:
-      background_tasks (BackgroundTasks): The `background_tasks` parameter is an instance of the
-    `BackgroundTasks` class in FastAPI. It allows you to add background tasks to be run after the
-    response is returned to the client. In this function, it is used to add a task to write some
-    information to a database after processing the
-      research_question (str): The `research_question` parameter is a string that represents the
-    question or topic related to the research that the user wants to summarize using the uploaded file.
-    It is used as input to the summarization process to generate a summary based on the content of the
-    file and the specified research question.
-      file (UploadFile): The `file` parameter in the `get_step4_response` function is of type
-    `UploadFile`. This parameter is used to upload a file, which is expected to be in Excel format
-    (`.xlsx`). The function processes the uploaded file to summarize its content based on a research
-    question provided.
-    
-    Returns:
-      The function `get_step4_response` returns a tuple containing the temporary file path where the
-    summarized data is saved and a `FileResponse` object that represents the summarized data file.
-    """
+def get_step4_response(
+    background_tasks: BackgroundTasks,
+    research_question: str,
+    xlsx_encoded: str,
+    ) -> MSWordResponse:
+
     start = datetime.datetime.now()
     try:
-        upload_manager = FastAPIUploadManager("Please upload your file", ["xlsx"])
-        df, _ = await upload_manager.upload_file(file)
+        upload_manager = FastAPIUploadManager()
+        df = upload_manager.read_and_validate_file(xlsx_encoded, ".xlsx")
         if df is None:
             raise HTTPException(status_code=422, detail="Failed to process the file")
-
         summarize_manager = FastAPISummarizeManager(df, research_question)
         temp_file_path, warning_msg = summarize_manager.summarize_and_save()
-        if warning_msg:
-            headers = {"Warning": warning_msg}
-        else:
-            headers = {}
-        response = FileResponse(
-            path=temp_file_path, 
-            filename=summarize_manager.get_doc_filename(),
-            media_type=summarize_manager.get_mime_type(),
-            headers=headers
-        )
+        encoded_file = api_utils.file_to_base64(temp_file_path)  # Convert the file to a base64 string
+        background_tasks.add_task(os.unlink, temp_file_path)
+        response = MSWordResponse(encoded_docx=encoded_file)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -71,10 +46,14 @@ async def get_step4_response(background_tasks: BackgroundTasks, research_questio
     except KeyError:
         pass
 
-    return temp_file_path, response
+    return response, warning_msg
 
 @router.post("/search/v01/scoping/step4/", **lit_api_config.SCOPING_STEP4_META)
-async def summarize_articles(background_tasks: BackgroundTasks, research_question: str, file: UploadFile = File(...)) -> FileResponse:
+async def summarize_articles(
+    background_tasks: BackgroundTasks,
+    request: SummariesRequest,
+    response: Response
+    ) -> MSWordResponse:
     """
     Receives an uploaded Excel file containing article data and a research question, performs summarization based on the provided research question, and returns a downloadable DOCX file with the summarized content.
 
@@ -94,6 +73,11 @@ async def summarize_articles(background_tasks: BackgroundTasks, research_questio
     Usage:
         The endpoint is designed to be used as part of a scoping step in research where quick summarization of articles is required. It accepts a file upload directly through a client interface, such as a web form.
     """
-    temp_file_path, response = await get_step4_response(background_tasks, research_question, file)
-    background_tasks.add_task(os.unlink, temp_file_path)
-    return response
+    response_data, warning_message = get_step4_response(
+        background_tasks,
+        request.research_question,
+        request.xlsx_encoded)
+    # Optionally add a warning
+    if warning_message:
+        response.headers["Warning"] = warning_message
+    return response_data
