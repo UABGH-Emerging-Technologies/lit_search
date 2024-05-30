@@ -47,7 +47,7 @@ def get_step5_response(
     except KeyError:
         pass
 
-    return temp_file_path, response
+    return response
 
 @router.post("/search/v01/scoping/step5/", **lit_api_config.SCOPING_STEP5_META)
 async def draft_review(

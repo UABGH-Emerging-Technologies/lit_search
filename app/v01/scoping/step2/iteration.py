@@ -61,7 +61,7 @@ def get_step2iteration_response(
         # TODO: Next three lines generalized to something in llm_utils?
         encoded_file = api_utils.file_to_base64(temp_file_path)  # Convert the file to a base64 string
         background_tasks.add_task(os.unlink, temp_file_path)
-        response = MSExcelResponse(encoded_bib=encoded_file)
+        response = MSExcelResponse(encoded_xlsx=encoded_file)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
     finish = datetime.now()
