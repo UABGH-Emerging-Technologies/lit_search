@@ -21,7 +21,10 @@ import app.fastapi_config as lit_api_config
 # TODO: meta data
 router = APIRouter(tags=["standalone", "summary"])
 
-def get_summary_response(background_tasks: BackgroundTasks, research_question: str) -> MSWordResponse:
+def get_summary_response(
+    background_tasks: BackgroundTasks,
+    research_question: str
+    ) -> MSWordResponse:
     """
     This function takes a research question, performs an initial literature search using an API,
     summarizes the search results, generates a DOCX file with the summary, and writes relevant
@@ -71,7 +74,10 @@ def get_summary_response(background_tasks: BackgroundTasks, research_question: s
 
 
 @router.post("/search/v01/standalone/summary/", **lit_api_config.STANDALONE_SUMMARY_META)
-async def initial_literature_search(background_tasks: BackgroundTasks, query: SearchRequest = Depends()) -> MSWordResponse:
+async def initial_literature_search(
+    background_tasks: BackgroundTasks,
+    query: SearchRequest
+    ) -> MSWordResponse:
     """
     Performs an initial literature search based on a provided research question, summarizes the findings, and generates a downloadable DOCX file containing the summary. This method leverages automated search and summarization tools to provide a concise overview of relevant literature.
 
