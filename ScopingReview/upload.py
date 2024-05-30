@@ -16,6 +16,23 @@ class BaseUploadManager:
         self.message = message
         self.file_types = file_types
 
+    def read_file(self):
+        raise NotImplementedError
+    
+    def upload_file(self):
+        raise NotImplementedError
+
+
+# name for compataibility, will want StreamlitUploadManager eventually
+class UploadManager(BaseUploadManager):
+    def upload_file(self):
+        self.uploaded_file = st.file_uploader(self.message, type=self.file_types)
+        if self.uploaded_file is not None:
+            return self.read_file(self.uploaded_file)
+        else:
+            st.write("Please upload a file to continue...")
+            return None, None
+    
     def read_file(self, file):
         extension = Path(file.name).suffix
         print("Extension - ", extension)
@@ -28,17 +45,6 @@ class BaseUploadManager:
                 tmpfile.write(file.getvalue())
                 return pypandoc.convert_file(tmpfile.name, "markdown"), extension
         return None, None
-
-
-# name for compataibility, will want StreamlitUploadManager eventually
-class UploadManager(BaseUploadManager):
-    def upload_file(self):
-        self.uploaded_file = st.file_uploader(self.message, type=self.file_types)
-        if self.uploaded_file is not None:
-            return self.read_file(self.uploaded_file)
-        else:
-            st.write("Please upload a file to continue...")
-            return None, None
 
 
 class FastAPIUploadManager(BaseUploadManager):
