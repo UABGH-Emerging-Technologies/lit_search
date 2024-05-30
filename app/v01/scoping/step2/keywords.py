@@ -18,7 +18,7 @@ router = APIRouter(tags=["scoping", "step2"])
 def get_step2keywords_response(
     background_tasks: BackgroundTasks,
     question: str,
-    xlsx_bytes: bytes
+    xlsx_encoded: str
     ) -> KeywordsData:
     """
     This function takes in a question and an Excel file, extracts keywords from the file based on the
@@ -31,7 +31,7 @@ def get_step2keywords_response(
       question (str): The `question` parameter in the `get_step2keywords_response` function is a string
     that represents the question for which you want to extract keywords from the provided Excel file.
     This question will be used by the function to search for relevant keywords within the Excel data.
-      xlsx_bytes (bytes): The `xlsx_bytes` parameter in the `get_step2keywords_response` function is
+      xlsx_encoded (bytes as str): The `xlsx_bytes` parameter in the `get_step2keywords_response` function is
     expected to be a bytes object containing the content of an Excel file (.xlsx). This parameter is
     used to read the Excel file and extract keywords based on the provided question.
     
@@ -42,9 +42,8 @@ def get_step2keywords_response(
     """
     start = datetime.now()
     try:
-        # TODO Can we make FASTAPI upload manager not need the greeting message?
-        upload_manager = FastAPIUploadManager("Please upload your file", ["xlsx"])
-        df =  upload_manager.read_file(xlsx_bytes, ".xlsx")
+        upload_manager = FastAPIUploadManager()
+        df =  upload_manager.read_and_validate_file(xlsx_encoded, ".xlsx")
         if df is None:
             raise HTTPException(status_code=422, detail="Failed to process the file")
         manager = FastAPIIterateSearchManager(df, question)
@@ -75,10 +74,9 @@ async def suggest_keywords(
     """
     Get AI-suggested search keywords based on end-user labeling of relevant articles.
     """
-    file_bytes = base64.b64decode(request.xlsx_encoded)
     keywords = get_step2keywords_response(
         background_tasks,
         request.research_question,
-        file_bytes
+        request.xlsx_encoded
         )
     return keywords

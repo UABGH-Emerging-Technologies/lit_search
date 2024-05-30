@@ -22,21 +22,46 @@ router = APIRouter(tags=["scoping", "step2"])
 def get_step2iteration_response(
     background_tasks: BackgroundTasks,
     question: str,
-    xlsx_bytes: bytes,
+    xlsx_encoded: str,
     keywords: KeywordsData
     ) -> MSExcelResponse:
+    """
+    This function processes an uploaded Excel file, performs a search based on a question and keywords,
+    and returns the search results in an encoded Excel file while also writing relevant data to a
+    database.
+    
+    Args:
+      background_tasks (BackgroundTasks): The `background_tasks` parameter is used to handle background
+    tasks in FastAPI. It allows you to perform tasks asynchronously, such as file processing or database
+    operations, without blocking the main request-response cycle. In the provided function
+    `get_step2iteration_response`, the `background_tasks` parameter is an instance
+      question (str): The `question` parameter in the `get_step2iteration_response` function is a string
+    that represents the question or query for which you want to perform a search or analysis on the data
+    provided in the uploaded Excel file. It is used by the `FastAPIIterateSearchManager` to perform the
+      xlsx_encoded (str): The `xlsx_encoded` parameter in the `get_step2iteration_response` function is
+    a string that represents the encoded content of an Excel file. This encoded content is typically
+    used for uploading and processing Excel files within the function.
+      keywords (KeywordsData): The `keywords` parameter in the `get_step2iteration_response` function is
+    of type `KeywordsData`. It likely contains information related to keywords used for searching or
+    filtering data.
+    
+    Returns:
+      The function `get_step2iteration_response` returns an instance of `MSExcelResponse`, which
+    contains an encoded Excel file (`encoded_xlsx`).
+    """
     start = datetime.now()
     try:
-        upload_manager = FastAPIUploadManager("Please upload your file", ["xlsx"])
-        df = upload_manager.read_file(xlsx_bytes, extension=".xlsx")
+        upload_manager = FastAPIUploadManager()
+        df = upload_manager.read_and_validate_file(xlsx_encoded, extension=".xlsx")
         if df is None:
             raise HTTPException(status_code=422, detail="Failed to process the file")
         # TODO: standardize whether manager returns cost or just has it as an attribute
         manager = FastAPIIterateSearchManager(df, question)
         temp_file_path = manager.update_keywords_and_perform_search(keywords)
-        encoded_file = api_utils.file_to_base64(temp_file_path)
+        # TODO: Next three lines generalized to something in llm_utils?
+        encoded_file = api_utils.file_to_base64(temp_file_path)  # Convert the file to a base64 string
         background_tasks.add_task(os.unlink, temp_file_path)
-        response = MSExcelResponse(encoded_xlsx=encoded_file)
+        response = MSExcelResponse(encoded_bib=encoded_file)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
     finish = datetime.now()
@@ -61,6 +86,10 @@ async def update_keywords_and_search(
     background_tasks: BackgroundTasks,
     request: IterationRequest,
 ) -> MSExcelResponse:
+    """
+    Updates keywords and performs a search based on the provided data in an
+    asynchronous manner.
+    """
 
     keywords = validate_keywords_data(
         request.primary_keywords,
@@ -68,9 +97,8 @@ async def update_keywords_and_search(
         request.exclusion_keywords
         )
 
-    file_bytes = base64.b64decode(request.xlsx_encoded)
     response = get_step2iteration_response(background_tasks,
                                            request.research_question,
-                                           file_bytes,
+                                           request.xlsx_encoded,
                                            keywords)
     return response
