@@ -17,7 +17,31 @@ def get_step4_response(
     research_question: str,
     xlsx_encoded: str,
     ) -> MSWordResponse:
-
+    """
+    This function takes a research question and an encoded Excel file, processes the file, summarizes
+    the data based on the research question, saves the summary as a Word document, and logs the process
+    in a database.
+    
+    Args:
+      background_tasks (BackgroundTasks): The `background_tasks` parameter in the `get_step4_response`
+    function is used to handle background tasks in FastAPI. These tasks are executed asynchronously and
+    are commonly used for operations like file processing, sending emails, or making external API calls
+    without blocking the main application flow. In this function, the
+      research_question (str): The `research_question` parameter in the `get_step4_response` function is
+    a string that represents the question or topic for which the user wants to summarize data from the
+    uploaded Excel file. This question guides the summarization process and helps in generating a
+    concise summary based on the data in the Excel file
+      xlsx_encoded (str): The `xlsx_encoded` parameter in the `get_step4_response` function is a string
+    that represents the content of an Excel file encoded in base64 format. This function reads and
+    validates the Excel file, summarizes its content based on a research question, saves the summary to
+    a temporary file, converts the
+    
+    Returns:
+      The function `get_step4_response` returns a tuple containing two elements: 
+    1. The `MSWordResponse` object named `response` which includes the encoded Word document.
+    2. The `warning_msg` variable which may contain any warning message generated during the processing
+    of the file.
+    """
     start = datetime.datetime.now()
     try:
         upload_manager = FastAPIUploadManager()
@@ -58,20 +82,6 @@ async def summarize_articles(
     Receives an uploaded Excel file containing article data and a research question, performs summarization based on the provided research question, and returns a downloadable DOCX file with the summarized content.
 
     This endpoint is part of a scoping workflow where users need to extract concise summaries from large sets of articles based on specific research queries. It handles the full process: file upload, data processing, summarization, and the creation of a downloadable summary document. Additionally, details of the processing are logged to a database for auditing and tracking purposes.
-
-    Args:
-        research_question (str): The research question or topic that guides the summarization process. This string is used to tailor the summarization algorithm to focus on relevant content within the uploaded articles.
-        file (UploadFile, optional): The file containing article data. This file should be in Excel format and contain the necessary data for summarization. Defaults to File(...), which is a placeholder indicating that a file must be provided.
-
-    Returns:
-        FileResponse: A FastAPI response object that facilitates the direct download of the generated summary. The file is returned as a DOCX document, suitable for review and distribution.
-
-    Raises:
-        HTTPException: If the file is not processed correctly, a 422 error is returned with details explaining the issue.
-        HTTPException: If any internal errors occur during the processing, a 500 error is returned with a message describing the error.
-
-    Usage:
-        The endpoint is designed to be used as part of a scoping step in research where quick summarization of articles is required. It accepts a file upload directly through a client interface, such as a web form.
     """
     response_data, warning_message = get_step4_response(
         background_tasks,
