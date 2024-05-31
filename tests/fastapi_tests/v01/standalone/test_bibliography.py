@@ -15,7 +15,7 @@ def file_content(request, category_summaries_docx, uncategorized_xlsx):
     (".docx", ".docx"),  # Pass the file extension as a parameter to the fixture
     (".xlsx", ".xlsx")
 ], indirect=["file_content"])  # Now only file_content is indirect
-def test_docx_bibliography(
+def test_bibtex_generation(
     client,
     perform_post_request,
     validate_encoded_response,
