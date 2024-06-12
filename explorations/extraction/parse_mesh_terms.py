@@ -1,4 +1,5 @@
 from Bio import Entrez, Medline
+
 Entrez.email = "rmelvin@uabmc.edu"
 handle = Entrez.efetch(db="pubmed", id="32076685", rettype="medline", retmode="text")
 articles = Medline.parse(handle)
