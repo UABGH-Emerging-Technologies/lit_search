@@ -8,6 +8,7 @@ class StateMachine:
     def initialize_states(self):
         if "button_clicked" not in st.session_state:
             st.session_state["button_clicked"] = False
+            st.session_state["total_cost"] = 0.0
 
     def cleanup_states(self):
         for key in st.session_state.keys():
@@ -32,6 +33,8 @@ class IterateHandler(StateMachine):
 
     def initialize_states(self):
         super().initialize_states()
+        if "search_manager" not in st.session_state:
+            st.session_state["search_manager"] = None
         if "keywords_extracted" not in st.session_state:
             st.session_state["keywords_extracted"] = False
         if "keywords_finalized" not in st.session_state:
@@ -43,6 +46,7 @@ class IterateHandler(StateMachine):
         del st.session_state["search_finished"]
         del st.session_state["button_clicked"]
         del st.session_state["search_manager"]
+        st.session_state["total_cost"] = 0.0
         st.session_state["keywords_finalized"] = False
 
 
@@ -82,6 +86,7 @@ class SummarizeHandler(StateMachine):
         del st.session_state["button_clicked"]
         del st.session_state["summarization_finished"]
         del st.session_state["limit_exceeded"]
+        st.session_state["total_cost"] = 0.0
 
 
 ## Step 5 - Summarize Summaries and compile draft

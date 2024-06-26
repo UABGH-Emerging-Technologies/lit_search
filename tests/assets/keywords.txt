@@ -1,0 +1,52 @@
+{
+  "primary_keywords": [
+    "headache",
+    "surgery",
+    "complications",
+    "therapy"
+  ],
+  "secondary_keywords": [
+    "asthma",
+    "colitis",
+    "rheumatism",
+    "urticaria",
+    "autoimmune diseases",
+    "nervous system",
+    "prevalence",
+    "sjogrens syndrome",
+    "cartilage diseases",
+    "facial pain",
+    "follow-up studies",
+    "lidocaine",
+    "mucocele",
+    "nasal cavity",
+    "nose diseases",
+    "orbit",
+    "paranasal sinus diseases",
+    "peripheral nervous system diseases",
+    "tetracaine",
+    "turbinates"
+  ],
+  "exclusion_keywords": [
+    "adrenal cortex hormones",
+    "age factors",
+    "diet therapy",
+    "jaw diseases",
+    "vision disorders",
+    "lysergic acid diethylamide",
+    "serotonin",
+    "antibodies",
+    "antinuclear",
+    "antiphospholipid",
+    "antigens",
+    "nuclear",
+    "antiphospholipid syndrome",
+    "arthritis",
+    "rheumatoid",
+    "autoantibodies",
+    "comorbidity",
+    "dna",
+    "rheumatoid factor",
+    "taiwan"
+  ]
+}
