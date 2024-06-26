@@ -1,7 +1,6 @@
 import json
 import os
 import re
-import time
 import xml.etree.ElementTree as ET
 from io import BytesIO
 from urllib.request import urlretrieve
@@ -14,10 +13,16 @@ from llm_utils.call_pubmed_api import PubMedAPI
 from llm_utils.prep_pubmed_query import PubMedQueryGenerator
 
 import ScopingReview_config.app_config as lit_ap_config
-import ScopingReview_config.config as review_config
+import ScopingReview_config.config as lit_config
+import streamlit as st
+
+try:
+    from llm_utils.database import get_db_connection
+except ImportError:
+    print("Database prereqs not installed. This is expected if you are not in a streamlit context.")
 
 # For NCBI interactions
-Entrez.email = review_config.DEV_EMAIL
+Entrez.email = lit_config.DEV_EMAIL
 # This is the only way to set the key in the packages we use :(
 os.environ["NCBI_API_KEY"] = lit_ap_config.NCBI_API_KEY
 
@@ -35,12 +40,12 @@ def parse_keywords(content):
 
 
 #### MAIN Interface Functions ####
-def make_and_refine_query(previous_query, research_q, cost, loop_counter):
+def make_and_refine_query(previous_query, research_q, loop_counter):
     query_maker = PubMedQueryGenerator(research_q)
     search_string, response_meta = query_maker.generate_search_string(
-        PUBMED_CHAT=review_config.CHAT, loop_n=loop_counter, last_query=previous_query
+        PUBMED_CHAT=lit_config.CHAT, loop_n=loop_counter, last_query=previous_query
     )
-    cost += response_meta.total_cost
+    cost = response_meta.total_cost
     previous_query = search_string
     loop_counter += 1
     return cost, loop_counter, previous_query, search_string
@@ -48,11 +53,13 @@ def make_and_refine_query(previous_query, research_q, cost, loop_counter):
 
 def search_and_compile(query, article_ids=[]):
     pm_connection = PubMedAPI(
-        email=review_config.DEV_EMAIL,
-        max_results=review_config.MAX_ARTICLES_SR,
+        email=lit_config.DEV_EMAIL,
+        max_results=lit_config.MAX_ARTICLES_SR,
         streamlit_context=True,
     )
+    print(query)
     article_ids_new = pm_connection.search_pubmed_articles(query)
+    print(article_ids_new)
     article_ids = list(set().union(article_ids, article_ids_new))
     return pm_connection, article_ids
 
@@ -266,28 +273,12 @@ def fetch_full_text(pmids, access_token=lit_ap_config.LIBKEY_API_KEY):
                     print(f"Failed to download or process PDF from PMC for PMID {pmid}")
 
             if not downloaded:
-                # Check if LibKey provides a direct PDF link
-                libkey_url = get_libkey_text_link(pmid, access_token)
-                if (libkey_url is not None) and (libkey_url != ""):
-                    try:
-                        headers = {
-                            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.3"
-                        }
-                        response = requests.get(
-                            url=libkey_url, timeout=5, headers=headers, allow_redirects=True
-                        )
-                        if response.ok and response.url.lower().endswith(".pdf"):
-                            text = extract_text_from_pdf_bytes(response.content)
-                            url = libkey_url
-                            downloaded = True
-                        else:
-                            url = libkey_url
-                    except Exception as e:
-                        print(
-                            f"Error during LibKey PDF download for PMID {pmid}, {libkey_url}: {e}"
-                        )
-                        url = libkey_url
-
+                # Check if LibKey provides link to full text
+                try:
+                    libkey_url = get_libkey_text_link(pmid, access_token)
+                    url = libkey_url
+                except Exception as e:
+                    print(f"No libkey url for PMID {pmid}: {e}")
         except Exception as e:
             print(f"Error during processing PMID {pmid}: {e}")
 
@@ -323,3 +314,34 @@ def extract_docx_pmids(text):
 
     # Return as a DataFrame
     return pd.DataFrame(pmids, columns=["PMID"])
+
+
+def write_to_db(research_q, query_type, input_time, response_time, cost):
+    try:
+        with get_db_connection(
+            db_server=lit_ap_config.DB_SERVER,
+            db_name=lit_ap_config.DB_NAME,
+            db_user=lit_ap_config.DB_USER,
+            db_password=lit_ap_config.DB_PASSWORD,
+        ) as conn:
+            # tempting to move this into llm_utils, but the query will be unique to each app.
+            cursor = conn.cursor()
+            query = """
+                    INSERT INTO [dbo].[literature_helper] (
+                        research_idea, 
+                        purpose_request, 
+                        input_time, 
+                        response_time,
+                        total_cost
+                    ) VALUES (?, ?, ?, ?, ?)
+                    """
+
+            cursor.execute(query, (research_q, query_type, input_time, response_time, cost))
+        st.success(
+            "To comply with a Health System Information Security request, submissions are recorded for potential review."
+        )
+    except Exception as e:
+        st.error(
+            "Something went wrong, and your submission was not recorded for review. Give the following message when asking for help."
+        )
+        st.error(e)

@@ -29,7 +29,7 @@ NEWSLETTER_BACKMATTER = """
 
 For more literature summaries and other ai tools, visit our department's custom AI website.
  
-[ai.anesthesiology.uab.edu](https://ai.anesthesiology.uab.edu)
+[ai.anes.uab.edu](https://ai.anes.uab.edu)
 
 ---
 
