@@ -1,5 +1,5 @@
 import tempfile
-
+from abc import abstractmethod
 import pandas as pd
 from io import BytesIO
 
@@ -46,11 +46,13 @@ class BaseSearchManager:
         articles_df = pm_connection.fetch_article_details(article_ids)
         articles_df = make_initial_df(pm_connection, article_ids)
         return articles_df
-
+    
+    @abstractmethod
     def _write_search_results(self, articles_df, query, query_string):
         # This method needs to be implemented by subclasses to handle output.
         raise NotImplementedError("This method should be implemented by subclasses.")
 
+    @abstractmethod
     def get_filename(self):
         # This should be implemented to provide a filename for downloads.
         raise NotImplementedError("Subclasses must implement this method.")

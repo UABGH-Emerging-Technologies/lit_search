@@ -11,7 +11,7 @@ RUN if [ "${NODE_VERSION}" != "none" ]; then su vscode -c "umask 0002 && . /usr/
 # [Optional] Uncomment this section to install additional OS packages.
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y install --no-install-recommends sqlite3 \
-    && apt-get -y install --no-install-recommends git-flow \
+    && apt-get -y install --no-install-recommends graphviz \
     && apt-get -y install --no-install-recommends cmake \
     && apt-get -y install --no-install-recommends pandoc \
     && curl -sSL https://get.docker.com/ | sh

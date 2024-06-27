@@ -6,8 +6,8 @@ from fastapi import APIRouter, BackgroundTasks, HTTPException
 
 from llm_utils import api_utils
 
-from ScopingReview.upload import FastAPIUploadManager
-from ScopingReview.compile import FastAPIBibtexManager
+from ScopingReview.UploadManager import FastAPIUploadManager
+from ScopingReview.CompileManager import FastAPIBibtexManager
 
 from app.v01.schemas import UploadableFiles
 from app.v01.standalone.schemas import BibliographyResponse, BibliographyRequest

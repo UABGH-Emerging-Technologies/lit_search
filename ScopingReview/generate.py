@@ -3,7 +3,7 @@ from langchain_community.callbacks import get_openai_callback
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 import ScopingReview.data as review_data
-import ScopingReview.prompts as lit_prompts
+import ScopingReview_config.prompt_config as lit_prompts
 import ScopingReview_config.boilerplate as lit_boilerplate
 import ScopingReview_config.config as lit_config
 import pandas as pd

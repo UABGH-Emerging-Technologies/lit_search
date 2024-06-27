@@ -6,8 +6,8 @@ from datetime import datetime
 from llm_utils.database import write_to_db
 
 import ScopingReview_config.app_config as lit_app_config
-from ScopingReview.search import FastAPIIterateSearchManager
-from ScopingReview.upload import FastAPIUploadManager
+from ScopingReview.SearchManager import FastAPIIterateSearchManager
+from ScopingReview.UploadManager import FastAPIUploadManager
 import app.fastapi_config as lit_api_config
 from app.v01.scoping.schemas import KeywordsData
 from app.v01.scoping.step2.schemas import KeywordsRequest

@@ -7,9 +7,9 @@ import typer
 
 
 import ScopingReview_config.config as lit_config
-from ScopingReview.compile import SummarizeManager
+from ScopingReview.CompileManager import SummarizeManager
 from ScopingReview.data import fetch_full_text
-from ScopingReview.search import NewsletterSearchManager
+from ScopingReview.SearchManager import NewsletterSearchManager
 
 # move to config
 

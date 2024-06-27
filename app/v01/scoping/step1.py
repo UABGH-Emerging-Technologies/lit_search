@@ -8,7 +8,7 @@ from datetime import datetime
 
 from llm_utils.database import write_to_db
 
-from ScopingReview.search import FastAPISearchManager
+from ScopingReview.SearchManager import FastAPISearchManager
 import ScopingReview_config.app_config as lit_app_config
 
 
