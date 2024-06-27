@@ -9,8 +9,8 @@ from datetime import datetime
 from llm_utils.database import write_to_db
 from llm_utils import api_utils
 
-from ScopingReview.search import FastAPISearchManager
-from ScopingReview.compile import FastAPISummarizeManager
+from ScopingReview.SearchManager import FastAPISearchManager
+from ScopingReview.CompileManager import FastAPISummarizeManager
 import ScopingReview_config.config as lit_config
 import ScopingReview_config.app_config as lit_app_config
 

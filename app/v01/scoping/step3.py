@@ -2,8 +2,8 @@ from fastapi import APIRouter, HTTPException, BackgroundTasks
 
 import datetime
 from llm_utils.database import write_to_db
-from ScopingReview.compile import FastAPICategorizeManager
-from ScopingReview.upload import FastAPIUploadManager
+from ScopingReview.CompileManager import FastAPICategorizeManager
+from ScopingReview.UploadManager import FastAPIUploadManager
 import ScopingReview_config.app_config as lit_app_config
 import os
 import app.fastapi_config as lit_api_config
