@@ -137,7 +137,7 @@ SCOPING_STEP4_META = {
 
 SCOPING_STEP5_META = {
     "summary": "Get a first draft of a scoping review article.",
-    "description": "Takes in a DOCX file with category summaries..",
+    "description": "Takes in a DOCX file with category summaries.",
     "response_description": "Returns a DOCX file with a first draft of the article.",
     "responses": {
         200: {

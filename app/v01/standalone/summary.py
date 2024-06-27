@@ -79,23 +79,8 @@ async def initial_literature_search(
     query: SearchRequest
     ) -> MSWordResponse:
     """
-    Performs an initial literature search based on a provided research question, summarizes the findings, and generates a downloadable DOCX file containing the summary. This method leverages automated search and summarization tools to provide a concise overview of relevant literature.
-
-    The process includes:
-    - Searching for articles related to the research question.
-    - Compiling and summarizing the most relevant articles.
-    - Generating a summary document in DOCX format.
-
-    Parameters:
-        query (SearchRequest): A data model that includes the research question for which the literature search and summary need to be conducted.
-
-    Returns:
-        FileResponse: A response object that includes the file data for the generated summary. The file is temporarily stored and is available for download immediately after generation. Post-download, the file is cleaned up from the server to maintain security and efficiency.
-    
-    Raises:
-        HTTPException: Returns a 404 error if no articles are found, or a 500 error for any other processing failures during the search and summary generation process.
+    This API endpoint performs an automated literature search based on a provided research question, summarizes the findings, and returns a downloadable DOCX file containing the summary.    
     """
-    
     response = get_summary_response(
         background_tasks, query.research_question
     )
