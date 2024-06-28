@@ -20,4 +20,4 @@ fastapi
 uvicorn
 python-multipart
 docx
-llm_utils
+./llm_utils
