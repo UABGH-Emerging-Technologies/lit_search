@@ -4,11 +4,6 @@ black
 flake8
 rich
 streamlit
-langchain
-langchain-community
-langchain-openai
-faiss-cpu
-openai
 tiktoken
 pyodbc
 pip-tools
@@ -16,9 +11,6 @@ jupyter
 pandas
 matplotlib
 requests
-biopython
-# uncomment optionally for final deployment, etc...
-#llm_utils @ git+https://ai_web:xu3wm_hf-5pMMfzXtWaG@gitlab.rc.uab.edu/anes_ai/llm_apps/llm_utils.git@api
 openpyxl
 xlsxwriter
 pdfplumber
@@ -28,4 +20,4 @@ fastapi
 uvicorn
 python-multipart
 docx
-./llm_utils
+llm_utils
