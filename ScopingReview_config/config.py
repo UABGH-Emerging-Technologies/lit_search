@@ -52,7 +52,6 @@ NEWSLETTER_QUERIES = {
     "critical care": "critical care anesthesia OR critical care anaesthesia OR ICU anesthesia OR intensive care anesthesia",
 }
 
-
 # LLM
 LLM_INTERFACE = AzureChatOpenAI(
     azure_endpoint="https://nlp-ai-svc.openai.azure.com/",
@@ -89,3 +88,11 @@ CHAT35 = AzureChatOpenAI(
     model_name="gpt-35-turbo-16",
     api_key=lit_app_config.GPT4_KEY,
 )
+
+# Vectorstore configuration
+VECTORSTORE_CONFIG = {
+    "type": "faiss",
+    "index_path": str(Path(BASE_DIR, "vectorstore", "faiss_index")),
+    "embedding_model": "openai",
+    "embedding_model_key": lit_app_config.OPENAI_API_KEY,
+}
