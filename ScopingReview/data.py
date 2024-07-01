@@ -9,8 +9,8 @@ import pandas as pd
 import pdfplumber
 import requests
 from Bio import Entrez
-from llm_utils.call_pubmed_api import PubMedAPI
-from llm_utils.prep_pubmed_query import PubMedQueryGenerator
+from llm_utils.resource.PubMedInterface import PubMedAPI
+from llm_utils.resource.PubMedQuery import PubMedQueryGenerator
 
 import ScopingReview_config.app_config as lit_ap_config
 import ScopingReview_config.config as lit_config
