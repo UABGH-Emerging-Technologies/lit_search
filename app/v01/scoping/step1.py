@@ -6,11 +6,8 @@ from llm_utils import api_utils
 
 from datetime import datetime
 
-from llm_utils.database import write_to_db
-
-from ScopingReview.SearchManager import FastAPISearchManager
+from ScopingReview.workflows import ArticleSearch
 import ScopingReview_config.app_config as lit_app_config
-
 
 from app.v01.schemas import SearchRequest, MSExcelResponse
 import app.fastapi_config as lit_api_config
@@ -21,7 +18,7 @@ router = APIRouter(tags=["scoping", "step1"])
 def get_step1_response(
     background_tasks: BackgroundTasks,
     research_question: str
-) -> Tuple[str, FileResponse]:
+) -> MSExcelResponse:
     """
     This function performs an initial literature search based on a research question, saves the search
     results to an Excel file, and logs the search details to a database.
@@ -29,12 +26,13 @@ def get_step1_response(
     start = datetime.now()
 
     try:
-        # Utilizing the new FastAPISearchManager to perform the literature search
-        article_search_manager = FastAPISearchManager(
-           scoping_step="initial literature search",
-           research_q=research_question
-        )
-        temp_file_path, cost = article_search_manager.search_and_compile_articles(write_excel=True)
+        # Utilizing the new ArticleSearch to perform the literature search
+        article_search = ArticleSearch(research_question)
+        articles_df = article_search.search_and_compile()
+        
+        temp_file_path = os.path.join("/tmp", f"{research_question}.xlsx")
+        article_search.write_excel_output(temp_file_path, articles_df, research_question)
+        
         encoded_file = api_utils.file_to_base64(temp_file_path)
         background_tasks.add_task(os.unlink, temp_file_path)
         response = MSExcelResponse(encoded_xlsx=encoded_file)
@@ -47,15 +45,8 @@ def get_step1_response(
 
     try:
         # Adding a background task to write search details to the database
-        background_tasks.add_task(
-            write_to_db,
-            lit_app_config,
-            f'{{"query":"{str(research_question)}"}}',
-            start,
-            finish,
-            cost,
-            "_scoping_step1",
-        )
+        content_to_log = f'{{"query":"{research_question}"}}'
+        article_search.log_to_database(lit_app_config, content_to_log, start, finish, background_tasks, label="_scoping_step1")
     except KeyError:
         pass
 
@@ -71,8 +62,6 @@ async def perform_step1_scoping_search(
 
     This method leverages advanced search algorithms to query multiple databases, ensuring a thorough exploration of available literature. The search results are then compiled into an Excel file which is made available for immediate download. Additionally, details of the search are recorded in a database for audit and research purposes.
     """
-    # Instantiate the search manager with the query
-    
     return get_step1_response(
         background_tasks, query.research_question
     )
