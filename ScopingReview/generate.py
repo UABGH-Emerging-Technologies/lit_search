@@ -9,6 +9,7 @@ import ScopingReview_config.config as lit_config
 import pandas as pd
 from typing import Tuple, Any
 
+#TODO capture categorizing specific behavior in generate
 
 def categorize(category_df: pd.DataFrame, input_text: str) -> Tuple[pd.DataFrame, Any]:
     # using copy to stop view vs copy warning in pandas
