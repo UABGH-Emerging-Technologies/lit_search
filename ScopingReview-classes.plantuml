@@ -1,0 +1,241 @@
+@startuml classes
+set namespaceSeparator none
+class "ArticleSearch" as ScopingReview.workflows.ArticleSearch {
+  research_question
+  process()
+  search_and_compile()
+  write_excel_output(tmpfile, df, input_search_terms, query_strings)
+}
+class "ArticleSearchManager" as ScopingReview.SearchManager.ArticleSearchManager {
+  get_filename()
+}
+class "BaseCategorizeManager" as ScopingReview.CompileManager.BaseCategorizeManager {
+  cost
+  userdefined_categories
+  categorize_articles()
+  get_filename()
+  get_mime_type()
+  save_results_to_excel(category_df)
+}
+class "BaseIterateSearchManager" as ScopingReview.SearchManager.BaseIterateSearchManager {
+  df
+  exclusion_keywords : list
+  keywords_extracted : bool
+  primary_keywords : list
+  query_terms : list
+  secondary_keywords : list
+  selected_articles_df
+  total_cost
+  get_filename()
+  initialize_keywords(primary, secondary, exclusion)
+  make_initial_query()
+  make_query()
+  manage_keyword_extraction()
+  perform_search(search_string)
+}
+class "BaseSearchManager" as ScopingReview.SearchManager.BaseSearchManager {
+  article_ids : list
+  loop_counter : int
+  previous_query : str
+  query : str
+  research_q
+  scoping_step
+  search_string
+  total_cost : int
+  generate_and_refine_query()
+  get_filename()
+  get_mime_type()
+  make_query()
+  perform_search(search_string)
+  search_and_compile_articles(write_excel)
+  search_loop()
+}
+class "BibtexHandler" as ScopingReview.states.BibtexHandler {
+  initialize_states()
+}
+class "BibtexManager" as ScopingReview.CompileManager.BibtexManager {
+  df
+  file_ext
+  convert_pmid_to_bibtex()
+  get_filename()
+}
+class "CategorizeHandler" as ScopingReview.states.CategorizeHandler {
+  initialize_states()
+}
+class "CategorizeManager" as ScopingReview.CompileManager.CategorizeManager {
+  categorize_articles()
+  get_download_button_label()
+}
+class "CompileManager" as ScopingReview.CompileManager.CompileManager {
+  cost : int
+  df
+  get_filename()
+  get_mime_type()
+}
+class "DraftHandler" as ScopingReview.states.DraftHandler {
+  initialize_states()
+}
+class "DraftReviewManager" as ScopingReview.CompileManager.DraftReviewManager {
+  cost
+  research_q
+  summaries
+  draft_review() -> bytes
+  get_filename() -> str
+  get_mime_type() -> str
+  save_draft_review(docx_data: bytes) -> str
+}
+class "FastAPIBibtexManager" as ScopingReview.CompileManager.FastAPIBibtexManager {
+  convert_and_download_bibtex()
+}
+class "FastAPICategorizeManager" as ScopingReview.CompileManager.FastAPICategorizeManager {
+  categorize_articles_and_save() -> str
+  save_results_to_excel(category_df: pd.DataFrame) -> str
+}
+class "FastAPIDraftReviewManager" as ScopingReview.CompileManager.FastAPIDraftReviewManager {
+  cost
+  draft_review() -> bytes
+  save_draft_review(docx_data: bytes) -> str
+}
+class "FastAPIIterateSearchManager" as ScopingReview.SearchManager.FastAPIIterateSearchManager {
+  query_terms
+  search_string
+  edit_query_terms()
+  extract_and_return_keywords() -> KeywordsData
+  save_results_to_excel(df: pd.DataFrame) -> str
+  update_keywords_and_perform_search(keywords: KeywordsData) -> str
+}
+class "FastAPISearchManager" as ScopingReview.SearchManager.FastAPISearchManager {
+  perform_search(search_string)
+  search_and_compile_articles(write_excel)
+}
+class "FastAPISummarizeManager" as ScopingReview.CompileManager.FastAPISummarizeManager {
+  cost
+  df
+  get_doc_filename() -> str
+  get_mime_type()
+  save_document(docx_data, filename) -> str
+  standalone_summarize_and_save()
+  summarize_and_save() -> Tuple[str, float]
+  summarize_articles() -> Tuple[bytes, dict, Optional[str]]
+}
+class "FastAPIUploadManager" as ScopingReview.UploadManager.FastAPIUploadManager {
+  read_and_validate_file(encoded_file: str, extension: str) -> Union[pd.DataFrame, str]
+  read_file(file: bytes, extension: str) -> Union[pd.DataFrame, str]
+}
+class "IterateHandler" as ScopingReview.states.IterateHandler {
+  cleanup_states()
+  initialize_states()
+}
+class "IterateSearchManager" as ScopingReview.SearchManager.IterateSearchManager {
+  exclusion_keywords
+  primary_keywords
+  query_terms
+  secondary_keywords
+  total_cost
+  edit_query_terms()
+  make_initial_query()
+  setup_streamlit_session()
+}
+class "KeywordsData" as ScopingReview.SearchManager.KeywordsData {
+  exclusion_keywords : List[str]
+  primary_keywords : List[str]
+  secondary_keywords : List[str]
+}
+class "NewsletterManager" as ScopingReview.main.NewsletterManager {
+  cost : float
+  scoping_step
+  manage_newsletter(category: str, query: str, output_folder: str, template_location: Optional[str])
+}
+class "NewsletterSearchManager" as ScopingReview.SearchManager.NewsletterSearchManager {
+  predefined_query
+  make_query()
+  perform_search(search_string)
+  search_and_compile_articles()
+}
+class "SearchHandler" as ScopingReview.states.SearchHandler {
+  initialize_states()
+}
+class "StateMachine" as ScopingReview.states.StateMachine {
+  cleanup_states()
+  initialize_states()
+}
+class "StreamlitBibtexManager" as ScopingReview.CompileManager.StreamlitBibtexManager {
+}
+class "StreamlitDraftReviewManager" as ScopingReview.CompileManager.StreamlitDraftReviewManager {
+  draft_review()
+}
+class "StreamlitSearchManager" as ScopingReview.SearchManager.StreamlitSearchManager {
+  generate_and_refine_query()
+  get_filename()
+  search_and_compile_articles(write_excel)
+}
+class "StreamlitSummarizeManager" as ScopingReview.CompileManager.StreamlitSummarizeManager {
+  cost
+  download_doc_results(docx_data)
+  download_excel_results(categories_str)
+  get_doc_filename()
+  get_download_button_label()
+  get_excel_filename()
+  get_mime_type()
+  subcategorize(sub_categories)
+  summarize_articles()
+  update_session_cost()
+}
+class "StreamlitUploadManager" as ScopingReview.UploadManager.StreamlitUploadManager {
+  file_types : list
+  message : str
+  uploaded_file
+  read_file(file, extension)
+  upload_file()
+}
+class "SummarizeHandler" as ScopingReview.states.SummarizeHandler {
+  cleanup_states()
+  initialize_states()
+}
+class "SummarizeManager" as ScopingReview.CompileManager.SummarizeManager {
+  categories : list
+  categories_str : str
+  cost
+  df
+  research_q
+  sub_categories : str
+  check_limits()
+  get_filename()
+  get_mime_type()
+  save_newsletter(docx_data, category, output_folder)
+  subcategorize(sub_categories)
+  summarize_articles()
+  write_newsletter(category, output_folder, template_location)
+}
+class "UploadManager" as ScopingReview.UploadManager.UploadManager {
+  read_file(file, extension)
+  upload_file()
+}
+ScopingReview.CompileManager.BaseCategorizeManager --|> ScopingReview.CompileManager.CompileManager
+ScopingReview.CompileManager.BibtexManager --|> ScopingReview.CompileManager.CompileManager
+ScopingReview.CompileManager.CategorizeManager --|> ScopingReview.CompileManager.BaseCategorizeManager
+ScopingReview.CompileManager.DraftReviewManager --|> ScopingReview.CompileManager.CompileManager
+ScopingReview.CompileManager.FastAPIBibtexManager --|> ScopingReview.CompileManager.BibtexManager
+ScopingReview.CompileManager.FastAPICategorizeManager --|> ScopingReview.CompileManager.BaseCategorizeManager
+ScopingReview.CompileManager.FastAPIDraftReviewManager --|> ScopingReview.CompileManager.DraftReviewManager
+ScopingReview.CompileManager.FastAPISummarizeManager --|> ScopingReview.CompileManager.SummarizeManager
+ScopingReview.CompileManager.StreamlitBibtexManager --|> ScopingReview.CompileManager.BibtexManager
+ScopingReview.CompileManager.StreamlitDraftReviewManager --|> ScopingReview.CompileManager.DraftReviewManager
+ScopingReview.CompileManager.StreamlitSummarizeManager --|> ScopingReview.CompileManager.SummarizeManager
+ScopingReview.CompileManager.SummarizeManager --|> ScopingReview.CompileManager.CompileManager
+ScopingReview.SearchManager.ArticleSearchManager --|> ScopingReview.SearchManager.StreamlitSearchManager
+ScopingReview.SearchManager.BaseIterateSearchManager --|> ScopingReview.SearchManager.BaseSearchManager
+ScopingReview.SearchManager.FastAPIIterateSearchManager --|> ScopingReview.SearchManager.BaseIterateSearchManager
+ScopingReview.SearchManager.FastAPISearchManager --|> ScopingReview.SearchManager.BaseSearchManager
+ScopingReview.SearchManager.IterateSearchManager --|> ScopingReview.SearchManager.BaseIterateSearchManager
+ScopingReview.SearchManager.NewsletterSearchManager --|> ScopingReview.SearchManager.BaseSearchManager
+ScopingReview.SearchManager.StreamlitSearchManager --|> ScopingReview.SearchManager.BaseSearchManager
+ScopingReview.UploadManager.FastAPIUploadManager --|> ScopingReview.UploadManager.UploadManager
+ScopingReview.UploadManager.StreamlitUploadManager --|> ScopingReview.UploadManager.UploadManager
+ScopingReview.states.BibtexHandler --|> ScopingReview.states.StateMachine
+ScopingReview.states.CategorizeHandler --|> ScopingReview.states.StateMachine
+ScopingReview.states.DraftHandler --|> ScopingReview.states.StateMachine
+ScopingReview.states.IterateHandler --|> ScopingReview.states.StateMachine
+ScopingReview.states.SearchHandler --|> ScopingReview.states.StateMachine
+ScopingReview.states.SummarizeHandler --|> ScopingReview.states.StateMachine
+@enduml

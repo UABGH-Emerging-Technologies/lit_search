@@ -32,7 +32,7 @@ SUMMARIZE_LITERATURE_PROMPT = """I am considering a clinical research project to
 
 CATEGORIZE_SYSTEM_TEMPLATE = """ Help categorize the input data into the categories given by the user. Return comma separated category(ies) as output. Be parsimonius, assigning only categories that matter the most -- ideally 3 or fewer. Use only the categories given by the user to categorize the input. Even if the article does not fit a category well, pick the best one possible."""
 
-HUMAN_TEMPLATE = """
+CATEGORIZE_HUMAN_TEMPLATE = """
 CONTEXT:
 {context}
 
