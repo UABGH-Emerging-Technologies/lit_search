@@ -20,18 +20,18 @@ from fastapi.responses import Response
 from typing import Tuple, Optional, Union
 
 
-class CompileManager:
-    def __init__(self, df):
-        self.df = df
-        self.cost = 0
+# class CompileManager():
+#     def __init__(self, df):
+#         self.df = df
+#         self.cost = 0
 
-    def get_filename(self):
-        # default implementation, subclasses MUST override this method
-        raise NotImplementedError
+#     def get_filename(self):
+#         # default implementation, subclasses MUST override this method
+#         raise NotImplementedError
 
-    def get_mime_type(self):
-        # default implementation, subclasses MUST override this method
-        raise NotImplementedError
+#     def get_mime_type(self):
+#         # default implementation, subclasses MUST override this method
+#         raise NotImplementedError
 
 
 class BaseCategorizeManager(CompileManager):

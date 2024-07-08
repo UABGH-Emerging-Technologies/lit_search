@@ -1,0 +1,188 @@
+@startuml classes
+set namespaceSeparator none
+class "AIName" as llm_utils.llm_utils.generate.ChatSchemas.AIName {
+  name
+}
+class "AugmentedResponseHandler" as llm_utils.llm_utils.generate.AugmentedResponse.AugmentedResponseHandler {
+  generate_response(assembled_prompt)
+}
+class "AzureKeyHandler" as llm_utils.llm_utils.streamlit.BYOKLogin.AzureKeyHandler {
+  initialize_api_key(api_key, end_point)
+}
+class "BYOK_Handler" as llm_utils.llm_utils.streamlit.BYOKLogin.BYOK_Handler {
+  CHAT
+  EMBEDDING_CONFIG : NoneType
+  PUBMED_CHAT : NoneType
+  api_key : NoneType
+  api_key_type : NoneType
+  get_chat_function()
+  get_embedding_function()
+  get_pubmed_chat_function()
+  initialize_api_key(api_key, end_point)
+}
+class "BytesToDocx" as llm_utils.llm_utils.file_operations.UploadManager.BytesToDocx {
+  process_file_bytes(file: bytes, extension) -> Document
+}
+class "ChatRequest" as llm_utils.llm_utils.generate.ChatSchemas.ChatRequest {
+  chat_ai_choice
+  history : List[Message]
+  system_message : str
+  temperature : Annotated[float, Field(strict=True, ge=0, le=2)]
+}
+class "ChatResponse" as llm_utils.llm_utils.generate.ChatSchemas.ChatResponse {
+  response
+}
+class "ChatResponseHandler" as llm_utils.llm_utils.generate.ChatResponse.ChatResponseHandler {
+  chat_service
+  generate_response(messages)
+  update_history(message, conversation_history)
+}
+class "ChatServicer" as llm_utils.llm_utils.generate.ChatServicer.ChatServicer {
+  assembled_system_chat_template
+  generate_langchain_response(messages)
+  update_history(message, chat_history)
+}
+class "Config" as llm_utils.llm_utils.generate.ChatSchemas.Message.Config {
+  json_encoders : dict
+}
+class "DecodeRequest" as llm_utils.llm_utils.fastapi.helper_apis.DecodeRequest {
+  encoded_data : str
+  file_extension : str
+}
+class "DocxCreator" as llm_utils.llm_utils.file_operations.DocxCreator.DocxCreator {
+  background_tasks : BackgroundTasks
+  convert_markdown_to_docx_bytes(generated_response, template_filepath)
+}
+class "FastAPIUploadManager" as llm_utils.llm_utils.file_operations.UploadManager.FastAPIUploadManager {
+  background_tasks : BackgroundTasks
+  process_file_bytes(file: bytes, extension: str) -> Union[pd.DataFrame, str]
+  read_and_validate_file(encoded_file: str, extension: str) -> Any
+}
+class "MSWordResponse" as llm_utils.llm_utils.fastapi.schemas.MSWordResponse {
+  encoded_docx : str
+}
+class "Message" as llm_utils.llm_utils.generate.ChatSchemas.Message {
+  content : str
+  role
+  time
+  time : datetime
+}
+class "NIHRePORTERAPI" as llm_utils.llm_utils.resource.call_nih_reporter.NIHRePORTERAPI {
+  request_api_url
+  request_data
+  request_headers
+  request_timeout
+  scrape_nih_reporter(csv_headers, fiscals_years, departments, limit)
+}
+class "NIHScraper" as llm_utils.llm_utils.resource.nih_reporter_scraper.NIHScraper {
+  departments : list
+  fiscal_years : int
+  headers : dict
+  limit : int
+  max_length : int
+  offset : int
+  timeout : int
+  url : str
+  sanitize_field(field)
+  scrape_nih_reporter(file_to_write)
+}
+class "ObjectFactory" as llm_utils.llm_utils.ObjectFactory.ObjectFactory {
+  create(key)
+  register_builder(key, builder)
+}
+class "OpenaiKeyHandler" as llm_utils.llm_utils.streamlit.BYOKLogin.OpenaiKeyHandler {
+  initialize_api_key(api_key, end_point)
+}
+class "PromptAssembler" as llm_utils.llm_utils.generate.PromptAssembler.PromptAssembler {
+  assemble_chat_template(prompt, role: str)
+  assemble_prompt(system_prompt, user_prompt)
+}
+class "PubMedInterface" as llm_utils.llm_utils.resource.PubMedInterface.PubMedInterface {
+  delay_seconds : int
+  email : str
+  max_results : int
+  max_retries : int
+  streamlit_context : bool
+  fetch_article_details(pubmed_ids)
+  fetch_article_details_xml(pubmed_ids)
+  search_pubmed_articles(query)
+}
+class "PubMedQueryGenerator" as llm_utils.llm_utils.resource.PubMedQuery.PubMedQueryGenerator {
+  input_research_q
+  single_response
+  generate_search_string(loop_n, last_query)
+}
+class "QueryInterface" as llm_utils.llm_utils.generate.QueryInterface.QueryInterface {
+  language_model_interface
+  preparer
+  generate_langchain_response(assembled_prompt)
+  retrieve_data(prompt)
+}
+class "RAGResponseHandler" as llm_utils.llm_utils.generate.AugmentedResponse.RAGResponseHandler {
+  aug_service
+}
+class "RAGServicer" as llm_utils.llm_utils.generate.AugmentedServicer.RAGServicer {
+  embedding_interface
+  vectorstore : Path
+  retrieve_data(query)
+}
+class "Response" as llm_utils.llm_utils.generate.Response.Response {
+  generate_response()
+}
+class "ResponseHandler" as llm_utils.llm_utils.generate.Response.ResponseHandler {
+  llm_interface
+}
+class "Role" as llm_utils.llm_utils.generate.ChatSchemas.Role {
+  name
+}
+class "SearchResponseHandler" as llm_utils.llm_utils.generate.AugmentedResponse.SearchResponseHandler {
+  aug_service
+}
+class "SearchServicer" as llm_utils.llm_utils.generate.AugmentedServicer.SearchServicer {
+  searchable
+  retrieve_data(search_function)
+}
+class "SingleResponseHandler" as llm_utils.llm_utils.generate.SingleResponse.SingleResponseHandler {
+  single_response_service
+  generate_response(assembled_prompt)
+}
+class "SingleResponseServicer" as llm_utils.llm_utils.generate.SingleResponseServicer.SingleResponseServicer {
+}
+class "StreamlitUploadManager" as llm_utils.llm_utils.file_operations.UploadManager.StreamlitUploadManager {
+  file_types : list
+  message : str
+  uploaded_file
+  read_file(file, extension)
+  upload_file()
+}
+class "TestSearchResponseHandler" as llm_utils.tests.test_SearchResponseHandler.TestSearchResponseHandler {
+  test_init()
+}
+class "UploadManager" as llm_utils.llm_utils.file_operations.UploadManager.UploadManager {
+  read_file(file, extension)
+  upload_file()
+}
+class "VectorStoreBuilder" as llm_utils.llm_utils.generate.AugmentedServicer.VectorStoreBuilder {
+  embedding_model
+  out : Path
+  convert_csv_to_vectorstore(input_csv, clean_csv)
+  convert_pdf_to_vectorstore(pdf_folder)
+  load_pdf_and_process(file_path)
+}
+class "WorkflowHandler" as llm_utils.llm_utils.WorkflowHandler.WorkflowHandler {
+  total_cost : float
+  log_to_database(app_config, content_to_log, start, finish, background_tasks, label)
+  process()
+}
+llm_utils.llm_utils.file_operations.UploadManager.BytesToDocx --|> llm_utils.llm_utils.file_operations.UploadManager.FastAPIUploadManager
+llm_utils.llm_utils.file_operations.UploadManager.FastAPIUploadManager --|> llm_utils.llm_utils.file_operations.UploadManager.UploadManager
+llm_utils.llm_utils.file_operations.UploadManager.StreamlitUploadManager --|> llm_utils.llm_utils.file_operations.UploadManager.UploadManager
+llm_utils.llm_utils.generate.AugmentedResponse.RAGResponseHandler --|> llm_utils.llm_utils.generate.AugmentedResponse.AugmentedResponseHandler
+llm_utils.llm_utils.generate.AugmentedResponse.SearchResponseHandler --|> llm_utils.llm_utils.generate.AugmentedResponse.AugmentedResponseHandler
+llm_utils.llm_utils.generate.Response.ResponseHandler --|> llm_utils.llm_utils.generate.Response.Response
+llm_utils.llm_utils.streamlit.BYOKLogin.AzureKeyHandler --|> llm_utils.llm_utils.streamlit.BYOKLogin.BYOK_Handler
+llm_utils.llm_utils.streamlit.BYOKLogin.OpenaiKeyHandler --|> llm_utils.llm_utils.streamlit.BYOKLogin.BYOK_Handler
+llm_utils.llm_utils.generate.ChatSchemas.AIName --* llm_utils.llm_utils.generate.ChatSchemas.ChatRequest : chat_ai_choice
+llm_utils.llm_utils.generate.ChatSchemas.Message --* llm_utils.llm_utils.generate.ChatSchemas.ChatResponse : response
+llm_utils.llm_utils.generate.ChatSchemas.Role --* llm_utils.llm_utils.generate.ChatSchemas.Message : role
+@enduml
