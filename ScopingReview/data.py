@@ -9,15 +9,15 @@ import pandas as pd
 import pdfplumber
 import requests
 from Bio import Entrez
-from llm_utils.resource.PubMedInterface import PubMedAPI
-from llm_utils.resource.PubMedQuery import PubMedQueryGenerator
+from aiweb_common.resource.PubMedInterface import PubMedAPI
+from aiweb_common.resource.PubMedQuery import PubMedQueryGenerator
 
 import ScopingReview_config.app_config as lit_ap_config
 import ScopingReview_config.config as lit_config
 import streamlit as st
 
 try:
-    from llm_utils.database import get_db_connection
+    from aiweb_common.database import get_db_connection
 except ImportError:
     print("Database prereqs not installed. This is expected if you are not in a streamlit context.")
 

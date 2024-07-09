@@ -2,7 +2,7 @@
 import sys
 from pathlib import Path
 
-from langchain_openai import AzureChatOpenAI, AzureOpenAIEmbeddings
+from langchain_openai import AzureChatOpenAI
 
 import ScopingReview_config.app_config as lit_app_config
 

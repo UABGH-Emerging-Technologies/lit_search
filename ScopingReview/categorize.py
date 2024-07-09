@@ -8,7 +8,7 @@ from typing import Tuple, Any
 from abc import abstractmethod
 
 from llm_utils import WorkflowHandler
-from llm_utils.generate.SingleResponse import SingleResponseHandler
+from aiweb_common.generate.SingleResponse import SingleResponseHandler
 
 #TODO capture categorizing specific behavior in generate
 
@@ -51,8 +51,17 @@ class BaseCategorizeManager(WorkflowHandler):
             for category, count in unique_values_counts.items():
                 if count > config.SUBCLASS_THRESHOLD:
                     categories_exceeding_limit.append(category)
-                            
-    def categorize(self, category_df: pd.DataFrame, input_text: str) -> Tuple[pd.DataFrame, Any]:
+
+    def _extract_full_text(self):
+        if self.df_to_categorize is not None:
+            try:
+                full_text_df = fetch_full_text(category_df['PMID'])
+                category_df = pd.merge(category_df, full_text_df, on='PMID', how='inner')
+            except Exception as e:
+                print(f"Failed while getting full texts: {str(e)}")
+            return category_df            
+                                                
+    def categorize_articles(self, category_df: pd.DataFrame, input_text: str) -> Tuple[pd.DataFrame, Any]:
         # using copy to stop view vs copy warning in pandas
         reduced_df = review_data.get_relevant_rows(category_df).copy()
         input_list = input_text.split(",")

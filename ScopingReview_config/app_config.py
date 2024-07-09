@@ -1,4 +1,4 @@
-from llm_utils.WorkflowHandler import manage_sensitive
+from aiweb_common.WorkflowHandler import manage_sensitive
 
 NAME = "lit"
 
