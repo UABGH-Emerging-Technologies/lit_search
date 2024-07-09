@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException, BackgroundTasks
 
 from datetime import datetime
 
-from llm_utils.database import write_to_db
+from aiweb_common.database import write_to_db
 
 import ScopingReview_config.app_config as lit_app_config
 from ScopingReview.SearchManager import FastAPIIterateSearchManager

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, BackgroundTasks, Response
 import datetime
-from llm_utils.database import write_to_db
+from aiweb_common.database import write_to_db
 from ScopingReview.CompileManager import FastAPISummarizeManager
 from ScopingReview.UploadManager import FastAPIUploadManager
 import ScopingReview_config.app_config as lit_app_config

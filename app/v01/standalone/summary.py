@@ -6,15 +6,13 @@ from fastapi.responses import FileResponse
 
 from datetime import datetime
 
-from llm_utils.database import write_to_db
-from llm_utils import api_utils
+from aiweb_common.database import write_to_db
+from aiweb_common.file_operations.file_hanlding import file_to_base64
 
 from ScopingReview.SearchManager import FastAPISearchManager
 from ScopingReview.CompileManager import FastAPISummarizeManager
 import ScopingReview_config.config as lit_config
 import ScopingReview_config.app_config as lit_app_config
-
-
 from app.v01.schemas import SearchRequest, MSWordResponse
 import app.fastapi_config as lit_api_config
 

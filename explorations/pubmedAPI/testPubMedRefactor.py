@@ -1,4 +1,4 @@
-from llm_utils.resource.PubMedQuery import PubMedQueryGenerator
+from aiweb_common.resource.PubMedQuery import PubMedQueryGenerator
 from ScopingReview_config import app_config
 from langchain_openai import AzureChatOpenAI
 

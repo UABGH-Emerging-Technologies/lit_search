@@ -1,5 +1,5 @@
-from llm_utils.api_utils.WorkflowHandler import WorkflowHandler
-from llm_utils.SingleResponse import SingleResponseHandler
+from aiweb_common.api_utils.WorkflowHandler import WorkflowHandler
+from aiweb_common.SingleResponse import SingleResponseHandler
 from ScopingReview_config import config, prompt_config
 import ScopingReview.data as review_data
 
