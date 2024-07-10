@@ -1,14 +1,6 @@
-from langchain.prompts import (
-    ChatPromptTemplate,
-    HumanMessagePromptTemplate,
-    SystemMessagePromptTemplate,
-)
+PUBMED_SYSTEM_PROMPT = """You are a helpful AI assistant with expertise in creating PubMed Queries"""
 
-# from langchain_openai import AzureChatOpenAI
-# import os
-
-
-PUBMED_PROMPT = """Given the following research question, suggest a PubMed search string to find relevant articles:\n\n{}. Make the query sufficiently broad to be used to evaluate novelty of the project. Return only the pubmed search string, as your response will be used directly as an input to a function that takes in pubmed search strings."""
+PUBMED_HUMAN_PROMPT = """Given the following research question, suggest a PubMed search string to find relevant articles:\n\n{}. Make the query sufficiently broad to be used to evaluate novelty of the project. Return only the pubmed search string, as your response will be used directly as an input to a function that takes in pubmed search strings."""
 
 GENERATE_HUMAN_KEYWORD_PROMPT = """Given the scientific research question, a list of titles of scholarly publications, and a corresponding list of lists of keywords, each corresponding to a specific scholarly work from a PubMed search, your task is to analyze these inputs and determine three separate lists:
 
@@ -149,60 +141,6 @@ Format your response as markdown like this
 # Abstract
 A brief summary of the review, including the purpose, methodology, main findings, and conclusions.
 """
-
-
-generate_sys_keywords_prompt = SystemMessagePromptTemplate.from_template(
-    GENERATE_SYSTEM_KEYWORD_PROMPT
-)
-generate_human_keywords_prompt = HumanMessagePromptTemplate.from_template(
-    GENERATE_HUMAN_KEYWORD_PROMPT
-)
-
-keyword_chat_prompt = ChatPromptTemplate.from_messages(
-    [generate_sys_keywords_prompt, generate_human_keywords_prompt]
-)
-
-
-summarize_system_message_prompt = SystemMessagePromptTemplate.from_template(
-    SUMMARIZE_CATEGORY_TEMPLATE
-)
-newsletter_system_message_prompt = SystemMessagePromptTemplate.from_template(
-    SUMMARIZE_NEWSLETTER_TEMPLATE
-)
-
-sumarize_human_message_prompt = HumanMessagePromptTemplate.from_template(SUMMARIZE_HUMAN_TEMPLATE)
-
-category_summary_chat_prompt = ChatPromptTemplate.from_messages(
-    [summarize_system_message_prompt, sumarize_human_message_prompt]
-)
-
-newsletter_chat_prompt = ChatPromptTemplate.from_messages(
-    [newsletter_system_message_prompt, sumarize_human_message_prompt]
-)
-
-system_message_prompt = SystemMessagePromptTemplate.from_template(CATEGORIZE_SYSTEM_TEMPLATE)
-human_message_prompt = HumanMessagePromptTemplate.from_template(HUMAN_TEMPLATE)
-
-categorization_chat_prompt = ChatPromptTemplate.from_messages(
-    [system_message_prompt, human_message_prompt]
-)
-
-draft_system_message_prompt = SystemMessagePromptTemplate.from_template(SYSTEM_DRAFT_TEMPLATE)
-
-human_introduction_prompt = HumanMessagePromptTemplate.from_template(HUMAN_INTRODUCTION_TEMPLATE)
-human_conclusion_prompt = HumanMessagePromptTemplate.from_template(HUMAN_CONCLUSION_TEMPLATE)
-human_abstract_prompt = HumanMessagePromptTemplate.from_template(HUMAN_ABSTRACT_TEMPLATE)
-
-draft_introduction_prompt = ChatPromptTemplate.from_messages(
-    [draft_system_message_prompt, human_introduction_prompt]
-)
-draft_conclusion_prompt = ChatPromptTemplate.from_messages(
-    [draft_system_message_prompt, human_conclusion_prompt]
-)
-draft_abstract_prompt = ChatPromptTemplate.from_messages(
-    [draft_system_message_prompt, human_abstract_prompt]
-)
-
 
 # Template for the initial summarization of the first chunk
 initial_summary_prompt = """I am working on a scoping review to address a specific question.

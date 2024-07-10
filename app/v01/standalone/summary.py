@@ -6,13 +6,11 @@ from fastapi.responses import FileResponse
 
 from datetime import datetime
 
-from aiweb_common.database import write_to_db
-from aiweb_common.file_operations.file_hanlding import file_to_base64
+from aiweb_common.file_operations.file_handling import file_to_base64
 
 from ScopingReview.SearchManager import FastAPISearchManager
-from ScopingReview.CompileManager import FastAPISummarizeManager
-import ScopingReview_config.config as lit_config
-import ScopingReview_config.app_config as lit_app_config
+#TODO use updated implementation - probably SummarizeManager
+#from ScopingReview.CompileManager import FastAPISummarizeManager
 from app.v01.schemas import SearchRequest, MSWordResponse
 import app.fastapi_config as lit_api_config
 
@@ -50,7 +48,7 @@ def get_summary_response(
         # Use FastAPISummarizeManager to summarize and save the result
         summarize_manager = FastAPISummarizeManager(articles_df, research_question)
         temp_file_path, compile_cost = summarize_manager.standalone_summarize_and_save()
-        encoded_file = api_utils.file_to_base64(temp_file_path)  # Convert the file to a base64 string
+        encoded_file = file_to_base64(temp_file_path)  # Convert the file to a base64 string
 
         background_tasks.add_task(os.unlink, temp_file_path)  # Cleanup temporary file
         response = MSWordResponse(encoded_docx=encoded_file)
@@ -58,11 +56,13 @@ def get_summary_response(
         # Schedule background tasks
         total_cost = seach_cost + compile_cost
         try: 
-            background_tasks.add_task(write_to_db,
-                                    lit_app_config,
-                                    f'{{"query":"{str(research_question)}"}}',
-                                    datetime.now(), datetime.now(),
-                                    total_cost, "_standalone")
+            pass
+            # TODO Replace with corresponding workflow database stuff
+            # background_tasks.add_task(write_to_db,
+            #                         lit_app_config,
+            #                         f'{{"query":"{str(research_question)}"}}',
+            #                         datetime.now(), datetime.now(),
+            #                         total_cost, "_standalone")
         except KeyError:
             pass
         return response

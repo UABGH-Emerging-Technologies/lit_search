@@ -1,6 +1,5 @@
 from fastapi import APIRouter, HTTPException, BackgroundTasks, Response
 import datetime
-from aiweb_common.database import write_to_db
 from ScopingReview.CompileManager import FastAPISummarizeManager
 from ScopingReview.UploadManager import FastAPIUploadManager
 import ScopingReview_config.app_config as lit_app_config
@@ -8,7 +7,7 @@ import os
 import app.fastapi_config as lit_api_config
 from app.v01.schemas import MSWordResponse
 from app.v01.scoping.schemas import SummariesRequest
-from llm_utils import api_utils
+from aiweb_common.file_operations.file_handling import file_to_base64
 
 router = APIRouter(tags=["scoping", "step4"])
 
@@ -50,7 +49,7 @@ def get_step4_response(
             raise HTTPException(status_code=422, detail="Failed to process the file")
         summarize_manager = FastAPISummarizeManager(df, research_question)
         temp_file_path, warning_msg = summarize_manager.summarize_and_save()
-        encoded_file = api_utils.file_to_base64(temp_file_path)  # Convert the file to a base64 string
+        encoded_file = file_to_base64(temp_file_path)  # Convert the file to a base64 string
         background_tasks.add_task(os.unlink, temp_file_path)
         response = MSWordResponse(encoded_docx=encoded_file)
     except Exception as e:
@@ -58,15 +57,17 @@ def get_step4_response(
 
     finish = datetime.datetime.now()
     try:
-        background_tasks.add_task(
-            write_to_db,
-            lit_app_config,
-            f'{{"question":"{research_question}"}}',
-            start,
-            finish,
-            summarize_manager.cost,
-            "_scoping_step4_summarization"
-        )
+      pass
+        # TODO - make sure this is adapted to workflows
+        # background_tasks.add_task(
+        #     write_to_db,
+        #     lit_app_config,
+        #     f'{{"primary":"{",".join(keywords.primary_keywords)}", "secondary":"{",".join(keywords.secondary_keywords)}", "exclusion":"{",".join(keywords.exclusion_keywords)}"}}',
+        #     start,
+        #     finish,
+        #     manager.total_cost,  # ensure total_cost is handled after the search
+        #     "_scoping_step2_excel",
+        # )
     except KeyError:
         pass
 
