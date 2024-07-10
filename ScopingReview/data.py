@@ -9,7 +9,7 @@ import pandas as pd
 import pdfplumber
 import requests
 from Bio import Entrez
-from aiweb_common.resource.PubMedInterface import PubMedAPI
+from aiweb_common.resource.PubMedInterface import PubMedInterface
 from aiweb_common.resource.PubMedQuery import PubMedQueryGenerator
 
 import ScopingReview_config.app_config as lit_ap_config
@@ -51,17 +51,7 @@ def make_and_refine_query(previous_query, research_q, loop_counter):
     return cost, loop_counter, previous_query, search_string
 
 
-def search_and_compile(query, article_ids=[]):
-    pm_connection = PubMedAPI(
-        email=lit_config.DEV_EMAIL,
-        max_results=lit_config.MAX_ARTICLES_SR,
-        streamlit_context=True,
-    )
-    print(query)
-    article_ids_new = pm_connection.search_pubmed_articles(query)
-    print(article_ids_new)
-    article_ids = list(set().union(article_ids, article_ids_new))
-    return pm_connection, article_ids
+
 
 
 def write_excel_output(tmpfile, df, input_search_terms, query_strings=""):

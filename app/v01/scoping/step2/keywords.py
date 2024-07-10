@@ -3,8 +3,6 @@ import base64
 
 from datetime import datetime
 
-from aiweb_common.database import write_to_db
-
 import ScopingReview_config.app_config as lit_app_config
 from ScopingReview.SearchManager import FastAPIIterateSearchManager
 from ScopingReview.UploadManager import FastAPIUploadManager
@@ -52,15 +50,17 @@ def get_step2keywords_response(
         raise HTTPException(status_code=500, detail=str(e)) from e
     finish = datetime.now()
     try:
-        background_tasks.add_task(
-            write_to_db,
-            lit_app_config,
-            f'{{"primary":"{",".join(keywords.primary_keywords)}", "secondary":"{",".join(keywords.secondary_keywords)}", "exclusion":"{",".join(keywords.exclusion_keywords)}"}}',
-            start,
-            finish,
-            cost,
-            "_scoping_step2_keywords",
-        )
+      pass
+        # TODO - make sure this is adapted to workflows
+        # background_tasks.add_task(
+        #     write_to_db,
+        #     lit_app_config,
+        #     f'{{"primary":"{",".join(keywords.primary_keywords)}", "secondary":"{",".join(keywords.secondary_keywords)}", "exclusion":"{",".join(keywords.exclusion_keywords)}"}}',
+        #     start,
+        #     finish,
+        #     manager.total_cost,  # ensure total_cost is handled after the search
+        #     "_scoping_step2_excel",
+        # )
     except KeyError:
         pass
     return keywords

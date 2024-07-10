@@ -1,8 +1,12 @@
+#####
+# Step 1 is the initial search
+#####
+
 import os
 from typing import Tuple
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 from fastapi.responses import FileResponse
-from llm_utils import api_utils
+from aiweb_common.file_operations.file_handling import file_to_base64
 
 from datetime import datetime
 
@@ -28,12 +32,12 @@ def get_step1_response(
     try:
         # Utilizing the new ArticleSearch to perform the literature search
         article_search = ArticleSearch(research_question)
-        articles_df = article_search.search_and_compile()
+        articles_df = article_search.process()
         
         temp_file_path = os.path.join("/tmp", f"{research_question}.xlsx")
         article_search.write_excel_output(temp_file_path, articles_df, research_question)
         
-        encoded_file = api_utils.file_to_base64(temp_file_path)
+        encoded_file = file_to_base64(temp_file_path)
         background_tasks.add_task(os.unlink, temp_file_path)
         response = MSExcelResponse(encoded_xlsx=encoded_file)
         if temp_file_path is None:

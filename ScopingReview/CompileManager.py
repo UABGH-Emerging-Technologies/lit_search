@@ -3,7 +3,7 @@ import os
 import tempfile
 
 import pandas as pd
-from aiweb_common.text_format import convert_markdown_docx
+from aiweb_common.file_operations.text_format import convert_markdown_docx
 
 import ScopingReview.generate as lit_generate
 import ScopingReview_config.boilerplate as lit_boilerplate
@@ -19,19 +19,19 @@ from fastapi import HTTPException
 from fastapi.responses import Response
 from typing import Tuple, Optional, Union
 
+#TODO make sure this is all ported to workflow handler
+class CompileManager():
+    def __init__(self, df):
+        self.df = df
+        self.cost = 0
 
-# class CompileManager():
-#     def __init__(self, df):
-#         self.df = df
-#         self.cost = 0
+    def get_filename(self):
+        # default implementation, subclasses MUST override this method
+        raise NotImplementedError
 
-#     def get_filename(self):
-#         # default implementation, subclasses MUST override this method
-#         raise NotImplementedError
-
-#     def get_mime_type(self):
-#         # default implementation, subclasses MUST override this method
-#         raise NotImplementedError
+    def get_mime_type(self):
+        # default implementation, subclasses MUST override this method
+        raise NotImplementedError
 
 
 class BaseCategorizeManager(CompileManager):

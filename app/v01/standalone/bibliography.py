@@ -4,7 +4,7 @@ import base64
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 
-from llm_utils import api_utils
+from aiweb_common.file_operations.file_handling import file_to_base64
 
 from ScopingReview.UploadManager import FastAPIUploadManager
 from ScopingReview.CompileManager import FastAPIBibtexManager
@@ -51,7 +51,7 @@ def get_bibtex_response(
         bibtex_manager = FastAPIBibtexManager(content, file_extension)
         # Creating the response
         temp_file_path = bibtex_manager.convert_and_download_bibtex()
-        encoded_file = api_utils.file_to_base64(temp_file_path)  # Convert the file to a base64 string
+        encoded_file = file_to_base64(temp_file_path)  # Convert the file to a base64 string
         background_tasks.add_task(os.unlink, temp_file_path)
         response = BibliographyResponse(encoded_bib=encoded_file)
     except Exception as e:

@@ -18,6 +18,7 @@ pypandoc
 typer
 fastapi
 uvicorn
+biopython
 python-multipart
 docx
 ./llm_utils
