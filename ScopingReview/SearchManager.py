@@ -21,6 +21,11 @@ from fastapi import UploadFile, HTTPException
 from pydantic import BaseModel
 from typing import List
 
+class KeywordsData(BaseModel):
+    primary_keywords: List[str]
+    secondary_keywords: List[str]
+    exclusion_keywords: List[str]
+
 class BaseSearchManager:
     def __init__(self, scoping_step, research_q):
         self.scoping_step = scoping_step
