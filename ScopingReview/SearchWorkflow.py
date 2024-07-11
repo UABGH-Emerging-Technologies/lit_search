@@ -22,8 +22,8 @@ class ArticleSearch(WorkflowHandler):
         self.article_ids = []
         self.research_question = research_question
 
-    def _make_initial_df(self, pm_connection, article_ids):
-        articles_df = pm_connection.fetch_article_details(article_ids)
+    def _make_initial_df(self, pubmed_connection, article_ids):
+        articles_df = pubmed_connection.fetch_article_details(article_ids)
 
         # add author response column
         articles_df.insert(0, "Author 1: Relevant Article? (Yes/No)", "No")
@@ -34,16 +34,16 @@ class ArticleSearch(WorkflowHandler):
         return articles_df
     
     def _search_and_compile(self, query):
-        pm_connection = PubMedInterface(
+        pubmed_connection = PubMedInterface(
             email=config.DEV_EMAIL,
             max_results=config.MAX_ARTICLES_SR,
             streamlit_context=True,
         )
         print("query - ",query)
-        article_ids_new = pm_connection.search_pubmed_articles(query)
+        article_ids_new = pubmed_connection.search_pubmed_articles(query)
         print(article_ids_new)
         article_ids = list(set().union(self.article_ids, article_ids_new))
-        articles_df = self._make_initial_df(pm_connection, article_ids)
+        articles_df = self._make_initial_df(pubmed_connection, article_ids)
         return articles_df
     
     def write_excel_output(tmpfile, df, input_search_terms, query_strings=""):
@@ -91,16 +91,6 @@ class ArticleSearch(WorkflowHandler):
         articles_df = self._search_and_compile(response.content)
         return articles_df
 
-    def parse_keywords(content):
-        # Load the JSON string into a Python dictionary
-        data = json.loads(content)
-
-        # Extract keyword lists into variables
-        primary_keywords = data.get("Primary Keywords", [])
-        secondary_keywords = data.get("Secondary Keywords", [])
-        exclusion_keywords = data.get("Exclusion Keywords", [])
-
-        return primary_keywords, secondary_keywords, exclusion_keywords
 
     def make_and_refine_query(previous_query, research_q, loop_counter):
         query_maker = PubMedQueryGenerator(research_q)

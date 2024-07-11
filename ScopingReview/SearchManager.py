@@ -18,17 +18,13 @@ from ScopingReview.generate import generate_keywords
 
 from fastapi import UploadFile, HTTPException
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from typing import List
 
 
 # TODO: I'm pretty sure I've broken the streamlit impelmentation
 # specifically, I'm concerned about how `edit_query_terms` works
 
-class KeywordsData(BaseModel):
-    primary_keywords: List[str] = Field(..., example=["keyword1", "keyword2"], description="List of primary keywords")
-    secondary_keywords: List[str] = Field(..., example=["keyword3", "keyword4"], description="List of secondary keywords")
-    exclusion_keywords: List[str] = Field(..., example=["keyword5"], description="List of exclusion keywords")
 
 
 class BaseSearchManager:
