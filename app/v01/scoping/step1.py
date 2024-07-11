@@ -8,7 +8,7 @@ from fastapi import APIRouter, BackgroundTasks, HTTPException
 from fastapi.responses import FileResponse
 from aiweb_common.file_operations.file_handling import file_to_base64
 
-from ScopingReview.WorkflowSearch import ArticleSearch
+from ScopingReview.SearchWorkflow import ArticleSearch
 import ScopingReview_config.app_config as lit_app_config
 
 from app.v01.schemas import SearchRequest, MSExcelResponse

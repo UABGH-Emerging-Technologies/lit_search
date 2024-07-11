@@ -2,7 +2,7 @@ from aiweb_common.WorkflowHandler import WorkflowHandler
 import pandas as pd
 import tempfile
 from ScopingReview_config import config
-from ScopingReview.WorkflowSearch import extract_docx_pmids
+from ScopingReview.SearchWorkflow import extract_docx_pmids
 from ScopingReview.utils import pmid2bibtex
 
 class BibtexManager(WorkflowHandler):

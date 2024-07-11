@@ -6,7 +6,7 @@ import tempfile
 from ScopingReview_config import config, boilerplate
 from aiweb_common.generate import summarize_all_categories, write_first_draft
 from aiweb_common.file_operations.text_format import convert_markdown_docx
-from ScopingReview.WorkflowSearch import write_excel_output
+from ScopingReview.SearchWorkflow import write_excel_output
 
 class SummarizeArticles(WorkflowHandler):
     def __init__(self, df, research_q):
