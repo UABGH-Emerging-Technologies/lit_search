@@ -6,6 +6,7 @@ from ScopingReview_config import app_config
 from app.v01.schemas import SearchRequest, MSExcelResponse
 from app.fastapi_config import SCOPING_STEP1_META
 from llm_utils.file_operations.file_handling import file_to_base64
+import os  # Importing the os module
 
 router = APIRouter(tags=["scoping", "step1"])
 
