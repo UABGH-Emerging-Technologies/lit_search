@@ -1,3 +1,5 @@
+import os
+import pdfplumber
 from aiweb_common.WorkflowHandler import WorkflowHandler
 from aiweb_common.generate.SingleResponse import SingleResponseHandler
 from ScopingReview_config import config, prompt_config
@@ -10,7 +12,6 @@ import xml.etree.ElementTree as ET
 from io import BytesIO
 import requests
 from Bio import Entrez
-import pdfplumber
 
 Entrez.email = config.DEV_EMAIL
 os.environ["NCBI_API_KEY"] = config.NCBI_API_KEY
@@ -130,7 +131,7 @@ class ArticleSearch(WorkflowHandler):
         pmcids = []
         for pmid in pmids:
             try:
-                pmcid = get_pmcid_from_pubmed(pmid)
+                pmcid = ArticleSearch.get_pmcid_from_pubmed(pmid)
             except Exception as e:
                 print(f"Second attempt failed to retrieve PMCID {pmid}: {e}")
                 pmcid = ""
@@ -149,7 +150,7 @@ class ArticleSearch(WorkflowHandler):
         try:
             response = requests.get(url, allow_redirects=True)
             final_url = response.url
-            text = extract_text_from_pdf_bytes(response.content)
+            text = ArticleSearch.extract_text_from_pdf_bytes(response.content)
             return final_url, text
         except Exception as e:
             print(f"Failed to retrieve or process PDF for PMCID {pmcid}: {e}")
@@ -178,7 +179,7 @@ class ArticleSearch(WorkflowHandler):
     def fetch_full_text(pmids, access_token=config.LIBKEY_API_KEY):
         data = {"PMID": [], "URL": [], "Downloaded": [], "Text": []}
 
-        pmcids = get_pmcids_from_pubmed(pmids)
+        pmcids = ArticleSearch.get_pmcids_from_pubmed(pmids)
 
         for pmid, pmcid in zip(pmids, pmcids):
             url = None
@@ -187,7 +188,7 @@ class ArticleSearch(WorkflowHandler):
 
             try:
                 if pmcid:
-                    url, text = download_pmc_pdf(pmcid)
+                    url, text = ArticleSearch.download_pmc_pdf(pmcid)
                     if text:
                         downloaded = True
                     else:
@@ -195,7 +196,7 @@ class ArticleSearch(WorkflowHandler):
 
                 if not downloaded:
                     try:
-                        libkey_url = get_libkey_text_link(pmid, access_token)
+                        libkey_url = ArticleSearch.get_libkey_text_link(pmid, access_token)
                         url = libkey_url
                     except Exception as e:
                         print(f"No libkey url for PMID {pmid}: {e}")
