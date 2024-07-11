@@ -21,12 +21,6 @@ from fastapi import UploadFile, HTTPException
 from pydantic import BaseModel
 from typing import List
 
-
-# TODO: I'm pretty sure I've broken the streamlit impelmentation
-# specifically, I'm concerned about how `edit_query_terms` works
-
-
-
 class BaseSearchManager:
     def __init__(self, scoping_step, research_q):
         self.scoping_step = scoping_step
@@ -45,19 +39,16 @@ class BaseSearchManager:
     
     @abstractmethod
     def _write_search_results(self, articles_df, query, query_string):
-        # This method needs to be implemented by subclasses to handle output.
         raise NotImplementedError("This method should be implemented by subclasses.")
 
     @abstractmethod
     def get_filename(self):
-        # This should be implemented to provide a filename for downloads.
         raise NotImplementedError("Subclasses must implement this method.")
 
     def get_mime_type(self):
         return lit_config.EXCEL_MIME
 
     def make_query(self):
-        # default implementation, subclasses can override this method
         return self.research_q
 
     def generate_and_refine_query(self):
@@ -66,8 +57,6 @@ class BaseSearchManager:
         self.total_cost += cost
         return self.search_string
 
-    # TODO: _fetch_articles does search_and_compile
-    # where does it join with previous articles?
     def perform_search(self, search_string):
         articles_df = self._fetch_articles(search_string)
         return articles_df
@@ -105,8 +94,7 @@ class StreamlitSearchManager(BaseSearchManager):
                 )
 
     def get_filename(self):
-        return "search_results.xlsx"  # Default implementation, can be overridden as needed.
-
+        return "search_results.xlsx"
 
     def search_and_compile_articles(self, write_excel=True):
         if st.session_state.get("lock", False):
@@ -130,13 +118,11 @@ class StreamlitSearchManager(BaseSearchManager):
         return self.search_string
     
     def _cleanup_session(self):
-        keys_to_keep = {"lock", "total_cost"}  # Preserving certain states if needed.
+        keys_to_keep = {"lock", "total_cost"}
         for key in list(st.session_state.keys()):
             if key not in keys_to_keep:
                 del st.session_state[key]
 
-# keeping name for compatibility with previous implementations
-# eventually want this name to begin with Streamlit...
 class ArticleSearchManager(StreamlitSearchManager):
     def __init__(self, scoping_step, research_q):
         super().__init__(scoping_step, research_q)
@@ -153,11 +139,10 @@ class BaseIterateSearchManager(BaseSearchManager):
         self.primary_keywords = []
         self.secondary_keywords = []
         self.exclusion_keywords = []
-        self.keywords_extracted = False  # Initialize the flag here
+        self.keywords_extracted = False
         
     def get_filename(self):
         return lit_config.SR_STEP2_FILENAME
-    
 
     def initialize_keywords(self, primary, secondary, exclusion):
         self.primary_keywords = primary
@@ -166,8 +151,6 @@ class BaseIterateSearchManager(BaseSearchManager):
         self.query_terms = self.primary_keywords + self.secondary_keywords
 
     def make_initial_query(self):
-        # This function would generate keywords without interaction
-        # Returns initial keywords and total cost
         generated_keywords_json, response_meta = generate_keywords(self.df, self.research_q)
         (
             self.primary_keywords,
@@ -181,25 +164,19 @@ class BaseIterateSearchManager(BaseSearchManager):
         return self.query_terms
 
     def perform_search(self, search_string):
-        # Reindex dataframes and Append new results to it
         self.selected_articles_df.reset_index(drop=True, inplace=True)
         articles_df = super().perform_search(search_string)
         articles_df = pd.concat([self.selected_articles_df, articles_df], ignore_index=True)
-        # Remove duplicates based on the 'PMID' column
         articles_df.drop_duplicates(subset='PMID', keep='first', inplace=True)
-
         return articles_df
 
     def manage_keyword_extraction(self):
-        # Method to handle the initial extraction and keyword editing
         if not self.keywords_extracted:
             initial_query, cost = self.make_initial_query()
             self.total_cost += cost
             self.keywords_extracted = True
         return initial_query
 
-# keeping name for compatibility with previous implementations
-# eventually want this name to begin with Streamlit...
 class IterateSearchManager(BaseIterateSearchManager):
     def __init__(self, df, research_q):
         super().__init__(df, research_q)
@@ -227,7 +204,6 @@ class IterateSearchManager(BaseIterateSearchManager):
                 for keyword in str(st.session_state["exclusion_keywords"]).split(",")
             ]
 
-# TODO: The `make_initial_query` naming throughout this file confused me. -RM
     def make_initial_query(self):
         with st.spinner("Extracting and grouping keywords from uploaded file"):
             initial_query, cost = super().make_initial_query()
@@ -271,7 +247,6 @@ class NewsletterSearchManager(BaseSearchManager):
         self.predefined_query = predefined_query
 
     def make_query(self):
-        # Uses the predefined query instead of generating a new one
         return self.predefined_query
 
     def search_and_compile_articles(self):
@@ -288,7 +263,6 @@ class FastAPISearchManager(BaseSearchManager):
         super().__init__(scoping_step, research_q)
 
     def _write_search_results(self, articles_df, query, query_string):
-        # Deduplicate by PMID and write to Excel with a more persistent file handling for API response
         articles_df.drop_duplicates(subset="PMID")
         with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmpfile:
             write_excel_output(tmpfile, articles_df, query, query_string)
@@ -302,11 +276,10 @@ class FastAPISearchManager(BaseSearchManager):
         return articles_df, self.total_cost
     
     def perform_search(self, search_string):
-        # Calls the base class method to perform the search and handle no-article-found scenario
         articles_df = super().perform_search(search_string)
         if articles_df is not None:
             return articles_df
-        return None  # Return None if no articles are found, suitable for API responses
+        return None
 
 
 class FastAPIIterateSearchManager(BaseIterateSearchManager):
@@ -339,9 +312,6 @@ class FastAPIIterateSearchManager(BaseIterateSearchManager):
     def update_keywords_and_perform_search(self, keywords: KeywordsData) -> str:
         try:
             self.initialize_keywords(keywords.primary_keywords, keywords.secondary_keywords, keywords.exclusion_keywords)
-            # This was done by edit_keywords in the streamlit implementation
-            # Not sure if there's benefit to breaking it off here.
-
             query = self.edit_query_terms()
             print(query)
             articles_df = self.perform_search(query)
