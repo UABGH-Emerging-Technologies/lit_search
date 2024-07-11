@@ -10,7 +10,7 @@ from aiweb_common.file_operations.file_handling import file_to_base64
 
 from datetime import datetime
 
-from ScopingReview.workflows import ArticleSearch
+from ScopingReview.WorkflowSearch import ArticleSearch
 import ScopingReview_config.app_config as lit_app_config
 
 from app.v01.schemas import SearchRequest, MSExcelResponse
