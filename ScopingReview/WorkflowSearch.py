@@ -21,9 +21,6 @@ class ArticleSearch(WorkflowHandler):
 
         articles_df.rename(columns={"pmid": "PMID"}, inplace=True)
 
-        # TODO: Wait until after categories are assigned
-        # # add full text link and text if available
-
         return articles_df
     
     def _search_and_compile(self, query):
