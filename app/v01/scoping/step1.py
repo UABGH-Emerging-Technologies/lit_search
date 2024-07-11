@@ -3,12 +3,10 @@
 #####
 
 import os
-from typing import Tuple
+from datetime import datetime
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 from fastapi.responses import FileResponse
 from aiweb_common.file_operations.file_handling import file_to_base64
-
-from datetime import datetime
 
 from ScopingReview.WorkflowSearch import ArticleSearch
 import ScopingReview_config.app_config as lit_app_config
