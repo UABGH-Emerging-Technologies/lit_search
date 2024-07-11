@@ -1,6 +1,6 @@
 from ScopingReview.WorkflowSummarize import SummarizeWorkflow
 from ScopingReview.WorkflowCategorize import CategorizeWorkflow
-from ScopingReview.WorkflowSearch import SearchWorkflow
+from ScopingReview.SearchWorkflow import SearchWorkflow
 import pandas as pd
 from typing import List, Union
 from fastapi import HTTPException
