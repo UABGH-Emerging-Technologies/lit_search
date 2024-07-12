@@ -22,3 +22,7 @@ class KeywordWorkflow(WorkflowHandler):
         result, response_meta = response_handler.get_response(formatted_prompt)
 
         return result, response_meta
+
+    def process(self):
+        result, response_meta = self.generate_keywords()
+        return result, response_meta
