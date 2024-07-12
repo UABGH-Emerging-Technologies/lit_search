@@ -13,7 +13,7 @@ class BibtexWorkflow(WorkflowHandler):
         return config.SR_STEP6_FILENAME
 
     def process(self):
-        bibtex_text = self.bib_managerconvert_pmid_to_bibtex()
+        bibtex_text = self.bib_manager.convert_pmid_to_bibtex()
         if bibtex_text:
             with tempfile.NamedTemporaryFile(delete=False, suffix=".bib", mode='w', encoding='utf-8') as tmpfile:
                 tmpfile.write(bibtex_text)
