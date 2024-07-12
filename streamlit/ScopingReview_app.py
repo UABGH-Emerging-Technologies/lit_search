@@ -3,7 +3,7 @@ from datetime import datetime
 from aiweb_common.streamlit_common import apply_uab_font, hide_streamlit_branding
 
 import streamlit as st
-from ScopingReview.CompileManager import (
+from ScopingReview.BaseManager import (
     BibtexManager,
     CategorizeManager,
     DraftReviewManager,
@@ -11,7 +11,7 @@ from ScopingReview.CompileManager import (
 )
 from ScopingReview.data import write_to_db
 from ScopingReview.SearchManager import ArticleSearchManager, IterateSearchManager
-from ScopingReview.states import (
+from streamlit.states import (
     BibtexHandler,
     CategorizeHandler,
     DraftHandler,

@@ -1,4 +1,3 @@
-import ScopingReview.data as review_data
 import ScopingReview_config.prompt_config as prompt_config
 import ScopingReview_config.boilerplate as boilerplate
 import ScopingReview_config.config as config
