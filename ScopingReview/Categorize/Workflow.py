@@ -1,7 +1,6 @@
 from aiweb_common.WorkflowHandler import WorkflowHandler
 import pandas as pd
 import tempfile
-from ScopingReview_config import config
 from ScopingReview.Categorize.Manager import CategorizeManager
 from aiweb_common.generate.SingleResponseHandler import SingleResponseHandler
 from typing import Tuple, Any
@@ -15,8 +14,7 @@ class CategorizeWorkflow(WorkflowHandler):
 
     def categorize_articles(self):
         if self.df is not None:
-            category_df, response_meta = self.categorize(self.df, self.userdefined_categories)
-            self._update_total_cost(response_meta)
+            category_df = self.categorize(self.df, self.userdefined_categories)
             try:
                 full_text_df = self.categorize_manager.fetch_full_text(category_df['PMID'])
                 category_df = pd.merge(category_df, full_text_df, on='PMID', how='inner')
@@ -48,7 +46,8 @@ class CategorizeWorkflow(WorkflowHandler):
             result, response_meta = response_handler.get_response(formatted_prompt)
             keyword_list = result.replace("'", "")
             reduced_df.loc[index, "category"] = keyword_list.lower()
-        return reduced_df, response_meta
+            self._update_total_cost(response_meta)
+        return reduced_df
 
     def process(self):
         category_df = self.categorize_articles()
