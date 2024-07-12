@@ -2,20 +2,22 @@ from aiweb_common.WorkflowHandler import WorkflowHandler
 import pandas as pd
 import tempfile
 from ScopingReview_config import config
-from ScopingReview.Categorize.Manager import 
+from ScopingReview.Categorize.Manager import CategorizeManager
+from aiweb_common.generate.SingleResponseHandler import SingleResponseHandler
 
 class CategorizeWorkflow(WorkflowHandler):
     def __init__(self, df, userdefined_categories):
         super().__init__()
         self.df = df
         self.userdefined_categories = userdefined_categories
+        self.categorize_manager = CategorizeManager()
 
     def categorize_articles(self):
         if self.df is not None:
             category_df, response_meta = self.categorize(self.df, self.userdefined_categories)
             self._update_total_cost(response_meta)
             try:
-                full_text_df = fetch_full_text(category_df['PMID'])
+                full_text_df = self.categorize_manager.fetch_full_text(category_df['PMID'])
                 category_df = pd.merge(category_df, full_text_df, on='PMID', how='inner')
             except Exception as e:
                 print(f"Failed while getting full texts: {str(e)}")
@@ -30,24 +32,20 @@ class CategorizeWorkflow(WorkflowHandler):
         except Exception as e:
             print(f"Failed to save file: {str(e)}")
             raise
-    
-    #TODO MAp to new AIWEB implementation
+
     def categorize(self, category_df: pd.DataFrame, input_text: str) -> Tuple[pd.DataFrame, Any]:
-        # using copy to stop view vs copy warning in pandas
         reduced_df = self.get_relevant_rows(category_df).copy()
         input_list = input_text.split(",")
         input_list = [value.strip() for value in input_list if value.strip()]
-        
-        #TODO port this to LLM_Utils implementation
+
+        response_handler = SingleResponseHandler()
         for index, row in reduced_df.iterrows():
             data = row[["abstract", "title"]]
-            with get_openai_callback() as response_meta:
-                result = lit_config.CHAT35.invoke(
-                    lit_prompts.categorization_chat_prompt.format_prompt(
-                        categories=input_list, context=data
-                    ).to_messages()
-                )
-            keyword_list = result.content.replace("'", "")
+            formatted_prompt = self.categorize_manager.format_prompt(
+                categories=input_list, context=data
+            )
+            result, response_meta = response_handler.get_response(formatted_prompt)
+            keyword_list = result.replace("'", "")
             reduced_df.loc[index, "category"] = keyword_list.lower()
         return reduced_df, response_meta
 
