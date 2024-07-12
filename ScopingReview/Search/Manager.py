@@ -15,13 +15,14 @@ from ScopingReview.data import (
     write_excel_output,
 )
 from ScopingReview.generate import generate_keywords
+from ScopingReview.BaseManager import BaseManager
 from ScopingReview.KeywordsManager import KeywordsData
 from fastapi import HTTPException
 
 from typing import List
 
 
-class BaseSearchManager:
+class BaseSearchManager(BaseManager):
     def __init__(self, scoping_step, research_q):
         self.scoping_step = scoping_step
         self.research_q = research_q
@@ -167,7 +168,6 @@ class BaseIterateSearchManager(BaseSearchManager):
     def manage_keyword_extraction(self):
         if not self.keywords_extracted:
             initial_query, cost = self.make_initial_query()
-            self.total_cost += cost
             self.keywords_extracted = True
         return initial_query
 
@@ -201,7 +201,6 @@ class IterateSearchManager(BaseIterateSearchManager):
     def make_initial_query(self):
         with st.spinner("Extracting and grouping keywords from uploaded file"):
             initial_query, cost = super().make_initial_query()
-            self.total_cost += cost
             return initial_query
 
     def edit_query_terms(self):
@@ -228,11 +227,8 @@ class IterateSearchManager(BaseIterateSearchManager):
                 )
                 st.session_state["query_terms"] = self.query_terms
                 st.session_state["keywords_finalized"] = True
-                if "cost" not in st.session_state:
-                    st.session_state["total_cost"] = self.total_cost
-                else:
-                    st.session_state["total_cost"] += self.total_cost
-                print("Keywords finalized session state = ", st.session_state)
+            
+            print("Keywords finalized session state = ", st.session_state)
 
 
 class NewsletterSearchManager(BaseSearchManager):

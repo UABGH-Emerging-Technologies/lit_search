@@ -1,8 +1,10 @@
 from ScopingReview_config import config
+from ScopingReview.BaseManager import BaseManager
 from aiweb_common.file_operations.text_format import convert_markdown_docx
 import streamlit as st
+import tempfile
 
-class DraftReviewManager():
+class DraftReviewManager(BaseManager):
     def __init__(self, summaries, research_q):
         super().__init__(None)  # Assuming the base class does not necessarily need a DataFrame
         self.research_q = research_q
@@ -19,9 +21,9 @@ class DraftReviewManager():
         Generates a first draft of the document based on summaries and a research question.
         Returns the binary data of the DOCX file.
         """
-        #TODO Plugin the aiweb_common
+        #TODO Plugin the aiweb_common and move to workflow!
         if self.summaries is not None:
-            markdown_to_convert, response_meta = lit_generate.write_first_draft(
+            markdown_to_convert = self.write_first_draft(
                 self.summaries, self.research_q
             )
             docx_data = convert_markdown_docx(markdown_to_convert)
@@ -39,6 +41,19 @@ class DraftReviewManager():
                 return tmpfile.name
         except Exception as e:
             raise IOError(f"Failed to save draft review document: {str(e)}")
+        
+    # TODO: find better place for this. Used by write_first_draft()
+    def extract_apa_citations(markdown_text):
+        # Split the document into paragraphs
+        paragraphs = markdown_text.split("\n\n")
+
+        # Filter paragraphs that contain "PMID"
+        citations = [para for para in paragraphs if "PMID" in para]
+        non_citations = [para for para in paragraphs if "PMID" not in para]
+
+        return citations, non_citations
+
+
 
 
 class StreamlitDraftReviewManager(DraftReviewManager):

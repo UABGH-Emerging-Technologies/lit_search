@@ -2,8 +2,9 @@ import calendar
 import sys
 import tempfile
 import xml.etree.ElementTree as ET
-from ScopingReview.SearchWorkflow import extract_docx_pmids
+
 from ScopingReview_config import config
+from ScopingReview.BaseManager import BaseManager
 from typing import Union
 from fastapi import HTTPException
 from fastapi.responses import Response
@@ -12,7 +13,7 @@ import requests
 
 import streamlit as st
 
-class BibliographyManager():
+class BibliographyManager(BaseManager):
     def __init__(self, file_contents, file_ext):
         self.file_contents = file_contents
         self.file_ext = file_ext
@@ -29,7 +30,7 @@ class BibliographyManager():
             else:
                 raise ValueError("PMIDs missing.")
         elif self.file_ext == ".docx":
-            df = extract_docx_pmids(self.df)
+            df = self.extract_docx_pmids()
             if "PMID" in df.columns:
                 return df["PMID"].astype(str).tolist()
             else:
