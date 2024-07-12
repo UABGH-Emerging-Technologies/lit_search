@@ -4,6 +4,7 @@ import tempfile
 from ScopingReview_config import config
 from ScopingReview.Categorize.Manager import CategorizeManager
 from aiweb_common.generate.SingleResponseHandler import SingleResponseHandler
+from typing import Tuple, Any
 
 class CategorizeWorkflow(WorkflowHandler):
     def __init__(self, df, userdefined_categories):
