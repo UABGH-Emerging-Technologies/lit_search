@@ -1,19 +1,24 @@
-from llm_utils.WorkflowHandler import WorkflowHandler
+from aiweb_common.WorkflowHandler import WorkflowHandler
+from aiweb_common.generate.SingleResponseHandler import SingleResponseHandler
+from ScopingReview.Keywords.Manager import KeywordManager
 
 class KeywordWorkflow(WorkflowHandler):
-    
-    
-    #TODO rework this to use new llm_utils
+    def __init__(self, df, research_question):
+        super().__init__()
+        self.df = df
+        self.research_question = research_question
+        self.keyword_manager = KeywordManager()
+
     def generate_keywords(self):
         relevant_rows = self.get_relevant_rows()
+        all_titles = relevant_rows['title'].tolist()
+        formatted_keywords = self.keyword_manager.format_keywords(relevant_rows)
 
-
-        # Format the prompt with deduplicated and counted titles and keywords
-        formatted_prompt = lit_prompts.keyword_chat_prompt.format_prompt(
-            question=research_question, titles=all_titles, keywords_list=formatted_keywords
+        formatted_prompt = self.keyword_manager.format_prompt(
+            question=self.research_question, titles=all_titles, keywords_list=formatted_keywords
         )
-        
-        with get_openai_callback() as response_meta:
-            result = lit_config.CHAT35.invoke(formatted_prompt.to_messages())
 
-        return result.content, response_meta
+        response_handler = SingleResponseHandler()
+        result, response_meta = response_handler.get_response(formatted_prompt)
+
+        return result, response_meta
