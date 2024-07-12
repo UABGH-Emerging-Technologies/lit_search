@@ -8,9 +8,8 @@ from datetime import datetime
 
 from aiweb_common.file_operations.file_handling import file_to_base64
 
-from ScopingReview.SearchManager import FastAPISearchManager
-#TODO use updated implementation - probably SummarizeManager
-#from ScopingReview.CompileManager import FastAPISummarizeManager
+from ScopingReview.Search.Workflow import ArticleSearch
+from ScopingReview.Summarize.Workflow import SummarizeArticles
 from app.v01.schemas import SearchRequest, MSWordResponse
 import app.fastapi_config as lit_api_config
 
@@ -42,8 +41,8 @@ def get_summary_response(
     """
     try:
         # Perform initial literature search and get DataFrame
-        article_search_manager = FastAPISearchManager(scoping_step="initial literature search", research_q=research_question)
-        articles_df, seach_cost = article_search_manager.search_and_compile_articles()
+        article_search_manager = ArticleSearchWorkflow(scoping_step="initial literature search", research_q=research_question)
+        articles_df, seach_cost = article_search_manager.process()
 
         # Use FastAPISummarizeManager to summarize and save the result
         summarize_manager = FastAPISummarizeManager(articles_df, research_question)
