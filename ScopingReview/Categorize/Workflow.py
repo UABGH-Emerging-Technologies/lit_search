@@ -5,7 +5,7 @@ from ScopingReview_config import config
 from aiweb_common.generate import categorize
 from ScopingReview.SearchWorkflow import fetch_full_text, write_excel_output
 
-class CategorizeArticles(WorkflowHandler):
+class CategorizeWorkflow(WorkflowHandler):
     def __init__(self, df, userdefined_categories):
         super().__init__()
         self.df = df

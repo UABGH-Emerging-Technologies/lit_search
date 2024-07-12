@@ -10,67 +10,8 @@ import os
 from io import BytesIO
 import pypandoc
 import base64
-
-class BaseWorkflow(WorkflowHandler):
-    def __init__(self, research_question: str):
-        super().__init__()
-        self.research_question = research_question
-
-    def _assemble_prompt(self, system_prompt, user_prompt, **kwargs):
-        single_response = SingleResponseHandler(config.LLM_INTERFACE)
-        assembled_prompt = single_response.single_response_service.preparer.assemble_prompt(
-            system_prompt=system_prompt,
-            user_prompt=user_prompt,
-            **kwargs
-        )
-        return assembled_prompt, single_response
-
-class SearchWorkflow(BaseWorkflow):
-    def __init__(self, research_question: str):
-        super().__init__(research_question)
-
-    def process(self):
-        assembled_prompt, single_response = self._assemble_prompt(
-            prompt_config.SEARCH_SYSTEM_TEMPLATE,
-            prompt_config.SEARCH_HUMAN_TEMPLATE,
-            question=self.research_question
-        )
-        response, response_meta = single_response.generate_response(assembled_prompt)
-        self._update_total_cost(response_meta)
-        return response.content
-
-class CategorizeWorkflow(BaseWorkflow):
-    def __init__(self, df: pd.DataFrame, categories: List[str]):
-        super().__init__(None)
-        self.df = df
-        self.categories = categories
-
-    def process(self):
-        assembled_prompt, single_response = self._assemble_prompt(
-            prompt_config.CATEGORIZE_SYSTEM_TEMPLATE,
-            prompt_config.CATEGORIZE_HUMAN_TEMPLATE,
-            categories=self.categories,
-            context=self.df.to_dict()
-        )
-        response, response_meta = single_response.generate_response(assembled_prompt)
-        self._update_total_cost(response_meta)
-        return response.content
-
-class SummarizeWorkflow(BaseWorkflow):
-    def __init__(self, df: pd.DataFrame, research_question: str):
-        super().__init__(research_question)
-        self.df = df
-
-    def process(self):
-        assembled_prompt, single_response = self._assemble_prompt(
-            prompt_config.SUMMARIZE_SYSTEM_TEMPLATE,
-            prompt_config.SUMMARIZE_HUMAN_TEMPLATE,
-            question=self.research_question,
-            context=self.df.to_dict()
-        )
-        response, response_meta = single_response.generate_response(assembled_prompt)
-        self._update_total_cost(response_meta)
-        return response.content
+from ScopingReview.SearchWorkflow import ArticleSearch
+from ScopingReview.CategorizeWorkflow import CategorizeWorkflow
 
 class CompileManager:
     def __init__(self, df: pd.DataFrame, research_question: str):
@@ -78,6 +19,12 @@ class CompileManager:
         self.research_question = research_question
         self.cost = 0
 
+    def search(self):
+        search_workflow = ArticleSearch(research_question=self.research_question)
+        search_results = search_workflow.process()
+        self.cost += search_workflow.total_cost
+        return search_results
+        
     def categorize(self, categories: List[str]) -> pd.DataFrame:
         workflow = CategorizeWorkflow(self.df, categories)
         categorized_content = workflow.process()

@@ -15,16 +15,11 @@ from ScopingReview.data import (
     write_excel_output,
 )
 from ScopingReview.generate import generate_keywords
+from ScopingReview.KeywordsManager import KeywordsData
+from fastapi import HTTPException
 
-from fastapi import UploadFile, HTTPException
-
-from pydantic import BaseModel
 from typing import List
 
-class KeywordsData(BaseModel):
-    primary_keywords: List[str]
-    secondary_keywords: List[str]
-    exclusion_keywords: List[str]
 
 class BaseSearchManager:
     def __init__(self, scoping_step, research_q):
@@ -34,7 +29,6 @@ class BaseSearchManager:
         self.loop_counter = 0
         self.query = ""
         self.previous_query = ""
-        self.total_cost = 0 
 
     def _fetch_articles(self, query):
         pm_connection, article_ids = search_and_compile(query, self.article_ids)
@@ -57,9 +51,8 @@ class BaseSearchManager:
         return self.research_q
 
     def generate_and_refine_query(self):
-        cost, self.loop_counter, self.previous_query, self.search_string = \
+        self.loop_counter, self.previous_query, self.search_string = \
             make_and_refine_query(self.previous_query, self.make_query(), self.loop_counter)
-        self.total_cost += cost
         return self.search_string
 
     def perform_search(self, search_string):
@@ -110,10 +103,6 @@ class StreamlitSearchManager(BaseSearchManager):
             self._write_search_results(articles_df, self.make_query(), query_string)
         st.session_state["search_finished"] = True
         st.session_state["lock"] = False
-        if "cost" not in st.session_state:
-            st.session_state["total_cost"] = self.total_cost
-        else:
-            st.session_state["total_cost"] += self.total_cost
         return st.session_state.get("search_finished", False)
 
     def generate_and_refine_query(self):
@@ -277,8 +266,8 @@ class FastAPISearchManager(BaseSearchManager):
         articles_df, query_string = self.search_loop()
         if write_excel and articles_df is not None:
             filename = self._write_search_results(articles_df, self.make_query(), query_string)
-            return filename, self.total_cost
-        return articles_df, self.total_cost
+            return filename
+        return articles_df
     
     def perform_search(self, search_string):
         articles_df = super().perform_search(search_string)
@@ -298,7 +287,7 @@ class FastAPIIterateSearchManager(BaseIterateSearchManager):
                 primary_keywords=self.primary_keywords,
                 secondary_keywords=self.secondary_keywords,
                 exclusion_keywords=self.exclusion_keywords
-            ), self.total_cost
+            ),
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
         
