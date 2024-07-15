@@ -72,7 +72,7 @@ class FastAPIIterateSearchManager(BaseIterateSearchManager):
         print(self.search_string)
         return self.search_string
 
-    def update_keywords_and_perform_search(self, keywords: KeywordData) -> str:
+    def refine_keywords_and_search(self, keywords: KeywordData) -> str:
         try:
             self.initialize_keywords(keywords.primary_keywords, keywords.secondary_keywords, keywords.exclusion_keywords)
             query = self.edit_query_terms()
