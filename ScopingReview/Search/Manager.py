@@ -8,6 +8,8 @@ import streamlit as st
 from ScopingReview.BaseManager import BaseManager
 from ScopingReview.Keywords.Manager import KeywordData, KeywordManager
 from ScopingReview.Keywords.Workflow import KeywordWorkflow
+from ScopingReview.Pubmed.PubmedQuery import PubmedQuery
+from ScopingReview.Pubmed.PubmedInterfaces import PubmedInterface
 from fastapi import HTTPException
 
 from typing import List
@@ -21,12 +23,13 @@ class BaseSearchManager(BaseManager):
         self.loop_counter = 0
         self.query = ""
         self.previous_query = ""
+        self.pubmed_interface = PubmedInterface()
 
-    # def _fetch_articles(self, query):
-    #     pm_connection, article_ids = self.search_and_compile_articles(query)
-    #     articles_df = pm_connection.fetch_article_details(article_ids)
-    #     articles_df = make_initial_df(pm_connection, article_ids)
-    #     return articles_df
+    def _fetch_articles(self, query):
+        pm_connection, article_ids = self.pubmed_interface.search_and_compile_articles(query)
+        articles_df = pm_connection.fetch_article_details(article_ids)
+        articles_df = self.make_initial_df(pm_connection, article_ids)
+        return articles_df
     
     @abstractmethod
     def _write_search_results(self, articles_df, query, query_string):
@@ -39,29 +42,29 @@ class BaseSearchManager(BaseManager):
     def get_mime_type(self):
         return lit_config.EXCEL_MIME
 
-    # def make_query(self):
-    #     return self.research_q
+    def make_query(self):
+        return self.research_q
 
-    # def generate_and_refine_query(self):
-    #     self.loop_counter, self.previous_query, self.search_string = \
-    #         make_and_refine_query(self.previous_query, self.make_query(), self.loop_counter)
-    #     return self.search_string
+    def generate_and_refine_query(self):
+        self.loop_counter, self.previous_query, self.search_string = \
+            self.pubmed_interface.make_and_refine_query(self.previous_query, self.make_query(), self.loop_counter)
+        return self.search_string
 
-    # def perform_search(self, search_string):
-    #     articles_df = self._fetch_articles(search_string)
-    #     return articles_df
+    def perform_search(self, search_string):
+        articles_df = self._fetch_articles(search_string)
+        return articles_df
 
-    # def search_loop(self):
-    #     while (len(self.article_ids) < lit_config.MIN_ARTICLES) and (self.loop_counter < lit_config.MAX_TRIES):
-    #         query_string = self.generate_and_refine_query()
-    #         articles_df = self.perform_search(query_string)
-    #     return articles_df, query_string
+    def search_loop(self):
+        while (len(self.article_ids) < lit_config.MIN_ARTICLES) and (self.loop_counter < lit_config.MAX_TRIES):
+            query_string = self.generate_and_refine_query()
+            articles_df = self.perform_search(query_string)
+        return articles_df, query_string
 
-    # def search_and_compile_articles(self, write_excel=True):
-    #     articles_df, query_string = self.search_loop()
-    #     if write_excel:
-    #         self._write_search_results(articles_df, self.make_query(), query_string)
-    #     return articles_df
+    def search_and_compile_articles(self, write_excel=True):
+        articles_df, query_string = self.search_loop()
+        if write_excel:
+            self._write_search_results(articles_df, self.make_query(), query_string)
+        return articles_df
 
 
 class StreamlitSearchManager(BaseSearchManager):
@@ -86,39 +89,35 @@ class StreamlitSearchManager(BaseSearchManager):
     def get_filename(self):
         return "search_results.xlsx"
 
+    def search_and_compile_articles(self, write_excel=True):
+        if st.session_state.get("lock", False):
+            return False
+        st.session_state["lock"] = True
+        articles_df, query_string = self.search_loop()
+        if write_excel:
+            self._write_search_results(articles_df, self.make_query(), query_string)
+        st.session_state["search_finished"] = True
+        st.session_state["lock"] = False
+        return st.session_state.get("search_finished", False)
 
-
+    def generate_and_refine_query(self):
+        with st.spinner("Generating pubmed search string."):
+            super().generate_and_refine_query()
+        st.write(f"**Searching Pubmed with the query:** _{self.search_string}_")
+        return self.search_string
     
     def _cleanup_session(self):
         keys_to_keep = {"lock", "total_cost"}
         for key in list(st.session_state.keys()):
             if key not in keys_to_keep:
                 del st.session_state[key]
-    
-class StreamlitSearchManager(StreamlitSearchManager):
+
+class ArticleSearchManager(StreamlitSearchManager):
     def __init__(self, scoping_step, research_q):
         super().__init__(scoping_step, research_q)
 
     def get_filename(self):
         return lit_config.SR_STEP1_FILENAME
-    
-    #TODO Fix streamlit implementation    
-    # def search_and_compile_articles(self, write_excel=True):
-    #     if st.session_state.get("lock", False):
-    #         return False
-    #     st.session_state["lock"] = True
-    #     articles_df, query_string = self.search_loop()
-    #     if write_excel:
-    #         self._write_search_results(articles_df, self.make_query(), query_string)
-    #     st.session_state["search_finished"] = True
-    #     st.session_state["lock"] = False
-    #     return st.session_state.get("search_finished", False)
-
-    # def generate_and_refine_query(self):
-    #     with st.spinner("Generating pubmed search string."):
-    #         super().generate_and_refine_query()
-    #     st.write(f"**Searching Pubmed with the query:** _{self.search_string}_")
-    #     return self.search_string
     
 class BaseIterateSearchManager(BaseSearchManager):
     def __init__(self, df, research_q):
@@ -135,17 +134,15 @@ class BaseIterateSearchManager(BaseSearchManager):
     def get_filename(self):
         return lit_config.SR_STEP2_FILENAME
 
-
-
-    # def make_initial_query(self):
-    #     generated_keywords_json, response_meta = self.keywords_workflow.process()
-    #     (
-    #         self.primary_keywords,
-    #         self.secondary_keywords,
-    #         self.exclusion_keywords,
-    #     ) = parse_keywords(str(generated_keywords_json))
-    #     self.initialize_keywords(self.primary_keywords, self.secondary_keywords, self.exclusion_keywords)
-    #     return ", ".join(self.query_terms), response_meta.total_cost
+    def make_initial_query(self):
+        generated_keywords_json, response_meta = self.keywords_workflow.process()
+        (
+            self.primary_keywords,
+            self.secondary_keywords,
+            self.exclusion_keywords,
+        ) = self.keywords_workflow.parse_keywords(str(generated_keywords_json))
+        self.initialize_keywords(self.primary_keywords, self.secondary_keywords, self.exclusion_keywords)
+        return ", ".join(self.query_terms), response_meta.total_cost
 
     def make_query(self):
         return self.query_terms
@@ -247,7 +244,7 @@ class FastAPISearchManager(BaseSearchManager):
     def _write_search_results(self, articles_df, query, query_string):
         articles_df.drop_duplicates(subset="PMID")
         with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmpfile:
-            write_excel_output(tmpfile, articles_df, query, query_string)
+            self.write_excel_output(tmpfile, articles_df, query, query_string)
         return tmpfile.name
 
     def search_and_compile_articles(self, write_excel=False):
@@ -268,10 +265,10 @@ class FastAPIIterateSearchManager(BaseIterateSearchManager):
     def __init__(self, df: pd.DataFrame, research_q: str):
         super().__init__(df, research_q)
         
-    def extract_and_return_keywords(self) -> KeywordsData:
+    def extract_and_return_keywords(self) -> KeywordData:
         try:
             initial_query = self.manage_keyword_extraction() 
-            return KeywordsData(
+            return KeywordData(
                 primary_keywords=self.primary_keywords,
                 secondary_keywords=self.secondary_keywords,
                 exclusion_keywords=self.exclusion_keywords
@@ -291,7 +288,7 @@ class FastAPIIterateSearchManager(BaseIterateSearchManager):
         return self.search_string
 
 
-    def update_keywords_and_perform_search(self, keywords: KeywordsData) -> str:
+    def update_keywords_and_perform_search(self, keywords: KeywordData) -> str:
         try:
             self.initialize_keywords(keywords.primary_keywords, keywords.secondary_keywords, keywords.exclusion_keywords)
             query = self.edit_query_terms()
