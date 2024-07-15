@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException, BackgroundTasks
 
 import datetime
-from ScopingReview.BaseManager import FastAPICategorizeManager
-from ScopingReview.UploadManager import FastAPIUploadManager
+from ScopingReview.Categorize.Manager import FastAPICategorizeManager
+from aiweb_common.file_operations.UploadManager import FastAPIUploadManager
 import ScopingReview_config.app_config as lit_app_config
 import os
 import app.fastapi_config as lit_api_config

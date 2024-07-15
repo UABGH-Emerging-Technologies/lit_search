@@ -2,7 +2,7 @@ from aiweb_common.WorkflowHandler import WorkflowHandler
 import pandas as pd
 import tempfile
 from ScopingReview.Categorize.Manager import CategorizeManager
-from aiweb_common.generate.SingleResponseHandler import SingleResponseHandler
+from aiweb_common.generate.SingleResponse import SingleResponseHandler
 from typing import Tuple, Any
 
 class CategorizeWorkflow(WorkflowHandler):

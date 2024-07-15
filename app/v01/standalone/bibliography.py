@@ -6,8 +6,8 @@ from fastapi import APIRouter, BackgroundTasks, HTTPException
 
 from aiweb_common.file_operations.file_handling import file_to_base64
 
-from ScopingReview.UploadManager import FastAPIUploadManager
-from ScopingReview.BaseManager import FastAPIBibtexManager
+from aiweb_common.file_operations.UploadManager import FastAPIUploadManager
+from ScopingReview.Bibliography.Manager import FastAPIBibtexManager
 
 from app.v01.schemas import UploadableFiles
 from app.v01.standalone.schemas import BibliographyResponse, BibliographyRequest

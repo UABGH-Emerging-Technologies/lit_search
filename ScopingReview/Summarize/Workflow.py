@@ -7,7 +7,7 @@ from ScopingReview_config import config, boilerplate
 from aiweb_common.file_operations.text_format import convert_markdown_docx
 from fastapi import HTTPException
 from typing import Tuple, Optional
-from aiweb_common.generate.SingleResponseHandler import SingleResponseHandler
+from aiweb_common.generate.SingleResponse import SingleResponseHandler
 from ScopingReview.Summarize.Manager import SummarizeManager
 
 class SummarizeArticles(WorkflowHandler):
