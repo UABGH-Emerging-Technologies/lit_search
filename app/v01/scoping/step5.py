@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException, BackgroundTasks
 import datetime
-from ScopingReview.BaseManager import FastAPIDraftReviewManager
-from ScopingReview.UploadManager import FastAPIUploadManager
-import ScopingReview_config.app_config as lit_app_config
+from ScopingReview.Draft.Manager import FastAPIDraftReviewManager
+from aiweb_common.file_operations.UploadManager import FastAPIUploadManager
+import ScopingReview_config.app_config as app_config
 import os
 import app.fastapi_config as lit_api_config
 from app.v01.schemas import MSWordResponse

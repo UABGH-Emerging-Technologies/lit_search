@@ -5,13 +5,13 @@ import json
 from collections import Counter
 
 
-class KeywordsData(BaseModel):
+class KeywordData(BaseModel):
     primary_keywords: List[str] = Field(..., example=["keyword1", "keyword2"], description="List of primary keywords")
     secondary_keywords: List[str] = Field(..., example=["keyword3", "keyword4"], description="List of secondary keywords")
     exclusion_keywords: List[str] = Field(..., example=["keyword5"], description="List of exclusion keywords")
 
 
-class KeywordsManager(BaseManager):
+class KeywordManager(BaseManager):
     #TODO What else needs to go into Keywords Manager init?
     def __init__(self, df, research_q):
         super().__init__(df)
@@ -91,3 +91,5 @@ class KeywordsManager(BaseManager):
         exclusion_keywords = data.get("Exclusion Keywords", [])
 
         return primary_keywords, secondary_keywords, exclusion_keywords
+    
+

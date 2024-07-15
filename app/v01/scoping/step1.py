@@ -8,7 +8,7 @@ from fastapi import APIRouter, BackgroundTasks, HTTPException
 from fastapi.responses import FileResponse
 from aiweb_common.file_operations.file_handling import file_to_base64
 
-from ScopingReview.SearchWorkflow import ArticleSearch
+from ScopingReview.Search.Workflow import ArticleSearch
 import ScopingReview_config.app_config as lit_app_config
 
 from app.v01.schemas import SearchRequest, MSExcelResponse
@@ -33,7 +33,8 @@ def get_step1_response(
         articles_df = article_search.process()
         
         temp_file_path = os.path.join("/tmp", f"{research_question}.xlsx")
-        article_search.write_excel_output(temp_file_path, articles_df, research_question)
+        #TODO move write_excel_output inside the workflow()<- manager()
+        #article_search.write_excel_output(temp_file_path, articles_df, research_question)
         
         encoded_file = file_to_base64(temp_file_path)
         background_tasks.add_task(os.unlink, temp_file_path)

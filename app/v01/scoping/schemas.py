@@ -3,7 +3,8 @@ from app.v01.schemas import SearchRequest, XLSXinRequest
 from app.v01.validators import validate_docx_bytes
 # for consistency with our other apis, don't delete this import.
 # Other modules import Keywords Data from this file.
-from ScopingReview.SearchManager import KeywordsData
+#TODO fix this?
+from ScopingReview.Keywords.Manager import KeywordData
 from pydantic import Field, field_validator
 
 

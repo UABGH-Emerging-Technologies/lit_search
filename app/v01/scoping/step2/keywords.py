@@ -3,11 +3,11 @@ import base64
 
 from datetime import datetime
 
-import ScopingReview_config.app_config as lit_app_config
-from ScopingReview.SearchManager import FastAPIIterateSearchManager
-from ScopingReview.UploadManager import FastAPIUploadManager
+import ScopingReview_config.app_config as app_config
+from ScopingReview.Search.Manager import FastAPIIterateSearchManager
+from aiweb_common.file_operations.UploadManager import FastAPIUploadManager
 import app.fastapi_config as lit_api_config
-from app.v01.scoping.schemas import KeywordsData
+from ScopingReview.Keywords.Manager import KeywordData
 from app.v01.scoping.step2.schemas import KeywordsRequest
 
 
@@ -17,7 +17,7 @@ def get_step2keywords_response(
     background_tasks: BackgroundTasks,
     question: str,
     xlsx_encoded: str
-    ) -> KeywordsData:
+    ) -> KeywordData:
     """
     This function takes in a question and an Excel file, extracts keywords from the file based on the
     question, and writes the extracted keywords to a database.
@@ -70,7 +70,7 @@ def get_step2keywords_response(
 async def suggest_keywords(
     background_tasks: BackgroundTasks,
     request: KeywordsRequest
-    ) -> KeywordsData:
+    ) -> KeywordData:
     """
     Get AI-suggested search keywords based on end-user labeling of relevant articles.
     """
