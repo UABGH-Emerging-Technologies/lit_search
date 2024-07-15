@@ -52,18 +52,8 @@ NEWSLETTER_QUERIES = {
     "critical care": "critical care anesthesia OR critical care anaesthesia OR ICU anesthesia OR intensive care anesthesia",
 }
 
-# LLM
-LLM_INTERFACE = AzureChatOpenAI(
-    azure_endpoint="https://nlp-ai-svc.openai.azure.com/",
-    openai_api_version="2024-02-01",
-    deployment_name="ChatGPT4",
-    openai_api_type="azure",
-    temperature=0,
-    model_name="gpt-4",
-    openai_api_key=lit_app_config.GPT4_KEY
-)
 
-LLM_SUMMARIZE_INTERFACE = AzureChatOpenAI(
+LLM_INTERFACE = AzureChatOpenAI(
     azure_endpoint="https://nlp-ai-svc.openai.azure.com/",
     openai_api_version="2024-02-01",
     azure_deployment="GPT4Turbo",
@@ -79,7 +69,7 @@ MAX_ARTICLES_SR = 200
 MAX_ARTICLES_LR = 50
 
 # TODO Update name here and where called remove this later
-CHAT35 = AzureChatOpenAI(
+FAST_LLM_INTERFACE = AzureChatOpenAI(
     azure_endpoint="https://nlp-ai-svc.openai.azure.com/",
     openai_api_version="2024-02-01",
     azure_deployment="ChatGPT16k",

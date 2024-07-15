@@ -161,3 +161,5 @@ Next chunk of the article:
 {text}
 ------------
 """
+
+summarize_single_article_system_prompt = "You are a medical writer who helps with literature summaries."
