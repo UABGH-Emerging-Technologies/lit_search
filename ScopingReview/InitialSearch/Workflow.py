@@ -5,7 +5,7 @@ from aiweb_common.resource.PubMedQuery import PubMedQueryGenerator
 
 from Bio import Entrez
 
-from ScopingReview.Search.Manager import FastAPISearchManager
+from ScopingReview.InitialSearch.Manager import FastAPISearchManager
 
 Entrez.email = config.DEV_EMAIL
 os.environ["NCBI_API_KEY"] = app_config.NCBI_API_KEY
@@ -24,14 +24,11 @@ class ArticleSearch(WorkflowHandler):
             search_string = query_generator.generate_search_string()
             print("QUERY - ", search_string)
             article_ids = self.search_manager.pubmed_interface.search_pubmed_articles(search_string)
-            if len(article_ids>config.MIN_ARTICLES):
-                articles_df = pubmed_interface.fetch_article_details(article_ids)
+            if len(article_ids)>config.MIN_ARTICLES:
+                articles_df = self.search_manager.pubmed_interface.fetch_article_details(article_ids)
             else:
                 n=n+1
                     
         articles_df = self.search_manager.search_and_compile_articles()
         return articles_df
-    
-class IterateSearch(WorkflowHandler):
-    #TODO implement
-    pass
+

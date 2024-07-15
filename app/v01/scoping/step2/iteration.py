@@ -5,8 +5,8 @@ from fastapi import APIRouter, HTTPException, BackgroundTasks
 from datetime import datetime
 
 
-import ScopingReview_config.app_config as lit_app_config
-from ScopingReview.Search.Manager import FastAPIIterateSearchManager
+#TODO This should pull in workflow, not manager
+from ScopingReview.IterateSearch.Manager import FastAPIIterateSearchManager
 from aiweb_common.file_operations.UploadManager import FastAPIUploadManager
 import app.fastapi_config as lit_api_config
 from ScopingReview.Keywords.Manager import KeywordData

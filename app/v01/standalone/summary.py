@@ -8,7 +8,6 @@ from datetime import datetime
 
 from aiweb_common.file_operations.file_handling import file_to_base64
 
-from ScopingReview.Search.Workflow import ArticleSearch
 from ScopingReview.Summarize.Workflow import SummarizeArticles
 from app.v01.schemas import SearchRequest, MSWordResponse
 import app.fastapi_config as lit_api_config

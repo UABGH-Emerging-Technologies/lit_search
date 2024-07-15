@@ -58,6 +58,30 @@ class BaseManager():
             # You can also set column width for the second sheet if needed
             worksheet2.set_column(0, 0, len("Unique Keywords") + 1, wrap_format)
 
+
+    def make_initial_df(self, articles_df):
+        # add author response column
+        articles_df.insert(0, "Author 1: Relevant Article? (Yes/No)", "No")
+        articles_df.insert(1, "Author 2: Relevant Article? (Yes/No)", "No")
+
+        articles_df.rename(columns={"pmid": "PMID"}, inplace=True)
+
+        # TODO: Wait until after categories are assigned
+        # # add full text link and text if available
+
+        return articles_df
+
+
+    def extract_docx_pmids(self, text):
+        # Regular expression to find PMIDs
+        pattern = r"PMID: (\d+)"
+
+        # Find all PMIDs in the text
+        pmids = re.findall(pattern, text)
+
+        # Return as a DataFrame
+        return pd.DataFrame(pmids, columns=["PMID"])
+
             
     def get_relevant_rows(self):
         if not isinstance(self.df, pd.DataFrame):
