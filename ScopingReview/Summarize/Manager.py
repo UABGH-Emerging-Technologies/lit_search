@@ -6,6 +6,8 @@ import ScopingReview_config.config as config
 from ScopingReview.BaseManager import BaseManager
 import streamlit as st
 from aiweb_common.file_operations.file_handling import convert_markdown_docx
+from aiweb_common.generate.SingleResponse import SingleResponseHandler
+import ScopingReview_config.prompt_config as prompt_config
 import tempfile
 
 class SummarizeManager(BaseManager):
@@ -13,14 +15,54 @@ class SummarizeManager(BaseManager):
         super().__init__(df)
         self.research_q = research_q
         self.categories = []
-        self.sub_categories = ""
         self.categories_str = ""
+        self.fast_single_response = SingleResponseHandler(config.FAST_LLM_INTERFACE)
+        self.single_response = SingleResponseHandler(config.LLM_INTERFACE)
 
     def get_filename(self):
         raise NotImplementedError("This method must be implemented by subclasses.")
 
     def get_mime_type(self):
         raise NotImplementedError("This method must be implemented by subclasses.")
+    
+    def assemble_initial_summary_prompt(self, first_chunk):
+        print('assembling prompts')
+        assembled_prompt = self.fast_single_response.single_response_service.preparer.assemble_prompt(
+            system_prompt = prompt_config.summarize_single_article_system_prompt, 
+            user_prompt = prompt_config.initial_summary_prompt, 
+            text = first_chunk
+        )
+        return assembled_prompt
+    
+    def assemble_next_summary_prompt(self, current_summary, next_chunk):
+        print('assembling prompts')
+        assembled_prompt = self.fast_single_response.single_response_service.preparer.assemble_prompt(
+            system_prompt = prompt_config.summarize_single_article_system_prompt, 
+            user_prompt = prompt_config.refine_summary_prompt, 
+            existing_summary = current_summary,
+            test = next_chunk
+        )
+        return assembled_prompt
+    
+    def assemble_category_summary_prompt(self, articles_category, articles_summaries):
+        print('assembling prompts')
+        assembled_prompt = self.single_response.single_response_service.preparer.assemble_prompt(
+            system_prompt = prompt_config.SUMMARIZE_CATEGORY_TEMPLATE, 
+            user_prompt = prompt_config.SUMMARIZE_HUMAN_TEMPLATE, 
+            question = self.research_q,
+            category = articles_category,
+            content = articles_summaries
+        )
+        return assembled_prompt
+    
+    def assemble_newsletter_prompt(self, anes_category, articles_summaries):
+        assembled_prompt = self.single_response.single_response_service.preparer.assemble_prompt(
+            system_prompt = prompt_config.SUMMARIZE_NEWSLETTER_TEMPLATE, 
+            user_prompt = prompt_config.SUMMARIZE_HUMAN_TEMPLATE, 
+            category = anes_category,
+            content = articles_summaries
+        )
+        return assembled_prompt
 
     def save_newsletter(self, docx_data, category, output_folder):
         # Ensure the output folder exists
@@ -36,6 +78,21 @@ class SummarizeManager(BaseManager):
         with open(file_path, "wb") as file:
             file.write(docx_data)
         print(f"File saved: {file_path}")
+       
+    @staticmethod 
+    def categories_limit_check(df):
+        categories_exceeding_limit = []
+        if df is not None:
+            df["category"] = df["category"].str.split(", ")
+            df_exploded = df.explode("category")
+
+            unique_values_counts = df_exploded["category"].value_counts()
+            # print(unique_values_counts)
+            for category, count in unique_values_counts.items():
+                if count > config.SUBCLASS_THRESHOLD:
+                    categories_exceeding_limit.append(category)
+        # Note that in Python, empty lists return False in boolean checks
+        return categories_exceeding_limit
 
 # keeping name for compatibility with previous implementations
 # eventually want this name to begin with Streamlit...
@@ -55,20 +112,6 @@ class StreamlitSummarizeManager(SummarizeManager):
 
     def get_mime_type(self):
         return config.DOCX_MIME
-
-    def download_excel_results(self, categories_str):
-        self.df.drop_duplicates(subset="PMID", keep="first", inplace=True)
-        st.write("Note that once you hit download, this form will reset.")
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmpfile:
-            self.write_excel_output(tmpfile, self.df, categories_str)
-            with open(tmpfile.name, "rb") as file:
-                st.balloons()
-                st.download_button(
-                    label=self.get_download_button_label(),
-                    data=file,
-                    file_name=self.get_excel_filename(),
-                    mime=self.get_mime_type(),
-                )
 
     def download_doc_results(self, docx_data):
         st.balloons()
@@ -94,27 +137,6 @@ class FastAPISummarizeManager(SummarizeManager):
     def get_mime_type(self):
         return config.DOCX_MIME
 
-    def summarize_articles(self) -> Tuple[bytes, dict, Optional[str]]:
-        """
-        Summarize the articles using the provided research question.
-        Checks for category limits and warns if they are exceeded.
-        """
-        if self.df is not None:
-            categories_exceeding_limit = self.check_limits()
-            warning_msg = ""
-            if categories_exceeding_limit:
-                warning_msg = (f"Consider breaking the following categories into subcategories, "
-                               f"as there are more than {config.SUBCLASS_THRESHOLD} articles in them: "
-                               f"{', '.join(categories_exceeding_limit)}.")
-
-            markdown_to_convert, response_meta = lit_generate.summarize_all_categories(
-                self.df, self.research_q
-            )
-            docx_data = convert_markdown_docx(markdown_to_convert)
-            return docx_data, response_meta, warning_msg
-        else:
-            raise HTTPException(status_code=404, detail="No data available for summarization.")
-
     def save_document(self, docx_data, filename=None) -> str:
         """
         Save the DOCX data to a file and return the file path.
@@ -130,19 +152,6 @@ class FastAPISummarizeManager(SummarizeManager):
             return file_path
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Failed to save DOCX file: {str(e)}")
-
-    def summarize_and_save(self) -> Tuple[str, float]:
-        """
-        Performs the complete summarization process and saves the result to a DOCX file,
-        returning any warnings related to category limits.
-        """
-        docx_data, response_meta, warning_message = self.summarize_articles()
-        self.cost += response_meta.total_cost
-        if docx_data:
-            file_path = self.save_document(docx_data)
-            return file_path, warning_message
-        else:
-            raise HTTPException(status_code=404, detail="Failed to generate document data.")
 
     def standalone_summarize_and_save(self):
         """
@@ -170,3 +179,4 @@ class FastAPISummarizeManager(SummarizeManager):
             return temp_file_path, self.cost
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
+

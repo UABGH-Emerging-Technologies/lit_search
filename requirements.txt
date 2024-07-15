@@ -21,4 +21,5 @@ uvicorn
 biopython
 python-multipart
 docx
+langchain-text-splitters
 ./llm_utils

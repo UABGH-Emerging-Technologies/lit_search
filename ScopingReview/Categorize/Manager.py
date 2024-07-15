@@ -6,7 +6,7 @@ import pandas as pd
 import tempfile
 from typing import Tuple, Any
 
-from llm_utils import WorkflowHandler
+from aiweb_common.WorkflowHandler import WorkflowHandler
 from aiweb_common.generate.SingleResponse import SingleResponseHandler
 
 #TODO move aiweb_common stuff to Categorize.Workflow
@@ -34,18 +34,6 @@ class BaseCategorizeManager(BaseManager):
             categories = self.categories 
         )
         return assembled_prompt
-
-    def categories_limit_check(df):
-        categories_exceeding_limit = []
-        if df is not None:
-            df["category"] = df["category"].str.split(", ")
-            df_exploded = df.explode("category")
-
-            unique_values_counts = df_exploded["category"].value_counts()
-            # print(unique_values_counts)
-            for category, count in unique_values_counts.items():
-                if count > config.SUBCLASS_THRESHOLD:
-                    categories_exceeding_limit.append(category)
 
     def _extract_full_text(self):
         if self.df is not None:
@@ -80,56 +68,6 @@ class BaseCategorizeManager(BaseManager):
         except Exception as e:
             print(f"Failed to save file: {str(e)}")
             raise
-            
-    def recombine_categories(df, df_original):
-        # Convert all unique categories to string before forming the list
-        unique_values_list = list(df["category"].astype(str).unique())
-        # Convert the 'category' column to string
-        df["category"] = df["category"].astype(str)
-        # remove duplicates, possibly created by multiple categories being subcategorized
-        df.drop_duplicates(subset=["PMID", "category"], keep="first", inplace=True)
-        # Reverse the explode operation to update original dataframe
-        df = df.groupby(df.index).agg({"category": lambda x: ", ".join(x), "Relevant": "first"})
-
-        # Merging other columns back into the df
-        df_final = df_original.drop(columns=["category", "Relevant"]).merge(
-            df, left_index=True, right_index=True, how="right"
-        )
-        return df_final, unique_values_list
-    
-
-    def sub_categorize(categories_exceeding_limit, sub_categories):
-        df_copy = self.df.copy()
-        reduced_df = self.get_relevant_rows(df_copy)
-        # should already be transformed to a python list by categories_limit_check()
-        df_exploded = reduced_df.explode("category")
-
-        # Prepare new sub-categories
-        sub_categories = [value.strip() for value in sub_categories.split(",") if value.strip()]
-        # Replace categories exceeding limit with sub-categories
-        for remove_category in categories_exceeding_limit:
-            remove_category = remove_category.strip()
-            remove_category = remove_category.lower()
-            df_exploded["category"] = df_exploded["category"].str.lower()
-            mask = df_exploded["category"] == remove_category
-            for index, row in df_exploded[mask].iterrows():
-                # index is preserved across the explode
-                if row.category == remove_category:
-                    data = row[["abstract", "title"]]
-                    # TODO Move this stuff to Workflow
-                    with get_openai_callback() as response_meta:
-                        result = lit_config.CHAT35.invoke(
-                            lit_prompts.categorization_chat_prompt.format_prompt(
-                                categories=sub_categories, context=data
-                            ).to_messages()
-                        )
-                    category_to_write = result.content.replace("'", "")
-                    df_exploded.at[index, "category"] = category_to_write.lower()
-
-        df_final, unique_values_list = recombine_categories(df_exploded, df_copy)
-
-        return df_final, "".join(map(str, unique_values_list)), response_meta
-
 
 class FastAPICategorizeManager(BaseCategorizeManager):
     def __init__(self, df: pd.DataFrame, userdefined_categories: str):
