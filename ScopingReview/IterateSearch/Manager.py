@@ -1,140 +1,9 @@
-import tempfile
-from abc import abstractmethod
+from ScopingReview.InitialSearch.Manager import BaseSearchManager
+from ScopingReview.Keywords.Manager import KeywordData
+from ScopingReview_config import config 
 import pandas as pd
-from io import BytesIO
-
-import ScopingReview_config.config as lit_config
 import streamlit as st
-from ScopingReview.BaseManager import BaseManager
-from ScopingReview.Keywords.Manager import KeywordData, KeywordManager
-from ScopingReview.Keywords.Workflow import KeywordWorkflow
-from aiweb_common.resource.PubMedInterface import PubMedInterface
-from fastapi import HTTPException
 
-from typing import List
-
-
-class BaseSearchManager(BaseManager):
-    def __init__(self, scoping_step, research_q):
-        self.scoping_step = scoping_step
-        self.research_q = research_q
-        self.article_ids = []
-        self.loop_counter = 0
-        self.query = ""
-        self.previous_query = ""
-        self.pubmed_interface = PubmedInterface()
-
-    def _fetch_articles(self, query):
-        pm_connection, article_ids = self.pubmed_interface.search_and_compile_articles(query)
-        articles_df = pm_connection.fetch_article_details(article_ids)
-        articles_df = self.make_initial_df(pm_connection, article_ids)
-        return articles_df
-    
-    @abstractmethod
-    def _write_search_results(self, articles_df, query, query_string):
-        raise NotImplementedError("This method should be implemented by subclasses.")
-
-    @abstractmethod
-    def get_filename(self):
-        raise NotImplementedError("Subclasses must implement this method.")
-
-    def get_mime_type(self):
-        return lit_config.EXCEL_MIME
-
-    def make_query(self):
-        return self.research_q
-
-    def generate_and_refine_query(self):
-        self.loop_counter, self.previous_query, self.search_string = \
-            self.pubmed_interface.make_and_refine_query(self.previous_query, self.make_query(), self.loop_counter)
-        return self.search_string
-
-    def perform_search(self, search_string):
-        articles_df = self._fetch_articles(search_string)
-        return articles_df
-
-    def search_loop(self):
-        while (len(self.article_ids) < lit_config.MIN_ARTICLES) and (self.loop_counter < lit_config.MAX_TRIES):
-            query_string = self.generate_and_refine_query()
-            articles_df = self.perform_search(query_string)
-        return articles_df, query_string
-
-    def search_and_compile_articles(self, write_excel=True):
-        articles_df, query_string = self.search_loop()
-        if write_excel:
-            self._write_search_results(articles_df, self.make_query(), query_string)
-        return articles_df
-
-
-class StreamlitSearchManager(BaseSearchManager):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if "lock" not in st.session_state:
-            st.session_state["lock"] = False
-
-    def _write_search_results(self, articles_df, query, query_string):
-        articles_df.drop_duplicates(subset="PMID")
-        st.balloons()
-        with tempfile.NamedTemporaryFile(delete=True, suffix=".xlsx") as tmpfile:
-            self.write_search_excel_output(tmpfile, articles_df, query, query_string)
-            with open(tmpfile.name, "rb") as file:
-                st.download_button(
-                    label="Download Excel file",
-                    data=file,
-                    file_name=self.get_filename(),
-                    mime=self.get_mime_type(),
-                )
-
-    def get_filename(self):
-        return lit_config.SR_STEP1_FILENAME
-
-    def search_and_compile_articles(self, write_excel=True):
-        if st.session_state.get("lock", False):
-            return False
-        st.session_state["lock"] = True
-        articles_df, query_string = self.search_loop()
-        if write_excel:
-            self._write_search_results(articles_df, self.make_query(), query_string)
-        st.session_state["search_finished"] = True
-        st.session_state["lock"] = False
-        return st.session_state.get("search_finished", False)
-
-    def generate_and_refine_query(self):
-        with st.spinner("Generating pubmed search string."):
-            super().generate_and_refine_query()
-        st.write(f"**Searching Pubmed with the query:** _{self.search_string}_")
-        return self.search_string
-    
-    def _cleanup_session(self):
-        keys_to_keep = {"lock", "total_cost"}
-        for key in list(st.session_state.keys()):
-            if key not in keys_to_keep:
-                del st.session_state[key]
-
-
-class FastAPISearchManager(BaseSearchManager):
-    def __init__(self, scoping_step, research_q):
-        super().__init__(scoping_step, research_q)
-
-    def _write_search_results(self, articles_df, query, query_string):
-        articles_df.drop_duplicates(subset="PMID")
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmpfile:
-            self.write_search_excel_output(tmpfile, articles_df, query, query_string)
-        return tmpfile.name
-
-    def search_and_compile_articles(self, write_excel=False):
-        articles_df, query_string = self.search_loop()
-        if write_excel and articles_df is not None:
-            filename = self._write_search_results(articles_df, self.make_query(), query_string)
-            return filename
-        return articles_df
-    
-    def perform_search(self, search_string):
-        articles_df = super().perform_search(search_string)
-        if articles_df is not None:
-            return articles_df
-        return None
-    
 class BaseIterateSearchManager(BaseSearchManager):
     def __init__(self, df, research_q):
         super().__init__(None, research_q)
@@ -145,10 +14,9 @@ class BaseIterateSearchManager(BaseSearchManager):
         self.secondary_keywords = []
         self.exclusion_keywords = []
         self.keywords_extracted = False
-        self.keywords_workflow = KeywordWorkflow(self.df, self.research_q)
         
     def get_filename(self):
-        return lit_config.SR_STEP2_FILENAME
+        return config.SR_STEP2_FILENAME
 
     def determine_keywords(self):
         generated_keywords_json, response_meta = self.keywords_workflow.process()
@@ -203,9 +71,10 @@ class IterateSearchManager(BaseIterateSearchManager):
                 for keyword in str(st.session_state["exclusion_keywords"]).split(",")
             ]
 
+    #TODO This should go away
     def make_initial_query(self):
         with st.spinner("Extracting and grouping keywords from uploaded file"):
-            initial_query, cost = super().make_initial_query()
+            initial_query = super().make_initial_query()
             return initial_query
 
     def edit_query_terms(self):
@@ -234,25 +103,7 @@ class IterateSearchManager(BaseIterateSearchManager):
                 st.session_state["keywords_finalized"] = True
             
             print("Keywords finalized session state = ", st.session_state)
-
-
-class NewsletterSearchManager(BaseSearchManager):
-    def __init__(self, scoping_step, predefined_query, research_q):
-        super().__init__(scoping_step, research_q)
-        self.predefined_query = predefined_query
-
-    def make_query(self):
-        return self.predefined_query
-
-    def search_and_compile_articles(self):
-        articles_df = self.perform_search(self.predefined_query)
-        return articles_df
-
-    def perform_search(self, search_string):
-        articles_df = self._fetch_articles(search_string)
-        return articles_df
-
-
+            
 class FastAPIIterateSearchManager(BaseIterateSearchManager):
     def __init__(self, df: pd.DataFrame, research_q: str):
         super().__init__(df, research_q)

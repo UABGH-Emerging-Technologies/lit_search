@@ -3,8 +3,8 @@ import base64
 
 from datetime import datetime
 
-import ScopingReview_config.app_config as app_config
-from ScopingReview.Search.Manager import FastAPIIterateSearchManager
+#TODO THis should pull in workflow not manager
+from ScopingReview.IterateSearch.Manager import FastAPIIterateSearchManager
 from aiweb_common.file_operations.UploadManager import FastAPIUploadManager
 import app.fastapi_config as lit_api_config
 from ScopingReview.Keywords.Manager import KeywordData
