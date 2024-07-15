@@ -26,11 +26,14 @@ class BaseManager():
         raise NotImplementedError
     
     #TODO Add write_categorize_excel_output
-    def write_categorize_excel_output():
+    def write_categorize_excel_output(self):
         pass
-    
+
+    #TODO KEEP THIS GENERAL FOR ALL EXCEL OUTPUTS
     def write_search_excel_output(self, tmpfile, df, input_search_terms, query_strings=""):
-        with pd.ExcelWriter(tmpfile.name, engine="xlsxwriter") as writer:
+        print("Writing excel file! tempfile - ", tmpfile)
+
+        with pd.ExcelWriter(tmpfile, engine="xlsxwriter") as writer:
             df.to_excel(writer, index=False, sheet_name="Sheet1")
 
             # Convert string to dataFrame and save to excel
@@ -57,6 +60,7 @@ class BaseManager():
 
             # You can also set column width for the second sheet if needed
             worksheet2.set_column(0, 0, len("Unique Keywords") + 1, wrap_format)
+            print("END OF WRITE_SEACH_EXCEL_OUTPUT")
 
 
     def make_initial_df(self, articles_df):

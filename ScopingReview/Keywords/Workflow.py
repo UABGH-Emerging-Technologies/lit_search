@@ -3,7 +3,6 @@ from aiweb_common.generate.SingleResponse import SingleResponseHandler
 from ScopingReview.Keywords.Manager import KeywordManager
 from ScopingReview_config import config, prompt_config
 
-
 class KeywordWorkflow(WorkflowHandler):
     def __init__(self, df, research_question):
         super().__init__()
@@ -37,8 +36,7 @@ class KeywordWorkflow(WorkflowHandler):
             question = self.research_question,
             keywords_list = query_terms
         )
-        response_handler = SingleResponseHandler()
-        result, response_meta = response_handler.get_response(assembled_prompt)
+        result, response_meta = self.single_response.generate_response(assembled_prompt)
         self._update_total_cost(response_meta)
         return result
     
