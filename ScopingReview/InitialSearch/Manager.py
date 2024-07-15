@@ -3,7 +3,7 @@ from abc import abstractmethod
 import pandas as pd
 from io import BytesIO
 
-import ScopingReview_config.config as lit_config
+import ScopingReview_config.config as config
 import streamlit as st
 from ScopingReview.BaseManager import BaseManager
 from aiweb_common.resource.PubMedInterface import PubMedInterface
@@ -28,59 +28,17 @@ class BaseSearchManager(BaseManager):
         articles_df = self.make_initial_df(article_ids)
         return articles_df
     
-    @abstractmethod
-    def _write_search_results(self, articles_df, query, query_string):
-        raise NotImplementedError("This method should be implemented by subclasses.")
+    def _get_filename(self):
+        return config.SR_STEP1_FILENAME
 
-    @abstractmethod
-    def get_filename(self):
-        raise NotImplementedError("Subclasses must implement this method.")
-
-    def get_mime_type(self):
-        return lit_config.EXCEL_MIME
-
-    # def make_query(self):
-    #     return self.research_q
-
-    # def perform_search(self, search_string):
-    #     articles_df = self._fetch_articles(search_string)
-    #     return articles_df
-
-    # def search_loop(self):
-    #     while (len(self.article_ids) < lit_config.MIN_ARTICLES) and (self.loop_counter < lit_config.MAX_TRIES):
-    #         query_string = self.generate_and_refine_query()
-    #         articles_df = self.perform_search(query_string)
-    #     return articles_df, query_string
-
-    # def search_and_compile_articles(self, write_excel=True):
-    #     articles_df, query_string = self.search_loop()
-    #     if write_excel:
-    #         self._write_search_results(articles_df, self.make_query(), query_string)
-    #     return articles_df
+    def _get_mime_type(self):
+        return config.EXCEL_MIME
 
 class FastAPISearchManager(BaseSearchManager):
     def __init__(self, scoping_step, research_q):
         super().__init__(scoping_step, research_q)
 
-    def _write_search_results(self, articles_df, query, query_string):
-        articles_df.drop_duplicates(subset="PMID")
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmpfile:
-            self.write_search_excel_output(tmpfile, articles_df, query, query_string)
-        return tmpfile.name
 
-    # def search_and_compile_articles(self, write_excel=False):
-    #     articles_df, query_string = self.search_loop()
-    #     if write_excel and articles_df is not None:
-    #         filename = self._write_search_results(articles_df, self.make_query(), query_string)
-    #         return filename
-    #     return articles_df
-    
-    # def perform_search(self, search_string):
-    #     articles_df = super().perform_search(search_string)
-    #     if articles_df is not None:
-    #         return articles_df
-    #     return None
-    
 #TODO Add back later
 # class StreamlitSearchManager(BaseSearchManager):
 #     def __init__(self, *args, **kwargs):
