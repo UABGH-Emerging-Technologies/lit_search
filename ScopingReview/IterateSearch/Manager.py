@@ -29,7 +29,7 @@ class BaseIterateSearchManager(BaseSearchManager):
   
         return ", ".join(generated_keywords)
 
-
+    # This should be accounted for with the pubmedinterface code.
     def perform_search(self, search_string):
         self.selected_articles_df.reset_index(drop=True, inplace=True)
         articles_df = super().perform_search(search_string)
