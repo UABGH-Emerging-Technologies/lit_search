@@ -5,18 +5,8 @@ from io import BytesIO
 
 import ScopingReview_config.config as lit_config
 import streamlit as st
-from ScopingReview.data import (
-    get_relevant_rows,
-    get_unique_keywords,
-    make_and_refine_query,
-    make_initial_df,
-    parse_keywords,
-    search_and_compile,
-    write_excel_output,
-)
-from ScopingReview.generate import generate_keywords
 from ScopingReview.BaseManager import BaseManager
-from ScopingReview.KeywordsManager import KeywordsData
+from ScopingReview.KeywordsManager import KeywordsData, KeywordsManager
 from fastapi import HTTPException
 
 from typing import List
@@ -83,7 +73,7 @@ class StreamlitSearchManager(BaseSearchManager):
         articles_df.drop_duplicates(subset="PMID")
         st.balloons()
         with tempfile.NamedTemporaryFile(delete=True, suffix=".xlsx") as tmpfile:
-            write_excel_output(tmpfile, articles_df, query, query_string)
+            self.write_excel_output(tmpfile, articles_df, query, query_string)
             with open(tmpfile.name, "rb") as file:
                 st.download_button(
                     label="Download Excel file",
