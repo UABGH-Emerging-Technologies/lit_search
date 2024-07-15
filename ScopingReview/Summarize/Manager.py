@@ -56,19 +56,20 @@ class StreamlitSummarizeManager(SummarizeManager):
     def get_mime_type(self):
         return config.DOCX_MIME
 
-    def download_excel_results(self, categories_str):
-        self.df.drop_duplicates(subset="PMID", keep="first", inplace=True)
-        st.write("Note that once you hit download, this form will reset.")
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmpfile:
-            self.write_excel_output(tmpfile, self.df, categories_str)
-            with open(tmpfile.name, "rb") as file:
-                st.balloons()
-                st.download_button(
-                    label=self.get_download_button_label(),
-                    data=file,
-                    file_name=self.get_excel_filename(),
-                    mime=self.get_mime_type(),
-                )
+    #TODO something confused in the below function(download/write etc.)
+    # def download_excel_results(self, categories_str):
+    #     self.df.drop_duplicates(subset="PMID", keep="first", inplace=True)
+    #     st.write("Note that once you hit download, this form will reset.")
+    #     with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmpfile:
+    #         self.write_excel_output(tmpfile, self.df, categories_str)
+    #         with open(tmpfile.name, "rb") as file:
+    #             st.balloons()
+    #             st.download_button(
+    #                 label=self.get_download_button_label(),
+    #                 data=file,
+    #                 file_name=self.get_excel_filename(),
+    #                 mime=self.get_mime_type(),
+    #             )
 
     def download_doc_results(self, docx_data):
         st.balloons()

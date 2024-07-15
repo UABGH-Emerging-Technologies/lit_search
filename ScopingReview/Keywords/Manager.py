@@ -3,7 +3,7 @@ from typing import List
 from ScopingReview.BaseManager import BaseManager
 import json
 from collections import Counter
-
+import pandas as pd
 
 class KeywordData(BaseModel):
     primary_keywords: List[str] = Field(..., example=["keyword1", "keyword2"], description="List of primary keywords")
@@ -91,5 +91,31 @@ class KeywordManager(BaseManager):
         exclusion_keywords = data.get("Exclusion Keywords", [])
 
         return primary_keywords, secondary_keywords, exclusion_keywords
-    
+            
+    def write_keywords_excel_output(self, tmpfile, df, unique_keywords_str):
+        with pd.ExcelWriter(tmpfile.name, engine='xlsxwriter') as writer:
+            df.to_excel(writer, index=False, sheet_name='Sheet1')
+            
+            # Convert string to dataFrame and save to excel
+            df_keywords = pd.DataFrame([unique_keywords_str], columns=['Unique Keywords'])
+            df_keywords.to_excel(writer, index=False, sheet_name='Sheet2')
 
+            # Get the xlsxwriter workbook and worksheet objects
+            workbook  = writer.book
+            worksheet1 = writer.sheets['Sheet1']
+            worksheet2 = writer.sheets['Sheet2']
+            # Define a format with word wrap
+            wrap_format = workbook.add_format({'text_wrap': True})
+
+            # Iterate over the DataFrame columns to set the column width
+            for idx, col in enumerate(df.columns):
+                # Find the maximum length of data in the column
+                column_len = df[col].astype(str).map(len).max()
+                column_title_len = len(col)
+                max_len = min(100,max(column_len, column_title_len))
+
+                # Set the column width with some extra margin
+                worksheet1.set_column(idx, idx, max_len + 1, wrap_format)
+        
+            # You can also set column width for the second sheet if needed
+            worksheet2.set_column(0, 0, len('Unique Keywords') + 1, wrap_format)
