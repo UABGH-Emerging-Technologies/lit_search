@@ -36,5 +36,4 @@ class ArticleSearch(WorkflowHandler):
     
 class IterateSearch(WorkflowHandler):
     #TODO implement
-
-
+    pass
