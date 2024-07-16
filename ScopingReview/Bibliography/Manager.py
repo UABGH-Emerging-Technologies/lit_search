@@ -30,7 +30,7 @@ class BibliographyManager(BaseManager):
             else:
                 raise ValueError("PMIDs missing.")
         elif self.file_ext == ".docx":
-            df = self.extract_docx_pmids()
+            df = self.extract_docx_pmids(self.file_contents)
             if "PMID" in df.columns:
                 return df["PMID"].astype(str).tolist()
             else:
