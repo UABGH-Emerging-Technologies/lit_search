@@ -15,34 +15,9 @@ class DraftReviewManager(BaseManager):
 
     def get_mime_type(self) -> str:
         return config.DOCX_MIME
-
-    def draft_review(self) -> bytes:
-        """
-        Generates a first draft of the document based on summaries and a research question.
-        Returns the binary data of the DOCX file.
-        """
-        #TODO Plugin the aiweb_common and move to workflow!
-        if self.summaries is not None:
-            markdown_to_convert = self.write_first_draft(
-                self.summaries, self.research_q
-            )
-            docx_data = convert_markdown_docx(markdown_to_convert)
-            return docx_data
-        else:
-            raise ValueError("Summaries data is required for drafting.")
-
-    def save_draft_review(self, docx_data: bytes) -> str:
-        """
-        Saves the generated draft review to a DOCX file and returns the file path.
-        """
-        try:
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".docx") as tmpfile:
-                tmpfile.write(docx_data)
-                return tmpfile.name
-        except Exception as e:
-            raise IOError(f"Failed to save draft review document: {str(e)}")
         
     # TODO: find better place for this. Used by write_first_draft()
+    @staticmethod
     def extract_apa_citations(markdown_text):
         # Split the document into paragraphs
         paragraphs = markdown_text.split("\n\n")
@@ -53,8 +28,25 @@ class DraftReviewManager(BaseManager):
 
         return citations, non_citations
 
+    @staticmethod
+    def assemble_document(abstract_md, intro_md, methods_md, results_md, conclusion_md, citations_md):
+        assembled_draft = (
+            abstract_md
+            + "\n\n"
+            + intro_md
+            + "\n\n"
+            + methods_md
+            + "\n\n"
+            + "# Results/Discussion \n\n"
+            + "\n\n".join(results_md)
+            + "\n\n"
+            + conclusion_md
+            + "\n\n"
+            + "# References \n\n"
+            + "\n\n".join(citations_md)
+        )
 
-
+        return assembled_draft
 
 class StreamlitDraftReviewManager(DraftReviewManager):
     def __init__(self, summaries, research_q):
