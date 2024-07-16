@@ -23,6 +23,7 @@ class StandaloneSummary(WorkflowHandler):
             + str(summary)
             + "\n\n"
             + "## Works consulted"
+            + "\n\n"
             + "\n\n".join(df.citation)
         )
         docx_data = convert_markdown_docx(output)
@@ -56,9 +57,9 @@ class StandaloneSummary(WorkflowHandler):
 
     def process(self):
         articles_df = self.searcher.process()
-        self._update_total_cost(self.searcher.total_cost)
+        self.total_cost += self.searcher.total_cost
         summary_body = self.summarize_from_abstracts(articles_df)
-        docx_data = self.format_response(summary_body, articles_df)
+        docx_data = self.format_response(summary_body.content, articles_df)
         if docx_data is not None:
             with tempfile.NamedTemporaryFile(delete=False, suffix=".docx") as tmpfile:
                 tmpfile.write(docx_data)
