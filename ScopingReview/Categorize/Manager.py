@@ -128,5 +128,3 @@ class StreamlitCategorizeManager(BaseCategorizeManager):
             with st.spinner("Categorizing contents of file..."):
                 category_df = self.categorize_articles()
             self._download_results(category_df)
-
-    
