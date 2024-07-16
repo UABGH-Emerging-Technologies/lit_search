@@ -1,16 +1,7 @@
-import tempfile
-from abc import abstractmethod
-import pandas as pd
-from io import BytesIO
-
 import ScopingReview_config.config as config
 import streamlit as st
 from ScopingReview.BaseManager import BaseManager
 from aiweb_common.resource.PubMedInterface import PubMedInterface
-from fastapi import HTTPException
-
-from typing import List
-
 
 class BaseSearchManager(BaseManager):
     def __init__(self, scoping_step, research_q):
@@ -34,7 +25,7 @@ class BaseSearchManager(BaseManager):
     def _get_mime_type(self):
         return config.EXCEL_MIME
 
-class FastAPISearchManager(BaseSearchManager):
+class FastAPIInitialSearchManager(BaseSearchManager):
     def __init__(self, scoping_step, research_q):
         super().__init__(scoping_step, research_q)
 

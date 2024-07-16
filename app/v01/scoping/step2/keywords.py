@@ -1,10 +1,9 @@
 from fastapi import APIRouter, HTTPException, BackgroundTasks
-import base64
 
 from datetime import datetime
 
-#TODO THis should pull in workflow not manager
-from ScopingReview.IterateSearch.Manager import FastAPIIterateSearchManager
+from ScopingReview_config import app_config
+from ScopingReview.Keywords.Workflow import KeywordWorkflow
 from aiweb_common.file_operations.UploadManager import FastAPIUploadManager
 import app.fastapi_config as lit_api_config
 from ScopingReview.Keywords.Manager import KeywordData
@@ -40,27 +39,19 @@ def get_step2keywords_response(
     """
     start = datetime.now()
     try:
-        upload_manager = FastAPIUploadManager()
+        upload_manager = FastAPIUploadManager(background_tasks=background_tasks)
         df =  upload_manager.read_and_validate_file(xlsx_encoded, ".xlsx")
         if df is None:
             raise HTTPException(status_code=422, detail="Failed to process the file")
-        manager = FastAPIIterateSearchManager(df, question)
-        keywords, cost = manager.extract_and_return_keywords()
+        keyword_workflow = KeywordWorkflow(df, question)
+        keywords = keyword_workflow.extract_and_return_keywords()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
     finish = datetime.now()
     try:
-      pass
-        # TODO - make sure this is adapted to workflows
-        # background_tasks.add_task(
-        #     write_to_db,
-        #     lit_app_config,
-        #     f'{{"primary":"{",".join(keywords.primary_keywords)}", "secondary":"{",".join(keywords.secondary_keywords)}", "exclusion":"{",".join(keywords.exclusion_keywords)}"}}',
-        #     start,
-        #     finish,
-        #     manager.total_cost,  # ensure total_cost is handled after the search
-        #     "_scoping_step2_excel",
-        # )
+
+        content_to_log = f'{{"primary":"{",".join(keywords.primary_keywords)}", "secondary":"{",".join(keywords.secondary_keywords)}", "exclusion":"{",".join(keywords.exclusion_keywords)}"}}'
+        keyword_workflow.log_to_database(app_config, content_to_log, start, finish, background_tasks, label="_scoping_step1")
     except KeyError:
         pass
     return keywords
