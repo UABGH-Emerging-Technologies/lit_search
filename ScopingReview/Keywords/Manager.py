@@ -3,23 +3,21 @@ from typing import List
 from ScopingReview.BaseManager import BaseManager
 import json
 from collections import Counter
-
+import pandas as pd
 
 class KeywordData(BaseModel):
     primary_keywords: List[str] = Field(..., example=["keyword1", "keyword2"], description="List of primary keywords")
     secondary_keywords: List[str] = Field(..., example=["keyword3", "keyword4"], description="List of secondary keywords")
     exclusion_keywords: List[str] = Field(..., example=["keyword5"], description="List of exclusion keywords")
 
-
 class KeywordManager(BaseManager):
-    #TODO What else needs to go into Keywords Manager init?
     def __init__(self, df, research_q):
         super().__init__(df)
-    
+        self.research_q = research_q
+
     def _clean_keywords(self, keywords):
         cleaned_keywords = []
         for keyword in keywords:
-            # Remove surrounding single quotes and extra whitespace
             keyword = (
                 keyword.strip()
                 .replace("'", "")
@@ -49,47 +47,52 @@ class KeywordManager(BaseManager):
         for keywords in relevant_rows["keywords"]:
             keywords_list = [keyword.strip().lower() for keyword in keywords.split(",")]
             clean_keywords_list = self._clean_keywords(keywords_list)
-            all_keywords.extend(clean_keywords_list)  # Use extend to flatten the list
+            all_keywords.extend(clean_keywords_list)
 
         all_titles = []
         for title in relevant_rows["title"]:
             titles_list = self._clean_title(title)
-            all_titles.extend(titles_list)  # Assuming you need to flatten this list too
+            all_titles.extend(titles_list)
 
-        # Count occurrences of each keyword and format them
         keyword_counts = Counter(all_keywords)
         formatted_keywords = [f"{k} x{v}" for k, v in keyword_counts.items()]
         return formatted_keywords
 
     def get_unique_keywords(self):
-        # TODO fix issue regarding warning here:
-        #  A value is trying to be set on a copy of a slice from a DataFrame.
-        # Try using .loc[row_indexer,col_indexer] = value instead
         self.df["Relevant"] = self.df.apply(self._check_relevance, axis=1)
         relevant_df = self.df.dropna(subset=["Relevant"])
 
-        # Join all keywords into a single string, then split by comma
         all_keywords = ",".join(relevant_df["keywords"]).split(",")
-
-        # Remove leading/trailing white spaces and convert to lower case
         all_keywords = [keyword.strip().lower() for keyword in all_keywords]
 
-        # Get unique keywords
         unique_keywords = list(set(all_keywords))
-        # Convert list of unique keywords to a comma-separated string
         unique_keywords_str = ", ".join(unique_keywords)
 
         return unique_keywords_str
     
     def parse_keywords(self, content):
-        # Load the JSON string into a Python dictionary
         data = json.loads(content)
-
-        # Extract keyword lists into variables
         primary_keywords = data.get("Primary Keywords", [])
         secondary_keywords = data.get("Secondary Keywords", [])
         exclusion_keywords = data.get("Exclusion Keywords", [])
 
         return primary_keywords, secondary_keywords, exclusion_keywords
-    
+            
+    def write_keywords_excel_output(self, tmpfile, df, unique_keywords_str):
+        with pd.ExcelWriter(tmpfile.name, engine='xlsxwriter') as writer:
+            df.to_excel(writer, index=False, sheet_name='Sheet1')
+            df_keywords = pd.DataFrame([unique_keywords_str], columns=['Unique Keywords'])
+            df_keywords.to_excel(writer, index=False, sheet_name='Sheet2')
 
+            workbook  = writer.book
+            worksheet1 = writer.sheets['Sheet1']
+            worksheet2 = writer.sheets['Sheet2']
+            wrap_format = workbook.add_format({'text_wrap': True})
+
+            for idx, col in enumerate(df.columns):
+                column_len = df[col].astype(str).map(len).max()
+                column_title_len = len(col)
+                max_len = min(100,max(column_len, column_title_len))
+                worksheet1.set_column(idx, idx, max_len + 1, wrap_format)
+        
+            worksheet2.set_column(0, 0, len('Unique Keywords') + 1, wrap_format)

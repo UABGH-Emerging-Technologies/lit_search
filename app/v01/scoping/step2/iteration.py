@@ -3,10 +3,9 @@ import os
 from fastapi import APIRouter, HTTPException, BackgroundTasks
 
 from datetime import datetime
-
-
-import ScopingReview_config.app_config as lit_app_config
-from ScopingReview.Search.Manager import FastAPIIterateSearchManager
+from ScopingReview_config import app_config
+#TODO This should pull in workflow, not manager
+from ScopingReview.IterateSearch.Workflow import IterateSearch
 from aiweb_common.file_operations.UploadManager import FastAPIUploadManager
 import app.fastapi_config as lit_api_config
 from ScopingReview.Keywords.Manager import KeywordData
@@ -50,13 +49,15 @@ def get_step2iteration_response(
     """
     start = datetime.now()
     try:
-        upload_manager = FastAPIUploadManager()
+        upload_manager = FastAPIUploadManager(background_tasks=background_tasks)
         df = upload_manager.read_and_validate_file(xlsx_encoded, extension=".xlsx")
         if df is None:
             raise HTTPException(status_code=422, detail="Failed to process the file")
-        # TODO: standardize whether manager returns cost or just has it as an attribute
-        manager = FastAPIIterateSearchManager(df, question)
-        temp_file_path = manager.update_keywords_and_perform_search(keywords)
+        
+        iterate_search = IterateSearch(df, question)
+        articles_df = iterate_search.process()
+        
+        temp_file_path = iterate_search.update_keywords_and_perform_search(keywords)
         # TODO: Next three lines generalized to something in llm_utils?
         encoded_file = file_to_base64(temp_file_path)  # Convert the file to a base64 string
         background_tasks.add_task(os.unlink, temp_file_path)
@@ -66,17 +67,8 @@ def get_step2iteration_response(
     finish = datetime.now()
     
     try:
-      pass
-        # TODO - make sure this is adapted to workflows
-        # background_tasks.add_task(
-        #     write_to_db,
-        #     lit_app_config,
-        #     f'{{"primary":"{",".join(keywords.primary_keywords)}", "secondary":"{",".join(keywords.secondary_keywords)}", "exclusion":"{",".join(keywords.exclusion_keywords)}"}}',
-        #     start,
-        #     finish,
-        #     manager.total_cost,  # ensure total_cost is handled after the search
-        #     "_scoping_step2_excel",
-        # )
+        content_to_log = f'{{"primary":"{",".join(keywords.primary_keywords)}", "secondary":"{",".join(keywords.secondary_keywords)}", "exclusion":"{",".join(keywords.exclusion_keywords)}"}}',
+        iterate_search.log_to_database(app_config, content_to_log, start, finish, background_tasks, label="_scoping_step2")
     except KeyError:
         pass
     

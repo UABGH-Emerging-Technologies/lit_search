@@ -8,9 +8,9 @@ from fastapi import APIRouter, BackgroundTasks, HTTPException
 from fastapi.responses import FileResponse
 from aiweb_common.file_operations.file_handling import file_to_base64
 
-from ScopingReview.Search.Workflow import ArticleSearch
-import ScopingReview_config.app_config as lit_app_config
-
+from ScopingReview.InitialSearch.Workflow import ArticleSearch
+import ScopingReview_config.app_config as app_config
+import ScopingReview_config.config as config
 from app.v01.schemas import SearchRequest, MSExcelResponse
 import app.fastapi_config as lit_api_config
 
@@ -31,11 +31,7 @@ def get_step1_response(
         # Utilizing the new ArticleSearch to perform the literature search
         article_search = ArticleSearch(research_question)
         articles_df = article_search.process()
-        
-        temp_file_path = os.path.join("/tmp", f"{research_question}.xlsx")
-        #TODO move write_excel_output inside the workflow()<- manager()
-        #article_search.write_excel_output(temp_file_path, articles_df, research_question)
-        
+                
         encoded_file = file_to_base64(temp_file_path)
         background_tasks.add_task(os.unlink, temp_file_path)
         response = MSExcelResponse(encoded_xlsx=encoded_file)
@@ -49,7 +45,7 @@ def get_step1_response(
     try:
         # Adding a background task to write search details to the database
         content_to_log = f'{{"query":"{research_question}"}}'
-        article_search.log_to_database(lit_app_config, content_to_log, start, finish, background_tasks, label="_scoping_step1")
+        article_search.log_to_database(app_config, content_to_log, start, finish, background_tasks, label="_scoping_step1")
     except KeyError:
         pass
 

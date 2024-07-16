@@ -42,7 +42,7 @@ def get_bibtex_response(
     encoded BibTeX file as a base64 string.
     """
     try:
-        upload_manager = FastAPIUploadManager()
+        upload_manager = FastAPIUploadManager(background_tasks)
         # Handles both .docx and .xlsx files
         content = upload_manager.read_and_validate_file(encoded_file, file_extension)
         if content is None:
