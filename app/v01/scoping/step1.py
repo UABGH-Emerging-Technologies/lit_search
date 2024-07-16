@@ -38,6 +38,7 @@ def get_step1_response(
         encoded_file = file_to_base64(temp_file_path)
         background_tasks.add_task(os.unlink, temp_file_path)
         response = MSExcelResponse(encoded_xlsx=encoded_file)
+        #TODO This line doesn't work right anymore
         if temp_file_path is None:
             raise HTTPException(status_code=404, detail="No articles found")
     except Exception as e:

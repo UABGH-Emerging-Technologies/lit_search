@@ -28,7 +28,7 @@ def get_step2keywords_response(
     finish = datetime.now()
     try:
         print("Preparing content to lo log")
-        content_to_log = f'{keywords}'
+        content_to_log = f'{{"Keywords":"{keywords}"}}'
         keyword_workflow.log_to_database(app_config, content_to_log, start, finish, background_tasks, label="_scoping_step2_keywords")
         print('Content logged')
     except KeyError:

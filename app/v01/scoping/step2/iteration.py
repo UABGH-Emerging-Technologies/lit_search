@@ -3,7 +3,7 @@ import os
 from fastapi import APIRouter, HTTPException, BackgroundTasks
 
 from datetime import datetime
-from ScopingReview_config import app_config
+from ScopingReview_config import app_config, config
 #TODO This should pull in workflow, not manager
 from ScopingReview.IterateSearch.Workflow import IterateSearch
 from aiweb_common.file_operations.UploadManager import FastAPIUploadManager
@@ -54,10 +54,10 @@ def get_step2iteration_response(
         if df is None:
             raise HTTPException(status_code=422, detail="Failed to process the file")
         
-        iterate_search = IterateSearch(df, question)
-        articles_df = iterate_search.process()
-        
-        temp_file_path = iterate_search.update_keywords_and_perform_search(keywords)
+        iterate_search = IterateSearch(df, question, keywords)
+        articles_df, refined_query = iterate_search.process()
+        temp_file_path = config.SR_STEP2_FILENAME
+        iterate_search.write_excel_output(temp_file_path, articles_df, refined_query)
         # TODO: Next three lines generalized to something in llm_utils?
         encoded_file = file_to_base64(temp_file_path)  # Convert the file to a base64 string
         background_tasks.add_task(os.unlink, temp_file_path)
@@ -67,8 +67,9 @@ def get_step2iteration_response(
     finish = datetime.now()
     
     try:
-        content_to_log = f'{{"primary":"{",".join(keywords.primary_keywords)}", "secondary":"{",".join(keywords.secondary_keywords)}", "exclusion":"{",".join(keywords.exclusion_keywords)}"}}',
-        iterate_search.log_to_database(app_config, content_to_log, start, finish, background_tasks, label="_scoping_step2")
+        content_to_log = f'{{"query":"{question}", "Refined Query":"{refined_query}"}}'
+        iterate_search.log_to_database(app_config, content_to_log, start, finish, background_tasks, label="_scoping_step2b_iterate")
+        print("Outpute successfully logged")
     except KeyError:
         pass
     

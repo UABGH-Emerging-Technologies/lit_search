@@ -25,10 +25,6 @@ class BaseManager():
     def _get_mime_type(self):
         raise NotImplementedError
     
-    #TODO Add write_categorize_excel_output
-    def write_categorize_excel_output(self):
-        pass
-
     #TODO KEEP THIS GENERAL FOR ALL EXCEL OUTPUTS
     def write_search_excel_output(self, tmpfile, df, input_search_terms, query_strings=""):
         print("Writing excel file! tempfile - ", tmpfile)
@@ -60,7 +56,7 @@ class BaseManager():
 
             # You can also set column width for the second sheet if needed
             worksheet2.set_column(0, 0, len("Unique Keywords") + 1, wrap_format)
-            print("END OF WRITE_SEACH_EXCEL_OUTPUT")
+            print("END OF WRITE_SEACRH_EXCEL_OUTPUT")
 
 
     def make_initial_df(self, articles_df):
@@ -85,7 +81,6 @@ class BaseManager():
 
         # Return as a DataFrame
         return pd.DataFrame(pmids, columns=["PMID"])
-
             
     def get_relevant_rows(self):
         if not isinstance(self.df, pd.DataFrame):
@@ -211,10 +206,3 @@ class BaseManager():
             for page in pdf.pages:
                 text += page.extract_text()
         return text
-
-    def extract_docx_pmids(self, text):
-        pattern = r"PMID: (\d+)"
-
-        pmids = re.findall(pattern, text)
-
-        return pd.DataFrame(pmids, columns=["PMID"])
