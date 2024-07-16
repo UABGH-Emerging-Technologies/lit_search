@@ -9,6 +9,7 @@ from fastapi import HTTPException  # Importing HTTPException
 
 from aiweb_common.WorkflowHandler import WorkflowHandler
 from aiweb_common.generate.SingleResponse import SingleResponseHandler
+from aiweb_common.file_operations.file_handling import write_excel_output  # Importing write_excel_output
 
 #TODO move aiweb_common stuff to Categorize.Workflow
 class BaseCategorizeManager(BaseManager):
