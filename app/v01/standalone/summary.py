@@ -19,25 +19,7 @@ def get_summary_response(
     background_tasks: BackgroundTasks,
     research_question: str
     ) -> MSWordResponse:
-    """
-    This function takes a research question, performs an initial literature search using an API,
-    summarizes the search results, generates a DOCX file with the summary, and writes relevant
-    information to a database as a background task.
-    
-    Args:
-      background_tasks (BackgroundTasks): The `background_tasks` parameter in the `get_summary_response`
-    function is used to schedule background tasks to be run after the main response has been returned to
-    the client. These tasks are typically non-blocking and can be used for operations like writing to a
-    database, sending emails, or other asynchronous operations that
-      research_question (str): The `research_question` parameter in the `get_summary_response` function
-    is a string that represents the question or topic for which the summary response is being generated.
-    This question is used in the function to perform an initial literature search and compile articles
-    related to the research question.
-    
-    Returns:
-      The function `get_summary_response` returns a tuple containing the temporary file path and a
-    `FileResponse` object.
-    """
+
     try:
         # Perform initial literature search and get DataFrame
         article_search_manager = ArticleSearchWorkflow(scoping_step="initial literature search", research_q=research_question)

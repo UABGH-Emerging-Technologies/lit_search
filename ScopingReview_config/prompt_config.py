@@ -34,6 +34,9 @@ INPUT CATEGORIES:
 OUTPUT:
 """
 
+STANDALONE_SUMMARY_TEMPLATE = "I am considering a clinical research project to address this question: '{question}' I want to and understand how my project is situated in existing literature. Write a paragrph summarizing of the following article abstracts and addressing how my proposed project fits in to existing literature.Liberally use APA-style in-text citations throughout the paragraph, citing the articles. The article abstracts are separated by '---'"
+
+
 SUMMARIZE_CATEGORY_TEMPLATE = "I am working  on a scoping review to address this question: {question}\n\n Currently, I am summarizing articles by expert-defined categories. All of the article summaries below were assigned the category {category}. Write a one page (or shorter) final summary of the following journal article summaries, focusing on my question. Liberally use APA-style in-text citations throughout the paragraph, citing the summarized articles. The article summaries are separated by '---'"
 
 SUMMARIZE_NEWSLETTER_TEMPLATE = """I am updating the 'Your Monthly AI Digest of the Latest in Anesthesiology Research' newsletter for the subfield of {category}. I will provide you with summaries of recent anesthesiology articles from PubMed. Based on these summaries, I need two specific sections for the newsletter:
