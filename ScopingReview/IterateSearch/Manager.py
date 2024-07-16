@@ -1,9 +1,10 @@
+import pandas as pd
+from fastapi import HTTPException
+
 from ScopingReview.InitialSearch.Manager import BaseSearchManager
 from ScopingReview.Keywords.Manager import KeywordData
 from ScopingReview.Keywords.Workflow import KeywordWorkflow
 from ScopingReview_config import config 
-import pandas as pd
-from fastapi import HTTPException
 import tempfile
 
 class BaseIterateSearchManager(BaseSearchManager):
@@ -31,7 +32,7 @@ class BaseIterateSearchManager(BaseSearchManager):
 
     def perform_search(self, search_string):
         self.selected_articles_df.reset_index(drop=True, inplace=True)
-        articles_df = super().perform_search(search_string)
+        articles_df = self._fetch_articles(search_string)
         articles_df = pd.concat([self.selected_articles_df, articles_df], ignore_index=True)
         articles_df.drop_duplicates(subset='PMID', keep='first', inplace=True)
         return articles_df
@@ -52,7 +53,7 @@ class FastAPIIterateSearchManager(BaseIterateSearchManager):
         
     def extract_and_return_keywords(self) -> KeywordData:
         try:
-            generated_keywords = self.manage_keyword_extraction() 
+            generated_keywords = self.determine_keywords() 
             return KeywordData(
                 primary_keywords=self.primary_keywords,
                 secondary_keywords=self.secondary_keywords,
@@ -74,21 +75,15 @@ class FastAPIIterateSearchManager(BaseIterateSearchManager):
 
     def refine_keywords_and_search(self, keywords: KeywordData) -> str:
         try:
-            self.initialize_keywords(keywords.primary_keywords, keywords.secondary_keywords, keywords.exclusion_keywords)
+            self.keyword_workflow.initialize_keywords(keywords.primary_keywords, keywords.secondary_keywords, keywords.exclusion_keywords)
             query = self.edit_query_terms()
             print(query)
             articles_df = self.perform_search(query)
             if articles_df is None or articles_df.empty:
                 raise HTTPException(status_code=404, detail="No articles found with the revised keywords")
-            temp_file_path = self.save_results_to_excel(articles_df)
+            # temp_file_path = self.write_search_excel_output(articles_df)
             return temp_file_path
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
         
-    def save_results_to_excel(self, df: pd.DataFrame) -> str:
-        try:
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmpfile:
-                df.to_excel(tmpfile.name, index=False)
-                return tmpfile.name
-        except Exception as e:
-            raise HTTPException(status_code=500, detail="Failed to save Excel file") from e
+

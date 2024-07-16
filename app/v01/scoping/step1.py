@@ -31,10 +31,7 @@ def get_step1_response(
         # Utilizing the new ArticleSearch to perform the literature search
         article_search = ArticleSearch(research_question)
         articles_df = article_search.process()
-        
-        temp_file_path = config.SR_STEP1_FILENAME
-        article_search.write_excel_output(temp_file_path, articles_df, research_question)
-        
+                
         encoded_file = file_to_base64(temp_file_path)
         background_tasks.add_task(os.unlink, temp_file_path)
         response = MSExcelResponse(encoded_xlsx=encoded_file)

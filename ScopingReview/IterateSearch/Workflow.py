@@ -16,11 +16,11 @@ class IterateSearch(ArticleSearch):
         super().__init__(research_question=research_question)
         self.search_manager = FastAPIIterateSearchManager(df, research_q=research_question)
         self.query_generator = PubMedQueryGenerator(config.LLM_INTERFACE, self.research_question)
-        self.pubmed_interface = PubMedInterface(config.PUBMED_API_KEY)
+        self.pubmed_interface = PubMedInterface()
         
     def process(self):
         initial_query = self.search_manager.manage_keyword_extraction()
-        search_string = self.query_generator.generate_query(initial_query)
-        articles_df = self.pubmed_interface.search_articles(search_string)
+        search_string = self.query_generator.generate_search_string(initial_query)
+        articles_df = self.pubmed_interface.search_pubmed_articles(search_string)
         self.search_manager.update_articles(articles_df)
         return articles_df
