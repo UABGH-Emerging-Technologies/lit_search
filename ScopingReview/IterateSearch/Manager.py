@@ -8,15 +8,14 @@ from ScopingReview_config import config
 import tempfile
 
 class BaseIterateSearchManager(BaseSearchManager):
-    def __init__(self, df, research_q):
+    def __init__(self, df, research_q, keywords):
         super().__init__(None, research_q)
         self.df = df
         self.selected_articles_df = self.get_relevant_rows()
         self.query_terms = []
-        self.primary_keywords = []
-        self.secondary_keywords = []
-        self.exclusion_keywords = []
-        self.keywords_extracted = False
+        self.primary_keywords = keywords.primary_keywords
+        self.secondary_keywords = keywords.secondary_keywords
+        self.exclusion_keywords = keywords.exclusion_keywords
         self.keyword_workflow = KeywordWorkflow(self.df, research_question=research_q)
         
     def _get_filename(self):
@@ -38,18 +37,16 @@ class BaseIterateSearchManager(BaseSearchManager):
         return articles_df
 
     def manage_keyword_extraction(self):
-        if not self.keywords_extracted:
-            generated_keywords = self.determine_keywords()
-            self.keywords_extracted = True
-        return generated_keywords
+            
+        return self.refine_keywords()
 
     def update_articles(self, articles_df):
         self.selected_articles_df = pd.concat([self.selected_articles_df, articles_df], ignore_index=True)
         self.selected_articles_df.drop_duplicates(subset='PMID', keep='first', inplace=True)
            
 class FastAPIIterateSearchManager(BaseIterateSearchManager):
-    def __init__(self, df: pd.DataFrame, research_q: str):
-        super().__init__(df, research_q)
+    def __init__(self, df: pd.DataFrame, research_q: str, keywords: KeywordData):
+        super().__init__(df, research_q, keywords)
         
     def extract_and_return_keywords(self) -> KeywordData:
         try:
