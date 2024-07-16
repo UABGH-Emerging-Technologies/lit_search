@@ -5,6 +5,7 @@ import ScopingReview_config.config as config
 import pandas as pd
 import tempfile
 from typing import Tuple, Any
+from fastapi import HTTPException  # Importing HTTPException
 
 from aiweb_common.WorkflowHandler import WorkflowHandler
 from aiweb_common.generate.SingleResponse import SingleResponseHandler
@@ -104,6 +105,7 @@ class StreamlitCategorizeManager(BaseCategorizeManager):
         st.session_state["file_uploaded_cate"] = False
  
     def _download_results(self, category_df):
+        import streamlit as st  # Ensure streamlit is imported within the method
         category_df.drop_duplicates(subset="PMID", keep="first", inplace=True)
         st.write("Note that once you hit download, this form will reset.")
         with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmpfile:
@@ -122,6 +124,7 @@ class StreamlitCategorizeManager(BaseCategorizeManager):
         return config.EXCEL_DOWNLOAD_LABEL
 
     def categorize_articles(self):
+        import streamlit as st  # Ensure streamlit is imported within the method
         super().categorize_articles()
         if self.df is not None:
             st.session_state["file_uploaded_cate"] = True
