@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 from typing import List
 from ScopingReview.BaseManager import BaseManager
+import re
 import json
 from collections import Counter
 import pandas as pd
@@ -14,6 +15,24 @@ class KeywordManager(BaseManager):
     def __init__(self, df, research_q):
         super().__init__(df)
         self.research_q = research_q
+        
+    @staticmethod
+    def _extract_json_from_markdown(markdown_text):
+        # Regular expression to match JSON object within markdown
+        json_pattern = re.compile(r'\{.*?\}', re.DOTALL)
+        
+        # Find JSON object in the markdown text
+        match = json_pattern.search(markdown_text)
+
+        if match:
+            json_str = match.group(0)
+            try:
+                json_data = json.loads(json_str)  # Validate the JSON string
+                return json_data
+            except json.JSONDecodeError:
+                return "Invalid JSON detected."
+        else:
+            return "No JSON object found."
 
     def _clean_keywords(self, keywords):
         cleaned_keywords = []
@@ -71,7 +90,7 @@ class KeywordManager(BaseManager):
         return unique_keywords_str
     
     def parse_keywords(self, content):
-        data = json.loads(content)
+        data = self._extract_json_from_markdown(content)
         primary_keywords = data.get("Primary Keywords", [])
         secondary_keywords = data.get("Secondary Keywords", [])
         exclusion_keywords = data.get("Exclusion Keywords", [])
@@ -96,3 +115,4 @@ class KeywordManager(BaseManager):
                 worksheet1.set_column(idx, idx, max_len + 1, wrap_format)
         
             worksheet2.set_column(0, 0, len('Unique Keywords') + 1, wrap_format)
+

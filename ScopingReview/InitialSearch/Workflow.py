@@ -5,7 +5,7 @@ from aiweb_common.resource.PubMedQuery import PubMedQueryGenerator
 
 from Bio import Entrez
 
-from ScopingReview.InitialSearch.Manager import FastAPIInitialSearchManager
+from ScopingReview.InitialSearch.Manager import FastAPISearchManager
 
 Entrez.email = config.DEV_EMAIL
 os.environ["NCBI_API_KEY"] = app_config.NCBI_API_KEY
@@ -14,8 +14,7 @@ class ArticleSearch(WorkflowHandler):
     def __init__(self, research_question):
         super().__init__()
         self.research_question = research_question
-        self.search_manager = FastAPIInitialSearchManager(scoping_step=None, research_q=research_question)
-        self.output_filepath = config.SR_STEP2_FILENAME
+        self.search_manager = FastAPISearchManager(scoping_step=None, research_q=research_question)
         
     def write_excel_output(self, temp_file_path, articles_df, research_question):   
         self.search_manager.write_search_excel_output(tmpfile=temp_file_path, df=articles_df, input_search_terms=research_question)
@@ -38,7 +37,7 @@ class ArticleSearch(WorkflowHandler):
                 n=n+1
         
         print("Insufficient number of articles found in {config.MAX_TRIES} tries")
-        self.write_excel_output()
+        return None
                     
         
 
