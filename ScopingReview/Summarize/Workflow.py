@@ -1,7 +1,8 @@
 import os
 import datetime
 from aiweb_common.WorkflowHandler import WorkflowHandler
-import tempfile
+from aiweb_common.generate.SingleResponse import SingleResponseHandler
+import ScopingReview_config.prompt_config as prompt_config
 from ScopingReview_config import config, boilerplate
 from aiweb_common.file_operations.text_format import convert_markdown_docx
 from fastapi import HTTPException
@@ -15,6 +16,47 @@ class SummarizeArticles(WorkflowHandler):
         self.df = df
         self.research_q = research_q
         self.summarizer = SummarizeManager(df, research_q)
+        self.fast_single_response = SingleResponseHandler(config.FAST_LLM_INTERFACE)
+        self.single_response = SingleResponseHandler(config.LLM_INTERFACE)
+        
+    def assemble_initial_summary_prompt(self, first_chunk):
+        print('assembling prompts')
+        assembled_prompt = self.fast_single_response.single_response_service.preparer.assemble_prompt(
+            system_prompt = prompt_config.summarize_single_article_system_prompt, 
+            user_prompt = prompt_config.initial_summary_prompt, 
+            text = first_chunk
+        )
+        return assembled_prompt
+    
+    def assemble_next_summary_prompt(self, current_summary, next_chunk):
+        print('assembling prompts')
+        assembled_prompt = self.fast_single_response.single_response_service.preparer.assemble_prompt(
+            system_prompt = prompt_config.summarize_single_article_system_prompt, 
+            user_prompt = prompt_config.refine_summary_prompt, 
+            existing_summary = current_summary,
+            test = next_chunk
+        )
+        return assembled_prompt
+    
+    def assemble_category_summary_prompt(self, articles_category, articles_summaries):
+        print('assembling prompts')
+        assembled_prompt = self.single_response.single_response_service.preparer.assemble_prompt(
+            system_prompt = prompt_config.SUMMARIZE_CATEGORY_TEMPLATE, 
+            user_prompt = prompt_config.SUMMARIZE_HUMAN_TEMPLATE, 
+            question = self.research_q,
+            category = articles_category,
+            content = articles_summaries
+        )
+        return assembled_prompt
+    
+    def assemble_newsletter_prompt(self, anes_category, articles_summaries):
+        assembled_prompt = self.single_response.single_response_service.preparer.assemble_prompt(
+            system_prompt = prompt_config.SUMMARIZE_NEWSLETTER_TEMPLATE, 
+            user_prompt = prompt_config.SUMMARIZE_HUMAN_TEMPLATE, 
+            category = anes_category,
+            content = articles_summaries
+        )
+        return assembled_prompt
       
     # TODO: Could be a generic llm_utils summarizer  
     def summarize_article_in_chunks(self, article_text):
@@ -24,15 +66,15 @@ class SummarizeArticles(WorkflowHandler):
         )
         texts = text_splitter.create_documents([article_text])
         # Create the initial summary for the first chunk
-        first_summary_prompt = self.summarizer.assemble_initial_summary_prompt(first_chunk=texts[0])
-        summary, first_response_meta = self.summarizer.fast_single_response.generate_response(first_summary_prompt)
+        first_summary_prompt = self.assemble_initial_summary_prompt(first_chunk=texts[0])
+        summary, first_response_meta = self.fast_single_response.generate_response(first_summary_prompt)
         self._update_total_cost(first_response_meta)
         
         # Iteratively refine the summary with each subsequent chunk
         if len(texts) > 1:
             for text_chunk in texts[1:]:
-                next_summary_prompt = self.summarizer.assemble_next_summary_prompt(current_summary=summary.content, next_chunk=text_chunk)
-                summary, next_response_meta = self.summarizer.fast_single_response.generate_response(next_summary_prompt)
+                next_summary_prompt = self.assemble_next_summary_prompt(current_summary=summary.content, next_chunk=text_chunk)
+                summary, next_response_meta = self.fast_single_response.generate_response(next_summary_prompt)
                 self._update_total_cost(next_response_meta)
 
         return summary.content
@@ -69,20 +111,20 @@ class SummarizeArticles(WorkflowHandler):
             text_to_summarize = "\n\n".join(article_summaries)
 
             if newsletter_flag:
-                newsletter_prompt = self.summarizer.assemble_newsletter_prompt(
+                newsletter_prompt = self.assemble_newsletter_prompt(
                     anes_category=current_category,
                     articles_summaries=text_to_summarize
                     )
-                response, response_meta = self.summarizer.single_response.generate_response(newsletter_prompt)
+                response, response_meta = self.single_response.generate_response(newsletter_prompt)
                 self._update_total_cost(response_meta)
 
                 output.append(response.content)
 
             else:
-                category_summary_prompt = self.summarizer.assemble_category_summary_prompt(
+                category_summary_prompt = self.assemble_category_summary_prompt(
                     current_category, text_to_summarize
                 )
-                response, response_meta = self.summarizer.single_response.generate_response(category_summary_prompt)
+                response, response_meta = self.single_response.generate_response(category_summary_prompt)
                 self._update_total_cost(response_meta)
 
                 output.append(
