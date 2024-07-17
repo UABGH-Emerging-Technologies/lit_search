@@ -58,6 +58,8 @@ class BaseManager():
             worksheet2.set_column(0, 0, len("Unique Keywords") + 1, wrap_format)
             print("END OF WRITE_SEACRH_EXCEL_OUTPUT")
 
+    def write_docx_output(self, tmpfile, md_string):
+        ...
 
     def make_initial_df(self, articles_df):
         # add author response column
