@@ -24,6 +24,14 @@ class CategorizeWorkflow(WorkflowHandler):
         return input_list
         
     def categorize_articles(self):
+        """
+        The function `categorize_articles` categorizes articles based on their abstract and title using
+        a provided list of categories.
+        
+        Returns:
+          The `categorize_articles` method returns a DataFrame `category_df` that contains the
+        categorized articles along with their full texts.
+        """
 
         reduced_df = self._prep_df_for_categorization()
         input_list = self._prep_categorylist()

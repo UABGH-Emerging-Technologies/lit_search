@@ -24,6 +24,16 @@ class BibliographyManager(BaseManager):
         return config.SR_STEP6_FILENAME
     
     def _get_PMID_list(self):
+        """
+        The function `_get_PMID_list` extracts PubMed IDs from either an Excel or Word document and
+        returns them as a list of strings.
+        
+        Returns:
+          The `_get_PMID_list` method returns a list of PubMed IDs (PMIDs) as strings extracted from
+        either an Excel (.xlsx) file or a Word document (.docx). If the file is in Excel format and
+        contains a column named "PMID", the method returns the PMIDs from that column. If the file is in
+        Word format, the method first extracts the PMIDs using the
+        """
         if self.file_ext == ".xlsx":
             if "PMID" in self.df.columns:
                 return self.df["PMID"].astype(str).tolist()
@@ -37,6 +47,20 @@ class BibliographyManager(BaseManager):
                 raise ValueError("Bibliography not in expected format.")
             
     def _pmid2bibtex(self, pmids: list):
+        """
+        The function `_pmid2bibtex` retrieves information from PubMed based on a list of PubMed IDs and
+        formats it into BibTeX entries.
+        
+        Args:
+          pmids (list): The function `_pmid2bibtex` takes a list of PubMed IDs (`pmids`) as input. It
+        fetches XML data from Entrez for the given PubMed IDs, parses the XML data, and generates BibTeX
+        formatted output for each article.
+        
+        Returns:
+          The function `_pmid2bibtex` takes a list of PubMed IDs (`pmids`) as input, fetches XML data from
+        Entrez for these IDs, parses the XML data to extract relevant information for each article, and
+        formats the information into BibTeX format for each article.
+        """
         ## Adapted from: https://gist.github.com/tommycarstensen/ec3c57761f3846c339de925b66f4ac1b
         ## Fetch XML data from Entrez.
         efetch = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
@@ -139,6 +163,14 @@ class BibliographyManager(BaseManager):
         return whole_bibtex
 
     def convert_pmid_to_bibtex(self):
+        """
+        The function `convert_pmid_to_bibtex` retrieves a list of PMIDs, converts them to BibTeX format, and
+        returns the BibTeX text.
+        
+        Returns:
+          The `convert_pmid_to_bibtex` method returns the BibTeX text generated from the list of PMIDs
+        obtained from `_get_PMID_list` and converted using `_pmid2bibtex` method.
+        """
         pmid_list = self._get_PMID_list()
         if not pmid_list:
             raise ValueError("No PMIDs found to convert to BibTeX.")
@@ -155,6 +187,16 @@ class StreamlitBibtexManager(BibliographyManager):
         return config.DOCX_DOWNLOAD_LABEL
    
     def _download_results(self, bibtex_text):
+        """
+        The `_download_results` function in Python displays a message, provides a download button for a
+        given BibTeX text, and prompts the user for feedback via email.
+        
+        Args:
+          bibtex_text: The `bibtex_text` parameter in the `_download_results` function is the BibTeX
+        formatted text that contains the bibliographic information of the results that the user wants to
+        download. This text will be used as the data to be downloaded when the user clicks the download
+        button.
+        """
         st.balloons()
         st.write("Note that once you hit download, this form will reset.")
         st.download_button(

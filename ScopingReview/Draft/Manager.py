@@ -4,6 +4,8 @@ from aiweb_common.file_operations.text_format import convert_markdown_docx
 import streamlit as st
 import tempfile
 
+# The `DraftReviewManager` class manages draft reviews, including methods for extracting APA citations
+# and assembling a document from different sections.
 class DraftReviewManager(BaseManager):
     def __init__(self, summaries, research_q):
         super().__init__(None)  # Assuming the base class does not necessarily need a DataFrame
@@ -19,6 +21,18 @@ class DraftReviewManager(BaseManager):
     # TODO: find better place for this. Used by write_first_draft()
     @staticmethod
     def extract_apa_citations(markdown_text):
+        """
+        The `extract_apa_citations` method in Python splits a markdown text into paragraphs, filters out
+        paragraphs containing "PMID", and returns two lists - one with citations and one without.
+        
+        Args:
+          markdown_text: The `extract_apa_citations` method you provided is a static method that takes a
+        `markdown_text` parameter as input. It splits the `markdown_text` into paragraphs, then filters out
+        paragraphs that contain the string "PMID" to identify citations and non-citations.
+        
+        Returns:
+          The `extract_apa_citations` method returns two lists: `citations` and `non_citations`.
+        """
         # Split the document into paragraphs
         paragraphs = markdown_text.split("\n\n")
 
@@ -48,6 +62,8 @@ class DraftReviewManager(BaseManager):
 
         return assembled_draft
 
+# This class extends DraftReviewManager and adds functionality for managing draft reviews in a
+# Streamlit application.
 class StreamlitDraftReviewManager(DraftReviewManager):
     def __init__(self, summaries, research_q):
         super().__init__(summaries, research_q)

@@ -7,6 +7,9 @@ from ScopingReview.Draft.Manager import DraftReviewManager
 from aiweb_common.file_operations.text_format import convert_markdown_docx
 from aiweb_common.generate.SingleResponse import SingleResponseHandler
 
+# This Python class `DraftReview` handles the drafting process of a research review by assembling
+# prompts for introduction, conclusion, and abstract, generating responses, and assembling the final
+# document.
 class DraftReview(WorkflowHandler):
     def __init__(self, summaries, research_q):
         super().__init__()
@@ -55,6 +58,15 @@ class DraftReview(WorkflowHandler):
         return assembled_prompt
 
     def write_first_draft(self):
+        """
+        This function generates a first draft of a document by extracting citations, preparing
+        introduction, conclusion, and abstract prompts, generating responses, and assembling the
+        document with the provided content.
+        
+        Returns:
+          The `write_first_draft` method returns the assembled draft document, which includes the
+        abstract, introduction, methodology, results, conclusion, and citations in Markdown format.
+        """
         citations, non_citations = self.drafter.extract_apa_citations(self.summaries)
         
         # prep introduction

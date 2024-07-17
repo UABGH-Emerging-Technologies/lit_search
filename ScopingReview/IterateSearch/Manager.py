@@ -7,6 +7,9 @@ from ScopingReview.Keywords.Workflow import KeywordWorkflow
 from ScopingReview_config import config 
 import tempfile
 
+# This class `BaseIterateSearchManager` extends `BaseSearchManager` and includes methods for preparing
+# a query with keywords, determining keywords, refining the query, and updating articles in a
+# DataFrame.
 class BaseIterateSearchManager(BaseSearchManager):
     def __init__(self, df, research_q, keywords):
         super().__init__(None, research_q)

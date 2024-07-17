@@ -11,6 +11,8 @@ from ScopingReview.InitialSearch.Workflow import ArticleSearch
 Entrez.email = config.DEV_EMAIL
 os.environ["NCBI_API_KEY"] = app_config.NCBI_API_KEY
 
+# The `IterateSearch` class refines a search query using keywords and processes the search workflow to
+# retrieve relevant articles.
 class IterateSearch(ArticleSearch):
     def __init__(self, df:pd.DataFrame, research_question: str, keywords: KeywordData):
         super().__init__(research_question=research_question)

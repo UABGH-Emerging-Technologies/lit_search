@@ -9,6 +9,8 @@ from fastapi import HTTPException  # Importing HTTPException
 
 
 #TODO move aiweb_common stuff to Categorize.Workflow
+# The `BaseCategorizeManager` class defines methods for categorizing data, assembling prompts,
+# extracting full text, and saving results to an Excel file.
 class BaseCategorizeManager(BaseManager):
     def __init__(self, df_to_categorize, userdefined_categories):
         super().__init__(df_to_categorize)
@@ -24,6 +26,18 @@ class BaseCategorizeManager(BaseManager):
         return config.EXCEL_MIME   
     
     def _assemble_prompt(self, thing_to_categorize):
+        """
+        The function `_assemble_prompt` assembles a prompt using system and user templates, along with
+        context and categories.
+        
+        Args:
+          thing_to_categorize: `thing_to_categorize` is the object or item that needs to be categorized. It
+        is used as context in assembling the prompt for categorization.
+        
+        Returns:
+          The function `_assemble_prompt` returns the assembled prompt that is generated based on the input
+        parameters provided to the function.
+        """
         print('assembling prompts')
         assembled_prompt = self.single_response.single_response_service.preparer.assemble_prompt(
             system_prompt = prompt_config.CATEGORIZE_SYSTEM_TEMPLATE, 
@@ -34,6 +48,14 @@ class BaseCategorizeManager(BaseManager):
         return assembled_prompt
 
     def _extract_full_text(self):
+        """
+        The function `_extract_full_text` fetches full text data based on PMID and merges it with the
+        existing DataFrame.
+        
+        Returns:
+          The method `_extract_full_text` is returning the `category_df` DataFrame after merging the
+        original DataFrame `self.df` with the full text DataFrame fetched using the 'PMID' column.
+        """
         if self.df is not None:
             try:
                 full_text_df = self.fetch_full_text(self.df['PMID'])
@@ -44,6 +66,19 @@ class BaseCategorizeManager(BaseManager):
 
 
     def save_results_to_excel(self, category_df):
+        """
+        The function `save_results_to_excel` saves a DataFrame to an Excel file with unique PMID values.
+        
+        Args:
+          category_df: The `category_df` parameter is a pandas DataFrame containing data related to
+        categories. The data should have a column named "PMID" which is used to drop duplicate rows based on
+        the values in this column. The function `save_results_to_excel` takes this DataFrame as input,
+        removes duplicate rows based
+        
+        Returns:
+          The `save_results_to_excel` method returns the name of the temporary Excel file that was created
+        and saved with the data from the `category_df` DataFrame.
+        """
         category_df.drop_duplicates(subset="PMID", keep="first", inplace=True)
         try:
             with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx", mode='wb') as tmpfile:
@@ -53,6 +88,7 @@ class BaseCategorizeManager(BaseManager):
             print(f"Failed to save file: {str(e)}")
             raise
 
+# This class is a FastAPI manager that categorizes articles and saves the results to an Excel file.
 class FastAPICategorizeManager(BaseCategorizeManager):
     def __init__(self, df: pd.DataFrame, userdefined_categories: str):
         super().__init__(df, userdefined_categories)

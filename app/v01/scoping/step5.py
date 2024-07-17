@@ -17,6 +17,26 @@ def get_step5_response(
     research_question: str,
     docx_encoded: str) -> MSWordResponse:
 
+    """
+    This function processes a .docx file, generates a draft based on a research question, and logs
+    search details to a database as a background task.
+    
+    Args:
+      background_tasks (BackgroundTasks): BackgroundTasks object used in FastAPI to schedule background
+    tasks.
+      research_question (str): The `research_question` parameter is a string that represents the
+    question or topic that the user is researching. It is used as input to generate a draft document
+    based on the research question and the content of the uploaded document.
+      docx_encoded (str): The `docx_encoded` parameter in the `get_step5_response` function is a string
+    that represents the encoded content of a Microsoft Word document file (.docx). This encoded content
+    is used within the function to process the file and generate a response in the form of a Microsoft
+    Word document.
+    
+    Returns:
+      The function `get_step5_response` returns an instance of `MSWordResponse` class, which contains
+    the encoded DOCX file as a base64 string.
+    """
+
     start = datetime.datetime.now()
     try:
         upload_manager = FastAPIUploadManager(background_tasks)

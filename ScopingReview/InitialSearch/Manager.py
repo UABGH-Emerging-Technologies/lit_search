@@ -12,6 +12,8 @@ from fastapi import HTTPException
 from typing import List
 
 
+# The `BaseSearchManager` class is a search manager that interacts with PubMed to fetch and manage
+# articles based on a given query.
 class BaseSearchManager(BaseManager):
     def __init__(self, scoping_step, research_q):
         self.scoping_step = scoping_step

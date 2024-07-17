@@ -9,6 +9,8 @@ from ScopingReview.InitialSearch.Manager import FastAPISearchManager
 Entrez.email = config.DEV_EMAIL
 os.environ["NCBI_API_KEY"] = app_config.NCBI_API_KEY
 
+# The `ArticleSearch` class generates PubMed queries based on a research question and retrieves
+# article details until a minimum number of articles is found or a maximum number of tries is reached.
 class ArticleSearch(WorkflowHandler):
     def __init__(self, research_question):
         super().__init__()
@@ -16,6 +18,16 @@ class ArticleSearch(WorkflowHandler):
         self.search_manager = FastAPISearchManager(scoping_step=None, research_q=research_question)
 
     def process(self):
+        """
+        This function generates PubMed queries based on a research question and retrieves article
+        details until a minimum number of articles is found or a maximum number of tries is reached.
+        
+        Returns:
+          The method `process` is returning a DataFrame `articles_df` containing details of articles
+        fetched from PubMed based on the generated search query. If the number of articles found is less
+        than the minimum threshold specified in `config.MIN_ARTICLES` after the maximum number of tries
+        specified in `config.MAX_TRIES`, it will return `None`.
+        """
         query_generator = PubMedQueryGenerator(config.LLM_INTERFACE, self.research_question)
         n=0
         search_string=""
