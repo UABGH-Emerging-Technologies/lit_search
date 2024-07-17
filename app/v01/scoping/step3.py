@@ -48,10 +48,12 @@ def get_step3_response(background_tasks: BackgroundTasks,
         #TODO convert to match other processes (process returns df, call write_excel_file...)
         category_df = categorize_workflow.process()
 
-        temp_file_path = categorize_workflow.get_tempfile_excel(category_df)
-        
-        encoded_file = file_to_base64(temp_file_path)  # Convert the file to a base64 string
-        background_tasks.add_task(os.unlink, temp_file_path)
+        encoded_file = categorize_workflow.manager.get_encoded_excel(
+            category_df, 
+            background_tasks=background_tasks,
+            research_question=user_defined_categories
+            )
+
         response = MSExcelResponse(encoded_xlsx=encoded_file)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
