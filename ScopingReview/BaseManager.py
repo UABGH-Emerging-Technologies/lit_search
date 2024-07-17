@@ -1,6 +1,6 @@
 import pandas as pd
 import re
-
+import os
 import ScopingReview_config.config as config
 import ScopingReview_config.app_config as app_config
 import streamlit as st
@@ -8,6 +8,11 @@ import pdfplumber
 from abc import abstractmethod
 from Bio import Entrez
 import xml.etree.ElementTree as ET
+from aiweb_common.file_operations.text_format import convert_markdown_docx
+from aiweb_common.file_operations.file_handling import file_to_base64
+from aiweb_common.file_operations.DocxCreator import DocxCreator
+
+import tempfile
 
 
 import requests
@@ -25,8 +30,8 @@ class BaseManager():
     def _get_mime_type(self):
         raise NotImplementedError
     
-    #TODO KEEP THIS GENERAL FOR ALL EXCEL OUTPUTS
-    def write_excel_output(self, tmpfile, df, input_search_terms="", query_strings=""):
+    # TODO: split up and consider moving functionality to aiweb_common
+    def write_excel_output(self, tmpfile, df, input_search_terms, query_strings):
         print("Writing excel file! tempfile - ", tmpfile)
 
         with pd.ExcelWriter(tmpfile, engine="xlsxwriter") as writer:
@@ -57,9 +62,26 @@ class BaseManager():
             # You can also set column width for the second sheet if needed
             worksheet2.set_column(0, 0, len("Unique Keywords") + 1, wrap_format)
             print("END OF WRITE_SEACRH_EXCEL_OUTPUT")
+            
+    def get_tempfile_excel(self, articles_df, research_question, pubmed_query):
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmpfile:
+            self.write_excel_output(
+                tmpfile=tmpfile.name,
+                df=articles_df,
+                input_search_terms=research_question,
+                query_strings=pubmed_query
+                )
+        return tmpfile.name
+    
+    def get_encoded_excel(self, articles_df, background_tasks, research_question="", pubmed_query=""):
+        articles_file = self.get_tempfile_excel(articles_df, research_question, pubmed_query)
+        encoded_file = file_to_base64(articles_file)
+        background_tasks.add_task(os.unlink, articles_file)
+        return encoded_file
 
-    def write_docx_output(self, tmpfile, md_string):
-        ...
+    def get_encoded_docx(self, md_string, background_tasks):
+        encoder = DocxCreator(background_tasks)
+        return encoder.convert_markdown_to_docx_bytes(md_string)
 
     def make_initial_df(self, articles_df):
         # add author response column

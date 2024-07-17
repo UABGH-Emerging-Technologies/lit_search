@@ -2,7 +2,6 @@ import os
 from aiweb_common.WorkflowHandler import WorkflowHandler
 from ScopingReview_config import config, app_config
 from aiweb_common.resource.PubMedQuery import PubMedQueryGenerator
-import tempfile
 from Bio import Entrez
 
 from ScopingReview.InitialSearch.Manager import FastAPISearchManager
@@ -15,15 +14,6 @@ class ArticleSearch(WorkflowHandler):
         super().__init__()
         self.research_question = research_question
         self.search_manager = FastAPISearchManager(scoping_step=None, research_q=research_question)
-        
-    def get_tempfile_excel(self, articles_df, research_question):
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmpfile:
-            self.search_manager.write_excel_output(
-                tmpfile=tmpfile.name,
-                df=articles_df,
-                input_search_terms=research_question
-                )
-        return tmpfile.name
 
     def process(self):
         query_generator = PubMedQueryGenerator(config.LLM_INTERFACE, self.research_question)
