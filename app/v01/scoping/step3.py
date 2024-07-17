@@ -39,18 +39,21 @@ def get_step3_response(background_tasks: BackgroundTasks,
     """
     start = datetime.datetime.now()
     try:
-        upload_manager = FastAPIUploadManager()
+        upload_manager = FastAPIUploadManager(background_tasks=background_tasks)
         df = upload_manager.read_and_validate_file(xlsx_encoded, extension=".xlsx")
         if df is None:
             raise HTTPException(status_code=422, detail="Failed to process the file")
 
         categorize_workflow = CategorizeWorkflow(df, user_defined_categories)
         #TODO convert to match other processes (process returns df, call write_excel_file...)
-        temp_file_path = categorize_workflow.process()
-        
-        
-        encoded_file = file_to_base64(temp_file_path)  # Convert the file to a base64 string
-        background_tasks.add_task(os.unlink, temp_file_path)
+        category_df = categorize_workflow.process()
+
+        encoded_file = categorize_workflow.manager.get_encoded_excel(
+            category_df, 
+            background_tasks=background_tasks,
+            research_question=user_defined_categories
+            )
+
         response = MSExcelResponse(encoded_xlsx=encoded_file)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
