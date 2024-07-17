@@ -39,7 +39,6 @@ def get_step1_response(
         encoded_file = file_to_base64(articles_file)
         background_tasks.add_task(os.unlink, articles_file)
         response = MSExcelResponse(encoded_xlsx=encoded_file)
-        #TODO This line doesn't work right anymore
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
