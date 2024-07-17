@@ -16,9 +16,9 @@ class ArticleSearch(WorkflowHandler):
         self.research_question = research_question
         self.search_manager = FastAPISearchManager(scoping_step=None, research_q=research_question)
         
-    def write_excel_output(self, articles_df, research_question):
+    def get_tempfile_excel(self, articles_df, research_question):
         with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmpfile:
-            self.search_manager.write_search_excel_output(
+            self.search_manager.write_excel_output(
                 tmpfile=tmpfile.name,
                 df=articles_df,
                 input_search_terms=research_question

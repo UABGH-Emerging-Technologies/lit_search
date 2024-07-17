@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException, BackgroundTasks
 import datetime
 from ScopingReview.Categorize.Workflow import CategorizeWorkflow
 from aiweb_common.file_operations.UploadManager import FastAPIUploadManager
-import ScopingReview_config.app_config as lit_app_config
+from ScopingReview_config import app_config
 import os
 import app.fastapi_config as lit_api_config
 from app.v01.schemas import MSExcelResponse
@@ -44,9 +44,11 @@ def get_step3_response(background_tasks: BackgroundTasks,
         if df is None:
             raise HTTPException(status_code=422, detail="Failed to process the file")
 
-        workflow = CategorizeWorkflow(df, user_defined_categories)
+        categorize_workflow = CategorizeWorkflow(df, user_defined_categories)
         #TODO convert to match other processes (process returns df, call write_excel_file...)
-        temp_file_path = workflow.process()
+        temp_file_path = categorize_workflow.process()
+        
+        
         encoded_file = file_to_base64(temp_file_path)  # Convert the file to a base64 string
         background_tasks.add_task(os.unlink, temp_file_path)
         response = MSExcelResponse(encoded_xlsx=encoded_file)
@@ -56,17 +58,8 @@ def get_step3_response(background_tasks: BackgroundTasks,
     finish = datetime.datetime.now()
     try:
         pass
-        content_to_log = f'{{"":}}'
-        # TODO - make sure this is adapted to workflows
-        # background_tasks.add_task(
-        #     write_to_db,
-        #     lit_app_config,
-        #     f'{{"primary":"{",".join(keywords.primary_keywords)}", "secondary":"{",".join(keywords.secondary_keywords)}", "exclusion":"{",".join(keywords.exclusion_keywords)}"}}',
-        #     start,
-        #     finish,
-        #     manager.total_cost,  # ensure total_cost is handled after the search
-        #     "_scoping_step2_excel",
-        # )
+        content_to_log = f'{{"User Defined Categories":"{user_defined_categories}"}}'
+        categorize_workflow.log_to_database(app_config, content_to_log, start, finish, background_tasks, label="_scoping_step3_categorize")
     except KeyError:
         pass
 
