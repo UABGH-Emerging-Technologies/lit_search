@@ -11,11 +11,11 @@ class CategorizeWorkflow(WorkflowHandler):
         super().__init__()
         self.df = df
         self.userdefined_categories = userdefined_categories
-        self.categorize_manager = FastAPICategorizeManager(self.df, self.userdefined_categories)
+        self.manager = FastAPICategorizeManager(self.df, self.userdefined_categories)
         self.single_response = SingleResponseHandler(config.FAST_LLM_INTERFACE)
 
     def _prep_df_for_categorization(self):
-        reduced_df = self.categorize_manager.get_relevant_rows().copy()
+        reduced_df = self.manager.get_relevant_rows().copy()
         return reduced_df
     
     def _prep_categorylist(self):
@@ -42,7 +42,7 @@ class CategorizeWorkflow(WorkflowHandler):
             reduced_df.loc[index, "category"] = assigned_categories.lower()            
         try:
             print("Fetching Full Texts")
-            full_text_df = self.categorize_manager.fetch_full_text(reduced_df['PMID'])
+            full_text_df = self.manager.fetch_full_text(reduced_df['PMID'])
             category_df = pd.merge(reduced_df, full_text_df, on='PMID', how='inner')
         except Exception as e:
             print(f"Failed while getting full texts: {str(e)}")
@@ -52,7 +52,7 @@ class CategorizeWorkflow(WorkflowHandler):
         category_df.drop_duplicates(subset="PMID", keep="first", inplace=True)
 
         with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmpfile:
-            self.categorize_manager.write_excel_output(
+            self.manager.write_excel_output(
                 tmpfile=tmpfile.name,
                 df=category_df,
                 )

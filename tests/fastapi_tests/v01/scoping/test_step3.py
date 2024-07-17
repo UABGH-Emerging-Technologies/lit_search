@@ -19,4 +19,4 @@ def test_categorize(
     # Make the POST request
     response = perform_post_request(client, url, payload)
     # Assertions to verify the response status and content
-    validate_encoded_response(response, "application/json", "encoded_docx")
+    validate_encoded_response(response, "application/json", "encoded_xlsx")
