@@ -1,7 +1,7 @@
 from aiweb_common.WorkflowHandler import WorkflowHandler
 import pandas as pd
 import tempfile
-from ScopingReview.Categorize.Manager import CategorizeManager
+from ScopingReview.Categorize.Manager import FastAPICategorizeManager
 from aiweb_common.generate.SingleResponse import SingleResponseHandler
 from typing import Tuple, Any
 
@@ -14,7 +14,7 @@ class CategorizeWorkflow(WorkflowHandler):
 
     def categorize_articles(self):
         if self.df is not None:
-            category_df = self.categorize(self.df, self.userdefined_categories)
+            category_df = self.categorize_manager.categorize_articles(self.df, self.userdefined_categories)
             try:
                 full_text_df = self.categorize_manager.fetch_full_text(category_df['PMID'])
                 category_df = pd.merge(category_df, full_text_df, on='PMID', how='inner')
@@ -31,23 +31,6 @@ class CategorizeWorkflow(WorkflowHandler):
         except Exception as e:
             print(f"Failed to save file: {str(e)}")
             raise
-
-    def categorize(self, category_df: pd.DataFrame, input_text: str) -> Tuple[pd.DataFrame, Any]:
-        reduced_df = self.get_relevant_rows(category_df).copy()
-        input_list = input_text.split(",")
-        input_list = [value.strip() for value in input_list if value.strip()]
-
-        response_handler = SingleResponseHandler()
-        for index, row in reduced_df.iterrows():
-            data = row[["abstract", "title"]]
-            formatted_prompt = self.categorize_manager.format_prompt(
-                categories=input_list, context=data
-            )
-            result, response_meta = response_handler.get_response(formatted_prompt)
-            keyword_list = result.replace("'", "")
-            reduced_df.loc[index, "category"] = keyword_list.lower()
-            self._update_total_cost(response_meta)
-        return reduced_df
 
     def process(self):
         category_df = self.categorize_articles()
