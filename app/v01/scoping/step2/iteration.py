@@ -56,11 +56,7 @@ def get_step2iteration_response(
         
         iterate_search = IterateSearch(df, question, keywords)
         articles_df, refined_query = iterate_search.process()
-        temp_file_path = config.SR_STEP2_FILENAME
-        iterate_search.write_excel_output(temp_file_path, articles_df, refined_query)
-        # TODO: Next three lines generalized to something in llm_utils?
-        encoded_file = file_to_base64(temp_file_path)  # Convert the file to a base64 string
-        background_tasks.add_task(os.unlink, temp_file_path)
+        encoded_file = iterate_search.search_manager.get_encoded_excel(articles_df, background_tasks, pubmed_query="refined_query")
         response = MSExcelResponse(encoded_xlsx=encoded_file)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
@@ -69,7 +65,7 @@ def get_step2iteration_response(
     try:
         content_to_log = f'{{"query":"{question}", "Refined Query":"{refined_query}"}}'
         iterate_search.log_to_database(app_config, content_to_log, start, finish, background_tasks, label="_scoping_step2b_iterate")
-        print("Outpute successfully logged")
+        print("Output successfully logged")
     except KeyError:
         pass
     
