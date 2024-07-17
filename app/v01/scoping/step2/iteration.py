@@ -1,18 +1,13 @@
-import base64
-import os
 from fastapi import APIRouter, HTTPException, BackgroundTasks
-
 from datetime import datetime
-from ScopingReview_config import app_config, config
-#TODO This should pull in workflow, not manager
+from ScopingReview_config import app_config
 from ScopingReview.IterateSearch.Workflow import IterateSearch
 from aiweb_common.file_operations.UploadManager import FastAPIUploadManager
-import app.fastapi_config as lit_api_config
+import app.fastapi_config as api_config
 from ScopingReview.Keywords.Manager import KeywordData
 from app.v01.scoping.step2.validators import validate_keywords_data
 from app.v01.scoping.step2.schemas import IterationRequest
 from app.v01.schemas import MSExcelResponse
-from aiweb_common.file_operations.file_handling import file_to_base64
 
 # TODO: metadata
 router = APIRouter(tags=["scoping", "step2"])
@@ -71,14 +66,26 @@ def get_step2iteration_response(
     
     return response
 
-@router.post("/search/v01/scoping/step2/iteration/", **lit_api_config.SCOPING_STEP2EXCEL_META)
+@router.post("/search/v01/scoping/step2/iteration/", **api_config.SCOPING_STEP2EXCEL_META)
 async def update_keywords_and_search(
     background_tasks: BackgroundTasks,
     request: IterationRequest,
 ) -> MSExcelResponse:
     """
-    Updates keywords and performs a search based on the provided data in an
-    asynchronous manner.
+    This Python function updates keywords and performs a search based on the provided request data.
+    
+    Args:
+      background_tasks (BackgroundTasks): The `background_tasks` parameter is used to add background
+    tasks to be run after the main request handler has completed its execution. These tasks are
+    typically non-blocking and are executed asynchronously. In the given code snippet, the
+    `background_tasks` parameter is passed to the `update_keywords_and_search` function as
+      request (IterationRequest): The `request` parameter in the `update_keywords_and_search` function
+    seems to be an `IterationRequest` object. It likely contains information related to a research
+    iteration request, such as primary keywords, secondary keywords, exclusion keywords, research
+    question, and an encoded Excel file.
+    
+    Returns:
+      The function `update_keywords_and_search` is returning a `MSExcelResponse` object.
     """
 
     keywords = validate_keywords_data(

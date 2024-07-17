@@ -5,7 +5,7 @@ from ScopingReview.Categorize.Workflow import CategorizeWorkflow
 from aiweb_common.file_operations.UploadManager import FastAPIUploadManager
 from ScopingReview_config import app_config
 import os
-import app.fastapi_config as lit_api_config
+import app.fastapi_config as api_config
 from app.v01.schemas import MSExcelResponse
 from app.v01.scoping.schemas import CategoriesRequest
 from aiweb_common.file_operations.file_handling import file_to_base64
@@ -65,7 +65,7 @@ def get_step3_response(background_tasks: BackgroundTasks,
 
     return response
 
-@router.post("/search/v01/scoping/step3/", **lit_api_config.SCOPING_STEP3_META)
+@router.post("/search/v01/scoping/step3/", **api_config.SCOPING_STEP3_META)
 async def categorize_articles(
     background_tasks: BackgroundTasks,
     request: CategoriesRequest
