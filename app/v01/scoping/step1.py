@@ -1,18 +1,10 @@
-#####
-# Step 1 is the initial search
-#####
-
-import os
 from datetime import datetime
 from fastapi import APIRouter, BackgroundTasks, HTTPException
-from aiweb_common.file_operations.file_handling import file_to_base64
 
 from ScopingReview.InitialSearch.Workflow import ArticleSearch
 import ScopingReview_config.app_config as app_config
-import ScopingReview_config.config as config
 from app.v01.schemas import SearchRequest, MSExcelResponse
-import app.fastapi_config as lit_api_config
-import tempfile
+import app.fastapi_config as api_config
 
 # TODO: metadata
 router = APIRouter(tags=["scoping", "step1"])
@@ -22,8 +14,20 @@ def get_step1_response(
     research_question: str
 ) -> MSExcelResponse:
     """
-    This function performs an initial literature search based on a research question, saves the search
-    results to an Excel file, and logs the search details to a database.
+    The function `get_step1_response` performs a literature search based on a research question,
+    generates an Excel file with search results, and logs search details to a database as a background
+    task.
+    
+    Args:
+      background_tasks (BackgroundTasks): `BackgroundTasks` is a class provided by FastAPI for handling
+    background tasks. It allows you to run tasks asynchronously in the background. In this function,
+    `background_tasks` is used to handle tasks such as writing search details to the database without
+    blocking the main request-response cycle.
+      research_question (str): The `get_step1_response` function takes in two parameters:
+    
+    Returns:
+      The function `get_step1_response` returns an instance of `MSExcelResponse` containing an encoded
+    Excel file.
     """
     start = datetime.now()
 
@@ -37,7 +41,6 @@ def get_step1_response(
         response = MSExcelResponse(encoded_xlsx=encoded_file)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
-
     finish = datetime.now()
 
     try:
@@ -49,15 +52,27 @@ def get_step1_response(
 
     return response
 
-@router.post("/search/v01/scoping/step1/", **lit_api_config.SCOPING_STEP1_META)
+@router.post("/search/v01/scoping/step1/", **api_config.SCOPING_STEP1_META)
 async def perform_step1_scoping_search(
     background_tasks: BackgroundTasks,
     query: SearchRequest
     ) -> MSExcelResponse:
     """
-    Conducts an initial literature search based on the provided research question, compiles the results into an Excel file, and returns the file for download. This endpoint is particularly useful for the early stages of a scoping review or literature review, providing a comprehensive collection of relevant literature.
-
-    This method leverages advanced search algorithms to query multiple databases, ensuring a thorough exploration of available literature. The search results are then compiled into an Excel file which is made available for immediate download. Additionally, details of the search are recorded in a database for audit and research purposes.
+    This function conducts an initial literature search based on a research question, compiles the
+    results into an Excel file, and returns it for download.
+    
+    Args:
+      background_tasks (BackgroundTasks): BackgroundTasks - A class that allows you to add background
+    tasks to be run after returning a response in FastAPI. These tasks are run asynchronously after the
+    response has been sent to the client, making them useful for operations that should not delay the
+    response to the client.
+      query (SearchRequest): The `query` parameter in the `perform_step1_scoping_search` function
+    represents a `SearchRequest` object, which likely contains information related to the research
+    question for which the literature search is being conducted. This object may include details such as
+    keywords, filters, search criteria, and any other relevant
+    
+    Returns:
+      MSExcelResponse
     """
     return get_step1_response(
         background_tasks, query.research_question
