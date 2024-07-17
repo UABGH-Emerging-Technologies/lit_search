@@ -49,10 +49,9 @@ def get_step4_response(
             raise HTTPException(status_code=422, detail="Failed to process the file")
         summarization = SummarizeArticles(df, research_question)
         # TODO: have process() return md string
-        temp_file_path, warning_msg = summarization.process()
+        summaries_md, warning_msg = summarization.process()
         # add method to return temp_file_path
-        encoded_file = file_to_base64(temp_file_path)  # Convert the file to a base64 string
-        background_tasks.add_task(os.unlink, temp_file_path)
+        encoded_file = summarization.summarizer.get_encoded_docx(summaries_md, background_tasks)  # Convert the file to a base64 string
         response = MSWordResponse(encoded_docx=encoded_file)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e

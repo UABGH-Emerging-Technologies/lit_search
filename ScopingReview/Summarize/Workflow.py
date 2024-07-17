@@ -14,7 +14,7 @@ class SummarizeArticles(WorkflowHandler):
         super().__init__()
         self.df = df
         self.research_q = research_q
-        self.summarize_manager = SummarizeManager(df, research_q)
+        self.summarizer = SummarizeManager(df, research_q)
       
     # TODO: Could be a generic llm_utils summarizer  
     def summarize_article_in_chunks(self, article_text):
@@ -24,15 +24,15 @@ class SummarizeArticles(WorkflowHandler):
         )
         texts = text_splitter.create_documents([article_text])
         # Create the initial summary for the first chunk
-        first_summary_prompt = self.summarize_manager.assemble_initial_summary_prompt(first_chunk=texts[0])
-        summary, first_response_meta = self.summarize_manager.fast_single_response.generate_response(first_summary_prompt)
+        first_summary_prompt = self.summarizer.assemble_initial_summary_prompt(first_chunk=texts[0])
+        summary, first_response_meta = self.summarizer.fast_single_response.generate_response(first_summary_prompt)
         self._update_total_cost(first_response_meta)
         
         # Iteratively refine the summary with each subsequent chunk
         if len(texts) > 1:
             for text_chunk in texts[1:]:
-                next_summary_prompt = self.summarize_manager.assemble_next_summary_prompt(current_summary=summary.content, next_chunk=text_chunk)
-                summary, next_response_meta = self.summarize_manager.fast_single_response.generate_response(next_summary_prompt)
+                next_summary_prompt = self.summarizer.assemble_next_summary_prompt(current_summary=summary.content, next_chunk=text_chunk)
+                summary, next_response_meta = self.summarizer.fast_single_response.generate_response(next_summary_prompt)
                 self._update_total_cost(next_response_meta)
 
         return summary.content
@@ -69,20 +69,20 @@ class SummarizeArticles(WorkflowHandler):
             text_to_summarize = "\n\n".join(article_summaries)
 
             if newsletter_flag:
-                newsletter_prompt = self.summarize_manager.assemble_newsletter_prompt(
+                newsletter_prompt = self.summarizer.assemble_newsletter_prompt(
                     anes_category=current_category,
                     articles_summaries=text_to_summarize
                     )
-                response, response_meta = self.summarize_manager.single_response.generate_response(newsletter_prompt)
+                response, response_meta = self.summarizer.single_response.generate_response(newsletter_prompt)
                 self._update_total_cost(response_meta)
 
                 output.append(response.content)
 
             else:
-                category_summary_prompt = self.summarize_manager.assemble_category_summary_prompt(
+                category_summary_prompt = self.summarizer.assemble_category_summary_prompt(
                     current_category, text_to_summarize
                 )
-                response, response_meta = self.summarize_manager.single_response.generate_response(category_summary_prompt)
+                response, response_meta = self.summarizer.single_response.generate_response(category_summary_prompt)
                 self._update_total_cost(response_meta)
 
                 output.append(
@@ -97,7 +97,7 @@ class SummarizeArticles(WorkflowHandler):
 
     def summarize_articles(self) -> Tuple[bytes, dict, Optional[str]]:
         if self.df is not None:
-            categories_exceeding_limit = self.summarize_manager.categories_limit_check(self.df)
+            categories_exceeding_limit = self.summarizer.categories_limit_check(self.df)
             warning_msg = ""
             if categories_exceeding_limit:
                 warning_msg = (f"Consider breaking the following categories into subcategories, "
@@ -105,8 +105,8 @@ class SummarizeArticles(WorkflowHandler):
                                f"{', '.join(categories_exceeding_limit)}.")
 
             markdown_to_convert = self.summarize_all_categories()
-            docx_data = convert_markdown_docx(markdown_to_convert)
-            return docx_data, warning_msg
+            
+            return markdown_to_convert, warning_msg
         else:
             raise HTTPException(status_code=404, detail="No data available for summarization.")
 
@@ -141,9 +141,5 @@ class SummarizeArticles(WorkflowHandler):
         print(f"File saved: {file_path}")
 
     def process(self):
-        docx_data, warning_msg = self.summarize_articles()
-        if docx_data is not None:
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".docx") as tmpfile:
-                tmpfile.write(docx_data)
-                return tmpfile.name, warning_msg
-        return None
+        md_output, warning_msg = self.summarize_articles()
+        return md_output, warning_msg
