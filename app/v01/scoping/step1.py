@@ -5,7 +5,6 @@
 import os
 from datetime import datetime
 from fastapi import APIRouter, BackgroundTasks, HTTPException
-from fastapi.responses import FileResponse
 from aiweb_common.file_operations.file_handling import file_to_base64
 
 from ScopingReview.InitialSearch.Workflow import ArticleSearch
@@ -13,6 +12,7 @@ import ScopingReview_config.app_config as app_config
 import ScopingReview_config.config as config
 from app.v01.schemas import SearchRequest, MSExcelResponse
 import app.fastapi_config as lit_api_config
+import tempfile
 
 # TODO: metadata
 router = APIRouter(tags=["scoping", "step1"])
@@ -31,16 +31,16 @@ def get_step1_response(
         # Utilizing the new ArticleSearch to perform the literature search
         article_search = ArticleSearch(research_question)
         articles_df = article_search.process()
+        if articles_df is None:
+            raise HTTPException(status_code=404, detail="No articles found")
+
+        articles_file = article_search.write_excel_output(articles_df, research_question)
         
-        temp_file_path = config.SR_STEP1_FILENAME
-        article_search.write_excel_output(temp_file_path, articles_df, research_question)
-        
-        encoded_file = file_to_base64(temp_file_path)
-        background_tasks.add_task(os.unlink, temp_file_path)
+        encoded_file = file_to_base64(articles_file)
+        background_tasks.add_task(os.unlink, articles_file)
         response = MSExcelResponse(encoded_xlsx=encoded_file)
         #TODO This line doesn't work right anymore
-        if temp_file_path is None:
-            raise HTTPException(status_code=404, detail="No articles found")
+        
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
 

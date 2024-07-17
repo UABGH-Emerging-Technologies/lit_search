@@ -1,14 +1,14 @@
 
 import os
-from typing import Tuple
-from fastapi import APIRouter, BackgroundTasks, HTTPException, Depends
-from fastapi.responses import FileResponse
+
+from fastapi import APIRouter, BackgroundTasks, HTTPException
+import ScopingReview_config.app_config as app_config
 
 from datetime import datetime
 
 from aiweb_common.file_operations.file_handling import file_to_base64
 
-from ScopingReview.Summarize.Workflow import SummarizeArticles
+from ScopingReview.Standalone.Workflow import StandaloneSummary
 from app.v01.schemas import SearchRequest, MSWordResponse
 import app.fastapi_config as lit_api_config
 
@@ -19,54 +19,31 @@ def get_summary_response(
     background_tasks: BackgroundTasks,
     research_question: str
     ) -> MSWordResponse:
-    """
-    This function takes a research question, performs an initial literature search using an API,
-    summarizes the search results, generates a DOCX file with the summary, and writes relevant
-    information to a database as a background task.
+
+    start = datetime.now()
     
-    Args:
-      background_tasks (BackgroundTasks): The `background_tasks` parameter in the `get_summary_response`
-    function is used to schedule background tasks to be run after the main response has been returned to
-    the client. These tasks are typically non-blocking and can be used for operations like writing to a
-    database, sending emails, or other asynchronous operations that
-      research_question (str): The `research_question` parameter in the `get_summary_response` function
-    is a string that represents the question or topic for which the summary response is being generated.
-    This question is used in the function to perform an initial literature search and compile articles
-    related to the research question.
-    
-    Returns:
-      The function `get_summary_response` returns a tuple containing the temporary file path and a
-    `FileResponse` object.
-    """
     try:
         # Perform initial literature search and get DataFrame
-        article_search_manager = ArticleSearchWorkflow(scoping_step="initial literature search", research_q=research_question)
-        articles_df, seach_cost = article_search_manager.process()
+        standalone_search = StandaloneSummary(research_question)
+        docx_file = standalone_search.process()
 
-        # Use FastAPISummarizeManager to summarize and save the result
-        summarize_manager = FastAPISummarizeManager(articles_df, research_question)
-        temp_file_path, compile_cost = summarize_manager.standalone_summarize_and_save()
-        encoded_file = file_to_base64(temp_file_path)  # Convert the file to a base64 string
+        encoded_file = file_to_base64(docx_file)  # Convert the file to a base64 string
 
-        background_tasks.add_task(os.unlink, temp_file_path)  # Cleanup temporary file
+        background_tasks.add_task(os.unlink, docx_file)  # Cleanup temporary file
         response = MSWordResponse(encoded_docx=encoded_file)
         
-        # Schedule background tasks
-        total_cost = seach_cost + compile_cost
-        try: 
-            pass
-            # TODO Replace with corresponding workflow database stuff
-            # background_tasks.add_task(write_to_db,
-            #                         lit_app_config,
-            #                         f'{{"query":"{str(research_question)}"}}',
-            #                         datetime.now(), datetime.now(),
-            #                         total_cost, "_standalone")
-        except KeyError:
-            pass
-        return response
-
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
+    finish = datetime.now()
+    
+    try:
+        # Adding a background task to write search details to the database
+        content_to_log = f'{{"query":"{research_question}"}}'
+        standalone_search.log_to_database(app_config, content_to_log, start, finish, background_tasks, label="_standalone")
+    except KeyError:
+        pass
+
+    return response
 
 
 @router.post("/search/v01/standalone/summary/", **lit_api_config.STANDALONE_SUMMARY_META)
