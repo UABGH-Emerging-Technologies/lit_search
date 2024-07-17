@@ -4,7 +4,7 @@ from ScopingReview.Summarize.Workflow import SummarizeArticles
 from aiweb_common.file_operations.UploadManager import FastAPIUploadManager
 import ScopingReview_config.app_config as lit_app_config
 import os
-import app.fastapi_config as lit_api_config
+import app.fastapi_config as api_config
 from app.v01.schemas import MSWordResponse
 from app.v01.scoping.schemas import SummariesRequest
 from aiweb_common.file_operations.file_handling import file_to_base64
@@ -66,7 +66,7 @@ def get_step4_response(
 
     return response, warning_msg
 
-@router.post("/search/v01/scoping/step4/", **lit_api_config.SCOPING_STEP4_META)
+@router.post("/search/v01/scoping/step4/", **api_config.SCOPING_STEP4_META)
 async def summarize_articles(
     background_tasks: BackgroundTasks,
     request: SummariesRequest,

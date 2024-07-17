@@ -4,8 +4,7 @@ import datetime
 from aiweb_common.file_operations.UploadManager import FastAPIUploadManager
 
 import ScopingReview_config.app_config as lit_app_config
-import os
-import app.fastapi_config as lit_api_config
+import app.fastapi_config as api_config
 from app.v01.schemas import MSWordResponse
 from app.v01.scoping.schemas import DraftRequest
 from aiweb_common.file_operations.file_handling import file_to_base64
@@ -49,7 +48,7 @@ def get_step5_response(
 
     return response
 
-@router.post("/search/v01/scoping/step5/", **lit_api_config.SCOPING_STEP5_META)
+@router.post("/search/v01/scoping/step5/", **api_config.SCOPING_STEP5_META)
 async def draft_review(
     background_tasks: BackgroundTasks,
     request: DraftRequest,

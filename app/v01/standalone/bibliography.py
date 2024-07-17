@@ -11,7 +11,7 @@ from ScopingReview.Bibliography.Manager import FastAPIBibtexManager
 
 from app.v01.schemas import UploadableFiles
 from app.v01.standalone.schemas import BibliographyResponse, BibliographyRequest
-import app.fastapi_config as lit_api_config
+import app.fastapi_config as api_config
 
 # TODO: meta data
 router = APIRouter(tags=["standalone", "bibliography"])
@@ -59,7 +59,7 @@ def get_bibtex_response(
     return response
 
     
-@router.post("/search/v01/standalone/bibliography/", **lit_api_config.STANDALONE_BIBLIOGRAPHY_META)
+@router.post("/search/v01/standalone/bibliography/", **api_config.STANDALONE_BIBLIOGRAPHY_META)
 async def bibliography_download(
     request: BibliographyRequest,
     background_tasks: BackgroundTasks

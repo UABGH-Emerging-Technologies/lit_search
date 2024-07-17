@@ -5,7 +5,7 @@ from datetime import datetime
 
 from ScopingReview.Standalone.Workflow import StandaloneSummary
 from app.v01.schemas import SearchRequest, MSWordResponse
-import app.fastapi_config as lit_api_config
+import app.fastapi_config as api_config
 
 # TODO: meta data
 router = APIRouter(tags=["standalone", "summary"])
@@ -39,7 +39,7 @@ def get_summary_response(
     return response
 
 
-@router.post("/search/v01/standalone/summary/", **lit_api_config.STANDALONE_SUMMARY_META)
+@router.post("/search/v01/standalone/summary/", **api_config.STANDALONE_SUMMARY_META)
 async def initial_literature_search(
     background_tasks: BackgroundTasks,
     query: SearchRequest

@@ -3,27 +3,37 @@ from enum import Enum
 from app.v01.validators import validate_xlsx_bytes
 
 
+
 class UploadableFiles(str, Enum):
+    """The class `UploadableFiles` is a subclass of `str` and `Enum` in Python."""
     DOCX = ".docx"
     XLSX = ".xlsx"
     
 
+
 class SearchRequest(BaseModel):
+    """This class represents a search request in Python."""
     research_question: str
 
 
+
 class MSWordResponse(BaseModel):
+    """This class likely represents a response from a Microsoft Word document."""
     encoded_docx: str = Field(..., description="Base64-encoded DOCX file. Decode to obtain the DOCX file.")
 
 
+
 class BibTexResponse(BaseModel):
+    """This class represents a response in BibTeX format."""
     encoded_docx: str = Field(..., description="Base64-encoded BIB file. Decode to obtain the BIB file.")
-    
-    
+
 class MSExcelResponse(BaseModel):
+    """This class likely represents a response from an API that interacts with Microsoft Excel files."""
     encoded_xlsx: str = Field(..., description="Base64-encoded XLSX file. Decode to obtain the DOCX file.")
 
+
 class XLSXinRequest(BaseModel):
+    """This class likely represents a request object for handling XLSX file data in a Python application."""
     xlsx_encoded: str = Field(..., description="Base64-encoded XLSX file content.")
     
     @field_validator('xlsx_encoded')
