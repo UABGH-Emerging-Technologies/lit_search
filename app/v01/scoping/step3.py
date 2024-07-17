@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, BackgroundTasks
 
 import datetime
-from ScopingReview.Categorize.Manager import FastAPICategorizeManager
+from ScopingReview.Categorize.Workflow import CategorizeWorkflow
 from aiweb_common.file_operations.UploadManager import FastAPIUploadManager
 import ScopingReview_config.app_config as lit_app_config
 import os
@@ -44,8 +44,9 @@ def get_step3_response(background_tasks: BackgroundTasks,
         if df is None:
             raise HTTPException(status_code=422, detail="Failed to process the file")
 
-        manager = FastAPICategorizeManager(df, user_defined_categories)
-        temp_file_path = manager.categorize_articles_and_save()
+        workflow = CategorizeWorkflow(df, user_defined_categories)
+        #TODO convert to match other processes (process returns df, call write_excel_file...)
+        temp_file_path = workflow.process()
         encoded_file = file_to_base64(temp_file_path)  # Convert the file to a base64 string
         background_tasks.add_task(os.unlink, temp_file_path)
         response = MSExcelResponse(encoded_xlsx=encoded_file)
@@ -54,7 +55,8 @@ def get_step3_response(background_tasks: BackgroundTasks,
 
     finish = datetime.datetime.now()
     try:
-      pass
+        pass
+        content_to_log = f'{{"":}}'
         # TODO - make sure this is adapted to workflows
         # background_tasks.add_task(
         #     write_to_db,
