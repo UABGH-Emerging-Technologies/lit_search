@@ -18,8 +18,7 @@ class DraftReview(WorkflowHandler):
     def draft_review(self):
         if self.summaries is not None:
             markdown_to_convert = self.write_first_draft()
-            docx_data = convert_markdown_docx(markdown_to_convert)
-            return docx_data
+            return markdown_to_convert
         
     def assemble_intro_prompt(self, summaries_no_bib):
         print('assembling intro prompt')
@@ -86,9 +85,5 @@ class DraftReview(WorkflowHandler):
 
 
     def process(self):
-        docx_data = self.draft_review()
-        if docx_data is not None:
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".docx") as tmpfile:
-                tmpfile.write(docx_data)
-                return tmpfile.name
-        return None
+        draft_md = self.draft_review()
+        return draft_md

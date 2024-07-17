@@ -1,12 +1,7 @@
-
-import os
-
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 import ScopingReview_config.app_config as app_config
 
 from datetime import datetime
-
-from aiweb_common.file_operations.file_handling import file_to_base64
 
 from ScopingReview.Standalone.Workflow import StandaloneSummary
 from app.v01.schemas import SearchRequest, MSWordResponse
@@ -25,11 +20,9 @@ def get_summary_response(
     try:
         # Perform initial literature search and get DataFrame
         standalone_search = StandaloneSummary(research_question)
-        docx_file = standalone_search.process()
+        overview_md = standalone_search.process()
 
-        encoded_file = file_to_base64(docx_file)  # Convert the file to a base64 string
-
-        background_tasks.add_task(os.unlink, docx_file)  # Cleanup temporary file
+        encoded_file = standalone_search.searcher.search_manager.get_encoded_docx(overview_md, background_tasks)
         response = MSWordResponse(encoded_docx=encoded_file)
         
     except Exception as e:

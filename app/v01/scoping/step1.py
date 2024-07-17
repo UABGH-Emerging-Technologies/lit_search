@@ -30,18 +30,11 @@ def get_step1_response(
     try:
         # Utilizing the new ArticleSearch to perform the literature search
         article_search = ArticleSearch(research_question)
-        # TODO: all .process() methods should return either a df or md-as-a-string
         articles_df = article_search.process()
         if articles_df is None:
             raise HTTPException(status_code=404, detail="No articles found")
-        # TODO: a special function should then convert to a tempfile
-        # make this part of base manager
-        articles_file = article_search.get_tempfile_excel(articles_df, research_question)
-        
-        encoded_file = file_to_base64(articles_file)
-        background_tasks.add_task(os.unlink, articles_file)
+        encoded_file = article_search.search_manager.get_encoded_excel(articles_df, background_tasks, research_question)
         response = MSExcelResponse(encoded_xlsx=encoded_file)
-        
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
 
