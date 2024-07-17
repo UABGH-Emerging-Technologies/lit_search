@@ -14,9 +14,12 @@ class CategoriesRequest(XLSXinRequest):
     user_defined_categories: str
 
 class SummariesRequest(SearchRequest, XLSXinRequest):
+    """This class inherits from SearchRequest and XLSXinRequest to handle summaries requests."""
     pass
 
+
 class DraftRequest(SearchRequest):
+    """This class `DraftRequest` is a subclass of `SearchRequest` in Python."""
     docx_encoded: str = Field(..., description="Base64-encoded DOCX file.")
     
     @field_validator('docx_encoded')
