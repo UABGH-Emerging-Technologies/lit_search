@@ -34,7 +34,7 @@ def get_step1_response(
         if articles_df is None:
             raise HTTPException(status_code=404, detail="No articles found")
 
-        articles_file = article_search.write_excel_output(articles_df, research_question)
+        articles_file = article_search.get_tempfile_excel(articles_df, research_question)
         
         encoded_file = file_to_base64(articles_file)
         background_tasks.add_task(os.unlink, articles_file)

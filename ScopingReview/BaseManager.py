@@ -26,7 +26,7 @@ class BaseManager():
         raise NotImplementedError
     
     #TODO KEEP THIS GENERAL FOR ALL EXCEL OUTPUTS
-    def write_search_excel_output(self, tmpfile, df, input_search_terms, query_strings=""):
+    def write_excel_output(self, tmpfile, df, input_search_terms="", query_strings=""):
         print("Writing excel file! tempfile - ", tmpfile)
 
         with pd.ExcelWriter(tmpfile, engine="xlsxwriter") as writer:

@@ -7,9 +7,6 @@ import tempfile
 from typing import Tuple, Any
 from fastapi import HTTPException  # Importing HTTPException
 
-from aiweb_common.WorkflowHandler import WorkflowHandler
-from aiweb_common.generate.SingleResponse import SingleResponseHandler
-from aiweb_common.file_operations.file_handling import write_excel_output  # Importing write_excel_output
 
 #TODO move aiweb_common stuff to Categorize.Workflow
 class BaseCategorizeManager(BaseManager):
@@ -19,7 +16,6 @@ class BaseCategorizeManager(BaseManager):
         input_list = userdefined_categories.split(",")
         input_list = [value.strip() for value in input_list if value.strip()]
         self.categories = input_list
-        self.single_response = SingleResponseHandler(config.LLM_INTERFACE)
     
     def _get_filename(self):
         return config.SR_STEP3_FILENAME
@@ -74,16 +70,7 @@ class FastAPICategorizeManager(BaseCategorizeManager):
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
-    def save_results_to_excel(self, category_df: pd.DataFrame) -> str:
-        """
-        Save the categorized DataFrame to an Excel file and return the file path.
-        """
-        try:
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx", mode='w+b') as tmpfile:
-                write_excel_output(tmpfile, category_df, self.userdefined_categories)
-                return tmpfile.name
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=str(e))
+
             
 # class StreamlitCategorizeManager(BaseCategorizeManager):
 #     def __init__(self, df, userdefined_categories):

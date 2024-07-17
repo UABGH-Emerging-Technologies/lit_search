@@ -32,20 +32,19 @@ class CategorizeWorkflow(WorkflowHandler):
                 print(f"Failed while getting full texts: {str(e)}")
             return category_df
 
-    def save_results_to_excel(self, category_df):
+    def get_tempfile_excel(self, category_df):
         category_df.drop_duplicates(subset="PMID", keep="first", inplace=True)
-        try:
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx", mode='wb') as tmpfile:
-                category_df.to_excel(tmpfile.name, index=False)
-                return tmpfile.name
-        except Exception as e:
-            print(f"Failed to save file: {str(e)}")
-            #TODO put real error message here
-            pass
 
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmpfile:
+            self.categorize_manager.write_excel_output(
+                tmpfile=tmpfile.name,
+                df=category_df,
+                )
+        return tmpfile.name
+    
     def process(self):
         category_df = self.categorize_articles()
         if category_df is not None:
-            file_path = self.save_results_to_excel(category_df)
+            file_path = self.get_tempfile_excel(category_df)
             return file_path
         return None
