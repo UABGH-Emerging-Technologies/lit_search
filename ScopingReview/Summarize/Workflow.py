@@ -1,7 +1,6 @@
 import os
 import datetime
 from aiweb_common.WorkflowHandler import WorkflowHandler
-import pandas as pd
 import tempfile
 from ScopingReview_config import config, boilerplate
 from aiweb_common.file_operations.text_format import convert_markdown_docx
@@ -58,7 +57,7 @@ class SummarizeArticles(WorkflowHandler):
             print(current_category)
             filtered_rows = df_exploded[df_exploded["category"] == current_category]
             article_summaries = []
-            for idx, row in filtered_rows.iterrows():
+            for _, row in filtered_rows.iterrows():
                 print(row.title)
                 article_summary = self.summarize_article_in_chunks(row.Text)
                 # TODO: nice to haves
