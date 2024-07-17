@@ -4,11 +4,13 @@ from app.v01.validators import validate_docx_bytes
 # for consistency with our other apis, don't delete this import.
 # Other modules import Keywords Data from this file.
 #TODO fix this?
-from ScopingReview.Keywords.Manager import KeywordData
 from pydantic import Field, field_validator
 
-
 class CategoriesRequest(XLSXinRequest):
+    """
+    This class `CategoriesRequest` inherits from `XLSXinRequest` and is used for handling requests
+    related to categories.
+    """
     user_defined_categories: str
 
 class SummariesRequest(SearchRequest, XLSXinRequest):
