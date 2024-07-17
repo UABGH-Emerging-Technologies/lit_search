@@ -46,20 +46,6 @@ class BaseCategorizeManager(BaseManager):
                 print(f"Failed while getting full texts: {str(e)}")
             return category_df            
 
-    #TODO move this to workfow (since it calls on llm_utils)                                                
-    def categorize_articles(self, category_df: pd.DataFrame, input_text: str) -> Tuple[pd.DataFrame, Any]:
-        # using copy to stop view vs copy warning in pandas
-        reduced_df = self.get_relevant_rows(self.df).copy()
-        input_list = input_text.split(",")
-        input_list = [value.strip() for value in input_list if value.strip()]
-
-        for index, row in reduced_df.iterrows():
-            data = row[["abstract", "title"]]
-            assembled_prompt = self._assemble_prompt(thing_to_categorize=data)
-            response, response_meta = self.single_response.generate_response(assembled_prompt)
-            assigned_categories = response.content.replace("'", "")
-            reduced_df.loc[index, "category"] = assigned_categories.lower()
-        return reduced_df
 
     def save_results_to_excel(self, category_df):
         category_df.drop_duplicates(subset="PMID", keep="first", inplace=True)
@@ -99,36 +85,36 @@ class FastAPICategorizeManager(BaseCategorizeManager):
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
             
-class StreamlitCategorizeManager(BaseCategorizeManager):
-    def __init__(self, df, userdefined_categories):
-        import streamlit as st
-        super().__init__(df,userdefined_categories)
-        st.session_state["file_uploaded_cate"] = False
+# class StreamlitCategorizeManager(BaseCategorizeManager):
+#     def __init__(self, df, userdefined_categories):
+#         import streamlit as st
+#         super().__init__(df,userdefined_categories)
+#         st.session_state["file_uploaded_cate"] = False
  
-    def _download_results(self, category_df):
-        import streamlit as st  # Ensure streamlit is imported within the method
-        category_df.drop_duplicates(subset="PMID", keep="first", inplace=True)
-        st.write("Note that once you hit download, this form will reset.")
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmpfile:
-            write_excel_output(tmpfile, category_df, self.userdefined_categories)
-            with open(tmpfile.name, "rb") as file:
-                st.balloons()
-                st.download_button(
-                    label=self.get_download_button_label(),
-                    data=file,
-                    file_name=self.get_filename(),
-                    mime=self._get_mime_type(),
-                )  
+#     def _download_results(self, category_df):
+#         import streamlit as st  # Ensure streamlit is imported within the method
+#         category_df.drop_duplicates(subset="PMID", keep="first", inplace=True)
+#         st.write("Note that once you hit download, this form will reset.")
+#         with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmpfile:
+#             write_excel_output(tmpfile, category_df, self.userdefined_categories)
+#             with open(tmpfile.name, "rb") as file:
+#                 st.balloons()
+#                 st.download_button(
+#                     label=self.get_download_button_label(),
+#                     data=file,
+#                     file_name=self.get_filename(),
+#                     mime=self._get_mime_type(),
+#                 )  
       
   
-    def get_download_button_label(self):
-        return config.EXCEL_DOWNLOAD_LABEL
+#     def get_download_button_label(self):
+#         return config.EXCEL_DOWNLOAD_LABEL
 
-    def categorize_articles(self):
-        import streamlit as st  # Ensure streamlit is imported within the method
-        super().categorize_articles()
-        if self.df is not None:
-            st.session_state["file_uploaded_cate"] = True
-            with st.spinner("Categorizing contents of file..."):
-                category_df = self.categorize_articles()
-            self._download_results(category_df)
+#     def categorize_articles(self):
+#         import streamlit as st  # Ensure streamlit is imported within the method
+#         super().categorize_articles()
+#         if self.df is not None:
+#             st.session_state["file_uploaded_cate"] = True
+#             with st.spinner("Categorizing contents of file..."):
+#                 category_df = self.categorize_articles()
+#             self._download_results(category_df)
