@@ -71,9 +71,7 @@ async def categorize_articles(
     request: CategoriesRequest
     ) -> MSExcelResponse:
     """
-    Processes an uploaded Excel file to categorize articles based on user-defined categories, then returns a downloadable Excel file with the results.
-
-    This endpoint takes a byte-encoded Excel file containing article data and a string of user-defined categories to perform categorization. After processing, it generates a new Excel file with articles organized into the specified categories, which can be directly downloaded.
+    This endpoint categorizes articles from an input Excel file based on user-defined categories, then returns a downloadable Excel file with the sorted articles.
     """
     response = get_step3_response(
         background_tasks,

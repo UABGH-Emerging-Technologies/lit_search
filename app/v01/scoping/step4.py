@@ -73,9 +73,7 @@ async def summarize_articles(
     response: Response
     ) -> MSWordResponse:
     """
-    Receives an uploaded Excel file containing article data and a research question, performs summarization based on the provided research question, and returns a downloadable DOCX file with the summarized content.
-
-    This endpoint is part of a scoping workflow where users need to extract concise summaries from large sets of articles based on specific research queries. It handles the full process: file upload, data processing, summarization, and the creation of a downloadable summary document. Additionally, details of the processing are logged to a database for auditing and tracking purposes.
+    This endpoint summarizes articles from an uploaded Excel file based on a provided research question and returns a downloadable DOCX file with the summarized content.    
     """
     response_data, warning_message = get_step4_response(
         background_tasks,

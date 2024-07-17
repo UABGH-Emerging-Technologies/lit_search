@@ -55,12 +55,7 @@ async def draft_review(
     request: DraftRequest,
     ) -> MSWordResponse:
     """
-    Processes an uploaded DOCX file containing summaries, generates a draft review based on a specified research question, 
-    and returns a downloadable DOCX file with the draft review.
-
-    This endpoint facilitates the drafting of a detailed review document by processing provided summaries
-    and integrating them with a user-specified research question. It is particularly useful in research and academic 
-    contexts where initial summaries need to be expanded into comprehensive draft reviews.
+    This endpoint generates a draft review from an uploaded DOCX file of summaries based on a specified research question, and returns a downloadable DOCX file with the draft review.ts where initial summaries need to be expanded into comprehensive draft reviews.
     """
     response = get_step5_response(
         background_tasks,
