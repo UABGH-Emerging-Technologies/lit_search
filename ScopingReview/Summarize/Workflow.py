@@ -10,6 +10,11 @@ from typing import Tuple, Optional
 from ScopingReview.Summarize.Manager import SummarizeManager
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
+
+
+# Handles the summarization of articles in various categories. It uses AI models to generate summaries, 
+# create newsletters, and save them in a specified location. The class also provides methods for assembling 
+# prompts and handling responses.
 class SummarizeArticles(WorkflowHandler):
     def __init__(self, df, research_q):
         super().__init__()
@@ -169,6 +174,13 @@ class SummarizeArticles(WorkflowHandler):
         return "\n\n".join(output)
 
     def summarize_articles(self) -> Tuple[bytes, dict, Optional[str]]:
+        """
+        Summarizes articles and returns a markdown summary and a warning message if any category exceeds a limit.
+        Returns:
+            Tuple[bytes, dict, Optional[str]]: The markdown summary, a warning message, and None.
+        Raises:
+            HTTPException: If no data is available for summarization.
+        """
         if self.df is not None:
             categories_exceeding_limit = self.summarizer.categories_limit_check(self.df)
             warning_msg = ""
@@ -184,6 +196,14 @@ class SummarizeArticles(WorkflowHandler):
             raise HTTPException(status_code=404, detail="No data available for summarization.")
 
     def write_newsletter(self, category, output_folder, template_location=None):
+        """
+        Writes a newsletter by summarizing all categories of articles and saves it to the specified output folder.
+
+        Args:
+            category (str): The category of the newsletter.
+            output_folder (str): The location to save the newsletter.
+            template_location (str, optional): The location of the template to be used for the newsletter. Defaults to None.
+        """
         if self.df is not None:
             newsletter_body = self.summarize_all_categories(
                 newsletter_flag=True
@@ -202,6 +222,14 @@ class SummarizeArticles(WorkflowHandler):
             self.save_newsletter(docx_data, category, output_folder)
 
     def save_newsletter(self, docx_data, category, output_folder):
+        """
+        Saves the newsletter as a .docx file in the specified output folder.
+
+        Args:
+            docx_data (bytes): The newsletter data in .docx format.
+            category (str): The category of the newsletter.
+            output_folder (str): The location to save the newsletter.
+        """
         if not os.path.exists(output_folder):
             os.makedirs(output_folder)
 
