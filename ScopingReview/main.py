@@ -37,7 +37,8 @@ category_queries = {
     category: format_query(query) for category, query in lit_config.NEWSLETTER_QUERIES.items()
 }
 
-
+#    Manages the creation of newsletters for specific categories. It searches for relevant articles, fetches full text, 
+#    and uses AI models to generate a summarized newsletter, which is then saved in a specified location.
 class NewsletterManager:
     def __init__(self, scoping_step):
         self.scoping_step = scoping_step
