@@ -60,6 +60,20 @@ class SummarizeArticles(WorkflowHandler):
       
     # TODO: Could be a generic llm_utils summarizer  
     def summarize_article_in_chunks(self, article_text):
+        """
+        This Python function `summarize_article_in_chunks` splits an article into manageable chunks,
+        generates initial and subsequent summaries for each chunk, and returns the final summarized content.
+        
+        Args:
+          article_text: It looks like you have a function `summarize_article_in_chunks` that takes in an
+        `article_text` parameter and splits the text into manageable chunks to summarize it. The function
+        seems to use a text splitter to divide the text, generate initial and subsequent summaries for each
+        chunk, and update the
+        
+        Returns:
+          The function `summarize_article_in_chunks` returns the summarized content of the article after
+        processing it in manageable chunks.
+        """
         # Splitting the article text into manageable chunks
         text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
             chunk_size=13000, chunk_overlap=1000
@@ -81,6 +95,23 @@ class SummarizeArticles(WorkflowHandler):
         
     # TODO: Can some of this be moved into a manager method?
     def summarize_all_categories(self, newsletter_flag=False):
+        """
+        This function summarizes articles in different categories and generates output based on a
+        specified flag.
+        
+        Args:
+          newsletter_flag: The `newsletter_flag` parameter in the `summarize_all_categories` method is a
+        boolean flag that determines whether to generate responses for a newsletter or not. When
+        `newsletter_flag` is set to `True`, the method will generate responses suitable for a newsletter.
+        If `newsletter_flag` is `. Defaults to False
+        
+        Returns:
+          The `summarize_all_categories` method returns a formatted summary of articles based on
+        categories. If the `newsletter_flag` parameter is set to True, it generates a newsletter prompt
+        for each category and returns the response content. If `newsletter_flag` is False, it generates a
+        category summary prompt for each category and returns the response content along with the
+        citations of the articles in that category. The final
+        """
         # use abtract when text is not available.
         self.df["Text"] = self.df.apply(
             lambda row: row["abstract"] if row["Text"] == "Text not available" else row["Text"], axis=1

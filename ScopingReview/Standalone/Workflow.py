@@ -9,6 +9,8 @@ import tempfile
 
 
 
+# This Python class `StandaloneSummary` is designed to handle the process of summarizing articles
+# based on abstracts for a given research question.
 class StandaloneSummary(WorkflowHandler):
     def __init__(self, research_question):
         super().__init__()
@@ -42,6 +44,21 @@ class StandaloneSummary(WorkflowHandler):
     
         
     def summarize_from_abstracts(self, articles_df):
+        """
+        This function takes a DataFrame of articles with abstracts, extracts the abstracts, assembles
+        them into a text to summarize, generates a summary using a single response model, and returns
+        the summary.
+        
+        Args:
+          articles_df: The `summarize_from_abstracts` function takes in a DataFrame `articles_df`
+        containing articles with columns like 'citation' and 'abstract'. It iterates over each row in
+        the DataFrame, extracts the citation and abstract information, assembles them into a formatted
+        text, and then generates a summary
+        
+        Returns:
+          The `summarize_from_abstracts` method returns the summary generated from the abstracts of
+        articles in the provided DataFrame `articles_df`.
+        """
         article_abstracts = []
         for _, row in articles_df.iterrows():
 
@@ -56,6 +73,16 @@ class StandaloneSummary(WorkflowHandler):
         return summary
 
     def process(self):
+        """
+        The `process` function retrieves articles, summarizes them, formats the response, and returns a
+        temporary file path for a Word document if successful.
+        
+        Returns:
+          The `process` method returns the name of a temporary DOCX file that is created with the summarized
+        content from the abstracts of articles processed by the `searcher`. If the `docx_data` is
+        successfully created, the method returns the name of the temporary DOCX file. If `docx_data` is
+        `None`, then the method returns `None`.
+        """
         articles_df = self.searcher.process()
         self.total_cost += self.searcher.total_cost
         summary_body = self.summarize_from_abstracts(articles_df)

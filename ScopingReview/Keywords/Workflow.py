@@ -3,6 +3,9 @@ from aiweb_common.generate.SingleResponse import SingleResponseHandler
 from ScopingReview.Keywords.Manager import KeywordManager, KeywordData
 from ScopingReview_config import config, prompt_config
 
+# The `KeywordWorkflow` class initializes keywords based on a research question, retrieves relevant
+# rows, generates a response, and parses the keywords into primary, secondary, and exclusion
+# categories.
 class KeywordWorkflow(WorkflowHandler):
     def __init__(self, df, research_question):
         super().__init__()
@@ -12,6 +15,14 @@ class KeywordWorkflow(WorkflowHandler):
         self.keyword_manager = KeywordManager(self.df, self.research_question)
 
     def initialize_keywords(self):
+        """
+        The function `initialize_keywords` retrieves relevant rows, formats keywords, assembles a prompt,
+        generates a response, updates total cost, and returns the response content.
+        
+        Returns:
+          The `response.content` is being returned, which contains the generated response based on the
+        assembled prompt.
+        """
         relevant_rows = self.keyword_manager.get_relevant_rows()
         all_titles = relevant_rows['title'].tolist()
         formatted_keywords = self.keyword_manager.format_keywords(relevant_rows)

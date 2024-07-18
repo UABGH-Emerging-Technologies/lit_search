@@ -11,6 +11,8 @@ class KeywordData(BaseModel):
     secondary_keywords: List[str] = Field(..., example=["keyword3", "keyword4"], description="List of secondary keywords")
     exclusion_keywords: List[str] = Field(..., example=["keyword5"], description="List of exclusion keywords")
 
+# The `KeywordManager` class provides methods for extracting, formatting, and processing keywords from
+# a DataFrame, including writing the results to an Excel file.
 class KeywordManager(BaseManager):
     def __init__(self, df, research_q):
         super().__init__(df)
@@ -18,6 +20,21 @@ class KeywordManager(BaseManager):
         
     @staticmethod
     def _extract_json_from_markdown(markdown_text):
+        """
+        The `_extract_json_from_markdown` function extracts and validates a JSON object from a given
+        markdown text.
+        
+        Args:
+          markdown_text: It looks like you have a static method `_extract_json_from_markdown` that extracts
+        a JSON object from a given markdown text. To use this method, you need to pass the `markdown_text`
+        as a parameter.
+        
+        Returns:
+          The `_extract_json_from_markdown` method returns either the extracted JSON object as a Python
+        dictionary if it is valid JSON, or it returns a message indicating either "Invalid JSON detected" if
+        the JSON is not valid or "No JSON object found" if no JSON object was found in the provided markdown
+        text.
+        """
         # Regular expression to match JSON object within markdown
         json_pattern = re.compile(r'\{.*?\}', re.DOTALL)
         
@@ -62,6 +79,20 @@ class KeywordManager(BaseManager):
         return title
 
     def format_keywords(self, relevant_rows):
+        """
+        The `format_keywords` function processes relevant rows to extract and format keywords and their
+        counts.
+        
+        Args:
+          relevant_rows: It looks like the code snippet you provided is a method that formats keywords from
+        a given dataset. However, you haven't provided the content of the `relevant_rows` variable. Could
+        you please provide an example of the `relevant_rows` data structure or content so that I can assist
+        you further in understanding
+        
+        Returns:
+          The `format_keywords` method returns a list of formatted keywords along with their respective
+        counts in the format "{keyword} x{count}".
+        """
         all_keywords = []
         for keywords in relevant_rows["keywords"]:
             keywords_list = [keyword.strip().lower() for keyword in keywords.split(",")]
@@ -78,6 +109,14 @@ class KeywordManager(BaseManager):
         return formatted_keywords
 
     def get_unique_keywords(self):
+        """
+        The function `get_unique_keywords` extracts unique keywords from a DataFrame column after processing
+        and filtering the data.
+        
+        Returns:
+          The `get_unique_keywords` method returns a string containing unique keywords extracted from the
+        "keywords" column of the DataFrame after processing and filtering out irrelevant rows.
+        """
         self.df["Relevant"] = self.df.apply(self._check_relevance, axis=1)
         relevant_df = self.df.dropna(subset=["Relevant"])
 
@@ -98,6 +137,20 @@ class KeywordManager(BaseManager):
         return primary_keywords, secondary_keywords, exclusion_keywords
             
     def write_keywords_excel_output(self, tmpfile, df, unique_keywords_str):
+        """
+        This function writes a DataFrame to an Excel file with specific formatting for column widths and
+        adds a separate sheet for unique keywords.
+        
+        Args:
+          tmpfile: The `tmpfile` parameter is a file-like object that is used to store the Excel output. It
+        is passed to the `write_keywords_excel_output` function to write the dataframes `df` and
+        `df_keywords` to separate sheets within the Excel file.
+          df: The `df` parameter in the `write_keywords_excel_output` function is a DataFrame that contains
+        the data you want to write to an Excel file. It is being used to create the first sheet named
+        'Sheet1' in the Excel file.
+          unique_keywords_str: The `write_keywords_excel_output` function takes in a temporary file object
+        `tmpfile`, a DataFrame `df`, and a string `unique_keywords_str` containing unique keywords.
+        """
         with pd.ExcelWriter(tmpfile.name, engine='xlsxwriter') as writer:
             df.to_excel(writer, index=False, sheet_name='Sheet1')
             df_keywords = pd.DataFrame([unique_keywords_str], columns=['Unique Keywords'])
