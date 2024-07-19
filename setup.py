@@ -26,10 +26,10 @@ setup(
     name="ScopingReview",
     version=0.1,
     description="scoping review literature tool",
-    author="Ryan L. Melvin",
+    author="Perioperative Data Science at UAB",
     author_email="rmelvin@uabmc.edu",
     url="https://gitlab.rc.uab.edu/anes_ai/llm_apps/scopingreview.git",
-    python_requires=">=3.8",
+    python_requires=">=3.10",
     packages=find_packages(),  # only look in directores with __init__.py
     install_requires=[required_packages],
     extras_require={"dev": docs_packages + style_packages + dev_packages, "docs": docs_packages},
