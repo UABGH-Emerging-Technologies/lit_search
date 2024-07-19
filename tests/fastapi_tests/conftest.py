@@ -1,7 +1,7 @@
+import json
 import os
 
 import pytest
-import json
 from fastapi.testclient import TestClient
 
 
@@ -43,40 +43,42 @@ def client():
 @pytest.fixture
 def uncategorized_xlsx():
     # Path to the encoded file content
-    path_to_encoded_file = 'tests/assets/uncategorized_xlsx.txt'
-    with open(path_to_encoded_file, 'r') as file:
+    path_to_encoded_file = "tests/assets/uncategorized_xlsx.txt"
+    with open(path_to_encoded_file, "r") as file:
         return file.read().strip()
+
 
 @pytest.fixture
 def category_summaries_docx():
     # Path to the encoded file content
-    path_to_encoded_file = 'tests/assets/category_summaries_docx.txt'
-    with open(path_to_encoded_file, 'r') as file:
+    path_to_encoded_file = "tests/assets/category_summaries_docx.txt"
+    with open(path_to_encoded_file, "r") as file:
         return file.read().strip()
+
 
 @pytest.fixture
 def categorized_xlsx():
     # Path to the encoded file content
-    path_to_encoded_file = 'tests/assets/categorized_xlsx_bytes.txt'
-    with open(path_to_encoded_file, 'r') as file:
+    path_to_encoded_file = "tests/assets/categorized_xlsx_bytes.txt"
+    with open(path_to_encoded_file, "r") as file:
         return file.read().strip()
-    
-  
+
+
 @pytest.fixture
 def validate_encoded_response():
     def validate(resp, expected_content_type, key):
         assert resp.status_code == 200
-        assert expected_content_type in resp.headers['content-type']
+        assert expected_content_type in resp.headers["content-type"]
         assert key in resp.json()
         assert len(resp.json()[key]) > 0
+
     return validate
+
 
 @pytest.fixture
 def perform_post_request():
     def do_post(client, url, data):
-        headers = {
-            "accept": "application/json",
-            "Content-Type": "application/json"
-        }
-        return client.post(url, content=json.dumps(data).encode('utf-8'), headers=headers)
+        headers = {"accept": "application/json", "Content-Type": "application/json"}
+        return client.post(url, content=json.dumps(data).encode("utf-8"), headers=headers)
+
     return do_post

@@ -6,7 +6,7 @@ XLSX_EXPECTED_TYPE = lit_config.EXCEL_MIME
 LIT_API_META = {
     "summary": "Get help with a literature search.",
     "description": "Takes in questions, xlsx, or docx files and returns the output of a literature search step.",
-    "response_description": "XLSX or DOCX file."
+    "response_description": "XLSX or DOCX file.",
 }
 
 STANDALONE_SUMMARY_META = {
@@ -15,15 +15,8 @@ STANDALONE_SUMMARY_META = {
     "response_description": "Returns a DOCX literature summary with no citation hallucination",
     "responses": {
         200: {
-            "content": {
-                DOCX_EXPECTED_TYPE: {
-                    "schema": {
-                        "type": "string",
-                        "format": "byte"
-                    }
-                }
-            },
-            "description": "Returns an DOCX file encoded in base64. The client is responsible for decoding the base64 string to retrieve the DOCX file."
+            "content": {DOCX_EXPECTED_TYPE: {"schema": {"type": "string", "format": "byte"}}},
+            "description": "Returns an DOCX file encoded in base64. The client is responsible for decoding the base64 string to retrieve the DOCX file.",
         }
     },
     "operation_id": "StandaloneSummary",
@@ -48,15 +41,8 @@ SCOPING_STEP1_META = {
     "response_description": "Returns an XLSX as a byte-encoded string file with one row per article.",
     "responses": {
         200: {
-            "content": {
-                XLSX_EXPECTED_TYPE: {
-                    "schema": {
-                        "type": "string",
-                        "format": "byte"
-                    }
-                }
-            },
-            "description": "Returns an XLSX file encoded in base64. The client is responsible for decoding the base64 string to retrieve the XLSX file."
+            "content": {XLSX_EXPECTED_TYPE: {"schema": {"type": "string", "format": "byte"}}},
+            "description": "Returns an XLSX file encoded in base64. The client is responsible for decoding the base64 string to retrieve the XLSX file.",
         }
     },
     "operation_id": "ScopingStep1",
@@ -80,15 +66,8 @@ SCOPING_STEP2EXCEL_META = {
     "response_description": "Returns an excel file with the refined and expanded search results.",
     "responses": {
         200: {
-            "content": {
-                XLSX_EXPECTED_TYPE: {
-                    "schema": {
-                        "type": "string",
-                        "format": "byte"
-                    }
-                }
-            },
-            "description": "Returns an XLSX file encoded in base64. The client is responsible for decoding the base64 string to retrieve the XLSX file."
+            "content": {XLSX_EXPECTED_TYPE: {"schema": {"type": "string", "format": "byte"}}},
+            "description": "Returns an XLSX file encoded in base64. The client is responsible for decoding the base64 string to retrieve the XLSX file.",
         }
     },
     "operation_id": "ScopingStep2Iteration",
@@ -101,15 +80,8 @@ SCOPING_STEP3_META = {
     "response_description": "Returns an XLSX file with one row per article with a `category` column added.",
     "responses": {
         200: {
-            "content": {
-                XLSX_EXPECTED_TYPE: {
-                    "schema": {
-                        "type": "string",
-                        "format": "byte"
-                    }
-                }
-            },
-            "description": "Returns an XLSX file encoded in base64. The client is responsible for decoding the base64 string to retrieve the XLSX file."
+            "content": {XLSX_EXPECTED_TYPE: {"schema": {"type": "string", "format": "byte"}}},
+            "description": "Returns an XLSX file encoded in base64. The client is responsible for decoding the base64 string to retrieve the XLSX file.",
         }
     },
     "operation_id": "ScopingStep3",
@@ -121,15 +93,8 @@ SCOPING_STEP4_META = {
     "response_description": "Returns a DOCX file with a summary of each category.",
     "responses": {
         200: {
-            "content": {
-                DOCX_EXPECTED_TYPE: {
-                    "schema": {
-                        "type": "string",
-                        "format": "byte"
-                    }
-                }
-            },
-            "description": "Returns an DOCX file encoded in base64. The client is responsible for decoding the base64 string to retrieve the DOCX file."
+            "content": {DOCX_EXPECTED_TYPE: {"schema": {"type": "string", "format": "byte"}}},
+            "description": "Returns an DOCX file encoded in base64. The client is responsible for decoding the base64 string to retrieve the DOCX file.",
         }
     },
     "operation_id": "ScopingStep4",
@@ -141,15 +106,8 @@ SCOPING_STEP5_META = {
     "response_description": "Returns a DOCX file with a first draft of the article.",
     "responses": {
         200: {
-            "content": {
-                DOCX_EXPECTED_TYPE: {
-                    "schema": {
-                        "type": "string",
-                        "format": "byte"
-                    }
-                }
-            },
-            "description": "Returns an DOCX file encoded in base64. The client is responsible for decoding the base64 string to retrieve the DOCX file."
+            "content": {DOCX_EXPECTED_TYPE: {"schema": {"type": "string", "format": "byte"}}},
+            "description": "Returns an DOCX file encoded in base64. The client is responsible for decoding the base64 string to retrieve the DOCX file.",
         }
     },
     "operation_id": "ScopingStep5",

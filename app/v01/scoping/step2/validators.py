@@ -1,15 +1,17 @@
-from fastapi import Form
-from ScopingReview.Keywords.Manager import KeywordData
-from fastapi import HTTPException
+from typing import Any, List, Tuple
+
+from fastapi import Form, HTTPException
 from pydantic import ValidationError
-from typing import List, Tuple, Any
+
+from ScopingReview.Keywords.Manager import KeywordData
+
 
 def validate_keywords_data(primary: List, secondary: List, exclusion: List) -> KeywordData:
     """
     The function `validate_keywords_data` takes three lists of keywords as input, constructs a data
     dictionary, validates it, and returns a `KeywordData` instance or raises a `HTTPException` with
     validation error details.
-    
+
     Args:
       primary (List): List[str]
       secondary (List): Secondary keywords are additional keywords that are related to the primary
@@ -18,7 +20,7 @@ def validate_keywords_data(primary: List, secondary: List, exclusion: List) -> K
       exclusion (List): The `exclusion` parameter in the `validate_keywords_data` function refers to a
     list of keywords that should be excluded from the primary and secondary keyword lists during
     validation. These keywords are not allowed to be present in the primary or secondary keyword lists.
-    
+
     Returns:
       The function `validate_keywords_data` is returning an instance of `KeywordData` after validating
     the input data provided in the `primary`, `secondary`, and `exclusion` lists. If there is a
@@ -29,7 +31,7 @@ def validate_keywords_data(primary: List, secondary: List, exclusion: List) -> K
     data = {
         "primary_keywords": primary,
         "secondary_keywords": secondary,
-        "exclusion_keywords": exclusion
+        "exclusion_keywords": exclusion,
     }
 
     try:
@@ -37,4 +39,6 @@ def validate_keywords_data(primary: List, secondary: List, exclusion: List) -> K
         return KeywordData(**data)
     except ValidationError as e:
         # Handle validation errors
-        raise HTTPException(status_code=422, detail={"error": "Validation failed", "details": e.errors()})
+        raise HTTPException(
+            status_code=422, detail={"error": "Validation failed", "details": e.errors()}
+        )

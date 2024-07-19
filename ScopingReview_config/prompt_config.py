@@ -1,4 +1,6 @@
-PUBMED_SYSTEM_PROMPT = """You are a helpful AI assistant with expertise in creating PubMed Queries"""
+PUBMED_SYSTEM_PROMPT = (
+    """You are a helpful AI assistant with expertise in creating PubMed Queries"""
+)
 
 PUBMED_HUMAN_PROMPT = """Given the following research question, suggest a PubMed search string to find relevant articles:\n\n{}. Make the query sufficiently broad to be used to evaluate novelty of the project. Return only the pubmed search string, as your response will be used directly as an input to a function that takes in pubmed search strings."""
 
@@ -165,4 +167,6 @@ Next chunk of the article:
 ------------
 """
 
-summarize_single_article_system_prompt = "You are a medical writer who helps with literature summaries."
+summarize_single_article_system_prompt = (
+    "You are a medical writer who helps with literature summaries."
+)

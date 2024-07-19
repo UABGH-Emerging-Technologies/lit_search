@@ -1,22 +1,26 @@
 import os
-from ScopingReview.InitialSearch.Workflow import ArticleSearch
-from ScopingReview_config import config, app_config
-from aiweb_common.resource.PubMedQuery import PubMedQueryGenerator
-from aiweb_common.resource.PubMedInterface import PubMedInterface
+
 import pandas as pd
+from aiweb_common.resource.PubMedInterface import PubMedInterface
+from aiweb_common.resource.PubMedQuery import PubMedQueryGenerator
 from Bio import Entrez
-from ScopingReview.Keywords.Manager import KeywordData
-from ScopingReview.IterateSearch.Manager import FastAPIIterateSearchManager
+
 from ScopingReview.InitialSearch.Workflow import ArticleSearch
+from ScopingReview.IterateSearch.Manager import FastAPIIterateSearchManager
+from ScopingReview.Keywords.Manager import KeywordData
+from ScopingReview_config import app_config, config
+
 Entrez.email = config.DEV_EMAIL
 os.environ["NCBI_API_KEY"] = app_config.NCBI_API_KEY
 
+
 class IterateSearch(ArticleSearch):
-    def __init__(self, df:pd.DataFrame, research_question: str, keywords: KeywordData):
+    def __init__(self, df: pd.DataFrame, research_question: str, keywords: KeywordData):
         super().__init__(research_question=research_question)
-        self.iterate_search_manager = FastAPIIterateSearchManager(df, research_q=research_question, keywords=keywords)
-        
-        
+        self.iterate_search_manager = FastAPIIterateSearchManager(
+            df, research_q=research_question, keywords=keywords
+        )
+
     def process(self):
         print("Refining Query with Keywords")
         refined_query = self.iterate_search_manager.refine_query()

@@ -1,33 +1,38 @@
+# for consistency with our other apis, don't delete this import.
+# Other modules import Keywords Data from this file.
+# TODO fix this?
+from pydantic import Field, field_validator
 
 from app.v01.schemas import SearchRequest, XLSXinRequest
 from app.v01.validators import validate_docx_bytes
-# for consistency with our other apis, don't delete this import.
-# Other modules import Keywords Data from this file.
-#TODO fix this?
-from pydantic import Field, field_validator
+
 
 class CategoriesRequest(XLSXinRequest):
     """
     This class `CategoriesRequest` inherits from `XLSXinRequest` and is used for handling requests
     related to categories.
     """
+
     user_defined_categories: str
+
 
 class SummariesRequest(SearchRequest, XLSXinRequest):
     """This class inherits from SearchRequest and XLSXinRequest to handle summaries requests."""
+
     pass
 
 
 class DraftRequest(SearchRequest):
     """This class `DraftRequest` is a subclass of `SearchRequest` in Python."""
+
     docx_encoded: str = Field(..., description="Base64-encoded DOCX file.")
-    
-    @field_validator('docx_encoded')
+
+    @field_validator("docx_encoded")
     @classmethod
     def check_mime_type(cls, v, values, **kwargs):
         """
         The function `check_mime_type` validates a DOCX file by checking its MIME type.
-        
+
         Args:
           cls: In the given code snippet, the parameter `cls` typically stands for the class itself. It is a
         common convention in Python to use `cls` as the first parameter in class methods to refer to the
@@ -39,7 +44,7 @@ class DraftRequest(SearchRequest):
         request parameters or data being passed to a function or method. In the context of the
         `check_mime_type` method, the `values` parameter likely contains additional data related to the MIME
         type validation process.
-        
+
         Returns:
           The `validate_docx_bytes` function is being called with the arguments `cls, v, values`, and the
         result of this function call is being returned.

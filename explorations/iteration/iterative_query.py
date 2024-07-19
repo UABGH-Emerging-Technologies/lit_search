@@ -11,7 +11,6 @@ from langchain_openai import AzureChatOpenAI
 
 import ScopingReview_config.config as lit_config
 import streamlit as st
-from ScopingReview_config import prompt_config
 from ScopingReview.data import (
     get_relevant_keywords,
     get_unique_keywords,
@@ -19,6 +18,7 @@ from ScopingReview.data import (
     search_and_compile,
     write_excel_output,
 )
+from ScopingReview_config import prompt_config
 
 
 def show_professional_development_page():

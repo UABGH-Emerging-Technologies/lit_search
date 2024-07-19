@@ -1,8 +1,11 @@
-from ScopingReview_config import config
-from ScopingReview.BaseManager import BaseManager
-from aiweb_common.file_operations.text_format import convert_markdown_docx
-import streamlit as st
 import tempfile
+
+from aiweb_common.file_operations.text_format import convert_markdown_docx
+
+import streamlit as st
+from ScopingReview.BaseManager import BaseManager
+from ScopingReview_config import config
+
 
 class DraftReviewManager(BaseManager):
     def __init__(self, summaries, research_q):
@@ -15,7 +18,7 @@ class DraftReviewManager(BaseManager):
 
     def get_mime_type(self) -> str:
         return config.DOCX_MIME
-        
+
     # TODO: find better place for this. Used by write_first_draft()
     @staticmethod
     def extract_apa_citations(markdown_text):
@@ -29,7 +32,9 @@ class DraftReviewManager(BaseManager):
         return citations, non_citations
 
     @staticmethod
-    def assemble_document(abstract_md, intro_md, methods_md, results_md, conclusion_md, citations_md):
+    def assemble_document(
+        abstract_md, intro_md, methods_md, results_md, conclusion_md, citations_md
+    ):
         assembled_draft = (
             abstract_md
             + "\n\n"
@@ -48,10 +53,13 @@ class DraftReviewManager(BaseManager):
 
         return assembled_draft
 
+
 class StreamlitDraftReviewManager(DraftReviewManager):
     def __init__(self, summaries, research_q):
         super().__init__(summaries, research_q)
-        st.session_state["file_uploaded_draft"] = False  # Unique file_uploaded variable for drafting
+        st.session_state["file_uploaded_draft"] = (
+            False  # Unique file_uploaded variable for drafting
+        )
 
     def _download_results(self, docx_data):
         st.balloons()
