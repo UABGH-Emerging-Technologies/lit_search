@@ -5,7 +5,6 @@ from typing import Optional
 import pandas as pd
 import typer
 
-
 import ScopingReview_config.config as lit_config
 from ScopingReview.BaseManager import SummarizeManager
 from ScopingReview.data import fetch_full_text

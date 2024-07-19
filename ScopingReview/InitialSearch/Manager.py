@@ -1,15 +1,15 @@
 import tempfile
 from abc import abstractmethod
-import pandas as pd
 from io import BytesIO
+from typing import List
+
+import pandas as pd
+from aiweb_common.resource.PubMedInterface import PubMedInterface
+from fastapi import HTTPException
 
 import ScopingReview_config.config as config
 import streamlit as st
 from ScopingReview.BaseManager import BaseManager
-from aiweb_common.resource.PubMedInterface import PubMedInterface
-from fastapi import HTTPException
-
-from typing import List
 
 
 class BaseSearchManager(BaseManager):
@@ -27,19 +27,20 @@ class BaseSearchManager(BaseManager):
         articles_df = self.pubmed_interface.fetch_article_details(article_ids)
         articles_df = self.make_initial_df(article_ids)
         return articles_df
-    
+
     def _get_filename(self):
         return config.SR_STEP1_FILENAME
 
     def _get_mime_type(self):
         return config.EXCEL_MIME
 
+
 class FastAPISearchManager(BaseSearchManager):
     def __init__(self, scoping_step, research_q):
         super().__init__(scoping_step, research_q)
 
 
-#TODO Add back later
+# TODO Add back later
 # class StreamlitSearchManager(BaseSearchManager):
 #     def __init__(self, *args, **kwargs):
 #         super().__init__(*args, **kwargs)
@@ -78,14 +79,9 @@ class FastAPISearchManager(BaseSearchManager):
 #             super().generate_and_refine_query()
 #         st.write(f"**Searching Pubmed with the query:** _{self.search_string}_")
 #         return self.search_string
-    
+
 #     def _cleanup_session(self):
 #         keys_to_keep = {"lock", "total_cost"}
 #         for key in list(st.session_state.keys()):
 #             if key not in keys_to_keep:
 #                 del st.session_state[key]
-
-
-
-
-

@@ -1,25 +1,27 @@
-from fastapi import APIRouter, HTTPException, BackgroundTasks
-
 import datetime
-from ScopingReview.Categorize.Workflow import CategorizeWorkflow
-from aiweb_common.file_operations.UploadManager import FastAPIUploadManager
-from ScopingReview_config import app_config
 import os
+
+from aiweb_common.file_operations.file_handling import file_to_base64
+from aiweb_common.file_operations.UploadManager import FastAPIUploadManager
+from fastapi import APIRouter, BackgroundTasks, HTTPException
+
 import app.fastapi_config as api_config
 from app.v01.schemas import MSExcelResponse
 from app.v01.scoping.schemas import CategoriesRequest
-from aiweb_common.file_operations.file_handling import file_to_base64
+from ScopingReview.Categorize.Workflow import CategorizeWorkflow
+from ScopingReview_config import app_config
 
 router = APIRouter(tags=["scoping", "step3"])
 
-def get_step3_response(background_tasks: BackgroundTasks,
-                             user_defined_categories: str,
-                             xlsx_encoded: str) -> MSExcelResponse:
+
+def get_step3_response(
+    background_tasks: BackgroundTasks, user_defined_categories: str, xlsx_encoded: str
+) -> MSExcelResponse:
     """
     This function reads and validates an Excel file, categorizes articles based on user-defined
     categories, saves the categorized data to a temporary file, converts the file to a base64 string,
     and then returns a response with the encoded file.
-    
+
     Args:
       background_tasks (BackgroundTasks): The `background_tasks` parameter is an object that allows you
     to add background tasks to be run after sending the response to the client. These tasks are
@@ -33,7 +35,7 @@ def get_step3_response(background_tasks: BackgroundTasks,
     that represents the Excel file encoded in base64 format. This function reads and validates the Excel
     file, categorizes the articles based on user-defined categories, saves the categorized articles to a
     temporary file, converts the temporary
-    
+
     Returns:
       The function `get_step3_response` returns an instance of `MSExcelResponse`.
     """
@@ -45,43 +47,45 @@ def get_step3_response(background_tasks: BackgroundTasks,
             raise HTTPException(status_code=422, detail="Failed to process the file")
 
         categorize_workflow = CategorizeWorkflow(df, user_defined_categories)
-        #TODO convert to match other processes (process returns df, call write_excel_file...)
+        # TODO convert to match other processes (process returns df, call write_excel_file...)
         category_df = categorize_workflow.process()
 
         encoded_file = categorize_workflow.manager.get_encoded_excel(
-            category_df, 
+            category_df,
             background_tasks=background_tasks,
-            research_question=user_defined_categories
-            )
+            research_question=user_defined_categories,
+        )
 
         response = MSExcelResponse(encoded_xlsx=encoded_file)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
 
     finish = datetime.datetime.now()
-    try:
-        pass
-        content_to_log = f'{{"User Defined Categories":"{user_defined_categories}"}}'
-        categorize_workflow.log_to_database(app_config, content_to_log, start, finish, background_tasks, label="_scoping_step3_categorize")
-    except KeyError:
-        pass
+
+    content_to_log = f'{{"User Defined Categories":"{user_defined_categories}"}}'
+    categorize_workflow.log_to_database(
+        app_config,
+        content_to_log,
+        start,
+        finish,
+        background_tasks,
+        label="_scoping_step3_categorize",
+    )
 
     return response
 
+
 @router.post("/search/v01/scoping/step3/", **api_config.SCOPING_STEP3_META)
 async def categorize_articles(
-    background_tasks: BackgroundTasks,
-    request: CategoriesRequest
-    ) -> MSExcelResponse:
+    background_tasks: BackgroundTasks, request: CategoriesRequest
+) -> MSExcelResponse:
     """
     Processes an uploaded Excel file to categorize articles based on user-defined categories, then returns a downloadable Excel file with the results.
 
     This endpoint takes a byte-encoded Excel file containing article data and a string of user-defined categories to perform categorization. After processing, it generates a new Excel file with articles organized into the specified categories, which can be directly downloaded.
     """
     response = get_step3_response(
-        background_tasks,
-        request.user_defined_categories,
-        request.xlsx_encoded
-        )
+        background_tasks, request.user_defined_categories, request.xlsx_encoded
+    )
 
     return response

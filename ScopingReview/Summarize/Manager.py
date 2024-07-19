@@ -1,12 +1,14 @@
-import os
 import datetime
-import pandas as pd 
-import ScopingReview_config.config as config
-from ScopingReview.BaseManager import BaseManager
-import streamlit as st
+import os
+import tempfile
+
+import pandas as pd
 from aiweb_common.file_operations.file_handling import convert_markdown_docx
 
-import tempfile
+import ScopingReview_config.config as config
+import streamlit as st
+from ScopingReview.BaseManager import BaseManager
+
 
 class SummarizeManager(BaseManager):
     def __init__(self, df, research_q):
@@ -20,7 +22,6 @@ class SummarizeManager(BaseManager):
 
     def get_mime_type(self):
         raise NotImplementedError("This method must be implemented by subclasses.")
-
 
     def save_newsletter(self, docx_data, category, output_folder):
         # Ensure the output folder exists
@@ -36,8 +37,8 @@ class SummarizeManager(BaseManager):
         with open(file_path, "wb") as file:
             file.write(docx_data)
         print(f"File saved: {file_path}")
-       
-    @staticmethod 
+
+    @staticmethod
     def categories_limit_check(df):
         categories_exceeding_limit = []
         if df is not None:
@@ -51,6 +52,7 @@ class SummarizeManager(BaseManager):
                     categories_exceeding_limit.append(category)
         # Note that in Python, empty lists return False in boolean checks
         return categories_exceeding_limit
+
 
 # keeping name for compatibility with previous implementations
 # eventually want this name to begin with Streamlit...
@@ -81,6 +83,7 @@ class StreamlitSummarizeManager(SummarizeManager):
             mime=self.get_mime_type(),
         )
 
+
 class FastAPISummarizeManager(SummarizeManager):
     def __init__(self, df: pd.DataFrame, research_q: str):
         super().__init__(df, research_q)
@@ -91,6 +94,6 @@ class FastAPISummarizeManager(SummarizeManager):
         Can be overridden in subclasses to return different filenames based on the context.
         """
         return config.SR_STEP4_DOCX_FILENAME
-    
+
     def get_mime_type(self):
         return config.DOCX_MIME

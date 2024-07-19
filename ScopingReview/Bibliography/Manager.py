@@ -2,16 +2,17 @@ import calendar
 import sys
 import tempfile
 import xml.etree.ElementTree as ET
-
-from ScopingReview_config import config
-from ScopingReview.BaseManager import BaseManager
 from typing import Union
-from fastapi import HTTPException
-from fastapi.responses import Response
+
 import pandas as pd
 import requests
+from fastapi import HTTPException
+from fastapi.responses import Response
 
 import streamlit as st
+from ScopingReview.BaseManager import BaseManager
+from ScopingReview_config import config
+
 
 class BibliographyManager(BaseManager):
     def __init__(self, file_contents, file_ext):
@@ -19,10 +20,10 @@ class BibliographyManager(BaseManager):
         self.file_ext = file_ext
         if file_contents is not None:
             self.df = file_contents
-    
+
     def get_filename(self):
         return config.SR_STEP6_FILENAME
-    
+
     def _get_PMID_list(self):
         if self.file_ext == ".xlsx":
             if "PMID" in self.df.columns:
@@ -35,7 +36,7 @@ class BibliographyManager(BaseManager):
                 return df["PMID"].astype(str).tolist()
             else:
                 raise ValueError("Bibliography not in expected format.")
-            
+
     def _pmid2bibtex(self, pmids: list):
         ## Adapted from: https://gist.github.com/tommycarstensen/ec3c57761f3846c339de925b66f4ac1b
         ## Fetch XML data from Entrez.
@@ -52,7 +53,9 @@ class BibliographyManager(BaseManager):
             Volume = PubmedArticle.find("./MedlineCitation/Article/Journal/JournalIssue/Volume")
             Issue = PubmedArticle.find("./MedlineCitation/Article/Journal/JournalIssue/Issue")
             Year = PubmedArticle.find("./MedlineCitation/Article/Journal/JournalIssue/PubDate/Year")
-            Month = PubmedArticle.find("./MedlineCitation/Article/Journal/JournalIssue/PubDate/Month")
+            Month = PubmedArticle.find(
+                "./MedlineCitation/Article/Journal/JournalIssue/PubDate/Month"
+            )
             Title = PubmedArticle.find("./MedlineCitation/Article/Journal/Title")
             ArticleTitle = PubmedArticle.find("./MedlineCitation/Article/ArticleTitle")
             MedlinePgn = PubmedArticle.find("./MedlineCitation/Article/Pagination/MedlinePgn")
@@ -149,11 +152,13 @@ class BibliographyManager(BaseManager):
 class StreamlitBibtexManager(BibliographyManager):
     def __init__(self, df, file_ext):
         super().__init__(df, file_ext)
-        st.session_state["file_uploaded_bibtex"] = False  # Unique file_uploaded variable for bibtex management
-   
+        st.session_state["file_uploaded_bibtex"] = (
+            False  # Unique file_uploaded variable for bibtex management
+        )
+
     def get_download_button_label(self):
         return config.DOCX_DOWNLOAD_LABEL
-   
+
     def _download_results(self, bibtex_text):
         st.balloons()
         st.write("Note that once you hit download, this form will reset.")
@@ -183,12 +188,17 @@ class FastAPIBibtexManager(BibliographyManager):
             bibtex_text = self._pmid2bibtex(pmid_list)
         except ValueError as e:
             raise HTTPException(status_code=422, detail=str(e))
-            
+
         try:
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".bib", mode='w', encoding='utf-8') as tmpfile:
+            with tempfile.NamedTemporaryFile(
+                delete=False, suffix=".bib", mode="w", encoding="utf-8"
+            ) as tmpfile:
                 tmpfile.write(bibtex_text)
                 tmpfile_name = tmpfile.name
             return tmpfile_name
 
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"An error occurred while converting PMIDs to BibTeX: {str(e)}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"An error occurred while converting PMIDs to BibTeX: {str(e)}",
+            )

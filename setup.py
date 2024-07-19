@@ -1,4 +1,5 @@
 from pathlib import Path
+
 from setuptools import find_packages, setup
 
 # Load packages from requirements.txt
@@ -7,10 +8,10 @@ requirements_path = Path(BASE_DIR, "requirements.txt")
 required_packages = []
 dependency_links = []
 
-with open(requirements_path, encoding='utf8') as file:
+with open(requirements_path, encoding="utf8") as file:
     for ln in file:
         ln = ln.strip()
-        if ln.startswith('./'):  # handle local directory
+        if ln.startswith("./"):  # handle local directory
             dependency_links.append(ln)
         else:
             required_packages.append(ln)
@@ -33,5 +34,5 @@ setup(
     packages=find_packages(),  # only look in directores with __init__.py
     install_requires=[required_packages],
     extras_require={"dev": docs_packages + style_packages + dev_packages, "docs": docs_packages},
-    dependency_links=dependency_links
+    dependency_links=dependency_links,
 )

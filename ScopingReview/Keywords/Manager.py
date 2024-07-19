@@ -1,26 +1,36 @@
-from pydantic import BaseModel, Field
-from typing import List
-from ScopingReview.BaseManager import BaseManager
-import re
 import json
+import re
 from collections import Counter
+from typing import List
+
 import pandas as pd
+from pydantic import BaseModel, Field
+
+from ScopingReview.BaseManager import BaseManager
+
 
 class KeywordData(BaseModel):
-    primary_keywords: List[str] = Field(..., example=["keyword1", "keyword2"], description="List of primary keywords")
-    secondary_keywords: List[str] = Field(..., example=["keyword3", "keyword4"], description="List of secondary keywords")
-    exclusion_keywords: List[str] = Field(..., example=["keyword5"], description="List of exclusion keywords")
+    primary_keywords: List[str] = Field(
+        ..., example=["keyword1", "keyword2"], description="List of primary keywords"
+    )
+    secondary_keywords: List[str] = Field(
+        ..., example=["keyword3", "keyword4"], description="List of secondary keywords"
+    )
+    exclusion_keywords: List[str] = Field(
+        ..., example=["keyword5"], description="List of exclusion keywords"
+    )
+
 
 class KeywordManager(BaseManager):
     def __init__(self, df, research_q):
         super().__init__(df)
         self.research_q = research_q
-        
+
     @staticmethod
     def _extract_json_from_markdown(markdown_text):
         # Regular expression to match JSON object within markdown
-        json_pattern = re.compile(r'\{.*?\}', re.DOTALL)
-        
+        json_pattern = re.compile(r"\{.*?\}", re.DOTALL)
+
         # Find JSON object in the markdown text
         match = json_pattern.search(markdown_text)
 
@@ -88,7 +98,7 @@ class KeywordManager(BaseManager):
         unique_keywords_str = ", ".join(unique_keywords)
 
         return unique_keywords_str
-    
+
     def parse_keywords(self, content):
         data = self._extract_json_from_markdown(content)
         primary_keywords = data.get("Primary Keywords", [])
@@ -96,23 +106,22 @@ class KeywordManager(BaseManager):
         exclusion_keywords = data.get("Exclusion Keywords", [])
 
         return primary_keywords, secondary_keywords, exclusion_keywords
-            
-    def write_keywords_excel_output(self, tmpfile, df, unique_keywords_str):
-        with pd.ExcelWriter(tmpfile.name, engine='xlsxwriter') as writer:
-            df.to_excel(writer, index=False, sheet_name='Sheet1')
-            df_keywords = pd.DataFrame([unique_keywords_str], columns=['Unique Keywords'])
-            df_keywords.to_excel(writer, index=False, sheet_name='Sheet2')
 
-            workbook  = writer.book
-            worksheet1 = writer.sheets['Sheet1']
-            worksheet2 = writer.sheets['Sheet2']
-            wrap_format = workbook.add_format({'text_wrap': True})
+    def write_keywords_excel_output(self, tmpfile, df, unique_keywords_str):
+        with pd.ExcelWriter(tmpfile.name, engine="xlsxwriter") as writer:
+            df.to_excel(writer, index=False, sheet_name="Sheet1")
+            df_keywords = pd.DataFrame([unique_keywords_str], columns=["Unique Keywords"])
+            df_keywords.to_excel(writer, index=False, sheet_name="Sheet2")
+
+            workbook = writer.book
+            worksheet1 = writer.sheets["Sheet1"]
+            worksheet2 = writer.sheets["Sheet2"]
+            wrap_format = workbook.add_format({"text_wrap": True})
 
             for idx, col in enumerate(df.columns):
                 column_len = df[col].astype(str).map(len).max()
                 column_title_len = len(col)
-                max_len = min(100,max(column_len, column_title_len))
+                max_len = min(100, max(column_len, column_title_len))
                 worksheet1.set_column(idx, idx, max_len + 1, wrap_format)
-        
-            worksheet2.set_column(0, 0, len('Unique Keywords') + 1, wrap_format)
 
+            worksheet2.set_column(0, 0, len("Unique Keywords") + 1, wrap_format)

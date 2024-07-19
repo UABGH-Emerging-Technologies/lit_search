@@ -1,14 +1,16 @@
-import ScopingReview_config.prompt_config as prompt_config
-import ScopingReview_config.boilerplate as boilerplate
-from ScopingReview.BaseManager import BaseManager
-import ScopingReview_config.config as config
-import pandas as pd
 import tempfile
-from typing import Tuple, Any
+from typing import Any, Tuple
+
+import pandas as pd
 from fastapi import HTTPException  # Importing HTTPException
 
+import ScopingReview_config.boilerplate as boilerplate
+import ScopingReview_config.config as config
+import ScopingReview_config.prompt_config as prompt_config
+from ScopingReview.BaseManager import BaseManager
 
-#TODO move aiweb_common stuff to Categorize.Workflow
+
+# TODO move aiweb_common stuff to Categorize.Workflow
 class BaseCategorizeManager(BaseManager):
     def __init__(self, df_to_categorize, userdefined_categories):
         super().__init__(df_to_categorize)
@@ -16,42 +18,42 @@ class BaseCategorizeManager(BaseManager):
         input_list = userdefined_categories.split(",")
         input_list = [value.strip() for value in input_list if value.strip()]
         self.categories = input_list
-    
+
     def _get_filename(self):
         return config.SR_STEP3_FILENAME
-    
+
     def _get_mime_type(self):
-        return config.EXCEL_MIME   
-    
+        return config.EXCEL_MIME
+
     def _assemble_prompt(self, thing_to_categorize):
-        print('assembling prompts')
+        print("assembling prompts")
         assembled_prompt = self.single_response.single_response_service.preparer.assemble_prompt(
-            system_prompt = prompt_config.CATEGORIZE_SYSTEM_TEMPLATE, 
-            user_prompt = prompt_config.CATEGORIZE_HUMAN_TEMPLATE, 
-            context = thing_to_categorize,
-            categories = self.categories 
+            system_prompt=prompt_config.CATEGORIZE_SYSTEM_TEMPLATE,
+            user_prompt=prompt_config.CATEGORIZE_HUMAN_TEMPLATE,
+            context=thing_to_categorize,
+            categories=self.categories,
         )
         return assembled_prompt
 
     def _extract_full_text(self):
         if self.df is not None:
             try:
-                full_text_df = self.fetch_full_text(self.df['PMID'])
-                category_df = pd.merge(self.df, full_text_df, on='PMID', how='inner')
+                full_text_df = self.fetch_full_text(self.df["PMID"])
+                category_df = pd.merge(self.df, full_text_df, on="PMID", how="inner")
             except Exception as e:
                 print(f"Failed while getting full texts: {str(e)}")
-            return category_df            
-
+            return category_df
 
     def save_results_to_excel(self, category_df):
         category_df.drop_duplicates(subset="PMID", keep="first", inplace=True)
         try:
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx", mode='wb') as tmpfile:
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx", mode="wb") as tmpfile:
                 category_df.to_excel(tmpfile.name, index=False)
                 return tmpfile.name
         except Exception as e:
             print(f"Failed to save file: {str(e)}")
             raise
+
 
 class FastAPICategorizeManager(BaseCategorizeManager):
     def __init__(self, df: pd.DataFrame, userdefined_categories: str):
@@ -65,19 +67,20 @@ class FastAPICategorizeManager(BaseCategorizeManager):
         try:
             category_df = self.categorize_articles()
             if category_df.empty:
-                raise HTTPException(status_code=404, detail="No data to categorize or articles not found.")
+                raise HTTPException(
+                    status_code=404, detail="No data to categorize or articles not found."
+                )
             return self.save_results_to_excel(category_df)
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
 
-            
 # class StreamlitCategorizeManager(BaseCategorizeManager):
 #     def __init__(self, df, userdefined_categories):
 #         import streamlit as st
 #         super().__init__(df,userdefined_categories)
 #         st.session_state["file_uploaded_cate"] = False
- 
+
 #     def _download_results(self, category_df):
 #         import streamlit as st  # Ensure streamlit is imported within the method
 #         category_df.drop_duplicates(subset="PMID", keep="first", inplace=True)
@@ -91,9 +94,9 @@ class FastAPICategorizeManager(BaseCategorizeManager):
 #                     data=file,
 #                     file_name=self.get_filename(),
 #                     mime=self._get_mime_type(),
-#                 )  
-      
-  
+#                 )
+
+
 #     def get_download_button_label(self):
 #         return config.EXCEL_DOWNLOAD_LABEL
 

@@ -1,6 +1,9 @@
 from datetime import datetime
 
-from aiweb_common.streamlit_common import apply_uab_font, hide_streamlit_branding
+from aiweb_common.streamlit_common import (
+    apply_uab_font,
+    hide_streamlit_branding,
+)
 
 import streamlit as st
 from ScopingReview.BaseManager import (
@@ -10,7 +13,11 @@ from ScopingReview.BaseManager import (
     SummarizeManager,
 )
 from ScopingReview.data import write_to_db
-from ScopingReview.SearchManager import ArticleSearchManager, IterateSearchManager
+from ScopingReview.SearchManager import (
+    ArticleSearchManager,
+    IterateSearchManager,
+)
+from ScopingReview.UploadManager import UploadManager
 from streamlit.states import (
     BibtexHandler,
     CategorizeHandler,
@@ -19,7 +26,6 @@ from streamlit.states import (
     SearchHandler,
     SummarizeHandler,
 )
-from ScopingReview.UploadManager import UploadManager
 
 
 class LiteraturePage:

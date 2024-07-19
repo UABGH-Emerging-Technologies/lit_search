@@ -12,5 +12,3 @@ class NewsletterSearchManager(BaseSearchManager):
     def perform_search(self, search_string):
         articles_df = self._fetch_articles(search_string)
         return articles_df
-
-

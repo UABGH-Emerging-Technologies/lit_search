@@ -70,7 +70,7 @@ SMART_LLM_INTERFACE = AzureChatOpenAI(
     openai_api_type="azure",
     temperature=0,
     model_name="gpt-4",
-    openai_api_key=lit_app_config.GPT4_KEY
+    openai_api_key=lit_app_config.GPT4_KEY,
 )
 
 
