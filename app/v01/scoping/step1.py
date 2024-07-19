@@ -58,21 +58,7 @@ async def perform_step1_scoping_search(
     query: SearchRequest
     ) -> MSExcelResponse:
     """
-    This function conducts an initial literature search based on a research question, compiles the
-    results into an Excel file, and returns it for download.
-    
-    Args:
-      background_tasks (BackgroundTasks): BackgroundTasks - A class that allows you to add background
-    tasks to be run after returning a response in FastAPI. These tasks are run asynchronously after the
-    response has been sent to the client, making them useful for operations that should not delay the
-    response to the client.
-      query (SearchRequest): The `query` parameter in the `perform_step1_scoping_search` function
-    represents a `SearchRequest` object, which likely contains information related to the research
-    question for which the literature search is being conducted. This object may include details such as
-    keywords, filters, search criteria, and any other relevant
-    
-    Returns:
-      MSExcelResponse
+  This function performs a literature search based on a research question, compiles the results into an Excel file using FastAPI's asynchronous background tasks, and returns the file for download.
     """
     return get_step1_response(
         background_tasks, query.research_question
