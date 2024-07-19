@@ -14,6 +14,30 @@ def get_summary_response(
     background_tasks: BackgroundTasks,
     research_question: str
     ) -> MSWordResponse:
+    """
+    Perform a literature search based on a given research question, summarize the findings,
+    and returns a downloadable DOCX response with the summary. 
+
+    This function uses a standalone summary instance to process the research question,
+    encode the summary findings as a DOCX file, and return it as a response. If any 
+    processing failure occurs during this process, an HTTP error is raised.
+
+    After the main function logic, a background task logs the research query and the 
+    execution time to the database, ignoring any KeyError.
+
+    Parameters:
+    background_tasks (BackgroundTasks): FastAPI background tasks for performing operations
+    after returning the response.
+    research_question (str): The research question for which the literature search and 
+    summary need to be conducted.
+
+    Returns:
+    MSWordResponse: A response object that includes the file data for the generated summary. 
+
+    Raises:
+    HTTPException: Returns a 500 error for any processing failures during the search and 
+    summary generation process.
+    """
 
     start = datetime.now()
     
@@ -45,23 +69,8 @@ async def initial_literature_search(
     query: SearchRequest
     ) -> MSWordResponse:
     """
-    Performs an initial literature search based on a provided research question, summarizes the findings, and generates a downloadable DOCX file containing the summary. This method leverages automated search and summarization tools to provide a concise overview of relevant literature.
-
-    The process includes:
-    - Searching for articles related to the research question.
-    - Compiling and summarizing the most relevant articles.
-    - Generating a summary document in DOCX format.
-
-    Parameters:
-        query (SearchRequest): A data model that includes the research question for which the literature search and summary need to be conducted.
-
-    Returns:
-        FileResponse: A response object that includes the file data for the generated summary. The file is temporarily stored and is available for download immediately after generation. Post-download, the file is cleaned up from the server to maintain security and efficiency.
-    
-    Raises:
-        HTTPException: Returns a 404 error if no articles are found, or a 500 error for any other processing failures during the search and summary generation process.
+    This function performs a literature search based on a given research question, summarizes the findings, and provides a downloadable DOCX summary, returning an error if no articles are found or if any issue arises during the process.
     """
-    
     response = get_summary_response(
         background_tasks, query.research_question
     )
