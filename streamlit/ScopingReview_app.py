@@ -8,6 +8,7 @@ from ScopingReview.compile import (
     CategorizeManager,
     DraftReviewManager,
     SummarizeManager,
+    StandaloneSummarizer
 )
 from ScopingReview.data import write_to_db
 from ScopingReview.search import ArticleSearchManager, IterateSearchManager
@@ -140,12 +141,8 @@ class LiteraturePage:
                 df = st.session_state["search_manager"].search_and_compile_articles(
                     write_excel=False
                 )
-                df = df.head(40)  # for now, GPT limitation
-                df["Author 1: Relevant Article? (Yes/No)"] = "Yes"
-                df["category"] = "Initial Search"
-                df["Text"] = "Text not available"
-                # for non-scoping, then summarize and download
-                st.session_state["summarization_manager"] = SummarizeManager(df, self.research_q)
+                df = df.head(50)  # for now, GPT limitation
+                st.session_state["summarization_manager"] = StandaloneSummarizer(df, self.research_q)
                 st.session_state["summarization_finished"] = st.session_state[
                     "summarization_manager"
                 ].summarize_articles()
