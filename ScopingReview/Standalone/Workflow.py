@@ -45,8 +45,8 @@ class StandaloneSummary(WorkflowHandler):
         article_abstracts = []
         for _, row in articles_df.iterrows():
 
-            articles_df = f"APA Citation: {row.citation}\n\n Abstract: {row.abstract}\n\n --- "
-            article_abstracts.append(articles_df)
+            single_abstract = f"APA Citation: {row.citation}\n\n Abstract: {row.abstract}\n\n --- "
+            article_abstracts.append(single_abstract)
         text_to_summarize = "\n\n".join(article_abstracts)
         standalone_prompt = self.assemble_standalone_prompt(text_to_summarize)
         summary, response_meta = self.single_response.generate_response(standalone_prompt)
