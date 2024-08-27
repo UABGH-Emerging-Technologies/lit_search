@@ -234,13 +234,13 @@ def generate_keywords(df, research_question):
     for keywords in relevant_rows["keywords"]:
         keywords_list = [keyword.strip().lower() for keyword in keywords.split(",")]
         clean_keywords_list = review_data.clean_keywords(keywords_list)
-        all_keywords.append(clean_keywords_list)
-
+        all_keywords +=clean_keywords_list 
+    all_keywords = list(set(all_keywords))
     all_titles = []
     for title in relevant_rows["title"]:
         titles_list = review_data.clean_title(title)
-        all_titles.append(titles_list)
-
+        all_titles += titles_list
+    all_titles = list(set(all_titles))
     formatted_prompt = lit_prompts.keyword_chat_prompt.format_prompt(
         question=research_question, titles=all_titles, keywords_list=all_keywords
     )
