@@ -10,7 +10,7 @@ from langchain.prompts import (
 
 PUBMED_PROMPT = """Given the following research question, suggest a PubMed search string to find relevant articles:\n\n{}. Make the query sufficiently broad to be used to evaluate novelty of the project. Return only the pubmed search string, as your response will be used directly as an input to a function that takes in pubmed search strings."""
 
-GENERATE_HUMAN_KEYWORD_PROMPT = """Given the scientific research question, a list of titles of scholarly publications, and a corresponding list of lists of keywords, each corresponding to a specific scholarly work from a PubMed search, your task is to analyze these inputs and determine three separate lists:
+GENERATE_HUMAN_KEYWORD_PROMPT = """Given the scientific research question, a list of titles of scholarly publications, and a corresponding list of keywords that researchers have identified from relevant articles in a PubMed search, your task is to analyze these inputs and determine three separate lists:
 
 Primary Keywords: These are the most relevant keywords that appear more frequently in the titles and keyword lists and are directly related to the research question. The presence of these keywords in an article title is a strong indicator that it could be useful for the research question.
 Secondary Keywords: These are the less frequent but still relevant keywords. They are related to the research question but might not have as direct of a correlation to the main topic as the primary keywords.
@@ -22,7 +22,7 @@ List of Publication Titles: \n\n{titles}
 
 List of keyword lists: \n\n{keywords_list}
 
-Please provide the primary, secondary, and exclusion keyword lists related to the given research question based on the provided keywords and titles lists from the PubMed search in JSON format."""
+Please provide the primary, secondary, and exclusion keyword lists related to the given research question based on the provided keywords and titles lists from the PubMed search in JSON format. Avoid repeats."""
 
 GENERATE_SYSTEM_KEYWORD_PROMPT = """ You are an expert clinical researcher. """
 
@@ -30,7 +30,7 @@ ITER_PUBMED_PROMPT = """Given the following list of keywords from articles selec
 
 FEW_RESULTS_PROMPT = """\n\n The following query returned no or few results. Please suggest a simpler one (i.e., with fewer query elements).\n\n"""
 
-SUMMARIZE_LITERATURE_PROMPT = """I am considering a clinical research project to address this question: '{}'\n\n I want to {} and understand how my project is situated in existing literature. Write a paragrph summarizing of the following article abstracts and addressing how my proposed project fits in to existing literature.\n\n{}\n\nCite each article in the paragraph in APA format."""
+SUMMARIZE_LITERATURE_PROMPT = """I am considering a clinical research project to address this question: '{}'\n\n I want to understand how my project is situated in existing literature. Write a paragrph summarizing of the following article abstracts and addressing how my proposed project fits in to existing literature.\n\n{}\n\nCite each article in the paragraph in APA format."""
 
 CATEGORIZE_SYSTEM_TEMPLATE = """ Help categorize the input data into the categories given by the user. Return comma separated category(ies) as output. Be parsimonius, assigning only categories that matter the most -- ideally 3 or fewer. Use only the categories given by the user to categorize the input. Even if the article does not fit a category well, pick the best one possible."""
 
@@ -152,6 +152,14 @@ Format your response as markdown like this
 A brief summary of the review, including the purpose, methodology, main findings, and conclusions.
 """
 
+STANDALONE_SUMMARY_TEMPLATE = "You are a research librarian with medical writing experience. A researchers is considering a clinical research project to address this question: '{question}' They want to and understand how my project is situated in existing literature. Write a paragrph for them summarizing of the following article abstracts and addressing how their proposed project fits in to existing literature. Liberally use APA-style in-text citations throughout the paragraph, citing the articles. The article abstracts are separated by '---'"
+
+standalone_system_message_prompt = SystemMessagePromptTemplate.from_template(
+    STANDALONE_SUMMARY_TEMPLATE
+)
+
+
+
 
 generate_sys_keywords_prompt = SystemMessagePromptTemplate.from_template(
     GENERATE_SYSTEM_KEYWORD_PROMPT
@@ -176,6 +184,10 @@ sumarize_human_message_prompt = HumanMessagePromptTemplate.from_template(SUMMARI
 
 category_summary_chat_prompt = ChatPromptTemplate.from_messages(
     [summarize_system_message_prompt, sumarize_human_message_prompt]
+)
+
+standalone_chat_prompt = ChatPromptTemplate.from_messages(
+    [standalone_system_message_prompt, sumarize_human_message_prompt]
 )
 
 newsletter_chat_prompt = ChatPromptTemplate.from_messages(

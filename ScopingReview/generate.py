@@ -169,6 +169,17 @@ def summarize_all_categories(df, user_question, newsletter_flag=False):
                 )
     return "\n\n".join(output), response_meta
 
+def summarize_abstracts(user_question, abstracts):
+    with get_openai_callback() as response_meta:
+        summary = lit_config.SUMMARIZE_CHAT.invoke(
+            lit_prompts.standalone_chat_prompt.format(
+                question=user_question,
+                content=abstracts
+                )
+            )
+    return summary.content, response_meta
+
+
 
 # TODO: find better place for this. Used by write_first_draft()
 def extract_apa_citations(markdown_text):
