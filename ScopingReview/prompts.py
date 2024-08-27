@@ -30,7 +30,7 @@ ITER_PUBMED_PROMPT = """Given the following list of keywords from articles selec
 
 FEW_RESULTS_PROMPT = """\n\n The following query returned no or few results. Please suggest a simpler one (i.e., with fewer query elements).\n\n"""
 
-SUMMARIZE_LITERATURE_PROMPT = """I am considering a clinical research project to address this question: '{}'\n\n I want to {} and understand how my project is situated in existing literature. Write a paragrph summarizing of the following article abstracts and addressing how my proposed project fits in to existing literature.\n\n{}\n\nCite each article in the paragraph in APA format."""
+SUMMARIZE_LITERATURE_PROMPT = """I am considering a clinical research project to address this question: '{}'\n\n I want to understand how my project is situated in existing literature. Write a paragrph summarizing of the following article abstracts and addressing how my proposed project fits in to existing literature.\n\n{}\n\nCite each article in the paragraph in APA format."""
 
 CATEGORIZE_SYSTEM_TEMPLATE = """ Help categorize the input data into the categories given by the user. Return comma separated category(ies) as output. Be parsimonius, assigning only categories that matter the most -- ideally 3 or fewer. Use only the categories given by the user to categorize the input. Even if the article does not fit a category well, pick the best one possible."""
 
@@ -152,6 +152,14 @@ Format your response as markdown like this
 A brief summary of the review, including the purpose, methodology, main findings, and conclusions.
 """
 
+STANDALONE_SUMMARY_TEMPLATE = "You are a research librarian with medical writing experience. A researchers is considering a clinical research project to address this question: '{question}' They want to and understand how my project is situated in existing literature. Write a paragrph for them summarizing of the following article abstracts and addressing how their proposed project fits in to existing literature. Liberally use APA-style in-text citations throughout the paragraph, citing the articles. The article abstracts are separated by '---'"
+
+standalone_system_message_prompt = SystemMessagePromptTemplate.from_template(
+    STANDALONE_SUMMARY_TEMPLATE
+)
+
+
+
 
 generate_sys_keywords_prompt = SystemMessagePromptTemplate.from_template(
     GENERATE_SYSTEM_KEYWORD_PROMPT
@@ -176,6 +184,10 @@ sumarize_human_message_prompt = HumanMessagePromptTemplate.from_template(SUMMARI
 
 category_summary_chat_prompt = ChatPromptTemplate.from_messages(
     [summarize_system_message_prompt, sumarize_human_message_prompt]
+)
+
+standalone_chat_prompt = ChatPromptTemplate.from_messages(
+    [standalone_system_message_prompt, sumarize_human_message_prompt]
 )
 
 newsletter_chat_prompt = ChatPromptTemplate.from_messages(
