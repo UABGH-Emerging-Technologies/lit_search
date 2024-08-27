@@ -206,6 +206,19 @@ class SummarizeManager(CompileManager):
             file.write(docx_data)
         print(f"File saved: {file_path}")
 
+class StandaloneSummarizer(SummarizeManager):
+    def summarize_from_abstracts(self, articles_df):
+        article_abstracts = []
+        for _, row in articles_df.iterrows():
+
+            single_abstract = f"APA Citation: {row.citation}\n\n Abstract: {row.abstract}\n\n --- "
+            article_abstracts.append(single_abstract)
+        text_to_summarize = "\n\n".join(article_abstracts)
+        summary, response_meta = lit_generate.summarize_all_categorie(
+            self.research_q, text_to_summarize
+            )
+        return summary, response_meta
+        
 
 class DraftReviewManager(CompileManager):
     def __init__(self, summaries, research_q):
