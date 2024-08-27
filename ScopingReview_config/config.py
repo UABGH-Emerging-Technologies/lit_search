@@ -15,6 +15,7 @@ DEV_EMAIL = "rmelvin@uabmc.edu"
 
 # Assets
 ASSETS_DIR = Path(BASE_DIR, "assets")
+WATERMARK_TEMPLATE = Path(ASSETS_DIR, "watermark_template.docx")
 
 # ScopingReview_outname
 SR_STEP1_FILENAME = "InitialSearch.xlsx"
