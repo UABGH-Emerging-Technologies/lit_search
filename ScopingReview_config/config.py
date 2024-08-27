@@ -40,7 +40,7 @@ BIB_DOWNLOAD_LABEL = "Download .bib File"
 MAX_TRIES = 6
 
 # Sub Classificaiton threshold
-SUBCLASS_THRESHOLD = 40
+SUBCLASS_THRESHOLD = 50
 
 # Newsletter
 NEWSLETTER_QUESTION = "Developments in {category} anesthesia that may impact clinical practice"
