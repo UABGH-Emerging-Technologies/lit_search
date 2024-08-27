@@ -145,7 +145,7 @@ class LiteraturePage:
                 st.session_state["summarization_manager"] = StandaloneSummarizer(df, self.research_q)
                 st.session_state["summarization_finished"] = st.session_state[
                     "summarization_manager"
-                ].summarize_from_abstracts()
+                ].summarize_articles()
                 st.session_state["button_clicked"] = st.session_state["summarization_finished"]
 
         if st.session_state["summarization_finished"]:
