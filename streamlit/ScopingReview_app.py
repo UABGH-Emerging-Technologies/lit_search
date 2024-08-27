@@ -21,7 +21,7 @@ from ScopingReview.states import (
     SummarizeHandler,
 )
 from ScopingReview.upload import UploadManager
-
+from ScopingReview_config import config
 
 class LiteraturePage:
     def __init__(self):
@@ -40,7 +40,7 @@ class LiteraturePage:
             "generate bibtex file",
         ]
 
-    def show(self):
+    def show(self, watermark_template_location = config.WATERMARK_TEMPLATE):
         self._set_page_config()
         hide_streamlit_branding()
         apply_uab_font()
@@ -57,9 +57,9 @@ class LiteraturePage:
             self.scoping_step = st.radio(
                 "What step of the scoping review do you want to work on?", self.scoping_steps
             )
-            self._manage_scoping_review()
+            self._manage_scoping_review(watermark_template_location)
         else:
-            self._manage_initial_lit_review()
+            self._manage_initial_lit_review(watermark_template_location)
 
     def _set_page_config(self):
         st.set_page_config(page_title=self.page_title, page_icon=self.page_icon)
@@ -80,7 +80,7 @@ class LiteraturePage:
         """
         )
 
-    def _manage_scoping_review(self):
+    def _manage_scoping_review(self, watermark_template_location):
         if self.research_q == "":
             st.write("Please enter a research question to continue")
         else:
@@ -91,9 +91,9 @@ class LiteraturePage:
             elif self.scoping_step == "categorize articles":
                 self._manage_categorize_articles()
             elif self.scoping_step == "summarize categories":
-                self._manage_summarize_categories()
+                self._manage_summarize_categories(watermark_template_location)
             elif self.scoping_step == "draft article":
-                self._manage_draft_article()
+                self._manage_draft_article(watermark_template_location)
             elif self.scoping_step == "generate bibtex file":
                 self._manage_bibtex()
 
@@ -125,7 +125,7 @@ class LiteraturePage:
             )
             smsearch.cleanup_states()
 
-    def _manage_initial_lit_review(self):
+    def _manage_initial_lit_review(self, watermark_template_location):
         smsearch = SearchHandler()
         smsearch.initialize_states()
         smsummarize = SummarizeHandler()
@@ -145,7 +145,7 @@ class LiteraturePage:
                 st.session_state["summarization_manager"] = StandaloneSummarizer(df, self.research_q)
                 st.session_state["summarization_finished"] = st.session_state[
                     "summarization_manager"
-                ].summarize_articles()
+                ].summarize_articles(watermark_template_location)
                 st.session_state["button_clicked"] = st.session_state["summarization_finished"]
 
         if st.session_state["summarization_finished"]:
@@ -238,7 +238,7 @@ class LiteraturePage:
             )
             smc.cleanup_states()
 
-    def _manage_summarize_categories(self):
+    def _manage_summarize_categories(self, watermark_template_location):
         smsummarize = SummarizeHandler()
         smsummarize.initialize_states()
         start_time = datetime.now()
@@ -260,7 +260,7 @@ class LiteraturePage:
                         st.spinner("Summarizing articles")
                         st.session_state["summarization_finished"] = st.session_state[
                             "summarization_manager"
-                        ].summarize_articles()
+                        ].summarize_articles(watermark_template_location)
                         st.session_state["button_clicked"] = st.session_state[
                             "summarization_finished"
                         ]
@@ -275,7 +275,7 @@ class LiteraturePage:
             )
             smsummarize.cleanup_states()
 
-    def _manage_draft_article(self):
+    def _manage_draft_article(self, watermark_template_location):
         smd = DraftHandler()
         smd.initialize_states()
         start_time = datetime.now()
@@ -291,7 +291,7 @@ class LiteraturePage:
                     )
                 st.session_state["draft_complete"] = st.session_state[
                     "draft_manager"
-                ].draft_review()
+                ].draft_review(watermark_template_location)
                 st.session_state["button_clicked"] = st.session_state["draft_complete"]
 
         if st.session_state["draft_complete"]:

@@ -15,6 +15,7 @@ DEV_EMAIL = "rmelvin@uabmc.edu"
 
 # Assets
 ASSETS_DIR = Path(BASE_DIR, "assets")
+WATERMARK_TEMPLATE = Path(ASSETS_DIR, "watermark_template.docx")
 
 # ScopingReview_outname
 SR_STEP1_FILENAME = "InitialSearch.xlsx"
@@ -39,7 +40,7 @@ BIB_DOWNLOAD_LABEL = "Download .bib File"
 MAX_TRIES = 6
 
 # Sub Classificaiton threshold
-SUBCLASS_THRESHOLD = 40
+SUBCLASS_THRESHOLD = 50
 
 # Newsletter
 NEWSLETTER_QUESTION = "Developments in {category} anesthesia that may impact clinical practice"
