@@ -21,10 +21,10 @@ from ScopingReview.states import (
     SummarizeHandler,
 )
 from ScopingReview.upload import UploadManager
-from ScopingReview_config import config
+import ScopingReview_config.config as lit_config
 
 class LiteraturePage:
-    def __init__(self):
+    def __init__(self, watermark_template_location = lit_config.WATERMARK_TEMPLATE):
         self.page_title = "Literature Search"
         self.page_icon = "📚"
         self.search_type_options = ["initial literature search", "work on scoping review"]
@@ -37,10 +37,12 @@ class LiteraturePage:
             "categorize articles",
             "summarize categories",
             "draft article",
-            "generate bibtex file",
-        ]
+            "generate bibtex file"
+        ],
+        self.template_location = watermark_template_location
 
-    def show(self, watermark_template_location = config.WATERMARK_TEMPLATE):
+
+    def show(self):
         self._set_page_config()
         hide_streamlit_branding()
         apply_uab_font()
@@ -57,9 +59,9 @@ class LiteraturePage:
             self.scoping_step = st.radio(
                 "What step of the scoping review do you want to work on?", self.scoping_steps
             )
-            self._manage_scoping_review(watermark_template_location)
+            self._manage_scoping_review(self.template_location)
         else:
-            self._manage_initial_lit_review(watermark_template_location)
+            self._manage_initial_lit_review(self.template_location)
 
     def _set_page_config(self):
         st.set_page_config(page_title=self.page_title, page_icon=self.page_icon)
