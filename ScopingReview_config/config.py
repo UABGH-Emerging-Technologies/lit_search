@@ -43,7 +43,7 @@ SUBCLASS_THRESHOLD = 40
 
 # Newsletter
 NEWSLETTER_QUESTION = "Developments in {category} anesthesia that may impact clinical practice"
-NEWSLETTER_CATEGORIES = ["perioperative medicine", "pain", "cardiac", "OB", "regional", "general", "critical care"]
+NEWSLETTER_CATEGORIES = ["pain", "perioperative medicine",  "cardiac", "OB", "regional", "general", "critical care"]
 NEWSLETTER_QUERIES = {
     "cardiac": "cardiac anesthesia OR cardiac anaesthesia OR cardiac anesthesiology OR heart anesthesia OR cardiothoracic anesthesia OR cardiothoracic anesthesiology",
     "OB": "obstetric anesthesia OR obstetric anaesthesia OR maternal anesthesia OR perinatal anesthesia",
@@ -51,7 +51,7 @@ NEWSLETTER_QUERIES = {
     "general": '(general anesthesia OR general anaesthesia) AND (("Anesthesiology"[ta]) OR ("Anesthesia and Analgesia"[ta]) OR ("British Journal of Anaesthesia"[ta]) OR ("Journal of Clinical Anesthesia"[ta]) OR ("JAMA"[ta]) OR ("Journal of the American Medical Association"[ta]))',
     "critical care": "critical care anesthesia OR critical care anaesthesia OR ICU anesthesia OR intensive care anesthesia",
     "perioperative medicine": '(Perioperative Medicine OR Preoperative Surgical Optimization) AND (("Perioperative Medicine"[ta]) OR ("Journal of Perioperative Medicine"[ta]) OR ("Journal of Clinical Anesthesia"[ta]) OR ("Current Opinion in Anaesthesiology"[ta]) OR ("Current Anesthesiology Reports"[ta]) OR ("British Journal of Anaesthesia"[ta]) OR ("Anesthesiology Clinics"[ta]))',
-    "pain": '(Pain Medicine OR Pain Management) AND (("Pain"[ta]) OR ("Pain Medicine"[ta]) OR ("Journal of Pain"[ta]))'
+    "pain": '(("Pain"[ta]) OR ("Pain Med"[ta]) OR ("J Pain"[ta]))'
 }
 
 

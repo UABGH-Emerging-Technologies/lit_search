@@ -11,6 +11,10 @@ services:
     volumes:
       - /mnt/g/AINewsletter:/data/results
     secrets:
+      - db_server
+      - db_name
+      - db_user
+      - db_password
       - openai_api_key 
       - gpt4_api_key
       - libkey_api_key
