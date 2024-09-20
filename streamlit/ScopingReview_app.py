@@ -38,7 +38,7 @@ class LiteraturePage:
             "summarize categories",
             "draft article",
             "generate bibtex file"
-        ],
+        ]
         self.template_location = watermark_template_location
 
 
