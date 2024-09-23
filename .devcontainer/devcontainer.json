@@ -14,7 +14,7 @@
 	},
 
     "containerEnv": {
-        "OPENAI_API_KEY": "${localEnv:OPENAI_API_KEY}"
+        "OPENAI_API_KEY": "${localEnv:OPENAI_API_KEY}",
 		"openai_api_key": "${localEnv:OPENAI_API_KEY}"
     },
 	// nvidia cuda
@@ -22,7 +22,10 @@
 
 	// change for the specific project
 	"mounts": [
-		"source=/mnt/t/AIMiniTools/ScopingReview,target=/data,type=bind,consistency=cached"	  ],
+		"source=/mnt/t/AIMiniTools/ScopingReview,target=/data,type=bind,consistency=cached",
+		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind",  // Mount Docker socket
+		"source=/mnt/p/Secrets,target=/workspaces/lit_search/secrets,readonly,type=bind"  // Mount secrets	  
+		],
 
 
 	// Set *default* container specific settings.json values on container create.
