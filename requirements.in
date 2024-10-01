@@ -17,7 +17,7 @@ pandas
 matplotlib
 requests
 biopython
-llm_utils @ git+https://anes-vstf.anesthesiology.uab.edu/tfs/DefaultCollection/Data%20Science/_git/llm_utils@main
+./llm_utils
 openpyxl
 xlsxwriter
 pdfplumber
