@@ -264,8 +264,7 @@ langsmith==0.1.60
     #   langchain
     #   langchain-community
     #   langchain-core
-llm-utils @ git+https://anes-vstf.anesthesiology.uab.edu/tfs/DefaultCollection/Data%20Science/_git/llm_utils@main
-    # via -r requirements.in
+./llm_utils    # via -r requirements.in
 markdown==3.6
     # via
     #   mkdocs

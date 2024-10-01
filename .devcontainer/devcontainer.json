@@ -7,7 +7,7 @@
 		"context": "..",
 		"args": { 
 			"PROJECT_NAME": "ScopingReview",
-            "PYTHON": "3.10.5",
+            "PYTHON": "3.11",
             "USERNAME": "vscode",
 			"NODE_VERSION": "none"
 		}
