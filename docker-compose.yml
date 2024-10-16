@@ -39,19 +39,19 @@ services:
       - ncbi_api_key
 secrets:
   db_server:
-    file: secrets/db_server.txt
+    file: /mnt/p/Secrets/db_server.txt
   db_name:
-    file: secrets/db_name.txt
+    file: /mnt/p/Secrets/db_name.txt
   db_user:
-    file: secrets/db_user.txt
+    file: /mnt/p/Secrets/db_user.txt
   db_password:
-    file: secrets/db_password.txt
+    file: /mnt/p/Secrets/db_password.txt
   openai_api_key:
-    file: secrets/openai_api_key.txt
+    file: /mnt/p/Secrets/openai_api_key.txt
   gpt4_api_key:
-    file: secrets/gpt4_api_key.txt
+    file: /mnt/p/Secrets/gpt4_api_key.txt
   libkey_api_key:
-    file: secrets/libkey_api_key.txt
+    file: /mnt/p/Secrets/libkey_api_key.txt
   ncbi_api_key:
-    file: secrets/ncbi_api_key.txt
+    file: /mnt/p/Secrets/ncbi_api_key.txt
 
