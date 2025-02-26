@@ -2,11 +2,11 @@ import gradio as gr
 from ScopingReview.search import SearchManager
 
 def initial_search(research_query):
-    # Function to simulate initial literature search.
+    # Function to perform the initial literature search using SearchManager.
     search_manager = SearchManager(scoping_step="first search", research_q=research_query)
-    # Simulate a search; replace with actual search logic integration
-    results = f"Found results for query: {research_query}"
-    return results
+    search_manager.make_query()
+    results = search_manager.search_and_compile_articles(write_excel=False)
+    return f"Initial search executed. Results: {results}"
 
 def scoping_review_interface(query_input):
     if query_input.strip() == "":
