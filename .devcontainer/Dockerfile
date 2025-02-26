@@ -34,5 +34,5 @@ RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
 #     && rm -rf /tmp/pip-tmp
     
 USER vscode 
-
+RUN curl -LsSf https://aider.chat/install.sh | sh
 
