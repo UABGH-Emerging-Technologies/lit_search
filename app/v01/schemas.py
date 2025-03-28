@@ -38,7 +38,7 @@ class MSExcelResponse(BaseModel):
     """This class likely represents a response from an API that interacts with Microsoft Excel files."""
 
     encoded_xlsx: str = Field(
-        ..., description="Base64-encoded XLSX file. Decode to obtain the DOCX file."
+        ..., description="Base64-encoded XLSX file. Decode to obtain the XLSX file."
     )
 
 
