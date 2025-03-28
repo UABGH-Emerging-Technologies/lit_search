@@ -25,6 +25,7 @@ class SummarizeManager(BaseManager):
 
     def save_newsletter(self, docx_data, category, output_folder):
         # Ensure the output folder exists
+        #TODO Change all os.path to pathlib
         if not os.path.exists(output_folder):
             os.makedirs(output_folder)
 
