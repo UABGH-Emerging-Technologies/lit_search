@@ -21,7 +21,7 @@ class SummarizeManager(BaseManager):
         raise NotImplementedError("This method must be implemented by subclasses.")
 
     def get_mime_type(self):
-        raise NotImplementedError("This method must be implemented by subclasses.")
+        return config.DOCX_MIME
 
     def save_newsletter(self, docx_data, category, output_folder):
         # Ensure the output folder exists
@@ -71,9 +71,6 @@ class StreamlitSummarizeManager(SummarizeManager):
     def get_download_button_label(self):
         return config.BOTH_FILES
 
-    def get_mime_type(self):
-        return config.DOCX_MIME
-
     def download_doc_results(self, docx_data):
         st.balloons()
         st.write("Note that once you hit download, this form will reset.")
@@ -96,5 +93,3 @@ class FastAPISummarizeManager(SummarizeManager):
         """
         return config.SR_STEP4_DOCX_FILENAME
 
-    def get_mime_type(self):
-        return config.DOCX_MIME
