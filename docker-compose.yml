@@ -19,6 +19,7 @@ services:
       - gpt4_api_key
       - libkey_api_key
       - ncbi_api_key
+      - azure_proxy_key
   streamlit_app:
     profiles: ["web"]
     build:
@@ -54,4 +55,6 @@ secrets:
     file: /mnt/p/Secrets/libkey_api_key.txt
   ncbi_api_key:
     file: /mnt/p/Secrets/ncbi_api_key.txt
+  azure_proxy_key:
+    file: /mnt/p/Secrets/azure_proxy_key.txt
 

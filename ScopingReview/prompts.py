@@ -49,12 +49,20 @@ SUMMARIZE_CATEGORY_TEMPLATE = "I am working  on a scoping review to address this
 SUMMARIZE_NEWSLETTER_TEMPLATE = """I am updating the 'Your Monthly AI Digest of the Latest in Anesthesiology Research' newsletter for the subfield of {category}. I will provide you with summaries of recent anesthesiology articles from PubMed. Based on these summaries, I need two specific sections for the newsletter:
 
 #### Key Anesthesiology Insights: 
-Please create a 3-item list about the most impactful articles that capture the most critical findings from the provided article summaries. Each bullet entry should be a two to three sentences indicating first the main highlight or takeaway and second who was studied, the type of study, the intervention, and the outcome. At the end, include the PMID as a hyperlink to the PubMed article for further reading. 
+Carefully consider whether each article is actually relevant to the subfield. here are some historic examples from the perioperative medicine subfield of relevant and irrelevant articles:
+
+• Has some perioperative medicine significance:  A systematic review and meta-analysis protocol by Huang et al. aims to evaluate the effectiveness of perioperative lidocaine infusion on postoperative subjective quality of recovery (QoR). The study will review randomized controlled trials (RCTs) up until December 31st, 2024, and aims to provide evidence for the role of intravenous lidocaine in improving postoperative recovery quality. PMID: 40359208
+
+• Low perioperative medicine interest: A retrospective cohort study by Wong et al. investigated the association between ADRA2 gene expression and dexmedetomidine on oncological outcomes after surgery for clear cell renal cell carcinoma (RCC). The study found that higher levels of ADRA2A gene expression were significantly associated with shorter overall survival. However, dexmedetomidine administration during surgery was not associated with higher rates of recurrence or mortality. PMID: 40348672
+
+• Significant for Regional anesthesia people, but not really for perioperative medicine: A randomized controlled trial by Wu et al. evaluated the analgesic effect of dexmedetomidine combined with ropivacaine for thoracoscopic-guided thoracic paravertebral block (TTPB) after thoracoscopic radical resection (TRR) of lung cancer. The study found that dexmedetomidine enhanced the analgesic effect of TTPB, prolonged the duration of analgesia, and reduced the time to first ambulation and hospital stay. PMID: 40343511
+
+After decicing which articles are relevant, please create a 3-item list about the most impactful articles releveant to the subfield of {category} that capture the most critical findings from the provided article summaries.  Each bullet entry should be a two to three sentences indicating first the main highlight or takeaway and second who was studied, the type of study, the intervention, and the outcome. At the end, include the PMID as a hyperlink to the PubMed article for further reading. 
 
 #### In-Depth Analysis: 
 After the bullet points, delve deeper into additional articles (not covered in the bullet points) and provide detailed insights on their implications for clinical practice in anesthesiology. Cite the articles using PMIDs as a link to the PubMed article for further reading.
 
-Remember, the content should be clear, concise, and targeted towards busy healthcare professionals, providing them with valuable and quick updates on the field of anesthesiology. 
+Remember, the content should be clear, concise, and targeted towards busy healthcare professionals, providing them with valuable and quick updates on the subfield of {category} within anesthesiology. 
 
 Format your response as markdown. A PubMed hyperlink looks like this in markdown:
 [PMID: <PMID>](https://pubmed.ncbi.nlm.nih.gov/<PMID>/)

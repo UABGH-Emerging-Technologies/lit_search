@@ -144,7 +144,7 @@ def summarize_all_categories(df, user_question, newsletter_flag=False):
             text_to_summarize = "\n\n".join(article_summaries)
 
             if newsletter_flag:
-                result = lit_config.SUMMARIZE_CHAT.invoke(
+                result = lit_config.CHAT.invoke(
                     lit_prompts.newsletter_chat_prompt.format_prompt(
                         category=current_category, content=text_to_summarize
                     ).to_messages()
