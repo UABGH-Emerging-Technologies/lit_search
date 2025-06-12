@@ -28,8 +28,23 @@ os.environ["NCBI_API_KEY"] = lit_ap_config.NCBI_API_KEY
 
 
 def parse_keywords(content):
+    # Strip out Markdown code fencing (e.g., ```json ... ```)
+    content = re.sub(r"^```json\n|```$", "", content.strip())
+    
+    try:
+        data = json.loads(content)
+        
+        # Deduplicate primary/secondary and exclusiion keywords lists
+        for key in ["Primary Keywords", "Secondary Keywords", "Exclusion Keywords"]:
+            if key in data:
+                data[key] = list(dict.fromkeys([kw.strip() for kw in data[key]]))
+        return data["Primary Keywords"], data["Secondary Keywords"], data["Exclusion Keywords"]
+    except json.JSONDecodeError as e:
+        print("Failed to parse JSON. Raw content:")
+        print(content)
+        raise e
     # Load the JSON string into a Python dictionary
-    data = json.loads(content)
+    #data = json.loads(content)
 
     # Extract keyword lists into variables
     primary_keywords = data.get("Primary Keywords", [])
