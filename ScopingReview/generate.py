@@ -241,17 +241,31 @@ def write_first_draft(summaries_markdown, user_question):
 
 def generate_keywords(df, research_question):
     relevant_rows = review_data.get_relevant_rows(df)
+    # Deduplicate keywords
     all_keywords = []
+    seen_keywords = set()
     for keywords in relevant_rows["keywords"]:
         keywords_list = [keyword.strip().lower() for keyword in keywords.split(",")]
-        clean_keywords_list = review_data.clean_keywords(keywords_list)
-        all_keywords.append(clean_keywords_list)
+        keywords_tuple = tuple(sorted(keywords_list))  # sort to avoid false negatives
+        if keywords_tuple not in seen_keywords:
+            seen_keywords.add(keywords_tuple)
+            clean_keywords_list = review_data.clean_keywords(list(keywords_list))
+            all_keywords.append(clean_keywords_list)
+        #clean_keywords_list = review_data.clean_keywords(keywords_list)
+        #all_keywords.append(clean_keywords_list)
 
+    # Deduplicate titles
     all_titles = []
+    seen_titles = set()
     for title in relevant_rows["title"]:
-        titles_list = review_data.clean_title(title)
-        all_titles.append(titles_list)
+        clean_title = review_data.clean_title(title).strip().lower()
+        if clean_title not in seen_titles:
+            seen_titles.add(clean_title)
+            all_titles.append(clean_title)
+        # titles_list = review_data.clean_title(title)
+        # all_titles.append(titles_list)
 
+    # Build prompt
     formatted_prompt = lit_prompts.keyword_chat_prompt.format_prompt(
         question=research_question, titles=all_titles, keywords_list=all_keywords
     )
