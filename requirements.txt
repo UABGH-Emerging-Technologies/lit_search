@@ -22,4 +22,4 @@ biopython
 python-multipart
 docx
 langchain-text-splitters
-./llm_utils
+aiweb-common @ git+https://github.com/UABPeriopAI/llm_utils.git@develop
