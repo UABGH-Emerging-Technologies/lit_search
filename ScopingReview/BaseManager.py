@@ -9,6 +9,7 @@ import pandas as pd
 import pdfplumber
 import requests
 from aiweb_common.file_operations.docx_creator import DocxCreator
+from aiweb_common.file_operations.docx_creator import FastAPIDocxCreator
 from aiweb_common.file_operations.file_handling import file_to_base64
 from Bio import Entrez
 
@@ -331,7 +332,7 @@ class BaseManager:
         (`md_string`) to a DOCX file in bytes using the `DocxCreator` class and the provided
         `background_tasks`.
         """
-        encoder = DocxCreator(background_tasks)
+        encoder = FastAPIDocxCreator(background_tasks)
         return encoder.convert_markdown_to_docx_bytes(md_string)
 
     def make_initial_df(self, articles_df):

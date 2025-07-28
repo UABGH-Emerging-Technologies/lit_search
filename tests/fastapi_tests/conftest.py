@@ -67,6 +67,8 @@ def categorized_xlsx():
 @pytest.fixture
 def validate_encoded_response():
     def validate(resp, expected_content_type, key):
+        print("Response status code:", resp.status_code)
+        print("Response JSON:", resp.json())
         assert resp.status_code == 200
         assert expected_content_type in resp.headers["content-type"]
         assert key in resp.json()

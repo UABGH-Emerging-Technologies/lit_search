@@ -82,10 +82,14 @@ class SummarizeHandler(StateMachine):
             st.session_state["button_clicked"] = False
 
     def cleanup_states(self):
-        del st.session_state["summarization_manager"]
-        del st.session_state["button_clicked"]
-        del st.session_state["summarization_finished"]
-        del st.session_state["limit_exceeded"]
+        if "summarization_manager" in st.session_state:
+            del st.session_state["summarization_manager"]
+        if "button_clicked" in st.session_state:
+            del st.session_state["button_clicked"]
+        if "summarization_finished" in st.session_state:
+            del st.session_state["summarization_finished"]
+        if "limit_exceeded" in st.session_state:
+            del st.session_state["limit_exceeded"]
         st.session_state["total_cost"] = 0.0
 
 
