@@ -1,3 +1,0 @@
-[submodule "llm_utils"]
-	path = llm_utils
-	url = https://gitlab.rc.uab.edu/anes_ai/llm_apps/llm_utils.git

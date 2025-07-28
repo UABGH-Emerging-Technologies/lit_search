@@ -21,4 +21,4 @@ uvicorn
 biopython
 python-multipart
 docx
-./llm_utils
+aiweb-common @ git+https://github.com/UABPeriopAI/llm_utils.git@develop
