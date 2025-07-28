@@ -1,9 +1,6 @@
 from datetime import datetime
 
-from aiweb_common.streamlit_common import (
-    apply_uab_font,
-    hide_streamlit_branding,
-)
+from aiweb_common.streamlit.streamlit_common import apply_uab_font, hide_streamlit_branding
 
 import streamlit as st
 from ScopingReview.BaseManager import (

@@ -8,7 +8,7 @@ from io import BytesIO
 import pandas as pd
 import pdfplumber
 import requests
-from aiweb_common.file_operations.DocxCreator import DocxCreator
+from aiweb_common.file_operations.docx_creator import DocxCreator
 from aiweb_common.file_operations.file_handling import file_to_base64
 from Bio import Entrez
 
