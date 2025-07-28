@@ -2,7 +2,7 @@ import datetime
 import os
 
 from aiweb_common.file_operations.file_handling import file_to_base64
-from aiweb_common.file_operations.UploadManager import FastAPIUploadManager
+from aiweb_common.file_operations.upload_manager import FastAPIUploadManager
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 
 import app.fastapi_config as api_config
