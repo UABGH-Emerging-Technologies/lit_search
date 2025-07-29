@@ -1,0 +1,33 @@
+@startuml packages
+set namespaceSeparator none
+package "ScopingReview" as ScopingReview {
+}
+package "ScopingReview.CompileManager" as ScopingReview.CompileManager {
+}
+package "ScopingReview.SearchManager" as ScopingReview.SearchManager {
+}
+package "ScopingReview.UploadManager" as ScopingReview.UploadManager {
+}
+package "ScopingReview.data" as ScopingReview.data {
+}
+package "ScopingReview.generate" as ScopingReview.generate {
+}
+package "ScopingReview.main" as ScopingReview.main {
+}
+package "ScopingReview.states" as ScopingReview.states {
+}
+package "ScopingReview.utils" as ScopingReview.utils {
+}
+package "ScopingReview.workflows" as ScopingReview.workflows {
+}
+ScopingReview.CompileManager --> ScopingReview.data
+ScopingReview.CompileManager --> ScopingReview.generate
+ScopingReview.CompileManager --> ScopingReview.utils
+ScopingReview.SearchManager --> ScopingReview.data
+ScopingReview.SearchManager --> ScopingReview.generate
+ScopingReview.generate --> ScopingReview.data
+ScopingReview.main --> ScopingReview.CompileManager
+ScopingReview.main --> ScopingReview.SearchManager
+ScopingReview.main --> ScopingReview.data
+ScopingReview.workflows --> ScopingReview.data
+@enduml
