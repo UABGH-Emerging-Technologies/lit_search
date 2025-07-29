@@ -5,7 +5,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 
-def load_secrets(secrets_dir="secrets/"):
+def load_secrets(secrets_dir="/workspaces/scopingreview/secrets"):
     """
     Load each file in the specified directory as an environment variable.
     The name of the environment variable is derived from the filename.
@@ -67,8 +67,6 @@ def categorized_xlsx():
 @pytest.fixture
 def validate_encoded_response():
     def validate(resp, expected_content_type, key):
-        print("Response status code:", resp.status_code)
-        print("Response JSON:", resp.json())
         assert resp.status_code == 200
         assert expected_content_type in resp.headers["content-type"]
         assert key in resp.json()
