@@ -4,6 +4,12 @@ black
 flake8
 rich
 streamlit
+streamlit
+langchain
+langchain-community
+langchain-openai
+faiss-cpu
+openai
 tiktoken
 pyodbc
 pip-tools
