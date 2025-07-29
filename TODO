@@ -1,3 +1,10 @@
-- Update vectorstore configuration variable
-- pull in the data template
-~ fix the data template
+Make sure all (encode) write_excel/docx functions match step1
+Rename all instantiated manager to manager
+check all existing todo's in comments
+make clean, make styel
+remove all unused packages
+resolve obvious problems
+Document functions and classes throughout
+~mkdocs build
+~move excel encoding to LLM_UTILS matching how Docx encoding works
+~move PMCID stuff from Base Manager to PubMedInterface

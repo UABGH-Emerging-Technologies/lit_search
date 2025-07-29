@@ -2,7 +2,7 @@
 import sys
 from pathlib import Path
 
-from langchain_openai import AzureChatOpenAI, AzureOpenAIEmbeddings
+from langchain_openai import AzureChatOpenAI
 
 import ScopingReview_config.app_config as lit_app_config
 
@@ -15,7 +15,6 @@ DEV_EMAIL = "rmelvin@uabmc.edu"
 
 # Assets
 ASSETS_DIR = Path(BASE_DIR, "assets")
-WATERMARK_TEMPLATE = Path(ASSETS_DIR, "watermark_template.docx")
 
 # ScopingReview_outname
 SR_STEP1_FILENAME = "InitialSearch.xlsx"
@@ -27,7 +26,7 @@ SR_STEP5_FILENAME = "ScopingReview_FirstDraft.docx"
 SR_STEP6_FILENAME = "ScopingReview_Bibliography.bib"
 
 # MIMES
-EXCEL_MIME = "application/vnd.ms-excel"
+EXCEL_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 DOCX_MIME = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 
 # BUTTON LABELS
@@ -40,7 +39,7 @@ BIB_DOWNLOAD_LABEL = "Download .bib File"
 MAX_TRIES = 6
 
 # Sub Classificaiton threshold
-SUBCLASS_THRESHOLD = 50
+SUBCLASS_THRESHOLD = 60
 
 # Newsletter
 NEWSLETTER_QUESTION = "Developments in {category} anesthesia that may impact clinical practice"
@@ -54,18 +53,7 @@ NEWSLETTER_QUERIES = {
 }
 
 
-# LLM
-CHAT = AzureChatOpenAI(
-    azure_endpoint="https://nlp-ai-svc.openai.azure.com/",
-    openai_api_version="2024-02-01",
-    azure_deployment="ChatGPT4",
-    openai_api_type="azure",
-    temperature=0.8,
-    model_name="gpt-4",
-    api_key=lit_app_config.GPT4_KEY,
-)
-
-SUMMARIZE_CHAT = AzureChatOpenAI(
+LLM_INTERFACE = AzureChatOpenAI(
     azure_endpoint="https://nlp-ai-svc.openai.azure.com/",
     openai_api_version="2024-02-01",
     azure_deployment="GPT4Turbo",
@@ -75,14 +63,24 @@ SUMMARIZE_CHAT = AzureChatOpenAI(
     api_key=lit_app_config.GPT4_KEY,
 )
 
+SMART_LLM_INTERFACE = AzureChatOpenAI(
+    azure_endpoint="https://nlp-ai-svc.openai.azure.com/",
+    openai_api_version="2024-02-01",
+    deployment_name="ChatGPT4",
+    openai_api_type="azure",
+    temperature=0,
+    model_name="gpt-4",
+    openai_api_key=lit_app_config.GPT4_KEY,
+)
+
 
 # pubmed settings
 MIN_ARTICLES = 10
 MAX_ARTICLES_SR = 200
 MAX_ARTICLES_LR = 50
 
-# remove this later
-CHAT35 = AzureChatOpenAI(
+# TODO Update name here and where called remove this later
+FAST_LLM_INTERFACE = AzureChatOpenAI(
     azure_endpoint="https://nlp-ai-svc.openai.azure.com/",
     openai_api_version="2024-02-01",
     azure_deployment="ChatGPT16k",
@@ -91,3 +89,11 @@ CHAT35 = AzureChatOpenAI(
     model_name="gpt-35-turbo-16",
     api_key=lit_app_config.GPT4_KEY,
 )
+
+# Vectorstore configuration
+VECTORSTORE_CONFIG = {
+    "type": "faiss",
+    "index_path": str(Path(BASE_DIR, "vectorstore", "faiss_index")),
+    "embedding_model": "openai",
+    "embedding_model_key": lit_app_config.OPENAI_API_KEY,
+}

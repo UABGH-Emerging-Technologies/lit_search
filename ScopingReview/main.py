@@ -4,12 +4,11 @@ from typing import Optional
 
 import pandas as pd
 import typer
-from langchain_community.callbacks import get_openai_callback
 
 import ScopingReview_config.config as lit_config
-from ScopingReview.compile import SummarizeManager
+from ScopingReview.BaseManager import SummarizeManager
 from ScopingReview.data import fetch_full_text
-from ScopingReview.search import NewsletterSearchManager
+from ScopingReview.SearchManager import NewsletterSearchManager
 
 # move to config
 
