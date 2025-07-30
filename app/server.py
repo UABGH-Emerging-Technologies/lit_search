@@ -51,5 +51,9 @@ app.include_router(v01_scoping_step4_router)
 app.include_router(v01_scoping_step5_router)
 app.include_router(utils_router)
 
+@app.get("/health")
+def health_check():
+    return {"status": "healthy"}
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000, log_level="debug")
