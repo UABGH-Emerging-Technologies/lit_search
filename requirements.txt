@@ -29,3 +29,4 @@ python-multipart
 docx
 langchain-text-splitters
 aiweb-common @ git+https://github.com/UABPeriopAI/llm_utils.git@develop
+python-magic
