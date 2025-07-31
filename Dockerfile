@@ -8,6 +8,9 @@ RUN apt-get update && apt-get install -y \
     curl \
     gnupg \
     dos2unix \
+    libmagic1 \
+    libmagic-dev \
+    file \
     && rm -rf /var/lib/apt/lists/*
 
 # Install SQL Server drivers (Optional: remove if not connecting to SQL Server)
