@@ -53,9 +53,10 @@ class LiteraturePage:
 
         self.research_q = st.text_area(
             "Enter your research question/topic (or for a grant, your specific aims)",
-            value="",
+            value=st.session_state.get("research_q", ""),
             placeholder="Enter your research question here and press Ctrl+Enter or click outside the text box to update.",
         )
+        st.session_state["research_q"] = self.research_q
 
         # Reset button_clicked and search_finished if research question changes
         if "prev_research_q" not in st.session_state or st.session_state.prev_research_q != self.research_q:
@@ -232,32 +233,55 @@ class LiteraturePage:
             smc.cleanup_states()
 
     def _manage_summarize_categories(self):
+        import base64
+        import json
+        import requests
         smsummarize = SummarizeHandler()
         smsummarize.initialize_states()
         start_time = datetime.now()
-        if not st.session_state["button_clicked"]:
-            upload_manager = StreamlitUploadManager(st.file_uploader("Upload Excel file with Category labels to summarize", type=["xlsx"]))
-            df, file_ext = upload_manager.process_upload()
-            if df is not None:
-                st.session_state["summarization_manager"] = SummarizeManager(df, self.research_q)
-                # checking the no. of articles in each category and subcategorizing as needed.
-                st.session_state["summarization_manager"].subcategorize()
+        uploaded_file = st.file_uploader("Upload Excel file with Category labels to summarize", type=["xlsx"])
+        if uploaded_file is not None:
+            st.write("File uploaded:", uploaded_file.name)
+            # Read file content and encode to base64
+            file_bytes = uploaded_file.read()
+            xlsx_encoded = base64.b64encode(file_bytes).decode("utf-8")
+            # Prepare payload for API
+            payload = {
+                "research_question": self.research_q,
+                "xlsx_encoded": xlsx_encoded,
+            }
+            if not st.session_state.get("button_clicked", False):
+                if st.button("Summarize Categories"):
+                    st.write("Summarize Categories button clicked")
+                    with st.spinner("Summarizing articles"):
+                        # Call backend step4 API
+                        api_url = "http://localhost:8000/search/v01/scoping/step4/"
+                        headers = {"Content-Type": "application/json"}
+                        response = requests.post(api_url, headers=headers, data=json.dumps(payload))
+                        st.write(f"API response status: {response.status_code}")
+                        if response.status_code == 200:
+                            response_json = response.json()
+                            encoded_docx = response_json.get("encoded_docx", None)
+                            warning_msg = response.headers.get("Warning", "")
+                            st.write(f"Encoded docx present: {encoded_docx is not None}")
+                            if encoded_docx:
+                                docx_bytes = base64.b64decode(encoded_docx)
+                                st.session_state["summarization_manager"] = SummarizeManager(pd.DataFrame(), self.research_q)
+                                st.session_state["summarization_finished"] = True
+                                st.session_state["button_clicked"] = True
+                                st.session_state["docx_bytes"] = docx_bytes
+                                if warning_msg:
+                                    st.warning(warning_msg)
+                            else:
+                                st.error("No summary document received from server.")
+                        else:
+                            st.error(f"Summarization failed: {response.status_code} {response.text}")
 
-                if st.session_state["subcategorize_complete"] and (
-                    not st.session_state["limit_exceeded"]
-                ):
-                    # Summarizing
-                    if st.button("Summarize Categories"):
-                        st.spinner("Summarizing articles")
-                        st.session_state["summarization_finished"] = st.session_state[
-                            "summarization_manager"
-                        ].summarize_articles()
-                        st.session_state["button_clicked"] = st.session_state[
-                            "summarization_finished"
-                        ]
-
-        if st.session_state["summarization_finished"] or st.session_state["subcategorize_complete"]:
+        if st.session_state.get("summarization_finished", False):
             smsummarize.cleanup_states()
+            if "summarization_manager" in st.session_state and "docx_bytes" in st.session_state:
+                st.write("Rendering download button")
+                st.session_state["summarization_manager"].download_doc_results(st.session_state["docx_bytes"])
 
     def _manage_draft_article(self):
         smd = DraftHandler()
@@ -276,8 +300,17 @@ class LiteraturePage:
                 ].draft_review()
                 st.session_state["button_clicked"] = st.session_state["draft_complete"]
 
-        if st.session_state["draft_complete"]:
+        if st.session_state.get("draft_complete", False):
             smd.cleanup_states()
+            draft_bytes = st.session_state.get("draft_result", None)
+            if draft_bytes:
+                st.success("Drafting completed successfully!")
+                st.download_button(
+                    label="Download Draft DOCX",
+                    data=draft_bytes,
+                    file_name="draft_review.docx",
+                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                )
 
     def _manage_bibtex(self):
         smb = BibtexHandler()
