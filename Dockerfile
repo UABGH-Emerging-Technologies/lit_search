@@ -1,7 +1,11 @@
 FROM python:3.10-slim
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
+ENV PYTHONUNBUFFERED=1 \
+    TZ=America/Chicago \
+    DEBIAN_FRONTEND=noninteractive
+
+# Install system dependencies in one layer
+RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     g++ \
     git \
@@ -11,28 +15,29 @@ RUN apt-get update && apt-get install -y \
     libmagic1 \
     libmagic-dev \
     file \
-    && rm -rf /var/lib/apt/lists/*
+    tzdata \
+ && rm -rf /var/lib/apt/lists/*
 
-# Install SQL Server drivers (Optional: remove if not connecting to SQL Server)
-RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
-    curl https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/sources.list.d/mssql-release.list &&\
+# Install SQL Server drivers (remove this block if not needed)
+RUN curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
+    curl -fsSL https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
     apt-get update && \
-    ACCEPT_EULA=Y apt-get install -y msodbcsql17
-
-# Set time zone 
-RUN apt update && apt install tzdata -y
-ENV TZ="America/Chicago"
+    ACCEPT_EULA=Y apt-get install -y msodbcsql17 && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /api
 
-# Install Python dependencies
-COPY requirements.txt .
-RUN pip3 install -r requirements.txt
+# Copy and install Python dependencies first for better caching
+COPY requirements.txt /api/requirements.txt
+RUN pip3 install --no-cache-dir -r /api/requirements.txt
 
-COPY . .
+# Copy the rest of the application
+COPY . /api
 
-# Expose the port the app runs on
+# Ensure the entrypoint script is executable
+RUN chmod +x /api/api_startup.sh
+
 EXPOSE 8000
 
-# Run the FastAPI app using uvicorn
+# Start the FastAPI app (no runtime pip installs)
 ENTRYPOINT ["/api/api_startup.sh"]

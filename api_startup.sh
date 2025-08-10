@@ -1,6 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -e
 
-python3 -m pip install pip setuptools wheel
-python3 -m pip install -e "."
-
-python3 app/server.py
+# Start the FastAPI app using Uvicorn
+exec uvicorn app.server:app --host 0.0.0.0 --port 8000
