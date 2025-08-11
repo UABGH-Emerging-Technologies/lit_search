@@ -43,9 +43,18 @@ def get_step2iteration_response(
     contains an encoded Excel file (`encoded_xlsx`).
     """
     start = datetime.now()
+    import base64
+    import binascii
+
     try:
         upload_manager = FastAPIUploadManager(background_tasks=background_tasks)
-        df = upload_manager.read_and_validate_file(xlsx_encoded, extension=".xlsx")
+        try:
+            df = upload_manager.read_and_validate_file(xlsx_encoded, extension=".xlsx")
+        except (UnicodeDecodeError, binascii.Error) as decode_err:
+            raise HTTPException(
+                status_code=422,
+                detail="Failed to decode the uploaded Excel file. Please ensure it is a valid base64-encoded XLSX file."
+            ) from decode_err
         if df is None:
             raise HTTPException(status_code=422, detail="Failed to process the file")
 
@@ -67,20 +76,40 @@ def get_step2iteration_response(
     return response
 
 
+from fastapi import UploadFile, Form
+import base64
+
 @router.post("/search/v01/scoping/step2/iteration/", **api_config.SCOPING_STEP2EXCEL_META)
 async def update_keywords_and_search(
     background_tasks: BackgroundTasks,
-    request: IterationRequest,
+    research_question: str = Form(""),
+    primary_keywords: str = Form(""),
+    secondary_keywords: str = Form(""),
+    exclusion_keywords: str = Form(""),
+    file: UploadFile = Form(...),
 ) -> MSExcelResponse:
     """
-    This Python function updates keywords and performs a search based on the provided request data.
+    This endpoint accepts multipart/form-data with file upload and form fields,
+    reads the uploaded Excel file, base64 encodes it, and processes the search.
     """
 
+    import logging
+    logger = logging.getLogger("app_logger")
+    logger.debug(f"Received form fields: research_question={research_question}, primary_keywords={primary_keywords}, secondary_keywords={secondary_keywords}, exclusion_keywords={exclusion_keywords}")
+
+    file_bytes = await file.read()
+    xlsx_encoded = base64.b64encode(file_bytes).decode("utf-8")
+
+    def split_keywords(s: str) -> list[str]:
+        return [kw.strip() for kw in s.split(",") if kw.strip()]
+
     keywords = validate_keywords_data(
-        request.primary_keywords, request.secondary_keywords, request.exclusion_keywords
+        split_keywords(primary_keywords),
+        split_keywords(secondary_keywords),
+        split_keywords(exclusion_keywords),
     )
 
     response = get_step2iteration_response(
-        background_tasks, request.research_question, request.xlsx_encoded, keywords
+        background_tasks, research_question, xlsx_encoded, keywords
     )
     return response
