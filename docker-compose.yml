@@ -1,53 +1,18 @@
-version: '3.9'
-
-services:
-  batch_process:
-    profiles: ["batch"]
-    build:
-      context: .
-      dockerfile: deploy/Dockerfile_news
-    environment:
-      - PYTHONUNBUFFERED=1
-    volumes:
-      - /mnt/g/AINewsletter:/data/results
-    secrets:
-      - openai_api_key 
-      - gpt4_api_key
-      - libkey_api_key
-      - ncbi_api_key
-  streamlit_app:
-    profiles: ["streamlit"]
-    build:
-      context: .
-      dockerfile: deploy/Dockerfile_web
-    ports:
-      - "8501:8501"
-    environment:
-      - PYTHONUNBUFFERED=1
-    secrets:
-      - db_server
-      - db_name
-      - db_user
-      - db_password
-      - openai_api_key 
-      - gpt4_api_key
-      - libkey_api_key
-      - ncbi_api_key
-secrets:
-  db_server:
-    file: secrets/db_server.txt
-  db_name:
-    file: secrets/db_name.txt
-  db_user:
-    file: secrets/db_user.txt
-  db_password:
-    file: secrets/db_password.txt
-  openai_api_key:
-    file: secrets/openai_api_key.txt
-  gpt4_api_key:
-    file: secrets/gpt4_api_key.txt
-  libkey_api_key:
-    file: secrets/libkey_api_key.txt
-  ncbi_api_key:
-    file: secrets/ncbi_api_key.txt
-
+lit_api:
+  image: ais-lindocker.anesthesiology.uab.edu:5000/lit_search:dev
+  command: uvicorn app.server:app --host 0.0.0.0 --port 8000
+  environment:
+    - PYTHONUNBUFFERED=1
+  volumes:
+    - /mnt/g/AINewsletter:/data/results
+  secrets:
+    - db_server
+    - db_name
+    - db_user
+    - db_password
+    - openai_api_key 
+    - gpt4_api_key
+    - libkey_api_key
+    - ncbi_api_key
+  healthcheck:
+    test: ["CMD", "curl", "-f", "http://localhost:8000/health"]

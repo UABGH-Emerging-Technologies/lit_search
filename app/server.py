@@ -27,6 +27,52 @@ logger = logging.getLogger("app_logger")
 
 app = FastAPI(**fastapi_config.LIT_API_META)
 
+from fastapi.responses import JSONResponse
+from fastapi.exceptions import RequestValidationError
+from fastapi import status
+from fastapi.exception_handlers import request_validation_exception_handler
+from fastapi.encoders import jsonable_encoder
+
+def sanitize_bytes_in_obj(obj):
+    if isinstance(obj, bytes):
+        try:
+            return obj.decode('utf-8')
+        except UnicodeDecodeError:
+            return obj.decode('utf-8', errors='replace')
+    elif isinstance(obj, dict):
+        return {k: sanitize_bytes_in_obj(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [sanitize_bytes_in_obj(i) for i in obj]
+    else:
+        return obj
+
+@app.exception_handler(RequestValidationError)
+async def custom_request_validation_exception_handler(request, exc):
+    # Sanitize bytes in exc.errors()
+    sanitized_errors = sanitize_bytes_in_obj(exc.errors())
+    content = {"detail": sanitized_errors}
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content=jsonable_encoder(content),
+    )
+
+@app.exception_handler(Exception)
+async def custom_exception_handler(request, exc):
+    # For HTTPException, sanitize detail if bytes
+    from fastapi import HTTPException
+    if isinstance(exc, HTTPException):
+        detail = exc.detail
+        sanitized_detail = sanitize_bytes_in_obj(detail)
+        content = {"detail": sanitized_detail}
+        return JSONResponse(
+            status_code=exc.status_code,
+            content=jsonable_encoder(content),
+            headers=exc.headers,
+        )
+    # For other exceptions, fallback to default handler
+    from fastapi.exception_handlers import http_exception_handler
+    return await http_exception_handler(request, exc)
+
 # Middleware to log requests and exceptions
 class LoggingMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):

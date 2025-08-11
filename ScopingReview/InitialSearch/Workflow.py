@@ -18,7 +18,7 @@ class CustomPubMedQueryGenerator(PubMedQueryGenerator):
 
     def process(self, loop_n: int = 0, last_query: str = "") -> str:
         """
-        Return the LLM‐generated PubMed search string.
+        Return the LLM-generated PubMed search string.
         """
         return self.generate_search_string(loop_n=loop_n, last_query=last_query)
 
@@ -44,7 +44,6 @@ class ArticleSearch(WorkflowHandler):
         Loop until we get more than MIN_ARTICLES or exhaust MAX_TRIES.
         Returns a pandas.DataFrame of article details, or None on failure.
         """
-        # Use our concrete wrapper instead of the abstract base class
         query_generator = CustomPubMedQueryGenerator(
             config.LLM_INTERFACE, self.research_question
         )
@@ -54,22 +53,16 @@ class ArticleSearch(WorkflowHandler):
         print("Generating PubMed Queries")
 
         while n <= config.MAX_TRIES:
-            # This calls our `process()`, which in turn calls generate_search_string()
             search_string = query_generator.process(loop_n=n, last_query=search_string)
             print("QUERY ‑", search_string)
 
-            article_ids = (
-                self.search_manager.pubmed_interface
-                .search_pubmed_articles(search_string)
-            )
+            article_ids = self.search_manager.pubmed_interface.search_pubmed_articles(search_string)
             print("Number of articles found ‑", len(article_ids))
 
             if len(article_ids) > config.MIN_ARTICLES:
-                # Enough articles: fetch details and return
-                return (
-                    self.search_manager.pubmed_interface
-                    .fetch_article_details(article_ids)
-                )
+                # ✅ Corrected: This method expands author list into author1, author2, etc.
+                articles_df = self.search_manager._fetch_articles(search_string)
+                return articles_df
 
             n += 1
 
