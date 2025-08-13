@@ -7,8 +7,9 @@ from literature_api import (
     categorize_articles,
     summarize_categories,
     draft_article,
-    generate_bibtex
+    generate_bibtex,
 )
+
 
 def show_literature_search_page():
     page_title = "Literature Search"
@@ -42,6 +43,7 @@ def show_literature_search_page():
         """
     )
 
+    # Query-type switch
     prev_query_type = st.session_state.get("prev_query_type", None)
     query_type = st.radio("Which of these best describes what you want help with?", search_type_options)
     if prev_query_type != query_type:
@@ -49,7 +51,7 @@ def show_literature_search_page():
         st.session_state["search_finished"] = False
         st.session_state["prev_query_type"] = query_type
 
-    # Store research_q in session_state
+    # Research question
     if "research_q" not in st.session_state:
         st.session_state["research_q"] = ""
     st.session_state["research_q"] = st.text_area(
@@ -74,6 +76,7 @@ def show_literature_search_page():
         if research_q == "":
             st.warning("Please enter a research question to continue")
         else:
+            # Step 1: First search
             if scoping_step == "first search":
                 if not st.session_state.get("button_clicked", False):
                     if st.button("Fetch Articles"):
@@ -87,6 +90,22 @@ def show_literature_search_page():
                         st.session_state["search_finished"] = True
                         st.session_state["button_clicked"] = True
 
+                # Download for step 1
+                finished = st.session_state.get("search_finished", False)
+                if finished:
+                    excel_bytes = st.session_state.get("initial_search_result", None)
+                    if excel_bytes:
+                        st.success("Search completed successfully!")
+                        st.download_button(
+                            label="Download Excel Results",
+                            data=excel_bytes,
+                            file_name="literature_search_results.xlsx",
+                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        )
+                    else:
+                        st.error("No search results available for download.")
+
+            # Step 2: Iterate on search
             elif scoping_step == "iterate on search":
                 uploaded_file = st.file_uploader("Upload Excel File with Y/N selection", type=["xlsx"])
                 if not st.session_state.get("button_clicked", False):
@@ -109,6 +128,7 @@ def show_literature_search_page():
                     else:
                         st.info("No iteration search results available for download yet.")
 
+            # Step 3: Categorize articles
             elif scoping_step == "categorize articles":
                 uploaded_file = st.file_uploader("Upload Excel File with Y/N selection for Categorization", type=["xlsx"])
                 userdefined_categories = st.text_area(
@@ -133,66 +153,46 @@ def show_literature_search_page():
                     else:
                         st.info("No categorization results available for download yet.")
 
+            # Step 4: Summarize categories (now calls literature_api.summarize_categories)
             elif scoping_step == "summarize categories":
-                import base64
-                import json
-                import requests
-                import pandas as pd
-                import io
+                uploaded_file = st.file_uploader(
+                    "Upload Excel or CSV file with Category labels to summarize",
+                    type=["xlsx", "csv"],
+                )
 
-                uploaded_file = st.file_uploader("Upload Excel or CSV file with Category labels to summarize", type=["xlsx", "csv"])
+                # Reset state if file changes (prevents stale buttons/results)
+                if "prev_sum_file" not in st.session_state:
+                    st.session_state["prev_sum_file"] = None
+                if uploaded_file and (st.session_state["prev_sum_file"] != uploaded_file.name):
+                    st.session_state["prev_sum_file"] = uploaded_file.name
+                    st.session_state["button_clicked"] = False
+                    st.session_state["summarization_finished"] = False
 
-                if uploaded_file is not None:
-                    st.write("File uploaded:", uploaded_file.name)
-                    file_bytes = uploaded_file.read()
-
-                    if uploaded_file.type == "text/csv" or uploaded_file.name.endswith(".csv"):
-                        df = pd.read_csv(io.BytesIO(file_bytes))
-                        excel_buffer = io.BytesIO()
-                        df.to_excel(excel_buffer, index=False)
-                        file_bytes = excel_buffer.getvalue()
-
-                    xlsx_encoded = base64.b64encode(file_bytes).decode("utf-8")
-                    payload = {
-                        "research_question": research_q,
-                        "xlsx_encoded": xlsx_encoded,
-                    }
-
-                    if not st.session_state.get("button_clicked", False):
-                        if st.button("Summarize Categories"):
-                            with st.spinner("Summarizing articles..."):
-                                api_url = "http://localhost:8000/search/v01/scoping/step4/"
-                                headers = {"Content-Type": "application/json"}
-                                response = requests.post(api_url, headers=headers, data=json.dumps(payload))
-
-                                if response.status_code == 200:
-                                    response_json = response.json()
-                                    encoded_docx = response_json.get("encoded_docx", None)
-                                    warning_msg = response.headers.get("Warning", "")
-                                    if encoded_docx:
-                                        docx_bytes = base64.b64decode(encoded_docx)
-                                        st.session_state["summarization_finished"] = True
-                                        st.session_state["button_clicked"] = True
-                                        st.session_state["docx_bytes"] = docx_bytes
-                                        if warning_msg:
-                                            st.warning(warning_msg)
-                                    else:
-                                        st.error("No summary document received from server.")
-                                else:
-                                    st.error(f"Summarization failed: {response.status_code} {response.text}")
+                if not st.session_state.get("button_clicked", False):
+                    if st.button("Summarize Categories"):
+                        with st.spinner("Summarizing articles..."):
+                            finished = summarize_categories(uploaded_file, research_q)
+                            if finished:
+                                st.session_state["summarization_finished"] = True
+                                st.session_state["button_clicked"] = True
 
                 if st.session_state.get("summarization_finished", False):
-                    if "docx_bytes" in st.session_state:
+                    docx_bytes = st.session_state.get("docx_bytes")
+                    if docx_bytes:
+                        warn = st.session_state.get("summarize_warning")
+                        if warn:
+                            st.warning(warn)
                         st.success("Summarization completed successfully!")
                         st.download_button(
                             label="Download Summary DOCX",
-                            data=st.session_state["docx_bytes"],
+                            data=docx_bytes,
                             file_name="summary_categories.docx",
                             mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                         )
                     else:
                         st.info("No summarization results available for download yet.")
 
+            # Step 5: Draft article
             elif scoping_step == "draft article":
                 uploaded_file = st.file_uploader("Upload document of summaries to draft scoping review", type=["docx"])
                 draft_bytes = draft_article(uploaded_file, research_q)
@@ -210,6 +210,7 @@ def show_literature_search_page():
                         mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                     )
 
+            # Step 6: Generate bibtex file
             elif scoping_step == "generate bibtex file":
                 uploaded_file = st.file_uploader("Upload Finalized Excel sheet (CategorizeArticles.xlsx)", type=["xlsx", "docx"])
                 finished = generate_bibtex(uploaded_file)
@@ -230,24 +231,8 @@ def show_literature_search_page():
                     else:
                         st.info("No bibtex results available for download yet.")
 
-            # Download button for first search results
-            if scoping_step == "first search":
-                finished = st.session_state.get("search_finished", False)
-                if finished:
-                    excel_bytes = st.session_state.get("initial_search_result", None)
-                    if excel_bytes:
-                        st.success("Search completed successfully!")
-                        st.download_button(
-                            label="Download Excel Results",
-                            data=excel_bytes,
-                            file_name="literature_search_results.xlsx",
-                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                        )
-                    else:
-                        st.error("No search results available for download.")
-
     else:
-        # initial literature search outside scoping review
+        # Initial literature search (simple flow) outside scoping review
         if st.button("Fetch Articles"):
             finished = initial_literature_search(research_q)
             if finished:
