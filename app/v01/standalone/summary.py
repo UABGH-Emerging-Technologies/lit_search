@@ -33,14 +33,6 @@ def get_summary_response(
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
-    finish = datetime.now()
-
-    # Adding a background task to write search details to the database
-    content_to_log = f'{{"query":"{research_question}"}}'
-    standalone_search.log_to_database(
-        app_config, content_to_log, start, finish, background_tasks, label="_standalone"
-    )
-
     return response
 
 
