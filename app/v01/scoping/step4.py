@@ -58,15 +58,6 @@ def get_step4_response(
         response = MSWordResponse(encoded_docx=encoded_file)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
-
-    finish = datetime.datetime.now()
-
-    # Adding a background task to write search details to the database
-    content_to_log = f'{{"query":"{research_question}"}}'
-    summarization.log_to_database(
-        lit_app_config, content_to_log, start, finish, background_tasks, label="_scoping_step4"
-    )
-
     return response, warning_msg
 
 

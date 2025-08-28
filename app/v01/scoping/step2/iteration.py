@@ -66,13 +66,6 @@ def get_step2iteration_response(
         response = MSExcelResponse(encoded_xlsx=encoded_file)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
-    finish = datetime.now()
-
-    content_to_log = f'{{"query":"{question}", "Refined Query":"{refined_query}"}}'
-    iterate_search.log_to_database(
-        app_config, content_to_log, start, finish, background_tasks, label="_scoping_step2b_iterate"
-    )
-
     return response
 
 

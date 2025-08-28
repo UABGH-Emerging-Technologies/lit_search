@@ -59,19 +59,6 @@ def get_step3_response(
         response = MSExcelResponse(encoded_xlsx=encoded_file)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
-
-    finish = datetime.datetime.now()
-
-    content_to_log = f'{{"User Defined Categories":"{user_defined_categories}"}}'
-    categorize_workflow.log_to_database(
-        app_config,
-        content_to_log,
-        start,
-        finish,
-        background_tasks,
-        label="_scoping_step3_categorize",
-    )
-
     return response
 
 
