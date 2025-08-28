@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException
+import base64
 
 import app.fastapi_config as api_config
 import ScopingReview_config.app_config as app_config
@@ -22,21 +23,16 @@ def get_summary_response(
         standalone_search = StandaloneSummary(research_question)
         overview_md = standalone_search.process()
 
-        encoded_file = standalone_search.searcher.search_manager.get_encoded_docx(
-            overview_md, background_tasks
-        )
+        # Read the generated DOCX file bytes and encode to base64
+        with open(overview_md, "rb") as f:
+            docx_bytes = f.read()
+
+        encoded_file = base64.b64encode(docx_bytes).decode("utf-8")
+
         response = MSWordResponse(encoded_docx=encoded_file)
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
-    finish = datetime.now()
-
-    # Adding a background task to write search details to the database
-    content_to_log = f'{{"query":"{research_question}"}}'
-    standalone_search.log_to_database(
-        app_config, content_to_log, start, finish, background_tasks, label="_standalone"
-    )
-
     return response
 
 

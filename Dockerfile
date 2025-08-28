@@ -18,13 +18,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     tzdata \
  && rm -rf /var/lib/apt/lists/*
 
-# Install SQL Server drivers (remove this block if not needed)
-RUN curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
-    curl -fsSL https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
-    apt-get update && \
-    ACCEPT_EULA=Y apt-get install -y msodbcsql17 && \
-    rm -rf /var/lib/apt/lists/*
-
 WORKDIR /api
 
 # Copy and install Python dependencies first for better caching

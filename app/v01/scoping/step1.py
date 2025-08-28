@@ -44,14 +44,6 @@ def get_step1_response(
         response = MSExcelResponse(encoded_xlsx=encoded_file)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
-    finish = datetime.now()
-
-    # Adding a background task to write search details to the database
-    content_to_log = f'{{"query":"{research_question}"}}'
-    article_search.log_to_database(
-        app_config, content_to_log, start, finish, background_tasks, label="_scoping_step1"
-    )
-
     return response
 
 

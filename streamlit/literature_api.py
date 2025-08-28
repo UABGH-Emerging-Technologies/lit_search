@@ -35,6 +35,33 @@ def initial_literature_search(research_question: str):
     return False
 
 
+def initial_literature_search_summary(research_question: str):
+    """Perform the initial literature search by calling the summary API endpoint."""
+    try:
+        response = requests.post(
+            f"{API_BASE_URL}/search/v01/standalone/summary/",
+            json={"research_question": research_question},
+        )
+        if response.status_code == 200:
+            json_response = response.json()
+            encoded_docx = json_response.get("encoded_docx")
+            if encoded_docx:
+                decoded_bytes = base64.b64decode(encoded_docx)
+                # Store in session state and also set search_finished flag here
+                st.session_state["initial_search_summary_result"] = decoded_bytes
+                st.session_state["search_finished"] = True
+                return True
+            else:
+                st.error("API response missing encoded_docx field.")
+        else:
+            st.error(f"API error: {response.status_code} {response.text}")
+    except ConnectionError:
+        st.error(f"Cannot connect to API server at {API_BASE_URL}. Please ensure the server is running.")
+    except Exception as e:
+        st.error(f"Request failed: {e}")
+    return False
+
+
 def iterate_search(uploaded_file, research_question: str):
     """Perform iterate search by calling the API endpoint."""
     if uploaded_file is None:
