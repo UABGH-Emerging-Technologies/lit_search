@@ -8,6 +8,7 @@ from literature_api import (
     summarize_categories,
     draft_article,
     generate_bibtex,
+    initial_literature_search_summary
 )
 
 
@@ -80,6 +81,7 @@ def show_literature_search_page():
             if scoping_step == "first search":
                 if not st.session_state.get("button_clicked", False):
                     if st.button("Fetch Articles"):
+                        # Use the new summary API call for initial literature search
                         finished = initial_literature_search(research_q)
                         if finished:
                             st.session_state["search_finished"] = True
@@ -93,17 +95,29 @@ def show_literature_search_page():
                 # Download for step 1
                 finished = st.session_state.get("search_finished", False)
                 if finished:
-                    excel_bytes = st.session_state.get("initial_search_result", None)
-                    if excel_bytes:
+                    # Check if summary docx bytes exist for initial literature search
+                    docx_bytes = st.session_state.get("initial_search_summary_result", None)
+                    if docx_bytes and len(docx_bytes) > 0:
                         st.success("Search completed successfully!")
                         st.download_button(
-                            label="Download Excel Results",
-                            data=excel_bytes,
-                            file_name="literature_search_results.xlsx",
-                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            label="Download Summary DOCX",
+                            data=docx_bytes,
+                            file_name="literature_search_summary.docx",
+                            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                         )
                     else:
-                        st.error("No search results available for download.")
+                        # Fallback to Excel results if no summary docx
+                        excel_bytes = st.session_state.get("initial_search_result", None)
+                        if excel_bytes and len(excel_bytes) > 0:
+                            st.success("Search completed successfully!")
+                            st.download_button(
+                                label="Download Excel Results",
+                                data=excel_bytes,
+                                file_name="literature_search_results.xlsx",
+                                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            )
+                        else:
+                            st.error("No search results available for download.")
 
             # Step 2: Iterate on search
             elif scoping_step == "iterate on search":
@@ -135,10 +149,13 @@ def show_literature_search_page():
                     "Enter your list of categories, separated by commas:",
                     "Category 1, Category 2, etc...",
                 )
-                finished = categorize_articles(uploaded_file, userdefined_categories)
-                if finished:
-                    st.session_state["categorization_finished"] = True
-                    st.session_state["button_clicked"] = True
+                if uploaded_file is not None and userdefined_categories.strip() and userdefined_categories.strip().lower() != "category 1, category 2, etc...":
+                    if not st.session_state.get("button_clicked", False):
+                        if st.button("Run Categorization"):
+                            finished = categorize_articles(uploaded_file, userdefined_categories)
+                            if finished:
+                                st.session_state["categorization_finished"] = True
+                                st.session_state["button_clicked"] = True
 
                 if st.session_state.get("categorization_finished", False):
                     excel_bytes = st.session_state.get("categorize_result", None)
@@ -232,7 +249,7 @@ def show_literature_search_page():
                         st.info("No bibtex results available for download yet.")
 
     else:
-        # Initial literature search (simple flow) outside scoping review
+    # Initial literature search (simple flow) outside scoping review
         if st.button("Fetch Articles"):
             finished = initial_literature_search(research_q)
             if finished:
@@ -242,17 +259,28 @@ def show_literature_search_page():
 
         finished = st.session_state.get("search_finished", False)
         if finished:
-            excel_bytes = st.session_state.get("initial_search_result", None)
-            if excel_bytes:
+            docx_bytes = st.session_state.get("initial_search_summary_result")
+            if docx_bytes and len(docx_bytes) > 0:
                 st.success("Search completed successfully!")
                 st.download_button(
+                    label="Download Summary DOCX",
+                    data=docx_bytes,
+                    file_name="literature_search_summary.docx",
+                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                )
+        # 2) Fallback to Excel (step1 endpoint) if present
+            else:
+                excel_bytes = st.session_state.get("initial_search_result")
+                if excel_bytes and len(excel_bytes) > 0:
+                    st.success("Search completed successfully!")
+                    st.download_button(
                     label="Download Excel Results",
                     data=excel_bytes,
                     file_name="literature_search_results.xlsx",
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                 )
-            else:
-                st.error("No search results available for download.")
+                else:
+                    st.error("No search results available for download.")
         else:
             st.info("Click 'Fetch Articles' to perform the search and generate results.")
 
