@@ -251,7 +251,7 @@ def show_literature_search_page():
     else:
     # Initial literature search (simple flow) outside scoping review
         if st.button("Fetch Articles"):
-            finished = initial_literature_search(research_q)
+            finished = initial_literature_search_summary(research_q)
             if finished:
                 st.session_state["search_finished"] = True
             else:
