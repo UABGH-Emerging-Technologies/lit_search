@@ -16,6 +16,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libmagic-dev \
     file \
     tzdata \
+    pandoc \
  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /api
