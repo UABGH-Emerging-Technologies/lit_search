@@ -1,7 +1,5 @@
 import os
-
-from llm_utils.sensitive import manage_sensitive
-
+from aiweb_common.WorkflowHandler import manage_sensitive
 # Database
 DB_SERVER = manage_sensitive("db_server")
 DB_NAME = manage_sensitive("db_name")

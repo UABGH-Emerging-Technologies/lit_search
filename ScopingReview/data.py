@@ -9,17 +9,18 @@ import pandas as pd
 import pdfplumber
 import requests
 from Bio import Entrez
-from llm_utils.call_pubmed_api import PubMedAPI
-from llm_utils.prep_pubmed_query import PubMedQueryGenerator
+from aiweb_common.resource.PubMedQuery import PubMedQueryGenerator
+from aiweb_common.resource.PubMedInterface import PubMedInterface
+# from llm_utils.prep_pubmed_query import PubMedQueryGenerator
 
 import ScopingReview_config.app_config as lit_ap_config
 import ScopingReview_config.config as lit_config
 import streamlit as st
 
-try:
-    from llm_utils.database import get_db_connection
-except ImportError:
-    print("Database prereqs not installed. This is expected if you are not in a streamlit context.")
+# try:
+#     from llm_utils.database import get_db_connection
+# except ImportError:
+#     print("Database prereqs not installed. This is expected if you are not in a streamlit context.")
 
 # For NCBI interactions
 Entrez.email = lit_config.DEV_EMAIL
@@ -52,7 +53,7 @@ def make_and_refine_query(previous_query, research_q, loop_counter):
 
 
 def search_and_compile(query, article_ids=[]):
-    pm_connection = PubMedAPI(
+    pm_connection = PubMedInterface(
         email=lit_config.DEV_EMAIL,
         max_results=lit_config.MAX_ARTICLES_SR,
         streamlit_context=True,

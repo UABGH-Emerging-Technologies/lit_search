@@ -17,7 +17,7 @@ pandas
 matplotlib
 requests
 biopython
-llm_utils @ git+https://gitlab.rc.uab.edu/anes_ai/llm_apps/llm_utils.git@main
+aiweb-common @ git+https://github.com/UABPeriopAI/llm_utils.git@develop
 openpyxl
 xlsxwriter
 pdfplumber
