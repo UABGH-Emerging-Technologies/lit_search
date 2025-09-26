@@ -26,7 +26,8 @@ fastapi
 uvicorn
 biopython
 python-multipart
-docx
+python-docx
 langchain-text-splitters
 aiweb-common @ git+https://github.com/UABPeriopAI/llm_utils.git@develop
 python-magic
+langchain_prompty
