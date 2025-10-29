@@ -4,13 +4,14 @@ def test_categorize(client, uncategorized_xlsx, perform_post_request, validate_e
     """
     # URL for the POST request
     url = "/search/v01/scoping/step3/"
-
+    
     # The payload containing the base64-encoded XLSX file
     payload = {
+        "research_question": "post-surgical headache",  # ← ADD THIS LINE
         "user_defined_categories": "marfan, mri, spinal headache",
         "xlsx_encoded": uncategorized_xlsx,
     }
-
+    
     # Make the POST request
     response = perform_post_request(client, url, payload)
     # Assertions to verify the response status and content

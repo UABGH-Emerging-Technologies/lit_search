@@ -1,20 +1,41 @@
 import tempfile
-
 from aiweb_common.file_operations.text_format import convert_markdown_docx
 from aiweb_common.generate.SingleResponse import SingleResponseHandler
 from aiweb_common.WorkflowHandler import WorkflowHandler
-
 import ScopingReview_config.config as config
 import ScopingReview_config.prompt_config as prompt_config
 from ScopingReview.InitialSearch.Workflow import ArticleSearch
 
 
 class StandaloneSummary(WorkflowHandler):
-    def __init__(self, research_question):
+    def __init__(
+        self,
+        research_question,
+        openai_compatible_endpoint: str,
+        openai_compatible_key: str,
+        openai_compatible_model: str,
+    ):
         super().__init__()
         self.research_question = research_question
-        self.searcher = ArticleSearch(research_question)
-        self.single_response = SingleResponseHandler(config.LLM_INTERFACE)
+        
+        # Initialize LLM with dynamic configuration (like IRB Assistant)
+        self._init_openai(
+            openai_compatible_endpoint=openai_compatible_endpoint,
+            openai_compatible_key=openai_compatible_key,
+            openai_compatible_model=openai_compatible_model,
+            name="StandaloneSummary"
+        )
+        
+        # Pass LLM parameters to ArticleSearch (it also needs them now)
+        self.searcher = ArticleSearch(
+            research_question,
+            openai_compatible_endpoint,
+            openai_compatible_key,
+            openai_compatible_model,
+        )
+        
+        # Use self.llm_interface instead of config.LLM_INTERFACE
+        self.single_response = SingleResponseHandler(self.llm_interface)
 
     def format_response(self, summary, df):
         output = str(
@@ -44,7 +65,6 @@ class StandaloneSummary(WorkflowHandler):
     def summarize_from_abstracts(self, articles_df):
         article_abstracts = []
         for _, row in articles_df.iterrows():
-
             single_abstract = f"APA Citation: {row.citation}\n\n Abstract: {row.abstract}\n\n --- "
             article_abstracts.append(single_abstract)
         text_to_summarize = "\n\n".join(article_abstracts)

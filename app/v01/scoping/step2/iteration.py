@@ -1,49 +1,28 @@
 from datetime import datetime
-
 from aiweb_common.file_operations.upload_manager import FastAPIUploadManager
-from fastapi import APIRouter, BackgroundTasks, HTTPException
-
+from fastapi import APIRouter, BackgroundTasks, HTTPException, UploadFile, Form, Security
+from fastapi.security import HTTPAuthorizationCredentials
 import app.fastapi_config as api_config
 from app.v01.schemas import MSExcelResponse
-from app.v01.scoping.step2.schemas import IterationRequest
 from app.v01.scoping.step2.validators import validate_keywords_data
 from ScopingReview.IterateSearch.Workflow import IterateSearch
 from ScopingReview.Keywords.Manager import KeywordData
-from ScopingReview_config import app_config
+from app.dependencies import security, get_api_key
+import base64
 
-# TODO: metadata
 router = APIRouter(tags=["scoping", "step2"])
 
 
 def get_step2iteration_response(
-    background_tasks: BackgroundTasks, question: str, xlsx_encoded: str, keywords: KeywordData
+    background_tasks: BackgroundTasks,
+    question: str,
+    xlsx_encoded: str,
+    keywords: KeywordData,
+    openai_compatible_endpoint: str,
+    openai_compatible_key: str,
+    openai_compatible_model: str,
 ) -> MSExcelResponse:
-    """
-    This function processes an uploaded Excel file, performs a search based on a question and keywords,
-    and returns the search results in an encoded Excel file while also writing relevant data to a
-    database.
-
-    Args:
-      background_tasks (BackgroundTasks): The `background_tasks` parameter is used to handle background
-    tasks in FastAPI. It allows you to perform tasks asynchronously, such as file processing or database
-    operations, without blocking the main request-response cycle. In the provided function
-    `get_step2iteration_response`, the `background_tasks` parameter is an instance
-      question (str): The `question` parameter in the `get_step2iteration_response` function is a string
-    that represents the question or query for which you want to perform a search or analysis on the data
-    provided in the uploaded Excel file. It is used by the `FastAPIIterateSearchManager` to perform the
-      xlsx_encoded (str): The `xlsx_encoded` parameter in the `get_step2iteration_response` function is
-    a string that represents the encoded content of an Excel file. This encoded content is typically
-    used for uploading and processing Excel files within the function.
-      keywords (KeywordsData): The `keywords` parameter in the `get_step2iteration_response` function is
-    of type `KeywordsData`. It likely contains information related to keywords used for searching or
-    filtering data.
-
-    Returns:
-      The function `get_step2iteration_response` returns an instance of `MSExcelResponse`, which
-    contains an encoded Excel file (`encoded_xlsx`).
-    """
     start = datetime.now()
-    import base64
     import binascii
 
     try:
@@ -58,7 +37,14 @@ def get_step2iteration_response(
         if df is None:
             raise HTTPException(status_code=422, detail="Failed to process the file")
 
-        iterate_search = IterateSearch(df, question, keywords)
+        iterate_search = IterateSearch(
+            df,
+            question,
+            keywords,
+            openai_compatible_endpoint,
+            openai_compatible_key,
+            openai_compatible_model,
+        )
         articles_df, refined_query = iterate_search.process()
         encoded_file = iterate_search.search_manager.get_encoded_excel(
             articles_df, background_tasks, pubmed_query="refined_query"
@@ -69,9 +55,6 @@ def get_step2iteration_response(
     return response
 
 
-from fastapi import UploadFile, Form
-import base64
-
 @router.post("/search/v01/scoping/step2/iteration/", **api_config.SCOPING_STEP2EXCEL_META)
 async def update_keywords_and_search(
     background_tasks: BackgroundTasks,
@@ -79,30 +62,46 @@ async def update_keywords_and_search(
     primary_keywords: str = Form(""),
     secondary_keywords: str = Form(""),
     exclusion_keywords: str = Form(""),
+    openai_compatible_endpoint: str = Form(None),  # ← Optional, will use env var if not provided
+    openai_compatible_model: str = Form(None),      # ← Optional, will use env var if not provided
     file: UploadFile = Form(...),
+    credentials: HTTPAuthorizationCredentials = Security(security),
 ) -> MSExcelResponse:
     """
-    This endpoint accepts multipart/form-data with file upload and form fields,
-    reads the uploaded Excel file, base64 encodes it, and processes the search.
+    This endpoint accepts multipart/form-data with file upload and form fields.
+    Requires API key in Authorization header (Bearer scheme).
     """
-
+    api_key = await get_api_key(credentials)
+    
     import logging
+    import os
     logger = logging.getLogger("app_logger")
-    logger.debug(f"Received form fields: research_question={research_question}, primary_keywords={primary_keywords}, secondary_keywords={secondary_keywords}, exclusion_keywords={exclusion_keywords}")
-
+    logger.debug(f"Received form fields: research_question={research_question}")
+    
     file_bytes = await file.read()
     xlsx_encoded = base64.b64encode(file_bytes).decode("utf-8")
-
+    
     def split_keywords(s: str) -> list[str]:
         return [kw.strip() for kw in s.split(",") if kw.strip()]
-
+    
     keywords = validate_keywords_data(
         split_keywords(primary_keywords),
         split_keywords(secondary_keywords),
         split_keywords(exclusion_keywords),
     )
-
+    
+    # Use form values if provided, otherwise fall back to environment variables
+    endpoint = openai_compatible_endpoint or os.getenv("OPENAI_COMPATIBLE_ENDPOINT", "https://api.openai.com/v1/chat/completions")
+    model = openai_compatible_model or os.getenv("OPENAI_COMPATIBLE_MODEL", "gpt-4")
+    
     response = get_step2iteration_response(
-        background_tasks, research_question, xlsx_encoded, keywords
+        background_tasks,
+        research_question,
+        xlsx_encoded,
+        keywords,
+        endpoint,
+        api_key,
+        model,
     )
+    
     return response

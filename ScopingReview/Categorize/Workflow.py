@@ -1,21 +1,36 @@
 import tempfile
 from typing import Any, Tuple
-
 import pandas as pd
 from aiweb_common.generate.SingleResponse import SingleResponseHandler
 from aiweb_common.WorkflowHandler import WorkflowHandler
-
 from ScopingReview.Categorize.Manager import FastAPICategorizeManager
 from ScopingReview_config import config, prompt_config
 
 
 class CategorizeWorkflow(WorkflowHandler):
-    def __init__(self, df, userdefined_categories):
+    def __init__(
+        self,
+        df,
+        userdefined_categories,
+        openai_compatible_endpoint: str,
+        openai_compatible_key: str,
+        openai_compatible_model: str,
+    ):
         super().__init__()
         self.df = df
         self.userdefined_categories = userdefined_categories
         self.manager = FastAPICategorizeManager(self.df, self.userdefined_categories)
-        self.single_response = SingleResponseHandler(config.FAST_LLM_INTERFACE)
+        
+        # Initialize LLM with dynamic configuration (like IRB Assistant)
+        self._init_openai(
+            openai_compatible_endpoint=openai_compatible_endpoint,
+            openai_compatible_key=openai_compatible_key,
+            openai_compatible_model=openai_compatible_model,
+            name="CategorizeWorkflow"
+        )
+        
+        # Use self.llm_interface instead of config.FAST_LLM_INTERFACE
+        self.single_response = SingleResponseHandler(self.llm_interface)
 
     def _prep_df_for_categorization(self):
         reduced_df = self.manager.get_relevant_rows().copy()
@@ -27,10 +42,8 @@ class CategorizeWorkflow(WorkflowHandler):
         return input_list
 
     def categorize_articles(self):
-
         reduced_df = self._prep_df_for_categorization()
         input_list = self._prep_categorylist()
-
         for index, row in reduced_df.iterrows():
             data = row[["abstract", "title"]]
             assembled_prompt = (
@@ -55,16 +68,16 @@ class CategorizeWorkflow(WorkflowHandler):
 
     def get_tempfile_excel(self, category_df):
         category_df.drop_duplicates(subset="PMID", keep="first", inplace=True)
-
         with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmpfile:
             self.manager.write_excel_output(
                 tmpfile=tmpfile.name,
                 df=category_df,
+                input_search_terms=self.userdefined_categories,
+                query_strings="Generated query strings"
             )
         return tmpfile.name
 
     def process(self):
         if self.df is not None:
             category_df = self.categorize_articles()
-
             return category_df
