@@ -1,19 +1,15 @@
 import base64
 import os
-
 from aiweb_common.file_operations.file_handling import file_to_base64
 from aiweb_common.file_operations.upload_manager import FastAPIUploadManager
-from fastapi import APIRouter, BackgroundTasks, HTTPException
-
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Security
+from fastapi.security import HTTPAuthorizationCredentials
 import app.fastapi_config as api_config
 from app.v01.schemas import UploadableFiles
-from app.v01.standalone.schemas import (
-    BibliographyRequest,
-    BibliographyResponse,
-)
+from app.v01.standalone.schemas import BibliographyRequest, BibliographyResponse
 from ScopingReview.Bibliography.Manager import FastAPIBibtexManager
+from app.dependencies import security, get_api_key
 
-# TODO: meta data
 router = APIRouter(tags=["standalone", "bibliography"])
 
 
@@ -63,12 +59,19 @@ def get_bibtex_response(
 
 @router.post("/search/v01/standalone/bibliography/", **api_config.STANDALONE_BIBLIOGRAPHY_META)
 async def bibliography_download(
-    request: BibliographyRequest, background_tasks: BackgroundTasks
+    request: BibliographyRequest,
+    background_tasks: BackgroundTasks,
+    credentials: HTTPAuthorizationCredentials = Security(security),
 ) -> BibliographyResponse:
     """
-    Processes an uploaded file (either a DOCX or XLSX), converts the contained PMIDs to a BibTeX format,
-    and returns the BibTeX bibliography as a base64 encoded string. This endpoint is ideal for users who need
-    to quickly convert bibliographic data from documents into a format suitable for citation management tools.
+    Processes uploaded file and converts to BibTeX format.
+    Requires API key in Authorization header (Bearer scheme).
     """
-    response = get_bibtex_response(request.file_encoded, request.file_extension, background_tasks)
+    api_key = await get_api_key(credentials)
+    
+    response = get_bibtex_response(
+        request.file_encoded,
+        request.file_extension,
+        background_tasks,
+    )
     return response

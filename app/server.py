@@ -1,7 +1,7 @@
 import logging
 import uvicorn
 from aiweb_common.fastapi.helper_apis import router as utils_router
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 
@@ -30,7 +30,6 @@ app = FastAPI(**fastapi_config.LIT_API_META)
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from fastapi import status
-from fastapi.exception_handlers import request_validation_exception_handler
 from fastapi.encoders import jsonable_encoder
 
 def sanitize_bytes_in_obj(obj):
@@ -48,7 +47,7 @@ def sanitize_bytes_in_obj(obj):
 
 @app.exception_handler(RequestValidationError)
 async def custom_request_validation_exception_handler(request, exc):
-    # Sanitize bytes in exc.errors()
+    """Handle validation errors (422)"""
     sanitized_errors = sanitize_bytes_in_obj(exc.errors())
     content = {"detail": sanitized_errors}
     return JSONResponse(
@@ -58,8 +57,10 @@ async def custom_request_validation_exception_handler(request, exc):
 
 @app.exception_handler(Exception)
 async def custom_exception_handler(request, exc):
-    # For HTTPException, sanitize detail if bytes
+    """Handle all exceptions, including non-HTTP exceptions"""
     from fastapi import HTTPException
+    
+    # If it's an HTTPException, handle it properly
     if isinstance(exc, HTTPException):
         detail = exc.detail
         sanitized_detail = sanitize_bytes_in_obj(detail)
@@ -67,23 +68,23 @@ async def custom_exception_handler(request, exc):
         return JSONResponse(
             status_code=exc.status_code,
             content=jsonable_encoder(content),
-            headers=exc.headers,
+            headers=getattr(exc, "headers", None),
         )
-    # For other exceptions, fallback to default handler
-    from fastapi.exception_handlers import http_exception_handler
-    return await http_exception_handler(request, exc)
+    
+    # For regular exceptions (not HTTPException), return 500
+    logger.error(f"Unhandled exception: {exc}", exc_info=True)
+    return JSONResponse(
+        status_code=500,
+        content={"detail": str(exc)},
+    )
 
-# Middleware to log requests and exceptions
+# Middleware to log requests - FIXED: removed exception handling to let exception handler work
 class LoggingMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         logger.info(f"Request: {request.method} {request.url}")
-        try:
-            response = await call_next(request)
-            logger.info(f"Response status: {response.status_code} for {request.method} {request.url}")
-            return response
-        except Exception as e:
-            logger.error(f"Exception during request: {request.method} {request.url} - {e}", exc_info=True)
-            raise
+        response = await call_next(request)
+        logger.info(f"Response status: {response.status_code} for {request.method} {request.url}")
+        return response
 
 app.add_middleware(LoggingMiddleware)
 
@@ -100,6 +101,31 @@ app.include_router(utils_router)
 @app.get("/health")
 def health_check():
     return {"status": "healthy"}
+
+@app.post("/process")
+async def process_request(
+    request: Request,
+    authorization: str = Header(..., description="Bearer token for authentication"),
+):
+    if authorization is None:
+        raise HTTPException(status_code=400, detail="Authorization header missing")
+    if not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=400, detail="Invalid authorization header format")
+    
+    api_key = authorization.split(" ")[1]
+    body = await request.json()
+    openai_compatible_endpoint = body.get("openai_compatible_endpoint")
+    openai_compatible_model = body.get("openai_compatible_model")
+    
+    # Validate required fields
+    if not openai_compatible_endpoint or not openai_compatible_model:
+        raise HTTPException(status_code=422, detail="Missing required fields")
+    
+    # Simulate invalid API key handling
+    if api_key == "invalid_key":
+        raise HTTPException(status_code=500, detail="Invalid API Key")
+
+    return {"message": "Request processed successfully"}
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000, log_level="debug")

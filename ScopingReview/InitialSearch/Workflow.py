@@ -15,7 +15,6 @@ class CustomPubMedQueryGenerator(PubMedQueryGenerator):
     Concrete subclass of the package's PubMedQueryGenerator.
     Implements the missing `process` method by delegating to generate_search_string().
     """
-
     def process(self, loop_n: int = 0, last_query: str = "") -> str:
         """
         Return the LLM-generated PubMed search string.
@@ -31,10 +30,24 @@ class ArticleSearch(WorkflowHandler):
       3. Fetch details when enough IDs are found.
       4. Retry up to MAX_TRIES if too few.
     """
-
-    def __init__(self, research_question: str):
+    def __init__(
+        self,
+        research_question: str,
+        openai_compatible_endpoint: str,
+        openai_compatible_key: str,
+        openai_compatible_model: str,
+    ):
         super().__init__()
         self.research_question = research_question
+        
+        # Initialize LLM with dynamic configuration (like IRB Assistant)
+        self._init_openai(
+            openai_compatible_endpoint=openai_compatible_endpoint,
+            openai_compatible_key=openai_compatible_key,
+            openai_compatible_model=openai_compatible_model,
+            name="ArticleSearch"
+        )
+        
         self.search_manager = FastAPISearchManager(
             scoping_step=None, research_q=research_question
         )
@@ -44,27 +57,28 @@ class ArticleSearch(WorkflowHandler):
         Loop until we get more than MIN_ARTICLES or exhaust MAX_TRIES.
         Returns a pandas.DataFrame of article details, or None on failure.
         """
+        # Use self.llm_interface instead of config.LLM_INTERFACE
         query_generator = CustomPubMedQueryGenerator(
-            config.LLM_INTERFACE, self.research_question
+            self.llm_interface,  # ← Changed from config.LLM_INTERFACE
+            self.research_question
         )
-
+        
         n = 0
         search_string = ""
         print("Generating PubMed Queries")
-
+        
         while n <= config.MAX_TRIES:
             search_string = query_generator.process(loop_n=n, last_query=search_string)
             print("QUERY ‑", search_string)
-
+            
             article_ids = self.search_manager.pubmed_interface.search_pubmed_articles(search_string)
             print("Number of articles found ‑", len(article_ids))
-
+            
             if len(article_ids) > config.MIN_ARTICLES:
-                # ✅ Corrected: This method expands author list into author1, author2, etc.
                 articles_df = self.search_manager._fetch_articles(search_string)
                 return articles_df
-
+            
             n += 1
-
+        
         print(f"Insufficient number of articles found in {config.MAX_TRIES} tries")
         return None

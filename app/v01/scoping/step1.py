@@ -1,40 +1,43 @@
 from datetime import datetime
-
-from fastapi import APIRouter, BackgroundTasks, HTTPException
-
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Security
+from fastapi.security import HTTPAuthorizationCredentials
 import app.fastapi_config as api_config
-import ScopingReview_config.app_config as app_config
 from app.v01.schemas import MSExcelResponse, SearchRequest
 from ScopingReview.InitialSearch.Workflow import ArticleSearch
+from app.dependencies import security, get_api_key
 
-# TODO: metadata
 router = APIRouter(tags=["scoping", "step1"])
 
 
 def get_step1_response(
-    background_tasks: BackgroundTasks, research_question: str
+    background_tasks: BackgroundTasks,
+    research_question: str,
+    openai_compatible_endpoint: str,
+    openai_compatible_key: str,
+    openai_compatible_model: str,
 ) -> MSExcelResponse:
     """
-    The function `get_step1_response` performs a literature search based on a research question,
-    generates an Excel file with search results, and logs search details to a database as a background
-    task.
-
+    Performs literature search based on research question.
+    
     Args:
-      background_tasks (BackgroundTasks): `BackgroundTasks` is a class provided by FastAPI for handling
-    background tasks. It allows you to run tasks asynchronously in the background. In this function,
-    `background_tasks` is used to handle tasks such as writing search details to the database without
-    blocking the main request-response cycle.
-      research_question (str): The `get_step1_response` function takes in two parameters:
-
+        background_tasks: FastAPI background tasks
+        research_question: The research question to search for
+        openai_compatible_endpoint: OpenAI-compatible API endpoint URL
+        openai_compatible_key: API key for authentication
+        openai_compatible_model: Model name to use
+        
     Returns:
-      The function `get_step1_response` returns an instance of `MSExcelResponse` containing an encoded
-    Excel file.
+        MSExcelResponse containing encoded Excel file
     """
     start = datetime.now()
-
     try:
-        # Utilizing the new ArticleSearch to perform the literature search
-        article_search = ArticleSearch(research_question)
+        # Pass all required parameters to the workflow (like IRB Assistant)
+        article_search = ArticleSearch(
+            research_question,
+            openai_compatible_endpoint,
+            openai_compatible_key,
+            openai_compatible_model,
+        )
         articles_df = article_search.process()
         if articles_df is None:
             raise HTTPException(status_code=404, detail="No articles found")
@@ -49,10 +52,23 @@ def get_step1_response(
 
 @router.post("/search/v01/scoping/step1/", **api_config.SCOPING_STEP1_META)
 async def perform_step1_scoping_search(
-    background_tasks: BackgroundTasks, query: SearchRequest
+    background_tasks: BackgroundTasks,
+    query: SearchRequest,
+    credentials: HTTPAuthorizationCredentials = Security(security),
 ) -> MSExcelResponse:
     """
-    This function conducts an initial literature search based on a research question, compiles the
+    Conducts an initial literature search based on a research question, compiles the
     results into an Excel file, and returns it for download.
+    
+    Requires API key in Authorization header (Bearer scheme).
     """
-    return get_step1_response(background_tasks, query.research_question)
+    # Extract API key from Authorization header (like IRB Assistant)
+    api_key = await get_api_key(credentials)
+    
+    return get_step1_response(
+        background_tasks,
+        query.research_question,
+        query.openai_compatible_endpoint,
+        api_key,  # ← API key from Authorization header
+        query.openai_compatible_model,
+    )

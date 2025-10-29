@@ -7,7 +7,40 @@ import pandas as pd
 import streamlit as st
 from requests.exceptions import ConnectionError
 
+
+# PUT YOUR API KEY HERE (between the quotes)
+API_KEY = "sk-here key needs to update as it goes in website"
+#I have checked it with a key and it works
+
+# PUT YOUR AZURE ENDPOINT HERE (just the base URL, NO /chat/completions at the end)
+# Example: "https://ai-web-speech.openai.azure.com/openai/deployments/model-router"
+AZURE_ENDPOINT = "https://proxy-ai-anes-uabmc-awefchfueccrddhf.eastus2-01.azurewebsites.net"
+
+# Model name to use
+MODEL_NAME = "gpt-4o"
+
+# ============================================================================
+# END CONFIGURATION
+# ============================================================================
+
 API_BASE_URL = os.getenv("LIT_SEARCH_API_BASE_URL", "http://localhost:8000")
+
+# Default LLM configuration
+DEFAULT_LLM_CONFIG = {
+    "openai_compatible_endpoint": AZURE_ENDPOINT,
+    "openai_compatible_model": MODEL_NAME
+}
+
+
+def get_auth_headers():
+    """Get authorization headers with API key."""
+    if API_KEY and API_KEY != "PUT_YOUR_API_KEY_HERE":
+        return {
+            "Authorization": f"Bearer {API_KEY}",
+            "Content-Type": "application/json",
+            "accept": "application/json"
+        }
+    return {}
 
 
 def initial_literature_search(research_question: str):
@@ -15,7 +48,11 @@ def initial_literature_search(research_question: str):
     try:
         response = requests.post(
             f"{API_BASE_URL}/search/v01/scoping/step1/",
-            json={"research_question": research_question},
+            json={
+                "research_question": research_question,
+                **DEFAULT_LLM_CONFIG
+            },
+            headers=get_auth_headers(),
         )
         if response.status_code == 200:
             json_response = response.json()
@@ -40,14 +77,17 @@ def initial_literature_search_summary(research_question: str):
     try:
         response = requests.post(
             f"{API_BASE_URL}/search/v01/standalone/summary/",
-            json={"research_question": research_question},
+            json={
+                "research_question": research_question,
+                **DEFAULT_LLM_CONFIG
+            },
+            headers=get_auth_headers(),
         )
         if response.status_code == 200:
             json_response = response.json()
             encoded_docx = json_response.get("encoded_docx")
             if encoded_docx:
                 decoded_bytes = base64.b64decode(encoded_docx)
-                # Store in session state and also set search_finished flag here
                 st.session_state["initial_search_summary_result"] = decoded_bytes
                 st.session_state["search_finished"] = True
                 return True
@@ -69,11 +109,18 @@ def iterate_search(uploaded_file, research_question: str):
         return False
     try:
         files = {"file": (uploaded_file.name, uploaded_file.getvalue(), uploaded_file.type)}
-        data = {"research_question": research_question}
+        data = {
+            "research_question": research_question,
+            **DEFAULT_LLM_CONFIG
+        }
+        # Note: When using files, don't set Content-Type header (requests will set it automatically)
+        headers = {"Authorization": f"Bearer {API_KEY}"} if API_KEY and API_KEY != "PUT_YOUR_API_KEY_HERE" else {}
+        
         response = requests.post(
             f"{API_BASE_URL}/search/v01/scoping/step2/iteration/",
             data=data,
             files=files,
+            headers=headers,
         )
         if response.status_code == 200:
             json_response = response.json()
@@ -102,10 +149,12 @@ def categorize_articles(uploaded_file, userdefined_categories: str):
         json_data = {
             "user_defined_categories": userdefined_categories,
             "xlsx_encoded": encoded_xlsx,
+            **DEFAULT_LLM_CONFIG
         }
         response = requests.post(
             f"{API_BASE_URL}/search/v01/scoping/step3/",
             json=json_data,
+            headers=get_auth_headers(),
         )
         if response.status_code == 200:
             json_response = response.json()
@@ -144,12 +193,13 @@ def summarize_categories(uploaded_file, research_question: str):
         payload = {
             "research_question": research_question,
             "xlsx_encoded": xlsx_encoded,
+            **DEFAULT_LLM_CONFIG
         }
 
         resp = requests.post(
             f"{API_BASE_URL}/search/v01/scoping/step4/",
-            headers={"Content-Type": "application/json"},
-            data=json.dumps(payload),
+            headers=get_auth_headers(),
+            json=payload,
         )
 
         if resp.status_code == 200:
@@ -187,10 +237,12 @@ def draft_article(uploaded_file, research_question: str):
         json_data = {
             "research_question": research_question,
             "docx_encoded": encoded_docx,
+            **DEFAULT_LLM_CONFIG
         }
         response = requests.post(
             f"{API_BASE_URL}/search/v01/scoping/step5/",
             json=json_data,
+            headers=get_auth_headers(),
         )
         if response.status_code == 200:
             response_json = response.json()
@@ -225,6 +277,7 @@ def generate_bibtex(uploaded_file):
         response = requests.post(
             f"{API_BASE_URL}/search/v01/standalone/bibliography/",
             json=json_data,
+            headers=get_auth_headers(),
         )
         if response.status_code == 200:
             st.session_state["bibtex_result"] = response.content
