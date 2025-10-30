@@ -1,0 +1,49 @@
+name: Trigger auto deployment for lit-api
+
+# When this action will be executed
+on:
+  # Automatically trigger it when detected changes in repo
+  push:
+    branches: 
+      [ main ]
+    paths:
+    - '**'
+    - '.github/workflows/lit-api-AutoDeployTrigger-e028acf5-ed63-45f2-8663-2ba240e682a0.yml'
+
+  # Allow manual trigger 
+  workflow_dispatch:      
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions: 
+      id-token: write #This is required for requesting the OIDC JWT Token
+      contents: read #Required when GH token is used to authenticate with private repo
+
+    steps:
+      - name: Checkout to the branch
+        uses: actions/checkout@v2
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.LITAPI_AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.LITAPI_AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.LITAPI_AZURE_SUBSCRIPTION_ID }}
+
+      - name: Build and push container image to registry
+        uses: azure/container-apps-deploy-action@v2
+        with:
+          appSourcePath: ${{ github.workspace }}
+          _dockerfilePathKey_: _dockerfilePath_
+          _targetLabelKey_: _targetLabel_
+          registryUrl: ghcr.io
+          registryUsername: ${{ secrets.LITAPI_REGISTRY_USERNAME }}
+          registryPassword: ${{ secrets.LITAPI_REGISTRY_PASSWORD }}
+          containerAppName: lit-api
+          resourceGroup: anes-ai
+          imageToBuild: ghcr.io/lit-api:${{ github.sha }}
+          _buildArgumentsKey_: |
+            _buildArgumentsValues_
+
+
