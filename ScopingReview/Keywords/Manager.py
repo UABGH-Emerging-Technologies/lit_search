@@ -101,10 +101,15 @@ class KeywordManager(BaseManager):
 
     def parse_keywords(self, content):
         data = self._extract_json_from_markdown(content)
+        # _extract_json_from_markdown may return a dict when successful, or a string/error message when not.
+        # Defensively handle non-dict returns to avoid AttributeError/TypeError in production/tests.
+        if not isinstance(data, dict):
+            # Return empty lists which are safe defaults when parsing fails
+            return [], [], []
         primary_keywords = data.get("Primary Keywords", [])
         secondary_keywords = data.get("Secondary Keywords", [])
         exclusion_keywords = data.get("Exclusion Keywords", [])
-
+    
         return primary_keywords, secondary_keywords, exclusion_keywords
 
     def write_keywords_excel_output(self, tmpfile, df, unique_keywords_str):

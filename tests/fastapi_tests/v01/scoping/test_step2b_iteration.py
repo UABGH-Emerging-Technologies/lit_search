@@ -35,13 +35,15 @@ def test_iteration(
         "primary_keywords": ",".join(keyword_data["primary_keywords"]),
         "secondary_keywords": ",".join(keyword_data["secondary_keywords"]),
         "exclusion_keywords": ",".join(keyword_data["exclusion_keywords"]),
-        "openai_compatible_endpoint": "https://api.openai.com/v1/chat/completions",  
-        "openai_compatible_model": "gpt-4",
+        # Endpoint/model required by API for every request
+        "openai_compatible_endpoint": "https://example.com/llm",
+        "openai_compatible_model": "test-model",
     }
     
     # Headers with authorization
+    # Authorization header required by API for every request
     headers = {
-        "Authorization": "Bearer test_api_key"
+        "Authorization": "Bearer test-key"
     }
     
     # Make the POST request with multipart form data
