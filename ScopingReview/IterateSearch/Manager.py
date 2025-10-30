@@ -1,8 +1,6 @@
 import tempfile
-
 import pandas as pd
 from fastapi import HTTPException
-
 from ScopingReview.InitialSearch.Manager import BaseSearchManager
 from ScopingReview.Keywords.Manager import KeywordData
 from ScopingReview.Keywords.Workflow import KeywordWorkflow
@@ -10,7 +8,15 @@ from ScopingReview_config import config
 
 
 class BaseIterateSearchManager(BaseSearchManager):
-    def __init__(self, df, research_q, keywords):
+    def __init__(
+        self,
+        df,
+        research_q,
+        keywords,
+        openai_compatible_endpoint: str,
+        openai_compatible_key: str,
+        openai_compatible_model: str,
+    ):
         super().__init__(None, research_q)
         self.df = df
         self.selected_articles_df = self.get_relevant_rows()
@@ -18,7 +24,20 @@ class BaseIterateSearchManager(BaseSearchManager):
         self.primary_keywords = keywords.primary_keywords
         self.secondary_keywords = keywords.secondary_keywords
         self.exclusion_keywords = keywords.exclusion_keywords
-        self.keyword_workflow = KeywordWorkflow(self.df, research_question=research_q)
+        
+        # Store LLM config
+        self.openai_compatible_endpoint = openai_compatible_endpoint
+        self.openai_compatible_key = openai_compatible_key
+        self.openai_compatible_model = openai_compatible_model
+        
+        # Pass LLM config to KeywordWorkflow
+        self.keyword_workflow = KeywordWorkflow(
+            self.df,
+            research_question=research_q,
+            openai_compatible_endpoint=openai_compatible_endpoint,
+            openai_compatible_key=openai_compatible_key,
+            openai_compatible_model=openai_compatible_model,
+        )
 
     def _get_filename(self):
         return config.SR_STEP2_FILENAME
@@ -56,5 +75,20 @@ class BaseIterateSearchManager(BaseSearchManager):
 
 
 class FastAPIIterateSearchManager(BaseIterateSearchManager):
-    def __init__(self, df: pd.DataFrame, research_q: str, keywords: KeywordData):
-        super().__init__(df, research_q, keywords)
+    def __init__(
+        self,
+        df: pd.DataFrame,
+        research_q: str,
+        keywords: KeywordData,
+        openai_compatible_endpoint: str,
+        openai_compatible_key: str,
+        openai_compatible_model: str,
+    ):
+        super().__init__(
+            df,
+            research_q,
+            keywords,
+            openai_compatible_endpoint,
+            openai_compatible_key,
+            openai_compatible_model,
+        )

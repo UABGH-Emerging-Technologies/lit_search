@@ -14,13 +14,31 @@ from ScopingReview_config import boilerplate, config
 
 
 class SummarizeArticles(WorkflowHandler):
-    def __init__(self, df, research_q):
+    def __init__(
+        self,
+        df,
+        research_q,
+        openai_compatible_endpoint: str,
+        openai_compatible_key: str,
+        openai_compatible_model: str,
+    ):
         super().__init__()
         self.df = df
         self.research_q = research_q
         self.summarizer = SummarizeManager(df, research_q)
-        self.fast_single_response = SingleResponseHandler(config.FAST_LLM_INTERFACE)
-        self.single_response = SingleResponseHandler(config.LLM_INTERFACE)
+        
+        # Initialize LLM with dynamic configuration (like IRB Assistant)
+        self._init_openai(
+            openai_compatible_endpoint=openai_compatible_endpoint,
+            openai_compatible_key=openai_compatible_key,
+            openai_compatible_model=openai_compatible_model,
+            name="SummarizeArticles"
+        )
+        
+        # Use self.llm_interface for both fast and regular LLM
+        # Note: You could add a separate fast_llm_interface if needed
+        self.fast_single_response = SingleResponseHandler(self.llm_interface)
+        self.single_response = SingleResponseHandler(self.llm_interface)
 
     def assemble_initial_summary_prompt(self, first_chunk):
         print("assembling prompts")
@@ -65,7 +83,6 @@ class SummarizeArticles(WorkflowHandler):
         )
         return assembled_prompt
 
-    # TODO: Could be a generic llm_utils summarizer
     def summarize_article_in_chunks(self, article_text):
         # Splitting the article text into manageable chunks
         text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
@@ -92,7 +109,6 @@ class SummarizeArticles(WorkflowHandler):
 
         return summary.content
 
-    # TODO: Can some of this be moved into a manager method?
     def summarize_all_categories(self, newsletter_flag=False):
         # use abtract when text is not available.
         self.df["Text"] = self.df.apply(
@@ -116,8 +132,6 @@ class SummarizeArticles(WorkflowHandler):
             for _, row in filtered_rows.iterrows():
                 print(row.title)
                 article_summary = self.summarize_article_in_chunks(row.Text)
-                # TODO: nice to haves
-                # df_exploded.at[idx, 'Article Summary'] = article_summary
                 formatted_summary = (
                     f"APA Citation: {row.citation}\n\n Summary: {article_summary}\n\n --- "
                 )
