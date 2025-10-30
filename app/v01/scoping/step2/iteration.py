@@ -46,6 +46,14 @@ def get_step2iteration_response(
             openai_compatible_model,
         )
         articles_df, refined_query = iterate_search.process()
+        # Defensive check: if the upstream search returned None (no articles found / failure),
+        # raise a clear 422 to surface a validation-like error to clients/tests instead of
+        # letting subsequent attribute access trigger a 500.
+        if articles_df is None:
+            raise HTTPException(
+                status_code=422,
+                detail="Upstream search workflow returned no articles (articles_df is None)."
+            )
         encoded_file = iterate_search.search_manager.get_encoded_excel(
             articles_df, background_tasks, pubmed_query="refined_query"
         )
