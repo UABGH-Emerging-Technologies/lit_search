@@ -31,6 +31,14 @@ def test_bibtex_generation(
     Tests the POST method for creating the first draft of a scoping review article
     """
     url = "/search/v01/standalone/bibliography/"
-    payload = {"file_extension": file_extension, "file_encoded": file_content}
-    response = perform_post_request(client, url, payload)
+    # Endpoint/model/key required by API for every request
+    payload = {
+        "file_extension": file_extension,
+        "file_encoded": file_content,
+        "openai_compatible_endpoint": "https://example.com/llm",
+        "openai_compatible_model": "test-model"
+    }
+    headers = {"Authorization": "Bearer test-key"}
+    # Endpoint/model/key required by API for every request
+    response = perform_post_request(client, url, payload, headers)
     validate_encoded_response(response, "application/json", "encoded_bib")

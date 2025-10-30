@@ -35,6 +35,12 @@ def get_step2keywords_response(
             openai_compatible_model,
         )
         keywords = keyword_workflow.process()
+        # Defensive: if workflow returns None, surface a validation-like error instead of causing 500 later
+        if keywords is None:
+            raise HTTPException(
+                status_code=422,
+                detail="Keyword workflow returned no keywords (None). Check LLM response or inputs."
+            )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
     return keywords

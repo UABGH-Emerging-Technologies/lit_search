@@ -2,8 +2,6 @@
 import sys
 from pathlib import Path
 
-from langchain_openai import AzureChatOpenAI
-
 import ScopingReview_config.app_config as lit_app_config
 
 # Development Directories
@@ -53,47 +51,8 @@ NEWSLETTER_QUERIES = {
 }
 
 
-LLM_INTERFACE = AzureChatOpenAI(
-    azure_endpoint="https://nlp-ai-svc.openai.azure.com/",
-    openai_api_version="2024-02-01",
-    azure_deployment="GPT4Turbo",
-    openai_api_type="azure",
-    temperature=0,
-    model_name="gpt-4",
-    api_key=lit_app_config.GPT4_KEY,
-)
-
-SMART_LLM_INTERFACE = AzureChatOpenAI(
-    azure_endpoint="https://nlp-ai-svc.openai.azure.com/",
-    openai_api_version="2024-02-01",
-    deployment_name="ChatGPT4",
-    openai_api_type="azure",
-    temperature=0,
-    model_name="gpt-4",
-    openai_api_key=lit_app_config.GPT4_KEY,
-)
-
-
 # pubmed settings
 MIN_ARTICLES = 10
 MAX_ARTICLES_SR = 200
 MAX_ARTICLES_LR = 50
 
-# TODO Update name here and where called remove this later
-FAST_LLM_INTERFACE = AzureChatOpenAI(
-    azure_endpoint="https://nlp-ai-svc.openai.azure.com/",
-    openai_api_version="2024-02-01",
-    azure_deployment="ChatGPT16k",
-    openai_api_type="azure",
-    temperature=0,
-    model_name="gpt-35-turbo-16",
-    api_key=lit_app_config.GPT4_KEY,
-)
-
-# Vectorstore configuration
-VECTORSTORE_CONFIG = {
-    "type": "faiss",
-    "index_path": str(Path(BASE_DIR, "vectorstore", "faiss_index")),
-    "embedding_model": "openai",
-    "embedding_model_key": lit_app_config.OPENAI_API_KEY,
-}
