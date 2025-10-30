@@ -351,12 +351,149 @@ The test suite was updated to reflect the new mandatory fields. All test cases i
 
 ## Testing
 
-The test suite for the FastAPI endpoint was updated to reflect the new requirements and ensure robust, isolated coverage:
+The API now requires each test request to include the OpenAI-compatible endpoint and model in the JSON body and the API key in the `Authorization` header. There is no fallback to configuration or secrets in tests — tests must supply `openai_compatible_endpoint`, `openai_compatible_model`, and an `Authorization: Bearer <api_key>` header on every request. See the checklist at the end for a compact conversion guide.
 
-- **Mandatory Fields:** All test payloads now include only the required fields (`query`, `source`, `openai_compatible_endpoint`, `openai_compatible_model`). The API key is sent in the Authorization header. A test case verifies that requests missing these fields return a 422 validation error.
-- **Mocking External Dependencies:** All network-dependent components (`ChatOpenAI`, `PromptyHandler`, `RAGResponseHandler`, and `tiktoken.encoding_for_model`) are mocked using `unittest.mock.patch`. This ensures tests do not require real API keys, secrets, or network access.
-- **Correct Mock Return Values:** The mocks for `PromptyHandler.generate_response` now return objects with the required attributes (`content`, `total_cost`) to match the expectations of the workflow logic and avoid `AttributeError` and `NoneType` errors.
-- **Test Coverage:** The suite verifies successful responses for all supported sources, as well as proper error handling for missing required fields and invalid API keys.
-- **Isolation:** By mocking all external dependencies, the tests focus solely on API and workflow logic, ensuring reliability and repeatability regardless of environment.
+Required request shape (example)
+```json
+{
+  "query": "How many patients match X?",
+  "source": "mpog",
+  "openai_compatible_endpoint": "https://example-openai-compatible-host/",
+  "openai_compatible_model": "gpt-4-azure"
+}
+```
 
-These changes ensure the test suite accurately reflects the new API requirements and remains robust against future changes to external services or configuration.
+Required header example
+```
+Authorization: Bearer test-api-key-123
+```
+
+What to mock in tests and why
+- [`config.ChatOpenAI`](DataFeasibility/workflows.py:186) (or whichever class is dynamically instantiated to call the LLM): Mock to avoid real network calls and to simulate LLM exceptions (e.g., unauthorized) for error paths.
+- [`aiweb_common.generate.PromptyHandler`](DataFeasibility/workflows.py:192): Mock `PromptyHandler.generate_response` (and `_load_prompty` if needed) because prompt handling returns controlled results used by the workflow.
+- [`aiweb_common.generate.AugmentedResponse.RAGResponseHandler`](DataFeasibility/workflows.py:212): Mock its `aug_service.retrieve_data` to return deterministic document context for the prompt assembly.
+- `tiktoken.encoding_for_model` (if exercised by your code paths): Mock to avoid requiring the tiktoken package or specific model encodings during tests.
+
+Why each must be mocked
+- Chat/LLM class: prevents network/credential use and lets you simulate success, latency, and failures.
+- PromptyHandler: it returns the actual "result" object that the API returns; mocking lets tests control the content and metadata shape.
+- RAGResponseHandler/aug_service: avoids vectorstore and embedding interactions.
+- tiktoken.encoding_for_model: avoids runtime dependency on tokenizers and model-specific encodings.
+
+Shaping mocks (exact guidance)
+- PromptyHandler.generate_response should return a tuple: (result_object, result_meta)
+  - result_object must have a .content attribute (string).
+  - result_meta must be an object/dict with any attributes your code reads (e.g., total_cost).
+- Example minimal construction using unittest.mock.Mock:
+
+```python
+from unittest.mock import Mock
+
+result_object = Mock()
+result_object.content = "This is a mocked LLM response"
+
+result_meta = Mock()
+result_meta.total_cost = 0.001
+# generate_response returns (result_object, result_meta)
+mock_generate_response.return_value = (result_object, result_meta)
+```
+
+Concise pytest + FastAPI TestClient example (copy-pasteable)
+- This example shows building the JSON body and headers, patching `PromptyHandler.generate_response`, and asserting a successful response.
+
+```python
+import json
+from unittest.mock import Mock, patch
+from fastapi.testclient import TestClient
+from app.server import app  # or the path to your FastAPI app
+
+client = TestClient(app)
+
+def test_idea_endpoint_happy_path():
+    payload = {
+        "query": "test query",
+        "source": "mpog",
+        "openai_compatible_endpoint": "https://example-openai-compatible-host/",
+        "openai_compatible_model": "gpt-4-azure"
+    }
+    headers = {"Authorization": "Bearer test-api-key-123"}
+
+    # Patch PromptyHandler.generate_response where it's imported by the code under test.
+    # IMPORTANT: patch the import path the code uses; see "patching import paths" below.
+    with patch("aiweb_common.generate.PromptyHandler.PromptyHandler.generate_response") as mock_generate:
+        # Construct mock return values
+        result_object = Mock()
+        result_object.content = "mocked content"
+        result_meta = Mock()
+        result_meta.total_cost = 0.0
+        mock_generate.return_value = (result_object, result_meta)
+
+        response = client.post("/idea/v01/", json=payload, headers=headers)
+        assert response.status_code == 200
+        data = response.json()
+        assert data["content"] == "mocked content"
+```
+
+Simulating error cases
+- Missing required fields → expect 422:
+```python
+def test_missing_fields_returns_422():
+    payload = {"query": "a", "source": "mpog"}  # missing endpoint/model
+    headers = {"Authorization": "Bearer test-api-key-123"}
+    resp = client.post("/idea/v01/", json=payload, headers=headers)
+    assert resp.status_code == 422
+```
+
+- Invalid/unauthorized API key → simulate by making the mocked Chat class raise an exception:
+```python
+from unittest.mock import patch
+
+def test_invalid_api_key_results_in_500():
+    payload = {
+        "query": "q",
+        "source": "mpog",
+        "openai_compatible_endpoint": "https://example/",
+        "openai_compatible_model": "gpt-4-azure"
+    }
+    headers = {"Authorization": "Bearer bad-key"}
+    # Patch the ChatOpenAI (or equivalent) constructor/call to raise
+    with patch("DataFeasibility.workflows.config.ChatOpenAI") as mock_chat:
+        mock_chat.side_effect = Exception("unauthorized")
+        resp = client.post("/idea/v01/", json=payload, headers=headers)
+        assert resp.status_code == 500
+```
+
+Patching import paths — common pitfalls and explicit examples
+- Always patch the name as it is imported by the module under test, not necessarily where it is defined.
+  - If `DataFeasibility.workflows` does `from aiweb_common.generate.PromptyHandler import PromptyHandler`, you must patch:
+    - "DataFeasibility.workflows.PromptyHandler.generate_response" or patch the class: "DataFeasibility.workflows.PromptyHandler"
+  - If code constructs Chat via `config.ChatOpenAI` inside `DataFeasibility.workflows`, patch:
+    - "DataFeasibility.workflows.config.ChatOpenAI"
+  - For `RAGResponseHandler` used in `DataFeasibility.workflows`, patch:
+    - "DataFeasibility.workflows.RAGResponseHandler"
+  - For `tiktoken.encoding_for_model` calls, patch the import path used by the tested module, e.g.:
+    - "DataFeasibility.some_module.tiktoken.encoding_for_model"
+
+Common gotchas and how to fix them
+- AttributeError from None: ensure your mocked method returns a non-None object/value (e.g., return (Mock(), Mock())) not None.
+- Wrong mock return shape: match the exact shape the code expects (tuple of (result, result_meta), result has .content). Inspect the code under test to confirm attributes read.
+- Patching wrong import path: if the patch appears to have no effect, switch to patching the symbol as referenced by the module under test (see examples above).
+- tiktoken-related errors: mock `encoding_for_model` to return a simple object with encode/decode stubs if your code calls them.
+
+Checklist: converting an existing test
+- [ ] Add `openai_compatible_endpoint` and `openai_compatible_model` to the JSON request body.
+- [ ] Add `Authorization: Bearer <api_key>` header to the request.
+- [ ] Patch/mocks:
+  - [ ] Patch the Chat/LLM class used by the workflow (e.g., `DataFeasibility.workflows.config.ChatOpenAI`).
+  - [ ] Patch `PromptyHandler.generate_response` to return `(result_object, result_meta)` where `result_object.content` is a string.
+  - [ ] Patch `RAGResponseHandler` or its `aug_service.retrieve_data` to return deterministic docs.
+  - [ ] Patch `tiktoken.encoding_for_model` if referenced.
+- [ ] Add assertions for success and error codes (200, 422, 500 as appropriate).
+- [ ] Run tests and fix any AttributeError/wrong-shape issues by adjusting mock shapes or patch targets.
+
+Reference examples in this document (files you may edit in tests):
+- [`tests/fastapi_tests/v01/test_process_endpoint.py`](tests/fastapi_tests/v01/test_process_endpoint.py:1)
+- [`DataFeasibility/workflows.py`](DataFeasibility/workflows.py:1)
+- [`app/v01/schemas.py`](app/v01/schemas.py:1)
+
+This Testing section provides concrete, copy‑pasteable examples and explicit patch targets so contributors can reproduce the changes and write new tests that follow the client-supplied LLM credentials paradigm.
