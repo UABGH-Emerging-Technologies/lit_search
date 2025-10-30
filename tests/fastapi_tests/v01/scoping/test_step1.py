@@ -6,10 +6,11 @@ from app.v01.schemas import MSExcelResponse
 
 # Helper: valid payload
 def get_valid_payload():
+    # Endpoint/model required by API for every request
     return {
         "research_question": "post-surgical headache",
-        "openai_compatible_endpoint": "https://api.openai.com/v1/engines/davinci-codex/completions",
-        "openai_compatible_model": "davinci-codex"
+        "openai_compatible_endpoint": "https://example.com/llm",
+        "openai_compatible_model": "test-model"
     }
 
 @pytest.mark.parametrize(
@@ -27,10 +28,11 @@ def test_search_various_payloads(payload, expected_status):
         mock_response.return_value = MSExcelResponse(encoded_xlsx="mocked_excel_data")
         client = TestClient(app)
         url = "/search/v01/scoping/step1/"
+        # Authorization header required by API for every request
         headers = {
             "accept": "application/json",
             "Content-Type": "application/json",
-            "Authorization": "Bearer test_api_key"
+            "Authorization": "Bearer test-key"
         }
         response = client.post(url, headers=headers, json=payload)
         assert response.status_code == expected_status
@@ -42,6 +44,7 @@ def test_search_missing_auth():
         mock_response.return_value = MSExcelResponse(encoded_xlsx="mocked_excel_data")
         client = TestClient(app)
         url = "/search/v01/scoping/step1/"
+        # No Authorization header (testing missing key)
         headers = {
             "accept": "application/json",
             "Content-Type": "application/json"
@@ -57,6 +60,7 @@ def test_search_invalid_key():
         mock_response.side_effect = Exception("Invalid API Key")
         client = TestClient(app)
         url = "/search/v01/scoping/step1/"
+        # Authorization header with invalid key (testing invalid key)
         headers = {
             "accept": "application/json",
             "Content-Type": "application/json",
