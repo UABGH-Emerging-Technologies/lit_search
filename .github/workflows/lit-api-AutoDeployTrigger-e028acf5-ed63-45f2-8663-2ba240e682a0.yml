@@ -42,8 +42,9 @@ jobs:
           registryPassword: ${{ secrets.LITAPI_REGISTRY_PASSWORD }}
           containerAppName: lit-api
           resourceGroup: anes-ai
-          imageToBuild: ghcr.io/lit-api:${{ github.sha }}
+          imageToBuild: ghcr.io/uabgh-emerging-technologies/lit-api:${{ github.sha }}
           _buildArgumentsKey_: |
             _buildArgumentsValues_
+
 
 
