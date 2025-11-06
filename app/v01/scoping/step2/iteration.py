@@ -1,6 +1,6 @@
 from datetime import datetime
 from aiweb_common.file_operations.upload_manager import FastAPIUploadManager
-from fastapi import APIRouter, BackgroundTasks, HTTPException, UploadFile, Form, Security
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Form, Security
 from fastapi.security import HTTPAuthorizationCredentials
 import app.fastapi_config as api_config
 from app.v01.schemas import MSExcelResponse
@@ -8,7 +8,6 @@ from app.v01.scoping.step2.validators import validate_keywords_data
 from ScopingReview.IterateSearch.Workflow import IterateSearch
 from ScopingReview.Keywords.Manager import KeywordData
 from app.dependencies import security, get_api_key
-import base64
 
 router = APIRouter(tags=["scoping", "step2"])
 
@@ -72,11 +71,12 @@ async def update_keywords_and_search(
     exclusion_keywords: str = Form(""),
     openai_compatible_endpoint: str = Form(None),  # ← Optional, will use env var if not provided
     openai_compatible_model: str = Form(None),      # ← Optional, will use env var if not provided
-    file: UploadFile = Form(...),
+    xlsx_encoded: str = Form(...),
     credentials: HTTPAuthorizationCredentials = Security(security),
 ) -> MSExcelResponse:
     """
-    This endpoint accepts multipart/form-data with file upload and form fields.
+    This endpoint accepts multipart/form-data where the Excel file is provided
+    as a base64-encoded string along with other form fields.
     Requires API key in Authorization header (Bearer scheme).
     """
     api_key = await get_api_key(credentials)
@@ -85,9 +85,6 @@ async def update_keywords_and_search(
     import os
     logger = logging.getLogger("app_logger")
     logger.debug(f"Received form fields: research_question={research_question}")
-    
-    file_bytes = await file.read()
-    xlsx_encoded = base64.b64encode(file_bytes).decode("utf-8")
     
     def split_keywords(s: str) -> list[str]:
         return [kw.strip() for kw in s.split(",") if kw.strip()]
