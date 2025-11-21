@@ -29,7 +29,9 @@ class IterateSearch(ArticleSearch):
             openai_compatible_key=openai_compatible_key,
             openai_compatible_model=openai_compatible_model,
         )
-        
+        self.openai_compatible_endpoint = openai_compatible_endpoint
+        self.openai_compatible_key = openai_compatible_key
+        self.openai_compatible_model = openai_compatible_model
         # Pass LLM config to manager
         self.iterate_search_manager = FastAPIIterateSearchManager(
             df,

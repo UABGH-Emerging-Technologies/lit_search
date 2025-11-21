@@ -152,7 +152,7 @@ def show_literature_search_page():
                 if uploaded_file is not None and userdefined_categories.strip() and userdefined_categories.strip().lower() != "category 1, category 2, etc...":
                     if not st.session_state.get("button_clicked", False):
                         if st.button("Run Categorization"):
-                            finished = categorize_articles(uploaded_file, userdefined_categories)
+                            finished = categorize_articles(uploaded_file, userdefined_categories,research_q)
                             if finished:
                                 st.session_state["categorization_finished"] = True
                                 st.session_state["button_clicked"] = True
