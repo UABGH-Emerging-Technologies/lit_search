@@ -9,7 +9,7 @@ from requests.exceptions import ConnectionError
 
 
 # PUT YOUR API KEY HERE (between the quotes)
-API_KEY = "sk-here key needs to update as it goes in website"
+API_KEY = "Api-key"
 #I have checked it with a key and it works
 
 # PUT YOUR AZURE ENDPOINT HERE (just the base URL, NO /chat/completions at the end)
@@ -108,20 +108,25 @@ def iterate_search(uploaded_file, research_question: str):
         st.write("Please upload a file before continuing...")
         return False
     try:
-        files = {"file": (uploaded_file.name, uploaded_file.getvalue(), uploaded_file.type)}
-        data = {
+        # Encode file as base64 like all other functions
+        file_bytes = uploaded_file.getvalue()
+        encoded_xlsx = base64.b64encode(file_bytes).decode("utf-8")
+        
+        json_data = {
             "research_question": research_question,
+            "primary_keywords": [],  
+            "secondary_keywords": [],
+            "exclusion_keywords": [],
+            "xlsx_encoded": encoded_xlsx,
             **DEFAULT_LLM_CONFIG
         }
-        # Note: When using files, don't set Content-Type header (requests will set it automatically)
-        headers = {"Authorization": f"Bearer {API_KEY}"} if API_KEY and API_KEY != "PUT_YOUR_API_KEY_HERE" else {}
         
         response = requests.post(
             f"{API_BASE_URL}/search/v01/scoping/step2/iteration/",
-            data=data,
-            files=files,
-            headers=headers,
+            json=json_data,  
+            headers=get_auth_headers(),  
         )
+        
         if response.status_code == 200:
             json_response = response.json()
             encoded_xlsx = json_response.get("encoded_xlsx")
@@ -138,7 +143,7 @@ def iterate_search(uploaded_file, research_question: str):
     return False
 
 
-def categorize_articles(uploaded_file, userdefined_categories: str):
+def categorize_articles(uploaded_file, userdefined_categories: str, research_question: str = ""):
     """Categorize articles by calling the API endpoint."""
     if uploaded_file is None:
         st.write("Please upload a file before continuing...")
@@ -149,6 +154,7 @@ def categorize_articles(uploaded_file, userdefined_categories: str):
         json_data = {
             "user_defined_categories": userdefined_categories,
             "xlsx_encoded": encoded_xlsx,
+            "research_question": research_question, 
             **DEFAULT_LLM_CONFIG
         }
         response = requests.post(
