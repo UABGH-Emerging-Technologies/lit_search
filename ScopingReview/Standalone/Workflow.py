@@ -1,10 +1,11 @@
 import tempfile
 from aiweb_common.file_operations.text_format import convert_markdown_docx
 from aiweb_common.generate.SingleResponse import SingleResponseHandler
-from aiweb_common.WorkflowHandler import WorkflowHandler
+from aiweb_common.WorkflowHandler import WorkflowHandler, extract_response_text
 import ScopingReview_config.config as config
 import ScopingReview_config.prompt_config as prompt_config
 from ScopingReview.InitialSearch.Workflow import ArticleSearch
+from ScopingReview_config.config import REASONING_EFFORT, _is_responses_api_model
 
 
 class StandaloneSummary(WorkflowHandler):
@@ -19,11 +20,14 @@ class StandaloneSummary(WorkflowHandler):
         self.research_question = research_question
         
         # Initialize LLM with dynamic configuration (like IRB Assistant)
+        _use_responses = _is_responses_api_model(openai_compatible_model)
         self._init_openai(
             openai_compatible_endpoint=openai_compatible_endpoint,
             openai_compatible_key=openai_compatible_key,
             openai_compatible_model=openai_compatible_model,
-            name="StandaloneSummary"
+            name="StandaloneSummary",
+            use_responses_api=_use_responses,
+            reasoning_effort=REASONING_EFFORT if _use_responses else None,
         )
         
         # Pass LLM parameters to ArticleSearch (it also needs them now)
@@ -77,7 +81,7 @@ class StandaloneSummary(WorkflowHandler):
         articles_df = self.searcher.process()
         self.total_cost += self.searcher.total_cost
         summary_body = self.summarize_from_abstracts(articles_df)
-        docx_data = self.format_response(summary_body.content, articles_df)
+        docx_data = self.format_response(extract_response_text(summary_body.content), articles_df)
         if docx_data is not None:
             with tempfile.NamedTemporaryFile(delete=False, suffix=".docx") as tmpfile:
                 tmpfile.write(docx_data)

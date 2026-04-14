@@ -1,8 +1,22 @@
 # config.py
+import re
 import sys
 from pathlib import Path
+from re import Pattern
 
 import ScopingReview_config.app_config as lit_app_config
+
+# Responses API detection for GPT-5 series models
+_GPT5_PATTERN: Pattern[str] = re.compile(r"^gpt-?5", re.IGNORECASE)
+
+
+def _is_responses_api_model(model_name: str) -> bool:
+    """Return True if the model should use the Responses API."""
+    return bool(_GPT5_PATTERN.match(model_name))
+
+
+# Reasoning effort for GPT-5 series models ("low", "medium", "high")
+REASONING_EFFORT = "low"
 
 # Development Directories
 BASE_DIR = Path(__file__).parent.parent.absolute()
