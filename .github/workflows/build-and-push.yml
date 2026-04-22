@@ -40,11 +40,8 @@ jobs:
           subscription-id: ${{ secrets.LITAPI_AZURE_SUBSCRIPTION_ID }}
 
       - name: Deploy to Azure Container Apps
-        uses: azure/container-apps-deploy-action@v2
-        with:
-          containerAppName: lit-api
-          resourceGroup: anes-ai
-          imageToDeploy: ghcr.io/uabgh-emerging-technologies/lit-api:${{ github.sha }}
-          registryUrl: ghcr.io
-          registryUsername: ${{ secrets.LITAPI_REGISTRY_USERNAME }}
-          registryPassword: ${{ secrets.LITAPI_REGISTRY_PASSWORD }}
+        run: |
+          az containerapp update \
+            --name lit-api \
+            --resource-group anes-ai \
+            --image ghcr.io/uabgh-emerging-technologies/lit-api:${{ github.sha }}
