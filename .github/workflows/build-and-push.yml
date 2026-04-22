@@ -2,7 +2,7 @@ name: Build, push & deploy lit-api
 
 on:
   push:
-    branches: [main]
+    branches: [main, feature/ghcr-ci]
   workflow_dispatch:
 
 jobs:
