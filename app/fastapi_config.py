@@ -1,9 +1,12 @@
+import os
+
 import ScopingReview_config.config as lit_config
 
 DOCX_EXPECTED_TYPE = lit_config.DOCX_MIME
 XLSX_EXPECTED_TYPE = lit_config.EXCEL_MIME
 
 LIT_API_META = {
+    "root_path": os.environ.get("ROOT_PATH", ""),
     "summary": "Get help with a literature search.",
     "description": "Takes in questions, xlsx, or docx files and returns the output of a literature search step.",
     "response_description": "XLSX or DOCX file.",
