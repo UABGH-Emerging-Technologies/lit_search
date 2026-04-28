@@ -5,7 +5,7 @@ def test_draft_article(
     Tests the POST method for creating the first draft of a scoping review article
     """
     # URL for the POST request
-    url = "/search/v01/scoping/step5/"
+    url = "/v01/scoping/step5/"
 
     # The payload containing the base64-encoded DOCX file
     # Endpoint/model/key required by API for every request

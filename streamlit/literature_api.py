@@ -47,7 +47,7 @@ def initial_literature_search(research_question: str):
     """Perform the initial literature search by calling the API endpoint."""
     try:
         response = requests.post(
-            f"{API_BASE_URL}/search/v01/scoping/step1/",
+            f"{API_BASE_URL}/v01/scoping/step1/",
             json={
                 "research_question": research_question,
                 **DEFAULT_LLM_CONFIG
@@ -76,7 +76,7 @@ def initial_literature_search_summary(research_question: str):
     """Perform the initial literature search by calling the summary API endpoint."""
     try:
         response = requests.post(
-            f"{API_BASE_URL}/search/v01/standalone/summary/",
+            f"{API_BASE_URL}/v01/standalone/summary/",
             json={
                 "research_question": research_question,
                 **DEFAULT_LLM_CONFIG
@@ -122,7 +122,7 @@ def iterate_search(uploaded_file, research_question: str):
         }
         
         response = requests.post(
-            f"{API_BASE_URL}/search/v01/scoping/step2/iteration/",
+            f"{API_BASE_URL}/v01/scoping/step2/iteration/",
             json=json_data,  
             headers=get_auth_headers(),  
         )
@@ -158,7 +158,7 @@ def categorize_articles(uploaded_file, userdefined_categories: str, research_que
             **DEFAULT_LLM_CONFIG
         }
         response = requests.post(
-            f"{API_BASE_URL}/search/v01/scoping/step3/",
+            f"{API_BASE_URL}/v01/scoping/step3/",
             json=json_data,
             headers=get_auth_headers(),
         )
@@ -203,7 +203,7 @@ def summarize_categories(uploaded_file, research_question: str):
         }
 
         resp = requests.post(
-            f"{API_BASE_URL}/search/v01/scoping/step4/",
+            f"{API_BASE_URL}/v01/scoping/step4/",
             headers=get_auth_headers(),
             json=payload,
         )
@@ -246,7 +246,7 @@ def draft_article(uploaded_file, research_question: str):
             **DEFAULT_LLM_CONFIG
         }
         response = requests.post(
-            f"{API_BASE_URL}/search/v01/scoping/step5/",
+            f"{API_BASE_URL}/v01/scoping/step5/",
             json=json_data,
             headers=get_auth_headers(),
         )
@@ -281,7 +281,7 @@ def generate_bibtex(uploaded_file):
         }
 
         response = requests.post(
-            f"{API_BASE_URL}/search/v01/standalone/bibliography/",
+            f"{API_BASE_URL}/v01/standalone/bibliography/",
             json=json_data,
             headers=get_auth_headers(),
         )

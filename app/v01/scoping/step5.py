@@ -43,7 +43,7 @@ def get_step5_response(
     return response
 
 
-@router.post("/search/v01/scoping/step5/", **api_config.SCOPING_STEP5_META)
+@router.post("/v01/scoping/step5/", **api_config.SCOPING_STEP5_META)
 async def draft_review(
     background_tasks: BackgroundTasks,
     request: DraftRequest,
