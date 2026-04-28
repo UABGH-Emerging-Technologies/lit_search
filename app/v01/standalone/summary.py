@@ -35,7 +35,7 @@ def get_summary_response(
     return response
 
 
-@router.post("/search/v01/standalone/summary/", **api_config.STANDALONE_SUMMARY_META)
+@router.post("/v01/standalone/summary/", **api_config.STANDALONE_SUMMARY_META)
 async def initial_literature_search(
     background_tasks: BackgroundTasks,
     query: SearchRequest,

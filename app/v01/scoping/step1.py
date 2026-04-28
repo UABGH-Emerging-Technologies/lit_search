@@ -50,7 +50,7 @@ def get_step1_response(
     return response
 
 
-@router.post("/search/v01/scoping/step1/", **api_config.SCOPING_STEP1_META)
+@router.post("/v01/scoping/step1/", **api_config.SCOPING_STEP1_META)
 async def perform_step1_scoping_search(
     background_tasks: BackgroundTasks,
     query: SearchRequest,

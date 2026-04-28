@@ -30,7 +30,7 @@ def test_bibtex_generation(
     """
     Tests the POST method for creating the first draft of a scoping review article
     """
-    url = "/search/v01/standalone/bibliography/"
+    url = "/v01/standalone/bibliography/"
     # Endpoint/model/key required by API for every request
     payload = {
         "file_extension": file_extension,

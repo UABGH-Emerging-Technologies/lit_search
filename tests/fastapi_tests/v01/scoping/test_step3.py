@@ -3,7 +3,7 @@ def test_categorize(client, uncategorized_xlsx, perform_post_request, validate_e
     Tests the POST method for assigning categories to articles.
     """
     # URL for the POST request
-    url = "/search/v01/scoping/step3/"
+    url = "/v01/scoping/step3/"
     
     # The payload containing the base64-encoded XLSX file
     # Endpoint/model/key required by API for every request
