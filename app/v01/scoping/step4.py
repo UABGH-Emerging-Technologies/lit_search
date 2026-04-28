@@ -43,7 +43,7 @@ def get_step4_response(
     return response, warning_msg
 
 
-@router.post("/search/v01/scoping/step4/", **api_config.SCOPING_STEP4_META)
+@router.post("/v01/scoping/step4/", **api_config.SCOPING_STEP4_META)
 async def summarize_articles(
     background_tasks: BackgroundTasks,
     request: SummariesRequest,

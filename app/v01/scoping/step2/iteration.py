@@ -121,7 +121,7 @@ def get_step2iteration_response(
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
-@router.post("/search/v01/scoping/step2/iteration/", **api_config.SCOPING_STEP2EXCEL_META)
+@router.post("/v01/scoping/step2/iteration/", **api_config.SCOPING_STEP2EXCEL_META)
 async def update_keywords_and_search(
     background_tasks: BackgroundTasks,
     request: IterationRequest,  # Changed from Form parameters to Pydantic model
@@ -133,7 +133,7 @@ async def update_keywords_and_search(
     Requires API key in Authorization header (Bearer scheme).
     """
     logger.info("=" * 60)
-    logger.info("ENDPOINT HIT: /search/v01/scoping/step2/iteration/")
+    logger.info("ENDPOINT HIT: /v01/scoping/step2/iteration/")
     logger.info(f"Research question: {request.research_question}")
     logger.info(f"Primary keywords: {request.primary_keywords}")
     logger.info(f"Secondary keywords: {request.secondary_keywords}")

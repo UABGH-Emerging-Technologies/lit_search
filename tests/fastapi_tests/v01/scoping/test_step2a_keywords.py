@@ -7,7 +7,7 @@ def test_keyword_extraction(
     Tests the POST method for extracting (really abstracting) search keywords.
     """
     # URL for the POST request
-    url = "/search/v01/scoping/step2/keywords/"
+    url = "/v01/scoping/step2/keywords/"
 
     # The payload containing the base64-encoded XLSX file
     # Endpoint/model/key required by API for every request

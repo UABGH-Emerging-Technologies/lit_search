@@ -27,7 +27,7 @@ def test_search_various_payloads(payload, expected_status):
     with patch("app.v01.scoping.step1.get_step1_response") as mock_response:
         mock_response.return_value = MSExcelResponse(encoded_xlsx="mocked_excel_data")
         client = TestClient(app)
-        url = "/search/v01/scoping/step1/"
+        url = "/v01/scoping/step1/"
         # Authorization header required by API for every request
         headers = {
             "accept": "application/json",
@@ -43,7 +43,7 @@ def test_search_missing_auth():
     with patch("app.v01.scoping.step1.get_step1_response") as mock_response:
         mock_response.return_value = MSExcelResponse(encoded_xlsx="mocked_excel_data")
         client = TestClient(app)
-        url = "/search/v01/scoping/step1/"
+        url = "/v01/scoping/step1/"
         # No Authorization header (testing missing key)
         headers = {
             "accept": "application/json",
@@ -59,7 +59,7 @@ def test_search_invalid_key():
     with patch("app.v01.scoping.step1.get_step1_response") as mock_response:
         mock_response.side_effect = Exception("Invalid API Key")
         client = TestClient(app)
-        url = "/search/v01/scoping/step1/"
+        url = "/v01/scoping/step1/"
         # Authorization header with invalid key (testing invalid key)
         headers = {
             "accept": "application/json",

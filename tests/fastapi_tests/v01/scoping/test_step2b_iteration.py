@@ -15,7 +15,7 @@ def test_iteration(
     Tests the POST method for iterating on a scoping review article search.
     """
     # URL for the POST request
-    url = "/search/v01/scoping/step2/iteration/"
+    url = "/v01/scoping/step2/iteration/"
     
     # Prepare JSON payload (lists instead of comma-separated strings)
     payload = {

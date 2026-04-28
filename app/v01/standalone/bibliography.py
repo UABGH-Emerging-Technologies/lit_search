@@ -57,7 +57,7 @@ def get_bibtex_response(
     return response
 
 
-@router.post("/search/v01/standalone/bibliography/", **api_config.STANDALONE_BIBLIOGRAPHY_META)
+@router.post("/v01/standalone/bibliography/", **api_config.STANDALONE_BIBLIOGRAPHY_META)
 async def bibliography_download(
     request: BibliographyRequest,
     background_tasks: BackgroundTasks,
