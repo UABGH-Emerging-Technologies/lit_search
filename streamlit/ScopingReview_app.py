@@ -255,7 +255,7 @@ class LiteraturePage:
                     st.write("Summarize Categories button clicked")
                     with st.spinner("Summarizing articles"):
                         # Call backend step4 API
-                        api_url = "http://localhost:8000/search/v01/scoping/step4/"
+                        api_url = "http://localhost:8000/v01/scoping/step4/"
                         headers = {"Content-Type": "application/json"}
                         response = requests.post(api_url, headers=headers, data=json.dumps(payload))
                         st.write(f"API response status: {response.status_code}")

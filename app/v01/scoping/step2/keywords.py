@@ -46,7 +46,7 @@ def get_step2keywords_response(
     return keywords
 
 
-@router.post("/search/v01/scoping/step2/keywords/", **api_config.SCOPING_STEP2KEYWORDS_META)
+@router.post("/v01/scoping/step2/keywords/", **api_config.SCOPING_STEP2KEYWORDS_META)
 async def suggest_keywords(
     background_tasks: BackgroundTasks,
     request: KeywordsRequest,

@@ -25,35 +25,35 @@ The backend API exposes endpoints for each of these features, while the Streamli
 ## API Endpoints and Their Uses
 
 ### Step 1: Initial Scoping Search
-**Endpoint:** `POST /search/v01/scoping/step1/`  
+**Endpoint:** `POST /v01/scoping/step1/`  
 Performs an initial literature search based on a research question, compiles the results into an Excel file, and returns it for download. This is the starting point for gathering relevant articles.
 
 ### Step 2a: Keyword Suggestion
-**Endpoint:** `POST /search/v01/scoping/step2/keywords/`  
+**Endpoint:** `POST /v01/scoping/step2/keywords/`  
 Processes an uploaded Excel file and a research question to extract relevant keywords. Returns the extracted keywords to assist in refining the search strategy.
 
 ### Step 2b: Iterative Search with Keywords
-**Endpoint:** `POST /search/v01/scoping/step2/iteration/`  
+**Endpoint:** `POST /v01/scoping/step2/iteration/`  
 Accepts an Excel file, research question, and keywords to perform an iterative literature search. Returns updated search results in an Excel file, allowing refinement of the search based on keywords.
 
 ### Step 3: Article Categorization
-**Endpoint:** `POST /search/v01/scoping/step3/`  
+**Endpoint:** `POST /v01/scoping/step3/`  
 Categorizes articles based on user-defined categories provided along with an Excel file of articles. Returns a categorized Excel file for easier review and analysis.
 
 ### Step 4: Summarization
-**Endpoint:** `POST /search/v01/scoping/step4/`  
+**Endpoint:** `POST /v01/scoping/step4/`  
 Summarizes the content of articles based on a research question and an uploaded Excel file. Returns a downloadable Word document containing the summary.
 
 ### Step 5: Draft Review Generation
-**Endpoint:** `POST /search/v01/scoping/step5/`  
+**Endpoint:** `POST /v01/scoping/step5/`  
 Processes an uploaded Word document containing summaries and generates a draft review based on a specified research question. Returns a Word document with the draft review.
 
 ### Standalone Bibliography Conversion
-**Endpoint:** `POST /search/v01/standalone/bibliography/`  
+**Endpoint:** `POST /v01/standalone/bibliography/`  
 Converts uploaded DOCX or XLSX files containing bibliographic data (e.g., PMIDs) into a BibTeX format. Returns the BibTeX bibliography as a base64 encoded string for citation management.
 
 ### Standalone Summary Generation
-**Endpoint:** `POST /search/v01/standalone/summary/`  
+**Endpoint:** `POST /v01/standalone/summary/`  
 Performs an initial literature search and generates a summary based on a research question. Returns a downloadable Word document with the summarized findings.
 
 ## Streamlit UI and API Integration

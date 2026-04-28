@@ -3,7 +3,7 @@ def test_draft_summaries(client, categorized_xlsx, perform_post_request, validat
     Tests the POST method for drafting a category summaries.
     """
     # URL for the POST request
-    url = "/search/v01/scoping/step4/"
+    url = "/v01/scoping/step4/"
 
     # The payload containing the base64-encoded XLSX file
     # Endpoint/model/key required by API for every request

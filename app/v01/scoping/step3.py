@@ -46,7 +46,7 @@ def get_step3_response(
     return response
 
 
-@router.post("/search/v01/scoping/step3/", **api_config.SCOPING_STEP3_META)
+@router.post("/v01/scoping/step3/", **api_config.SCOPING_STEP3_META)
 async def categorize_articles(
     background_tasks: BackgroundTasks,
     request: CategoriesRequest,
