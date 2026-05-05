@@ -4,13 +4,14 @@ from typing import Optional, Tuple
 
 from aiweb_common.file_operations.text_format import convert_markdown_docx
 from aiweb_common.generate.SingleResponse import SingleResponseHandler
-from aiweb_common.WorkflowHandler import WorkflowHandler
+from aiweb_common.WorkflowHandler import WorkflowHandler, extract_response_text
 from fastapi import HTTPException
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 import ScopingReview_config.prompt_config as prompt_config
 from ScopingReview.Summarize.Manager import SummarizeManager
 from ScopingReview_config import boilerplate, config
+from ScopingReview_config.config import REASONING_EFFORT, _is_responses_api_model
 
 
 class SummarizeArticles(WorkflowHandler):
@@ -28,11 +29,14 @@ class SummarizeArticles(WorkflowHandler):
         self.summarizer = SummarizeManager(df, research_q)
         
         # Initialize LLM with dynamic configuration (like IRB Assistant)
+        _use_responses = _is_responses_api_model(openai_compatible_model)
         self._init_openai(
             openai_compatible_endpoint=openai_compatible_endpoint,
             openai_compatible_key=openai_compatible_key,
             openai_compatible_model=openai_compatible_model,
-            name="SummarizeArticles"
+            name="SummarizeArticles",
+            use_responses_api=_use_responses,
+            reasoning_effort=REASONING_EFFORT if _use_responses else None,
         )
         
         # Use self.llm_interface for both fast and regular LLM
@@ -100,14 +104,14 @@ class SummarizeArticles(WorkflowHandler):
         if len(texts) > 1:
             for text_chunk in texts[1:]:
                 next_summary_prompt = self.assemble_next_summary_prompt(
-                    current_summary=summary.content, next_chunk=text_chunk
+                    current_summary=extract_response_text(summary.content), next_chunk=text_chunk
                 )
                 summary, next_response_meta = self.fast_single_response.generate_response(
                     next_summary_prompt
                 )
                 self._update_total_cost(next_response_meta)
 
-        return summary.content
+        return extract_response_text(summary.content)
 
     def summarize_all_categories(self, newsletter_flag=False):
         # use abtract when text is not available.
@@ -145,7 +149,7 @@ class SummarizeArticles(WorkflowHandler):
                 response, response_meta = self.single_response.generate_response(newsletter_prompt)
                 self._update_total_cost(response_meta)
 
-                output.append(response.content)
+                output.append(extract_response_text(response.content))
 
             else:
                 category_summary_prompt = self.assemble_category_summary_prompt(
@@ -160,7 +164,7 @@ class SummarizeArticles(WorkflowHandler):
                     "# "
                     + str(current_category)
                     + "\n\n"
-                    + response.content
+                    + extract_response_text(response.content)
                     + "\n\n"
                     + "\n\n".join(filtered_rows.citation)
                 )

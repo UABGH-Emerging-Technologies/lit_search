@@ -1,7 +1,8 @@
 from aiweb_common.generate.SingleResponse import SingleResponseHandler
-from aiweb_common.WorkflowHandler import WorkflowHandler
+from aiweb_common.WorkflowHandler import WorkflowHandler, extract_response_text
 from ScopingReview.Keywords.Manager import KeywordData, KeywordManager
 from ScopingReview_config import config, prompt_config
+from ScopingReview_config.config import REASONING_EFFORT, _is_responses_api_model
 
 
 class KeywordWorkflow(WorkflowHandler):
@@ -18,11 +19,14 @@ class KeywordWorkflow(WorkflowHandler):
         self.research_question = research_question
         
         # Initialize LLM with dynamic configuration (like IRB Assistant)
+        _use_responses = _is_responses_api_model(openai_compatible_model)
         self._init_openai(
             openai_compatible_endpoint=openai_compatible_endpoint,
             openai_compatible_key=openai_compatible_key,
             openai_compatible_model=openai_compatible_model,
-            name="KeywordWorkflow"
+            name="KeywordWorkflow",
+            use_responses_api=_use_responses,
+            reasoning_effort=REASONING_EFFORT if _use_responses else None,
         )
         
         # Use self.llm_interface instead of config.SMART_LLM_INTERFACE
@@ -41,9 +45,9 @@ class KeywordWorkflow(WorkflowHandler):
             keywords_list=formatted_keywords,
         )
         response, response_meta = self.single_response.generate_response(assembled_prompt)
-        print("Response - ", response.content)
+        print("Response - ", extract_response_text(response.content))
         self._update_total_cost(response_meta)
-        return response.content
+        return extract_response_text(response.content)
 
     def process(self):
         print("Generating Keywords")

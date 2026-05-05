@@ -1,11 +1,12 @@
 import tempfile
 from aiweb_common.file_operations.text_format import convert_markdown_docx
 from aiweb_common.generate.SingleResponse import SingleResponseHandler
-from aiweb_common.WorkflowHandler import WorkflowHandler
+from aiweb_common.WorkflowHandler import WorkflowHandler, extract_response_text
 import ScopingReview_config.boilerplate as boilerplate_config
 import ScopingReview_config.prompt_config as prompt_config
 from ScopingReview.Draft.Manager import DraftReviewManager
 from ScopingReview_config import config
+from ScopingReview_config.config import REASONING_EFFORT, _is_responses_api_model
 
 
 class DraftReview(WorkflowHandler):
@@ -23,11 +24,14 @@ class DraftReview(WorkflowHandler):
         self.drafter = DraftReviewManager(summaries, research_q)
         
         # Initialize LLM with dynamic configuration (like IRB Assistant)
+        _use_responses = _is_responses_api_model(openai_compatible_model)
         self._init_openai(
             openai_compatible_endpoint=openai_compatible_endpoint,
             openai_compatible_key=openai_compatible_key,
             openai_compatible_model=openai_compatible_model,
-            name="DraftReview"
+            name="DraftReview",
+            use_responses_api=_use_responses,
+            reasoning_effort=REASONING_EFFORT if _use_responses else None,
         )
         
         # Use self.llm_interface instead of config.LLM_INTERFACE
@@ -89,11 +93,11 @@ class DraftReview(WorkflowHandler):
         abstract, abstract_response_meta = self.single_response.generate_response(abstract_prompt)
         self._update_total_cost(abstract_response_meta)
         assembled_draft = self.drafter.assemble_document(
-            abstract_md=abstract.content,
-            intro_md=intro.content,
+            abstract_md=extract_response_text(abstract.content),
+            intro_md=extract_response_text(intro.content),
             methods_md=boilerplate_config.METHODOLOGY,
             results_md=non_citations,
-            conclusion_md=conclusion.content,
+            conclusion_md=extract_response_text(conclusion.content),
             citations_md=citations,
         )
         return assembled_draft

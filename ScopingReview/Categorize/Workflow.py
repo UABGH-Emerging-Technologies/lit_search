@@ -2,9 +2,10 @@ import tempfile
 from typing import Any, Tuple
 import pandas as pd
 from aiweb_common.generate.SingleResponse import SingleResponseHandler
-from aiweb_common.WorkflowHandler import WorkflowHandler
+from aiweb_common.WorkflowHandler import WorkflowHandler, extract_response_text
 from ScopingReview.Categorize.Manager import FastAPICategorizeManager
 from ScopingReview_config import config, prompt_config
+from ScopingReview_config.config import REASONING_EFFORT, _is_responses_api_model
 
 
 class CategorizeWorkflow(WorkflowHandler):
@@ -22,11 +23,14 @@ class CategorizeWorkflow(WorkflowHandler):
         self.manager = FastAPICategorizeManager(self.df, self.userdefined_categories)
         
         # Initialize LLM with dynamic configuration (like IRB Assistant)
+        _use_responses = _is_responses_api_model(openai_compatible_model)
         self._init_openai(
             openai_compatible_endpoint=openai_compatible_endpoint,
             openai_compatible_key=openai_compatible_key,
             openai_compatible_model=openai_compatible_model,
-            name="CategorizeWorkflow"
+            name="CategorizeWorkflow",
+            use_responses_api=_use_responses,
+            reasoning_effort=REASONING_EFFORT if _use_responses else None,
         )
         
         # Use self.llm_interface instead of config.FAST_LLM_INTERFACE
@@ -56,7 +60,7 @@ class CategorizeWorkflow(WorkflowHandler):
             )
             response, response_meta = self.single_response.generate_response(assembled_prompt)
             self._update_total_cost(response_meta)
-            assigned_categories = response.content.replace("'", "")
+            assigned_categories = extract_response_text(response.content).replace("'", "")
             reduced_df.loc[index, "category"] = assigned_categories.lower()
         try:
             print("Fetching Full Texts")

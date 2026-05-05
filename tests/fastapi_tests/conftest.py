@@ -180,7 +180,7 @@ def mock_external_calls(monkeypatch):
 
     # --- Patch aiweb_common.WorkflowHandler.WorkflowHandler._init_openai for legacy coverage ---
     # Patch WorkflowHandler._init_openai to assign a lightweight mock LLM interface and request attributes
-    def mock_init_openai(self, openai_compatible_endpoint, openai_compatible_key, openai_compatible_model, name=None):
+    def mock_init_openai(self, openai_compatible_endpoint, openai_compatible_key, openai_compatible_model, name=None, use_responses_api=False, reasoning_effort=None):
         # Assign a mock LLM interface so workflows expecting self.llm_interface do not fail
         class MockLLM:
             def invoke(self, prompt, *a, **kw):
