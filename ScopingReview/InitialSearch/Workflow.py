@@ -4,6 +4,7 @@ from aiweb_common.resource.PubMedQuery import PubMedQueryGenerator
 from aiweb_common.WorkflowHandler import WorkflowHandler
 from ScopingReview.InitialSearch.Manager import FastAPISearchManager
 from ScopingReview_config import app_config, config
+from ScopingReview_config.config import REASONING_EFFORT, _is_responses_api_model
 
 # Ensure Entrez is configured
 Entrez.email = config.DEV_EMAIL
@@ -41,11 +42,14 @@ class ArticleSearch(WorkflowHandler):
         self.research_question = research_question
         
         # Initialize LLM with dynamic configuration (like IRB Assistant)
+        _use_responses = _is_responses_api_model(openai_compatible_model)
         self._init_openai(
             openai_compatible_endpoint=openai_compatible_endpoint,
             openai_compatible_key=openai_compatible_key,
             openai_compatible_model=openai_compatible_model,
-            name="ArticleSearch"
+            name="ArticleSearch",
+            use_responses_api=_use_responses,
+            reasoning_effort=REASONING_EFFORT if _use_responses else None,
         )
         
         self.search_manager = FastAPISearchManager(

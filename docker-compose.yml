@@ -1,12 +1,20 @@
-lit_api:
-  image: ais-lindocker.anesthesiology.uab.edu:5000/lit_search:dev
-  command: uvicorn app.server:app --host 0.0.0.0 --port 8000
-  environment:
-    - PYTHONUNBUFFERED=1
-  volumes:
-    - /mnt/g/AINewsletter:/data/results
-  secrets:
-    - libkey_api_key
-    - ncbi_api_key
-  healthcheck:
-    test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+version: "3.9"
+
+services:
+  lit_api:
+    build: .
+    ports:
+      - "8000:8000"  # Adjusted to match the FastAPI configuration
+    environment:
+      PYTHONUNBUFFERED: "1"
+    secrets:
+      - libkey_api_key
+      - ncbi_api_key
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+
+secrets:
+  libkey_api_key:
+    file: /mnt/p/Secrets/libkey_api_key.txt
+  ncbi_api_key:
+    file: /mnt/p/Secrets/ncbi_api_key.txt
