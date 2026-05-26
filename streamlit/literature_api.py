@@ -8,24 +8,12 @@ import streamlit as st
 from requests.exceptions import ConnectionError
 
 
-# PUT YOUR API KEY HERE (between the quotes)
-API_KEY = "Api-key"
-#I have checked it with a key and it works
+API_KEY = os.environ.get("OPENAI_COMPATIBLE_KEY", "")
+AZURE_ENDPOINT = os.environ.get("OPENAI_COMPATIBLE_ENDPOINT", "")
+MODEL_NAME = os.environ.get("OPENAI_COMPATIBLE_MODEL", "gpt-4o")
 
-# PUT YOUR AZURE ENDPOINT HERE (just the base URL, NO /chat/completions at the end)
-# Example: "https://ai-web-speech.openai.azure.com/openai/deployments/model-router"
-AZURE_ENDPOINT = "https://proxy-ai-anes-uabmc-awefchfueccrddhf.eastus2-01.azurewebsites.net"
+API_BASE_URL = os.environ.get("LIT_ENDPOINT", "http://localhost:8000")
 
-# Model name to use
-MODEL_NAME = "gpt-4o"
-
-# ============================================================================
-# END CONFIGURATION
-# ============================================================================
-
-API_BASE_URL = os.getenv("LIT_SEARCH_API_BASE_URL", "http://localhost:8000")
-
-# Default LLM configuration
 DEFAULT_LLM_CONFIG = {
     "openai_compatible_endpoint": AZURE_ENDPOINT,
     "openai_compatible_model": MODEL_NAME
