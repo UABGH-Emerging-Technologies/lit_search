@@ -13,4 +13,4 @@ jobs:
       package-manager: "pip"
       requirements-path: "requirements.txt"
       scan-path: "."
-      python-version: "3.10"
+      python-version: "3.11"
