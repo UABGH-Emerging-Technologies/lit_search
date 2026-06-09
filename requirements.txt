@@ -8,7 +8,7 @@ aiohttp==3.14.1
     #   langchain-community
 aiosignal==1.4.0
     # via aiohttp
-aiweb-common @ git+https://github.com/UABPeriopAI/llm_utils.git@3d7abc67a50cbee3a9a7fdba57fc05e67f9c9b23
+aiweb-common @ git+https://github.com/UABPeriopAI/llm_utils.git@develop
     # via -r requirements.in
 altair==6.2.1
     # via streamlit
