@@ -7,25 +7,19 @@ import pandas as pd
 import streamlit as st
 from requests.exceptions import ConnectionError
 
+from aiweb_common.WorkflowHandler import manage_sensitive
 
-# PUT YOUR API KEY HERE (between the quotes)
-API_KEY = "Api-key"
-#I have checked it with a key and it works
 
-# PUT YOUR AZURE ENDPOINT HERE (just the base URL, NO /chat/completions at the end)
-# Example: "https://ai-web-speech.openai.azure.com/openai/deployments/model-router"
-AZURE_ENDPOINT = "https://proxy-ai-anes-uabmc-awefchfueccrddhf.eastus2-01.azurewebsites.net"
+# LLM credentials come from the shared secrets. manage_sensitive resolves, in order:
+# /run/secrets/<name> (compose mount) -> /workspaces/*/secrets/<name>.txt (devcontainer)
+# -> env var (.env / `make run`). So no .env is needed when the secrets are mounted.
+API_KEY = manage_sensitive("azure_proxy_key")
+AZURE_ENDPOINT = manage_sensitive("azure_proxy_endpoint")
+MODEL_NAME = os.environ.get("OPENAI_COMPATIBLE_MODEL", "gpt-4o")
 
-# Model name to use
-MODEL_NAME = "gpt-4o"
+# Backend URL: defaults to the compose service name; localhost for non-docker dev.
+API_BASE_URL = os.environ.get("LIT_ENDPOINT", "http://lit_api:8000")
 
-# ============================================================================
-# END CONFIGURATION
-# ============================================================================
-
-API_BASE_URL = os.getenv("LIT_SEARCH_API_BASE_URL", "http://localhost:8000")
-
-# Default LLM configuration
 DEFAULT_LLM_CONFIG = {
     "openai_compatible_endpoint": AZURE_ENDPOINT,
     "openai_compatible_model": MODEL_NAME

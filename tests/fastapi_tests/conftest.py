@@ -267,7 +267,7 @@ def perform_post_request():
                 "Authorization": "Bearer test_api_key"
             }
         
-        return client.post(url, content=json.dumps(data).encode("utf-8"), headers=headers)
+        return client.post(url, json=data, headers=headers)
     
     return do_post
 
