@@ -122,34 +122,29 @@ alongside other stacks without colliding on 8000/8501.
 
 ## Use Case: How to Use the Application
 
-1. **Start the Backend Server:**  
-   Run the backend API server using the command:  
-   ```bash
-   uvicorn app.server:app --host 0.0.0.0 --port 8000 --log-level debug
-   ```
+1. **Start the App:**  
+   Bring up the backend and Streamlit UI with `docker compose up --build` (see
+   [Running the App](#running-the-app)), then open <http://localhost:8501>.
 
-2. **Launch the Streamlit UI:**  
-   Open the Streamlit app (e.g., `streamlit/ScopingReview_api.py`) to access the interactive web interface.
-
-3. **Enter Research Question:**  
+2. **Enter Research Question:**  
    Input your research question or topic in the provided text area.
 
-4. **Perform Initial Search:**  
+3. **Perform Initial Search:**  
    Use the "first search" step to fetch relevant articles. Download the Excel results.
 
-5. **Refine Search with Keywords:**  
+4. **Refine Search with Keywords:**  
    Upload the Excel file and use the keyword suggestion and iterative search steps to refine your article list.
 
-6. **Categorize Articles:**  
+5. **Categorize Articles:**  
    Upload the refined Excel file and define categories to organize articles.
 
-7. **Summarize Categories:**  
+6. **Summarize Categories:**  
    Upload the categorized file to generate summaries in a Word document.
 
-8. **Draft Review:**  
+7. **Draft Review:**  
    Upload the summary document to generate a draft review document.
 
-9. **Generate Bibliography:**  
+8. **Generate Bibliography:**  
    Upload the finalized article list to generate a BibTeX bibliography file.
 
 This workflow guides users through a comprehensive scoping review process, leveraging AI-assisted search, categorization, summarization, and drafting tools.
