@@ -1,10 +1,8 @@
-version: "3.9"
-
 services:
   lit_api:
     build: .
     ports:
-      - "8000:8000"  # Adjusted to match the FastAPI configuration
+      - "${LIT_API_PORT:-8000}:8000"  # Adjusted to match the FastAPI configuration
     environment:
       PYTHONUNBUFFERED: "1"
     secrets:
@@ -13,8 +11,36 @@ services:
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
 
+  streamlit:
+    build: .
+    entrypoint: streamlit
+    command: run streamlit/ScopingReview_app.py --server.port=8501 --server.address=0.0.0.0
+    ports:
+      - "${LIT_STREAMLIT_PORT:-8501}:8501"
+    environment:
+      PYTHONUNBUFFERED: "1"
+      LIT_ENDPOINT: http://lit_api:8000  # reach the backend over compose DNS
+    secrets:
+      - azure_proxy_key
+      - azure_proxy_endpoint
+    depends_on:
+      lit_api:
+        condition: service_healthy
+
 secrets:
   libkey_api_key:
     file: /mnt/p/Secrets/libkey_api_key.txt
+    # ── .env alternative ────────────────────────────────────────────────
+    # No /mnt/p/Secrets mount? Comment the `file:` line above, uncomment the
+    # `environment:` line below, then `cp .env.example .env` and fill it in.
+    # A secret takes exactly one source — keep only one of the two active.
+    # environment: libkey_api_key
   ncbi_api_key:
     file: /mnt/p/Secrets/ncbi_api_key.txt
+    # environment: ncbi_api_key
+  azure_proxy_key:
+    file: /mnt/p/Secrets/azure_proxy_key.txt
+    # environment: azure_proxy_key
+  azure_proxy_endpoint:
+    file: /mnt/p/Secrets/azure_proxy_endpoint.txt
+    # environment: azure_proxy_endpoint

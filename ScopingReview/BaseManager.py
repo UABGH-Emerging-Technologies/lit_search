@@ -247,7 +247,7 @@ class BaseManager:
             # Iterate over the DataFrame columns to set the column width
             for idx, col in enumerate(df.columns):
                 # Find the maximum length of data in the column
-                column_len = df[col].astype(str).map(len).max()
+                column_len = df[col].fillna("").astype(str).str.len().max()
                 column_title_len = len(col)
                 max_len = min(100, max(column_len, column_title_len))
 
