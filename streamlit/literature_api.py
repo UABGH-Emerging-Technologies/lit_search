@@ -7,12 +7,18 @@ import pandas as pd
 import streamlit as st
 from requests.exceptions import ConnectionError
 
+from aiweb_common.WorkflowHandler import manage_sensitive
 
-API_KEY = os.environ.get("OPENAI_COMPATIBLE_KEY", "")
-AZURE_ENDPOINT = os.environ.get("OPENAI_COMPATIBLE_ENDPOINT", "")
+
+# LLM credentials come from the shared secrets. manage_sensitive resolves, in order:
+# /run/secrets/<name> (compose mount) -> /workspaces/*/secrets/<name>.txt (devcontainer)
+# -> env var (.env / `make run`). So no .env is needed when the secrets are mounted.
+API_KEY = manage_sensitive("azure_proxy_key")
+AZURE_ENDPOINT = manage_sensitive("azure_proxy_endpoint")
 MODEL_NAME = os.environ.get("OPENAI_COMPATIBLE_MODEL", "gpt-4o")
 
-API_BASE_URL = os.environ.get("LIT_ENDPOINT", "http://localhost:8000")
+# Backend URL: defaults to the compose service name; localhost for non-docker dev.
+API_BASE_URL = os.environ.get("LIT_ENDPOINT", "http://lit_api:8000")
 
 DEFAULT_LLM_CONFIG = {
     "openai_compatible_endpoint": AZURE_ENDPOINT,
