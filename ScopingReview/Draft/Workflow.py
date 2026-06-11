@@ -10,6 +10,19 @@ from ScopingReview_config.config import REASONING_EFFORT, _is_responses_api_mode
 
 
 class DraftReview(WorkflowHandler):
+    """Generates a first draft of a scoping review from category summaries.
+
+    Produces introduction, conclusion, and abstract sections via LLM, then
+    assembles them with a boilerplate methodology and the original results.
+
+    Args:
+        summaries: Markdown string of all category summaries.
+        research_q: The research question.
+        openai_compatible_endpoint: LLM API endpoint URL.
+        openai_compatible_key: LLM API key.
+        openai_compatible_model: LLM model identifier.
+    """
+
     def __init__(
         self,
         summaries,
@@ -38,11 +51,24 @@ class DraftReview(WorkflowHandler):
         self.single_response = SingleResponseHandler(self.llm_interface)
 
     def draft_review(self):
+        """Generate the full draft if summaries are available.
+
+        Returns:
+            Assembled draft markdown string, or ``None`` if no summaries.
+        """
         if self.summaries is not None:
             markdown_to_convert = self.write_first_draft()
             return markdown_to_convert
 
     def assemble_intro_prompt(self, summaries_no_bib):
+        """Build the LLM prompt for drafting the introduction section.
+
+        Args:
+            summaries_no_bib: List of summary paragraphs without bibliography lines.
+
+        Returns:
+            Assembled LLM prompt.
+        """
         print("assembling intro prompt")
         assembled_prompt = self.single_response.single_response_service.preparer.assemble_prompt(
             system_prompt=prompt_config.SYSTEM_DRAFT_TEMPLATE,
@@ -53,6 +79,15 @@ class DraftReview(WorkflowHandler):
         return assembled_prompt
 
     def assemble_conclusion_prompt(self, summaries_no_bib, intro):
+        """Build the LLM prompt for drafting the conclusion section.
+
+        Args:
+            summaries_no_bib: List of summary paragraphs without bibliography lines.
+            intro: The generated introduction text.
+
+        Returns:
+            Assembled LLM prompt.
+        """
         print("assembling conclusion prompt")
         assembled_prompt = self.single_response.single_response_service.preparer.assemble_prompt(
             system_prompt=prompt_config.SYSTEM_DRAFT_TEMPLATE,
@@ -64,6 +99,16 @@ class DraftReview(WorkflowHandler):
         return assembled_prompt
 
     def assemble_abstract_prompt(self, summaries_no_bib, intro, conclusion):
+        """Build the LLM prompt for drafting the abstract.
+
+        Args:
+            summaries_no_bib: List of summary paragraphs without bibliography lines.
+            intro: The generated introduction text.
+            conclusion: The generated conclusion text.
+
+        Returns:
+            Assembled LLM prompt.
+        """
         print("assembling abstract prompt")
         assembled_prompt = self.single_response.single_response_service.preparer.assemble_prompt(
             system_prompt=prompt_config.SYSTEM_DRAFT_TEMPLATE,
@@ -77,6 +122,11 @@ class DraftReview(WorkflowHandler):
         return assembled_prompt
 
     def write_first_draft(self):
+        """Generate all draft sections via LLM and assemble the complete document.
+
+        Returns:
+            Full draft markdown string.
+        """
         citations, non_citations = self.drafter.extract_apa_citations(self.summaries)
         # prep introduction
         intro_prompt = self.assemble_intro_prompt(non_citations)
@@ -103,5 +153,10 @@ class DraftReview(WorkflowHandler):
         return assembled_draft
 
     def process(self):
+        """Run the draft generation workflow.
+
+        Returns:
+            Full draft markdown string.
+        """
         draft_md = self.draft_review()
         return draft_md

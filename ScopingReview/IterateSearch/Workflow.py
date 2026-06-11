@@ -13,6 +13,21 @@ os.environ["NCBI_API_KEY"] = app_config.NCBI_API_KEY
 
 
 class IterateSearch(ArticleSearch):
+    """Refines PubMed search results using keyword-enriched queries.
+
+    Extends :class:`ArticleSearch` by incorporating keywords extracted in a
+    prior step.  Produces a merged, deduplicated article DataFrame that
+    preserves relevance annotations from the initial search.
+
+    Args:
+        df: Article DataFrame from the initial search.
+        research_question: The research question.
+        keywords: :class:`KeywordData` with keyword lists.
+        openai_compatible_endpoint: LLM API endpoint URL.
+        openai_compatible_key: LLM API key.
+        openai_compatible_model: LLM model identifier.
+    """
+
     def __init__(
         self,
         df: pd.DataFrame,
@@ -43,6 +58,11 @@ class IterateSearch(ArticleSearch):
         )
 
     def process(self):
+        """Refine the search query with keywords, execute, and merge results.
+
+        Returns:
+            Tuple of (merged_articles_df, refined_query_string).
+        """
         print("Refining Query with Keywords")
         refined_query = self.iterate_search_manager.refine_query()
         

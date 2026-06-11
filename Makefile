@@ -11,13 +11,15 @@ endif
 .PHONY: help
 help:
 	@echo "Commands:"
-	@echo "run     : starts backend (uvicorn) and frontend (streamlit) together."
-	@echo "backend : starts only the uvicorn backend on port 8000."
-	@echo "frontend: starts only the streamlit frontend on port 8501."
-	@echo "venv    : creates a virtual environment."
-	@echo "style   : executes style formatting."
-	@echo "test    : runs test suite with pytest."
-	@echo "clean   : cleans all unnecessary files."
+	@echo "run       : starts backend (uvicorn) and frontend (streamlit) together."
+	@echo "backend   : starts only the uvicorn backend on port 8000."
+	@echo "frontend  : starts only the streamlit frontend on port 8501."
+	@echo "venv      : creates a virtual environment."
+	@echo "style     : executes style formatting."
+	@echo "test      : runs test suite with pytest."
+	@echo "docs      : builds documentation site (strict mode)."
+	@echo "docs-serve: starts live-reloading documentation server."
+	@echo "clean     : cleans all unnecessary files."
 
 # Testing
 .PHONY: test
@@ -51,6 +53,14 @@ venv:
 	source venv/bin/activate && \
 	python3 -m pip install pip setuptools wheel && \
 	python3 -m pip install -e .
+
+# Documentation
+.PHONY: docs docs-serve
+docs:
+	mkdocs build
+
+docs-serve:
+	mkdocs serve
 
 # Cleaning
 .PHONY: clean

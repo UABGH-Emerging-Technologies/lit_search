@@ -9,6 +9,16 @@ from ScopingReview_config.config import REASONING_EFFORT, _is_responses_api_mode
 
 
 class CategorizeWorkflow(WorkflowHandler):
+    """Assigns user-defined categories to articles via LLM and fetches full text.
+
+    Args:
+        df: Article DataFrame to categorize.
+        userdefined_categories: Comma-separated category labels.
+        openai_compatible_endpoint: LLM API endpoint URL.
+        openai_compatible_key: LLM API key.
+        openai_compatible_model: LLM model identifier.
+    """
+
     def __init__(
         self,
         df,
@@ -37,15 +47,22 @@ class CategorizeWorkflow(WorkflowHandler):
         self.single_response = SingleResponseHandler(self.llm_interface)
 
     def _prep_df_for_categorization(self):
+        """Filter the article DataFrame to only relevant rows for categorization."""
         reduced_df = self.manager.get_relevant_rows().copy()
         return reduced_df
 
     def _prep_categorylist(self):
+        """Parse the comma-separated category string into a cleaned list."""
         input_list = self.userdefined_categories.split(",")
         input_list = [value.strip() for value in input_list if value.strip()]
         return input_list
 
     def categorize_articles(self):
+        """Categorize each relevant article via LLM and fetch full text.
+
+        Returns:
+            DataFrame with ``category`` and ``Text`` columns added.
+        """
         reduced_df = self._prep_df_for_categorization()
         input_list = self._prep_categorylist()
         for index, row in reduced_df.iterrows():
@@ -71,6 +88,14 @@ class CategorizeWorkflow(WorkflowHandler):
         return category_df
 
     def get_tempfile_excel(self, category_df):
+        """Write categorized articles to a temporary Excel file.
+
+        Args:
+            category_df: DataFrame with assigned categories.
+
+        Returns:
+            Path to the temporary Excel file.
+        """
         category_df.drop_duplicates(subset="PMID", keep="first", inplace=True)
         with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmpfile:
             self.manager.write_excel_output(
@@ -82,6 +107,11 @@ class CategorizeWorkflow(WorkflowHandler):
         return tmpfile.name
 
     def process(self):
+        """Run the full categorization workflow.
+
+        Returns:
+            DataFrame with categories assigned, or ``None`` if no data.
+        """
         if self.df is not None:
             category_df = self.categorize_articles()
             return category_df

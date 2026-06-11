@@ -8,6 +8,20 @@ from ScopingReview_config import config
 
 
 class BaseIterateSearchManager(BaseSearchManager):
+    """Refines an initial PubMed search by incorporating extracted keywords.
+
+    Takes the article DataFrame and keyword lists from a previous step, builds
+    an enriched query prompt, and manages the iterative search-merge cycle.
+
+    Args:
+        df: Article DataFrame from the initial search.
+        research_q: The research question.
+        keywords: :class:`KeywordData` with primary, secondary, and exclusion lists.
+        openai_compatible_endpoint: LLM API endpoint URL.
+        openai_compatible_key: LLM API key.
+        openai_compatible_model: LLM model identifier.
+    """
+
     def __init__(
         self,
         df,
@@ -46,6 +60,11 @@ class BaseIterateSearchManager(BaseSearchManager):
         return config.EXCEL_MIME
 
     def _prepare_query_with_keywords(self):
+        """Build a query prompt string incorporating primary, secondary, and exclusion keywords.
+
+        Returns:
+            The assembled query prompt string.
+        """
         self.query_prompt = (
             "Overall Research Question: "
             + self.research_q
@@ -60,14 +79,25 @@ class BaseIterateSearchManager(BaseSearchManager):
         return self.query_prompt
 
     def determine_keywords(self):
+        """Run the keyword workflow to extract new keywords from the current article set.
+
+        Returns:
+            :class:`KeywordData` with updated keyword lists.
+        """
         generated_keywords = self.keyword_workflow.process()
         self.primary_keywords, self.secondary_keywords, self.exclusion_keywords = generated_keywords
         return generated_keywords
 
     def refine_query(self):
+        """Prepare and return a keyword-enriched query prompt."""
         return self._prepare_query_with_keywords()
 
     def update_articles(self, articles_df):
+        """Merge new articles into the existing selection, dropping duplicates by PMID.
+
+        Args:
+            articles_df: Newly fetched article DataFrame to merge.
+        """
         self.selected_articles_df = pd.concat(
             [self.selected_articles_df, articles_df], ignore_index=True
         )
@@ -75,6 +105,8 @@ class BaseIterateSearchManager(BaseSearchManager):
 
 
 class FastAPIIterateSearchManager(BaseIterateSearchManager):
+    """FastAPI-oriented iterate-search manager."""
+
     def __init__(
         self,
         df: pd.DataFrame,

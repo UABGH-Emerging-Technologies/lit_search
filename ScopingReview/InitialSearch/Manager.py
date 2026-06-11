@@ -15,6 +15,16 @@ from ScopingReview.BaseManager import BaseManager
 
 
 class BaseSearchManager(BaseManager):
+    """Manages PubMed article search and retrieval for a scoping review step.
+
+    Extends :class:`BaseManager` with PubMed-specific search capabilities
+    including query execution, article fetching, and result formatting.
+
+    Args:
+        scoping_step: Identifier for the current scoping review step.
+        research_q: The research question driving the literature search.
+    """
+
     def __init__(self, scoping_step, research_q):
         self.scoping_step = scoping_step
         self.research_q = research_q
@@ -25,6 +35,14 @@ class BaseSearchManager(BaseManager):
         self.pubmed_interface = PubMedInterface()
 
     def _fetch_articles(self, query):
+        """Execute a PubMed query and return a formatted DataFrame of article details.
+
+        Args:
+            query: PubMed search string.
+
+        Returns:
+            DataFrame with article metadata and author-relevance columns.
+        """
         article_ids = self.pubmed_interface.search_pubmed_articles(query)
         articles_df = self.pubmed_interface.fetch_article_details(article_ids)
         articles_df = self.make_initial_df(articles_df)
@@ -38,16 +56,25 @@ class BaseSearchManager(BaseManager):
 
 
 class FastAPISearchManager(BaseSearchManager):
+    """FastAPI-oriented search manager with no additional state beyond the base class."""
+
     def __init__(self, scoping_step, research_q):
         super().__init__(scoping_step, research_q)
 
 
 # TODO Add back later
 class StreamlitSearchManager(BaseSearchManager):
+    """Streamlit UI wrapper around :class:`BaseSearchManager`.
+
+    Manages session-state locking and provides download buttons for search
+    results rendered inside a Streamlit app.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if "lock" not in st.session_state:
             st.session_state["lock"] = False
+
     def search_loop(self):
         query_string = self.generate_and_refine_query()
         articles_df = self._fetch_articles(query_string)
