@@ -1,3 +1,5 @@
+"""Boilerplate text templates for methodology sections and newsletter formatting."""
+
 METHODOLOGY = """
 # Methodology
 Paraphrase this methodology section: 

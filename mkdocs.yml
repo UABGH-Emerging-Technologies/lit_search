@@ -1,19 +1,57 @@
-# mkdocs.yml
-site_name: FILL OUT
-site_url: https://sites.uab.edu/periop-datascience/
-repo_url: https://gitlab.rc.uab.edu/anes_ai/llm_apps/scopingreview.git
+site_name: Lit Search
+site_description: Automated literature searches and scoping reviews
+site_url: https://uabgh-emerging-technologies.github.io/lit_search/
+repo_url: https://github.com/UABGH-Emerging-Technologies/lit_search
+repo_name: UABGH-Emerging-Technologies/lit_search
+
+theme:
+  name: material
+  features:
+    - content.code.copy
+    - navigation.sections
+    - navigation.expand
+    - toc.integrate
+
 nav:
   - Home: index.md
-  - workflows:
-    - main: ScopingReview/main.md
-  - ScopingReview:
-    - plotter: ScopingReview/plotter.md
-    - data: ScopingReview/data.md
-    - generate: ScopingReview/generate.md
-    - prompts: ScopingReview/prompts.md
-    - utils: ScopingReview/utils.md
-theme: readthedocs
+  - Getting Started: getting-started.md
+  - Architecture: architecture.md
+  - Scoping Workflow:
+      - Overview: scoping/overview.md
+      - "Step 1 - Initial Search": scoping/step1.md
+      - "Step 2a - Keyword Extraction": scoping/step2-keywords.md
+      - "Step 2b - Iterative Search": scoping/step2-iteration.md
+      - "Step 3 - Categorization": scoping/step3.md
+      - "Step 4 - Summarization": scoping/step4.md
+      - "Step 5 - Draft Generation": scoping/step5.md
+  - Standalone Tools:
+      - Summary: standalone/summary.md
+      - Bibliography: standalone/bibliography.md
+  - Core:
+      - BaseManager: core/base-manager.md
+      - "CLI (main)": core/main.md
+  - Configuration:
+      - Config: config/config.md
+      - App Config: config/app-config.md
+      - Prompt Templates: config/prompts.md
+      - Boilerplate: config/boilerplate.md
+  - Newsletter: newsletter.md
+
 plugins:
-  - mkdocstrings
+  - search
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          options:
+            docstring_style: google
+            show_source: true
+            show_root_heading: true
+            show_root_full_path: false
+            heading_level: 2
+            members_order: source
+            show_signature_annotations: true
+
 watch:
-  - .  # reload docs for any file changes
+  - ScopingReview
+  - ScopingReview_config

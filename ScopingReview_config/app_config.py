@@ -1,3 +1,5 @@
+"""Application metadata and external API key management."""
+
 from aiweb_common.WorkflowHandler import manage_sensitive
 
 NAME = "lit"

@@ -1,3 +1,10 @@
+"""LLM prompt templates for each workflow step.
+
+Provides system and user prompts for PubMed query generation, keyword
+extraction, article categorization, summarization, newsletter digests,
+and scoping review draft sections.
+"""
+
 PUBMED_SYSTEM_PROMPT = (
     """You are a helpful AI assistant with expertise in creating PubMed Queries"""
 )

@@ -6,6 +6,16 @@ from ScopingReview_config.config import REASONING_EFFORT, _is_responses_api_mode
 
 
 class KeywordWorkflow(WorkflowHandler):
+    """Generates primary, secondary, and exclusion keywords from article metadata via LLM.
+
+    Args:
+        df: Article DataFrame with titles and keywords.
+        research_question: The research question for keyword context.
+        openai_compatible_endpoint: LLM API endpoint URL.
+        openai_compatible_key: LLM API key.
+        openai_compatible_model: LLM model identifier.
+    """
+
     def __init__(
         self,
         df,
@@ -34,6 +44,11 @@ class KeywordWorkflow(WorkflowHandler):
         self.keyword_manager = KeywordManager(self.df, self.research_question)
 
     def initialize_keywords(self):
+        """Call the LLM to generate keyword suggestions from article titles and existing keywords.
+
+        Returns:
+            Raw LLM response text containing keyword JSON.
+        """
         relevant_rows = self.keyword_manager.get_relevant_rows()
         all_titles = relevant_rows["title"].tolist()
         formatted_keywords = self.keyword_manager.format_keywords(relevant_rows)
@@ -50,6 +65,11 @@ class KeywordWorkflow(WorkflowHandler):
         return extract_response_text(response.content)
 
     def process(self):
+        """Run the full keyword extraction workflow.
+
+        Returns:
+            :class:`KeywordData` with primary, secondary, and exclusion keywords.
+        """
         print("Generating Keywords")
         generated_keywords_json = self.initialize_keywords()
         print(generated_keywords_json)

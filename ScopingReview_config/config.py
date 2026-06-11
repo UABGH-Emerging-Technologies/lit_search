@@ -1,4 +1,5 @@
-# config.py
+"""Application configuration: file paths, thresholds, PubMed settings, and newsletter queries."""
+
 import re
 import sys
 from pathlib import Path

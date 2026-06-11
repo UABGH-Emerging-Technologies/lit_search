@@ -16,8 +16,7 @@ with open(requirements_path, encoding="utf8") as file:
         else:
             required_packages.append(ln)
 
-docs_packages = ["mkdocs", "mkdocstrings"]
-
+docs_packages = ["mkdocs", "mkdocstrings[python]", "mkdocs-material"]
 style_packages = ["black", "flake8", "isort"]
 
 dev_packages = ["pip-tools", "pandas", "pytest", "pytest-asyncio", "pytest-mock"]
@@ -29,7 +28,7 @@ setup(
     description="scoping review literature tool",
     author="Perioperative Data Science at UAB",
     author_email="rmelvin@uabmc.edu",
-    url="https://gitlab.rc.uab.edu/anes_ai/llm_apps/scopingreview.git",
+    url="https://github.com/UABGH-Emerging-Technologies/lit_search",
     python_requires=">=3.11",
     packages=find_packages(),  # only look in directores with __init__.py
     install_requires=[required_packages],

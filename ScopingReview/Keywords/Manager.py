@@ -10,6 +10,8 @@ from ScopingReview.BaseManager import BaseManager
 
 
 class KeywordData(BaseModel):
+    """Pydantic model holding the three keyword lists produced by keyword extraction."""
+
     primary_keywords: List[str] = Field(
         ..., example=["keyword1", "keyword2"], description="List of primary keywords"
     )
@@ -22,12 +24,27 @@ class KeywordData(BaseModel):
 
 
 class KeywordManager(BaseManager):
+    """Extracts, cleans, and formats keywords from article metadata.
+
+    Args:
+        df: DataFrame of articles with ``keywords`` and ``title`` columns.
+        research_q: The research question for context.
+    """
+
     def __init__(self, df, research_q):
         super().__init__(df)
         self.research_q = research_q
 
     @staticmethod
     def _extract_json_from_markdown(markdown_text):
+        """Extract the first JSON object embedded in a markdown string.
+
+        Args:
+            markdown_text: Raw markdown text potentially containing JSON.
+
+        Returns:
+            Parsed dict on success, or an error-description string on failure.
+        """
         # Regular expression to match JSON object within markdown
         json_pattern = re.compile(r"\{.*?\}", re.DOTALL)
 
@@ -45,6 +62,14 @@ class KeywordManager(BaseManager):
             return "No JSON object found."
 
     def _clean_keywords(self, keywords):
+        """Strip special characters from a list of keyword strings.
+
+        Args:
+            keywords: Raw keyword strings.
+
+        Returns:
+            List of cleaned keyword strings.
+        """
         cleaned_keywords = []
         for keyword in keywords:
             keyword = (
@@ -60,6 +85,14 @@ class KeywordManager(BaseManager):
         return cleaned_keywords
 
     def _clean_title(self, title):
+        """Strip special characters from an article title.
+
+        Args:
+            title: Raw title string.
+
+        Returns:
+            Cleaned title string.
+        """
         title = (
             title.strip()
             .replace("'", "")
@@ -72,6 +105,14 @@ class KeywordManager(BaseManager):
         return title
 
     def format_keywords(self, relevant_rows):
+        """Count keyword frequencies across relevant articles and return formatted strings.
+
+        Args:
+            relevant_rows: DataFrame filtered to relevant articles.
+
+        Returns:
+            List of strings in ``"keyword xN"`` format.
+        """
         all_keywords = []
         for keywords in relevant_rows["keywords"]:
             keywords_list = [keyword.strip().lower() for keyword in keywords.split(",")]
@@ -88,6 +129,7 @@ class KeywordManager(BaseManager):
         return formatted_keywords
 
     def get_unique_keywords(self):
+        """Return a comma-separated string of unique keywords from relevant articles."""
         self.df["Relevant"] = self.df.apply(self._check_relevance, axis=1)
         relevant_df = self.df.dropna(subset=["Relevant"])
 
@@ -100,6 +142,14 @@ class KeywordManager(BaseManager):
         return unique_keywords_str
 
     def parse_keywords(self, content):
+        """Parse LLM-generated keyword JSON into three separate lists.
+
+        Args:
+            content: Raw LLM response text containing embedded JSON.
+
+        Returns:
+            Tuple of (primary_keywords, secondary_keywords, exclusion_keywords).
+        """
         data = self._extract_json_from_markdown(content)
         # _extract_json_from_markdown may return a dict when successful, or a string/error message when not.
         # Defensively handle non-dict returns to avoid AttributeError/TypeError in production/tests.
@@ -113,6 +163,13 @@ class KeywordManager(BaseManager):
         return primary_keywords, secondary_keywords, exclusion_keywords
 
     def write_keywords_excel_output(self, tmpfile, df, unique_keywords_str):
+        """Write article data and unique keywords to a two-sheet Excel file.
+
+        Args:
+            tmpfile: Named temporary file object for Excel output.
+            df: Article DataFrame to write to Sheet1.
+            unique_keywords_str: Comma-separated keywords for Sheet2.
+        """
         with pd.ExcelWriter(tmpfile.name, engine="xlsxwriter") as writer:
             df.to_excel(writer, index=False, sheet_name="Sheet1")
             df_keywords = pd.DataFrame([unique_keywords_str], columns=["Unique Keywords"])

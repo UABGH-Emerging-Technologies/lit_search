@@ -15,6 +15,16 @@ from ScopingReview_config import config
 
 
 class BibliographyManager(BaseManager):
+    """Converts PubMed article identifiers to BibTeX format.
+
+    Accepts either an Excel DataFrame or raw DOCX text containing PMIDs,
+    fetches citation metadata from NCBI Entrez, and formats it as BibTeX.
+
+    Args:
+        file_contents: DataFrame (for XLSX) or text string (for DOCX) with PMIDs.
+        file_ext: File extension of the source (``".xlsx"`` or ``".docx"``).
+    """
+
     def __init__(self, file_contents, file_ext):
         self.file_contents = file_contents
         self.file_ext = file_ext
@@ -25,6 +35,14 @@ class BibliographyManager(BaseManager):
         return config.SR_STEP6_FILENAME
 
     def _get_PMID_list(self):
+        """Extract a list of PMID strings from the loaded file contents.
+
+        Returns:
+            List of PMID strings.
+
+        Raises:
+            ValueError: If PMIDs cannot be found in the expected format.
+        """
         if self.file_ext == ".xlsx":
             if "PMID" in self.df.columns:
                 return self.df["PMID"].astype(str).tolist()
@@ -38,6 +56,14 @@ class BibliographyManager(BaseManager):
                 raise ValueError("Bibliography not in expected format.")
 
     def _pmid2bibtex(self, pmids: list):
+        """Fetch citation metadata from NCBI Entrez and format as BibTeX.
+
+        Args:
+            pmids: List of PubMed ID strings.
+
+        Returns:
+            Complete BibTeX string for all resolved articles.
+        """
         ## Adapted from: https://gist.github.com/tommycarstensen/ec3c57761f3846c339de925b66f4ac1b
         ## Fetch XML data from Entrez.
         efetch = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
@@ -142,6 +168,14 @@ class BibliographyManager(BaseManager):
         return whole_bibtex
 
     def convert_pmid_to_bibtex(self):
+        """Run the full PMID-to-BibTeX conversion pipeline.
+
+        Returns:
+            BibTeX-formatted string.
+
+        Raises:
+            ValueError: If no PMIDs are found to convert.
+        """
         pmid_list = self._get_PMID_list()
         if not pmid_list:
             raise ValueError("No PMIDs found to convert to BibTeX.")
@@ -150,6 +184,8 @@ class BibliographyManager(BaseManager):
 
 
 class StreamlitBibtexManager(BibliographyManager):
+    """Streamlit UI wrapper for BibTeX conversion with download buttons."""
+
     def __init__(self, df, file_ext):
         super().__init__(df, file_ext)
         st.session_state["file_uploaded_bibtex"] = (
@@ -172,7 +208,9 @@ class StreamlitBibtexManager(BibliographyManager):
 
 
 class FastAPIBibtexManager(BibliographyManager):
-    def __init__(self, content: Union[pd.DataFrame, str], file_ext: str) -> Response:
+    """FastAPI-oriented BibTeX manager with temp-file output."""
+
+    def __init__(self, content: Union[pd.DataFrame, str], file_ext: str) -> None:
         super().__init__(content, file_ext)
 
     def convert_and_download_bibtex(self):

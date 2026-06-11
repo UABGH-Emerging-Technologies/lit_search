@@ -9,6 +9,15 @@ from ScopingReview_config.config import REASONING_EFFORT, _is_responses_api_mode
 
 
 class StandaloneSummary(WorkflowHandler):
+    """One-step literature summary: searches PubMed, summarizes abstracts, outputs DOCX.
+
+    Args:
+        research_question: The research question to investigate.
+        openai_compatible_endpoint: LLM API endpoint URL.
+        openai_compatible_key: LLM API key.
+        openai_compatible_model: LLM model identifier.
+    """
+
     def __init__(
         self,
         research_question,
@@ -42,6 +51,15 @@ class StandaloneSummary(WorkflowHandler):
         self.single_response = SingleResponseHandler(self.llm_interface)
 
     def format_response(self, summary, df):
+        """Format the summary and article citations into a DOCX byte string.
+
+        Args:
+            summary: LLM-generated summary text.
+            df: Article DataFrame with ``citation`` column.
+
+        Returns:
+            DOCX file content as bytes.
+        """
         output = str(
             "# Literature summary \n\n"
             + "_"
@@ -57,6 +75,14 @@ class StandaloneSummary(WorkflowHandler):
         return docx_data
 
     def assemble_standalone_prompt(self, abstracts):
+        """Build the LLM prompt for a standalone literature summary.
+
+        Args:
+            abstracts: Concatenated abstract text with APA citations.
+
+        Returns:
+            Assembled LLM prompt.
+        """
         print("assembling standalone prompt")
         assembled_prompt = self.single_response.single_response_service.preparer.assemble_prompt(
             system_prompt=prompt_config.STANDALONE_SUMMARY_TEMPLATE,
@@ -67,6 +93,14 @@ class StandaloneSummary(WorkflowHandler):
         return assembled_prompt
 
     def summarize_from_abstracts(self, articles_df):
+        """Summarize all article abstracts into a single literature summary.
+
+        Args:
+            articles_df: DataFrame with ``citation`` and ``abstract`` columns.
+
+        Returns:
+            LLM response object containing the summary.
+        """
         article_abstracts = []
         for _, row in articles_df.iterrows():
             single_abstract = f"APA Citation: {row.citation}\n\n Abstract: {row.abstract}\n\n --- "
@@ -78,6 +112,11 @@ class StandaloneSummary(WorkflowHandler):
         return summary
 
     def process(self):
+        """Run the full standalone summary workflow: search, summarize, output DOCX.
+
+        Returns:
+            Path to the temporary DOCX file, or ``None`` on failure.
+        """
         articles_df = self.searcher.process()
         self.total_cost += self.searcher.total_cost
         summary_body = self.summarize_from_abstracts(articles_df)

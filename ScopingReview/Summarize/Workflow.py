@@ -15,6 +15,18 @@ from ScopingReview_config.config import REASONING_EFFORT, _is_responses_api_mode
 
 
 class SummarizeArticles(WorkflowHandler):
+    """Summarizes categorized articles using chunked LLM calls and generates per-category outputs.
+
+    Supports both scoping-review summaries and newsletter-style digests.
+
+    Args:
+        df: Categorized article DataFrame with ``category`` and ``Text`` columns.
+        research_q: The research question.
+        openai_compatible_endpoint: LLM API endpoint URL.
+        openai_compatible_key: LLM API key.
+        openai_compatible_model: LLM model identifier.
+    """
+
     def __init__(
         self,
         df,
@@ -45,6 +57,14 @@ class SummarizeArticles(WorkflowHandler):
         self.single_response = SingleResponseHandler(self.llm_interface)
 
     def assemble_initial_summary_prompt(self, first_chunk):
+        """Build the prompt for summarizing the first text chunk of an article.
+
+        Args:
+            first_chunk: First text chunk from the article splitter.
+
+        Returns:
+            Assembled LLM prompt.
+        """
         print("assembling prompts")
         assembled_prompt = (
             self.fast_single_response.single_response_service.preparer.assemble_prompt(
@@ -56,6 +76,15 @@ class SummarizeArticles(WorkflowHandler):
         return assembled_prompt
 
     def assemble_next_summary_prompt(self, current_summary, next_chunk):
+        """Build the prompt for refining a summary with the next text chunk.
+
+        Args:
+            current_summary: The running summary so far.
+            next_chunk: Next text chunk to incorporate.
+
+        Returns:
+            Assembled LLM prompt.
+        """
         print("assembling prompts")
         assembled_prompt = (
             self.fast_single_response.single_response_service.preparer.assemble_prompt(
@@ -68,6 +97,15 @@ class SummarizeArticles(WorkflowHandler):
         return assembled_prompt
 
     def assemble_category_summary_prompt(self, articles_category, articles_summaries):
+        """Build the prompt for creating a per-category summary of article summaries.
+
+        Args:
+            articles_category: The category label.
+            articles_summaries: Concatenated article summaries text.
+
+        Returns:
+            Assembled LLM prompt.
+        """
         print("assembling prompts")
         assembled_prompt = self.single_response.single_response_service.preparer.assemble_prompt(
             system_prompt=prompt_config.SUMMARIZE_CATEGORY_TEMPLATE,
@@ -79,6 +117,15 @@ class SummarizeArticles(WorkflowHandler):
         return assembled_prompt
 
     def assemble_newsletter_prompt(self, anes_category, articles_summaries):
+        """Build the prompt for a newsletter-style digest of a category.
+
+        Args:
+            anes_category: Anesthesiology subcategory name.
+            articles_summaries: Concatenated article summaries text.
+
+        Returns:
+            Assembled LLM prompt.
+        """
         assembled_prompt = self.single_response.single_response_service.preparer.assemble_prompt(
             system_prompt=prompt_config.SUMMARIZE_NEWSLETTER_TEMPLATE,
             user_prompt=prompt_config.SUMMARIZE_HUMAN_TEMPLATE,
@@ -88,6 +135,17 @@ class SummarizeArticles(WorkflowHandler):
         return assembled_prompt
 
     def summarize_article_in_chunks(self, article_text):
+        """Summarize a single article by splitting it into token-sized chunks.
+
+        Uses a map-reduce strategy: summarize the first chunk, then iteratively
+        refine with each subsequent chunk.
+
+        Args:
+            article_text: Full text of the article.
+
+        Returns:
+            Final summary string.
+        """
         # Splitting the article text into manageable chunks
         text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
             chunk_size=13000, chunk_overlap=1000
@@ -114,6 +172,15 @@ class SummarizeArticles(WorkflowHandler):
         return extract_response_text(summary.content)
 
     def summarize_all_categories(self, newsletter_flag=False):
+        """Summarize articles across all categories.
+
+        Args:
+            newsletter_flag: If ``True``, generate newsletter-style output instead
+                of scoping-review summaries.
+
+        Returns:
+            Combined markdown string of all category summaries.
+        """
         # use abtract when text is not available.
         self.df["Text"] = self.df.apply(
             lambda row: row["abstract"] if row["Text"] == "Text not available" else row["Text"],
@@ -171,6 +238,14 @@ class SummarizeArticles(WorkflowHandler):
         return "\n\n".join(output)
 
     def summarize_articles(self) -> Tuple[bytes, dict, Optional[str]]:
+        """Run the full summarization pipeline with category-limit warnings.
+
+        Returns:
+            Tuple of (markdown_output, warning_message).
+
+        Raises:
+            HTTPException: If no data is available for summarization.
+        """
         if self.df is not None:
             categories_exceeding_limit = self.summarizer.categories_limit_check(self.df)
             warning_msg = ""
@@ -188,6 +263,13 @@ class SummarizeArticles(WorkflowHandler):
             raise HTTPException(status_code=404, detail="No data available for summarization.")
 
     def write_newsletter(self, category, output_folder, template_location=None):
+        """Generate a newsletter DOCX for a single category and save to disk.
+
+        Args:
+            category: Newsletter category name.
+            output_folder: Directory path for the output file.
+            template_location: Optional DOCX template path.
+        """
         if self.df is not None:
             newsletter_body = self.summarize_all_categories(newsletter_flag=True)
             markdown_to_convert = (
@@ -204,6 +286,13 @@ class SummarizeArticles(WorkflowHandler):
             self.save_newsletter(docx_data, category, output_folder)
 
     def save_newsletter(self, docx_data, category, output_folder):
+        """Save newsletter DOCX bytes to a date-stamped file.
+
+        Args:
+            docx_data: Raw DOCX bytes.
+            category: Category name (used in filename).
+            output_folder: Directory for the output file.
+        """
         if not os.path.exists(output_folder):
             os.makedirs(output_folder)
 
@@ -216,5 +305,10 @@ class SummarizeArticles(WorkflowHandler):
         print(f"File saved: {file_path}")
 
     def process(self):
+        """Run the summarization workflow and return markdown with warnings.
+
+        Returns:
+            Tuple of (markdown_output, warning_message).
+        """
         md_output, warning_msg = self.summarize_articles()
         return md_output, warning_msg

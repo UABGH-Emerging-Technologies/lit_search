@@ -1,3 +1,9 @@
+"""CLI entry point for automated newsletter generation.
+
+Orchestrates per-category PubMed searches, article summarization, and DOCX
+newsletter output using Typer.
+"""
+
 import datetime
 import warnings
 from typing import Optional
@@ -10,8 +16,6 @@ from ScopingReview.BaseManager import SummarizeManager
 from ScopingReview.data import fetch_full_text
 from ScopingReview.SearchManager import NewsletterSearchManager
 
-# move to config
-
 # Initialize Typer CLI app
 app = typer.Typer()
 warnings.filterwarnings("ignore")
@@ -19,14 +23,22 @@ warnings.filterwarnings("ignore")
 app = typer.Typer()
 
 
-# helper functions
 def get_last_week_dates():
+    """Return (start_date, end_date) strings for the last 7 days in YYYY/MM/DD format."""
     end_date = datetime.date.today()
     start_date = end_date - datetime.timedelta(days=7)
     return start_date.strftime("%Y/%m/%d"), end_date.strftime("%Y/%m/%d")
 
 
 def format_query(base_query):
+    """Append a date-range filter for the last 7 days to a PubMed query string.
+
+    Args:
+        base_query: Base PubMed query string.
+
+    Returns:
+        Query string with Entrez and publication date filters appended.
+    """
     start_date, end_date = get_last_week_dates()
     return f'({base_query}) AND ("{start_date}"[Date - Entrez] : "{end_date}"[Date - Entrez]) AND ("{start_date}"[Date - Publication] : "{end_date}"[Date - Publication])'
 
@@ -38,6 +50,12 @@ category_queries = {
 
 
 class NewsletterManager:
+    """Orchestrates newsletter generation across multiple anesthesiology categories.
+
+    Args:
+        scoping_step: Identifier for the current workflow step.
+    """
+
     def __init__(self, scoping_step):
         self.scoping_step = scoping_step
         self.cost = 0.0
@@ -45,6 +63,14 @@ class NewsletterManager:
     def manage_newsletter(
         self, category: str, query: str, output_folder: str, template_location: Optional[str]
     ):
+        """Search, summarize, and save a newsletter for a single category.
+
+        Args:
+            category: Anesthesiology subcategory name.
+            query: Pre-built PubMed query string.
+            output_folder: Directory for the output DOCX file.
+            template_location: Optional DOCX template path.
+        """
         # Initialize NewsletterSearchManager with the predefined query
         question = lit_config.NEWSLETTER_QUESTION.format(category=category)
         article_search_manager = NewsletterSearchManager(

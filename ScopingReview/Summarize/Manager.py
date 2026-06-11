@@ -11,6 +11,13 @@ from ScopingReview.BaseManager import BaseManager
 
 
 class SummarizeManager(BaseManager):
+    """Manages article summarization logistics — file naming, saving, and category limit checks.
+
+    Args:
+        df: Categorized article DataFrame.
+        research_q: The research question.
+    """
+
     def __init__(self, df, research_q):
         super().__init__(df)
         self.research_q = research_q
@@ -24,6 +31,13 @@ class SummarizeManager(BaseManager):
         return config.DOCX_MIME
 
     def save_newsletter(self, docx_data, category, output_folder):
+        """Save a newsletter DOCX to a date-stamped file in the output folder.
+
+        Args:
+            docx_data: Raw DOCX bytes.
+            category: Newsletter category name (used in filename).
+            output_folder: Directory path for the output file.
+        """
         # Ensure the output folder exists
         #TODO Change all os.path to pathlib
         if not os.path.exists(output_folder):
@@ -41,6 +55,14 @@ class SummarizeManager(BaseManager):
 
     @staticmethod
     def categories_limit_check(df):
+        """Identify categories with more articles than the configured threshold.
+
+        Args:
+            df: DataFrame with a ``category`` column (may be comma-separated).
+
+        Returns:
+            List of category names exceeding :data:`config.SUBCLASS_THRESHOLD`.
+        """
         categories_exceeding_limit = []
         if df is not None:
             df["category"] = df["category"].str.split(", ")
@@ -58,6 +80,8 @@ class SummarizeManager(BaseManager):
 # keeping name for compatibility with previous implementations
 # eventually want this name to begin with Streamlit...
 class StreamlitSummarizeManager(SummarizeManager):
+    """Streamlit UI wrapper for summarization with download buttons."""
+
     def __init__(self, df, research_q):
         super().__init__(df, research_q)
         st.session_state["file_uploaded_sum"] = False  # Initialize session state for summarization
@@ -83,6 +107,8 @@ class StreamlitSummarizeManager(SummarizeManager):
 
 
 class FastAPISummarizeManager(SummarizeManager):
+    """FastAPI-oriented summarization manager."""
+
     def __init__(self, df: pd.DataFrame, research_q: str):
         super().__init__(df, research_q)
 
