@@ -1,3 +1,4 @@
+import logging
 import os
 
 from aiweb_common.resource.PubMedQuery import PubMedQueryGenerator
@@ -11,7 +12,8 @@ from ScopingReview_config.config import (
     _is_responses_api_model,
 )
 
-# Ensure Entrez is configured
+logger = logging.getLogger(__name__)
+
 Entrez.email = config.DEV_EMAIL
 os.environ["NCBI_API_KEY"] = app_config.NCBI_API_KEY
 
@@ -73,14 +75,14 @@ class ArticleSearch(WorkflowHandler):
 
         n = 0
         search_string = ""
-        print("Generating PubMed Queries")
+        logger.info("Generating PubMed queries")
 
         while n <= config.MAX_TRIES:
             search_string = query_generator.process(loop_n=n, last_query=search_string)
-            print("QUERY ‑", search_string)
+            logger.info("Query: %s", search_string)
 
             article_ids = self.search_manager.pubmed_interface.search_pubmed_articles(search_string)
-            print("Number of articles found ‑", len(article_ids))
+            logger.info("Articles found: %d", len(article_ids))
 
             if len(article_ids) > config.MIN_ARTICLES:
                 articles_df = self.search_manager._fetch_articles(search_string)
@@ -91,8 +93,9 @@ class ArticleSearch(WorkflowHandler):
         # No sufficient articles found after retries. Create a small deterministic fallback DataFrame
         # so downstream code (which expects a DataFrame with .iterrows(), columns like 'citation' and 'abstract')
         # does not raise unhelpful NoneType errors in tests. Tests mock LLMs heavily and expect flows to proceed.
-        print(
-            f"Insufficient number of articles found in {config.MAX_TRIES} tries - returning fallback DataFrame"
+        logger.warning(
+            "Insufficient articles found in %d tries — returning fallback DataFrame",
+            config.MAX_TRIES,
         )
         try:
             import pandas as pd
@@ -114,5 +117,5 @@ class ArticleSearch(WorkflowHandler):
             return fallback
         except Exception as e:
             # If pandas isn't available for some reason in the environment, log and return None
-            print("Failed to create fallback DataFrame:", e)
+            logger.error("Failed to create fallback DataFrame: %s", e)
             return None

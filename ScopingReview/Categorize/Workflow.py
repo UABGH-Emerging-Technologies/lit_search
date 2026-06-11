@@ -1,3 +1,4 @@
+import logging
 import tempfile
 from typing import Any, Tuple
 
@@ -6,6 +7,8 @@ from aiweb_common.generate.SingleResponse import SingleResponseHandler
 from aiweb_common.WorkflowHandler import WorkflowHandler, extract_response_text
 
 from ScopingReview.Categorize.Manager import FastAPICategorizeManager
+
+logger = logging.getLogger(__name__)
 from ScopingReview_config import config, prompt_config
 from ScopingReview_config.config import (
     REASONING_EFFORT,
@@ -85,11 +88,11 @@ class CategorizeWorkflow(WorkflowHandler):
             assigned_categories = extract_response_text(response.content).replace("'", "")
             reduced_df.loc[index, "category"] = assigned_categories.lower()
         try:
-            print("Fetching Full Texts")
+            logger.info("Fetching Full Texts")
             full_text_df = self.manager.fetch_full_text(reduced_df["PMID"])
             category_df = pd.merge(reduced_df, full_text_df, on="PMID", how="inner")
         except Exception as e:
-            print(f"Failed while getting full texts: {str(e)}")
+            logger.error("Failed while getting full texts: %s", e)
         return category_df
 
     def get_tempfile_excel(self, category_df):

@@ -1,3 +1,4 @@
+import logging
 import tempfile
 
 from aiweb_common.file_operations.text_format import convert_markdown_docx
@@ -6,6 +7,8 @@ from aiweb_common.WorkflowHandler import WorkflowHandler, extract_response_text
 
 import ScopingReview_config.boilerplate as boilerplate_config
 import ScopingReview_config.prompt_config as prompt_config
+
+logger = logging.getLogger(__name__)
 from ScopingReview.Draft.Manager import DraftReviewManager
 from ScopingReview_config import config
 from ScopingReview_config.config import (
@@ -74,7 +77,7 @@ class DraftReview(WorkflowHandler):
         Returns:
             Assembled LLM prompt.
         """
-        print("assembling intro prompt")
+        logger.info("assembling intro prompt")
         assembled_prompt = self.single_response.single_response_service.preparer.assemble_prompt(
             system_prompt=prompt_config.SYSTEM_DRAFT_TEMPLATE,
             user_prompt=prompt_config.HUMAN_INTRODUCTION_TEMPLATE,
@@ -93,7 +96,7 @@ class DraftReview(WorkflowHandler):
         Returns:
             Assembled LLM prompt.
         """
-        print("assembling conclusion prompt")
+        logger.info("assembling conclusion prompt")
         assembled_prompt = self.single_response.single_response_service.preparer.assemble_prompt(
             system_prompt=prompt_config.SYSTEM_DRAFT_TEMPLATE,
             user_prompt=prompt_config.HUMAN_CONCLUSION_TEMPLATE,
@@ -114,7 +117,7 @@ class DraftReview(WorkflowHandler):
         Returns:
             Assembled LLM prompt.
         """
-        print("assembling abstract prompt")
+        logger.info("assembling abstract prompt")
         assembled_prompt = self.single_response.single_response_service.preparer.assemble_prompt(
             system_prompt=prompt_config.SYSTEM_DRAFT_TEMPLATE,
             user_prompt=prompt_config.HUMAN_ABSTRACT_TEMPLATE,

@@ -1,3 +1,4 @@
+import logging
 import os
 
 import pandas as pd
@@ -6,6 +7,8 @@ from aiweb_common.resource.PubMedQuery import PubMedQueryGenerator
 from Bio import Entrez
 
 from ScopingReview.InitialSearch.Workflow import ArticleSearch
+
+logger = logging.getLogger(__name__)
 from ScopingReview.IterateSearch.Manager import FastAPIIterateSearchManager
 from ScopingReview.Keywords.Manager import KeywordData
 from ScopingReview_config import app_config, config
@@ -65,7 +68,7 @@ class IterateSearch(ArticleSearch):
         Returns:
             Tuple of (merged_articles_df, refined_query_string).
         """
-        print("Refining Query with Keywords")
+        logger.info("Refining Query with Keywords")
         refined_query = self.iterate_search_manager.refine_query()
 
         # Create ArticleSearch with LLM parameters
@@ -79,9 +82,9 @@ class IterateSearch(ArticleSearch):
 
         # Ensure 'PMID' columns are strings for merge
         articles_df["PMID"] = articles_df["PMID"].astype(str)
-        self.iterate_search_manager.selected_articles_df[
-            "PMID"
-        ] = self.iterate_search_manager.selected_articles_df["PMID"].astype(str)
+        self.iterate_search_manager.selected_articles_df["PMID"] = (
+            self.iterate_search_manager.selected_articles_df["PMID"].astype(str)
+        )
 
         # Merge the 'Relevant' column from selected_articles_df if present
         if "Relevant" in self.iterate_search_manager.selected_articles_df.columns:

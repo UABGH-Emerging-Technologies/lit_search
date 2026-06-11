@@ -29,7 +29,6 @@ nav:
       - Bibliography: standalone/bibliography.md
   - Core:
       - BaseManager: core/base-manager.md
-      - "CLI (main)": core/main.md
   - Configuration:
       - Config: config/config.md
       - App Config: config/app-config.md

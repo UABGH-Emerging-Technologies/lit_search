@@ -35,8 +35,7 @@ def show_literature_search_page():
     apply_uab_font()
 
     st.title(f"{page_icon} {page_title} 🤖")
-    st.markdown(
-        """
+    st.markdown("""
         **Use generative AI to situate your research question in the context of existing literature.**
 
         Brought to you by the Anesthesiology Research Support, Informatics, and Data Science teams.
@@ -46,8 +45,7 @@ def show_literature_search_page():
         All submissions are recorded for potential review by departmental and health system personnel.
 
         ---
-        """
-    )
+        """)
 
     # Query-type switch
     prev_query_type = st.session_state.get("prev_query_type", None)

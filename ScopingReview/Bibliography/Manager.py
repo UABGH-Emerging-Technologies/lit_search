@@ -1,5 +1,5 @@
 import calendar
-import sys
+import logging
 import tempfile
 import xml.etree.ElementTree as ET
 from typing import Union
@@ -9,9 +9,10 @@ import requests
 from fastapi import HTTPException
 from fastapi.responses import Response
 
-import streamlit as st
 from ScopingReview.BaseManager import BaseManager
 from ScopingReview_config import config
+
+logger = logging.getLogger(__name__)
 
 
 class BibliographyManager(BaseManager):
@@ -68,7 +69,6 @@ class BibliographyManager(BaseManager):
         ## Fetch XML data from Entrez.
         efetch = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
         r = requests.get("{}?db=pubmed&id={}&rettype=abstract".format(efetch, ",".join(pmids)))
-        ##print(r.text)
 
         ## Loop over the PubMed IDs and parse the XML.
         root = ET.fromstring(r.text)
@@ -98,7 +98,7 @@ class BibliographyManager(BaseManager):
                 _ = PubmedArticle.find(
                     "./MedlineCitation/Article/Journal/JournalIssue/PubDate/MedlineDate"
                 )
-                print("Debugging: _.text is", _.text)
+                logger.debug("MedlineDate text: %s", _.text)
                 Year = _.text[:4]
 
                 month_abbr = ""
@@ -136,9 +136,9 @@ class BibliographyManager(BaseManager):
                 line1 = "@Article{{{}{}pmid{},".format(authors[0].split(",")[0], Year, PMID.text)
                 bibtex_fmt = "".join([line1, "\n"])
             except IndexError:
-                print("IndexError", pmids, file=sys.stderr, flush=True)
+                logger.error("IndexError while formatting BibTeX for PMIDs: %s", pmids)
             except AttributeError:
-                print("AttributeError", pmids, file=sys.stderr, flush=True)
+                logger.error("AttributeError while formatting BibTeX for PMIDs: %s", pmids)
             line2 = ' Author="{}",'.format(" and ".join(authors))
             line3 = " Title={{{}}},".format(ArticleTitle.text)
             line4 = " Journal={{{}}},".format(Title.text)
@@ -181,30 +181,6 @@ class BibliographyManager(BaseManager):
             raise ValueError("No PMIDs found to convert to BibTeX.")
         bibtex_text = self._pmid2bibtex(pmid_list)
         return bibtex_text
-
-
-class StreamlitBibtexManager(BibliographyManager):
-    """Streamlit UI wrapper for BibTeX conversion with download buttons."""
-
-    def __init__(self, df, file_ext):
-        super().__init__(df, file_ext)
-        st.session_state[
-            "file_uploaded_bibtex"
-        ] = False  # Unique file_uploaded variable for bibtex management
-
-    def get_download_button_label(self):
-        return config.DOCX_DOWNLOAD_LABEL
-
-    def _download_results(self, bibtex_text):
-        st.balloons()
-        st.write("Note that once you hit download, this form will reset.")
-        st.download_button(
-            label=self.get_download_button_label(),
-            data=bibtex_text,
-            file_name=self.get_filename(),
-            mime="text/plain",
-        )
-        st.write("Thanks for playing! Please email feedback to rmelvin@uabmc.edu")
 
 
 class FastAPIBibtexManager(BibliographyManager):

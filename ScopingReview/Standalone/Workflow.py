@@ -1,3 +1,4 @@
+import logging
 import tempfile
 
 from aiweb_common.file_operations.text_format import convert_markdown_docx
@@ -6,6 +7,8 @@ from aiweb_common.WorkflowHandler import WorkflowHandler, extract_response_text
 
 import ScopingReview_config.config as config
 import ScopingReview_config.prompt_config as prompt_config
+
+logger = logging.getLogger(__name__)
 from ScopingReview.InitialSearch.Workflow import ArticleSearch
 from ScopingReview_config.config import (
     REASONING_EFFORT,
@@ -88,7 +91,7 @@ class StandaloneSummary(WorkflowHandler):
         Returns:
             Assembled LLM prompt.
         """
-        print("assembling standalone prompt")
+        logger.info("assembling standalone prompt")
         assembled_prompt = self.single_response.single_response_service.preparer.assemble_prompt(
             system_prompt=prompt_config.STANDALONE_SUMMARY_TEMPLATE,
             user_prompt=prompt_config.SUMMARIZE_HUMAN_TEMPLATE,

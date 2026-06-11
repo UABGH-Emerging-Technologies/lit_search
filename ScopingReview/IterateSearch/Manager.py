@@ -1,9 +1,12 @@
+import logging
 import tempfile
 
 import pandas as pd
 from fastapi import HTTPException
 
 from ScopingReview.InitialSearch.Manager import BaseSearchManager
+
+logger = logging.getLogger(__name__)
 from ScopingReview.Keywords.Manager import KeywordData
 from ScopingReview.Keywords.Workflow import KeywordWorkflow
 from ScopingReview_config import config
@@ -77,7 +80,7 @@ class BaseIterateSearchManager(BaseSearchManager):
             + ". Here's a set of topics to exclude in query construction: "
             + ", ".join(self.exclusion_keywords)
         )
-        print(self.query_prompt)
+        logger.debug("Query prompt: %s", self.query_prompt)
         return self.query_prompt
 
     def determine_keywords(self):

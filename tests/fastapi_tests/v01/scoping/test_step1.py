@@ -51,7 +51,7 @@ def test_search_missing_auth():
         # No Authorization header (testing missing key)
         headers = {
             "accept": "application/json",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
             # No Authorization header
         }
         response = client.post(url, headers=headers, json=payload)

@@ -1,4 +1,5 @@
 import datetime
+import logging
 import os
 from typing import Optional, Tuple
 
@@ -9,6 +10,8 @@ from fastapi import HTTPException
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 import ScopingReview_config.prompt_config as prompt_config
+
+logger = logging.getLogger(__name__)
 from ScopingReview.Summarize.Manager import SummarizeManager
 from ScopingReview_config import boilerplate, config
 from ScopingReview_config.config import (
@@ -68,7 +71,7 @@ class SummarizeArticles(WorkflowHandler):
         Returns:
             Assembled LLM prompt.
         """
-        print("assembling prompts")
+        logger.info("assembling prompts")
         assembled_prompt = (
             self.fast_single_response.single_response_service.preparer.assemble_prompt(
                 system_prompt=prompt_config.summarize_single_article_system_prompt,
@@ -88,7 +91,7 @@ class SummarizeArticles(WorkflowHandler):
         Returns:
             Assembled LLM prompt.
         """
-        print("assembling prompts")
+        logger.info("assembling prompts")
         assembled_prompt = (
             self.fast_single_response.single_response_service.preparer.assemble_prompt(
                 system_prompt=prompt_config.summarize_single_article_system_prompt,
@@ -109,7 +112,7 @@ class SummarizeArticles(WorkflowHandler):
         Returns:
             Assembled LLM prompt.
         """
-        print("assembling prompts")
+        logger.info("assembling prompts")
         assembled_prompt = self.single_response.single_response_service.preparer.assemble_prompt(
             system_prompt=prompt_config.SUMMARIZE_CATEGORY_TEMPLATE,
             user_prompt=prompt_config.SUMMARIZE_HUMAN_TEMPLATE,
@@ -200,11 +203,11 @@ class SummarizeArticles(WorkflowHandler):
 
         output = []
         for current_category in categories:
-            print(current_category)
+            logger.debug("Processing category: %s", current_category)
             filtered_rows = df_exploded[df_exploded["category"] == current_category]
             article_summaries = []
             for _, row in filtered_rows.iterrows():
-                print(row.title)
+                logger.debug("Summarizing article: %s", row.title)
                 article_summary = self.summarize_article_in_chunks(row.Text)
                 formatted_summary = (
                     f"APA Citation: {row.citation}\n\n Summary: {article_summary}\n\n --- "
@@ -305,7 +308,7 @@ class SummarizeArticles(WorkflowHandler):
 
         with open(file_path, "wb") as file:
             file.write(docx_data)
-        print(f"File saved: {file_path}")
+        logger.info("File saved: %s", file_path)
 
     def process(self):
         """Run the summarization workflow and return markdown with warnings.
