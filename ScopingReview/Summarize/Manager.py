@@ -39,7 +39,7 @@ class SummarizeManager(BaseManager):
             output_folder: Directory path for the output file.
         """
         # Ensure the output folder exists
-        #TODO Change all os.path to pathlib
+        # TODO Change all os.path to pathlib
         if not os.path.exists(output_folder):
             os.makedirs(output_folder)
 
@@ -118,4 +118,3 @@ class FastAPISummarizeManager(SummarizeManager):
         Can be overridden in subclasses to return different filenames based on the context.
         """
         return config.SR_STEP4_DOCX_FILENAME
-

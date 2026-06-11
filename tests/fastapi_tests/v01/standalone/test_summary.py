@@ -10,7 +10,7 @@ def test_summary_writing(client, perform_post_request, validate_encoded_response
     payload = {
         "research_question": "post-surgical headache",
         "openai_compatible_endpoint": "https://example.com/llm",
-        "openai_compatible_model": "test-model"
+        "openai_compatible_model": "test-model",
     }
     headers = {"Authorization": "Bearer test-key"}
     # Endpoint/model/key required by API for every request

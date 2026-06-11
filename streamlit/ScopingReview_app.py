@@ -1,22 +1,30 @@
 import io
-import pandas as pd
-import streamlit as st
 
+import pandas as pd
 from literature_api import (
-    initial_literature_search,
-    iterate_search,
     categorize_articles,
-    summarize_categories,
     draft_article,
     generate_bibtex,
+    initial_literature_search,
     initial_literature_search_summary,
+    iterate_search,
+    summarize_categories,
 )
 
+import streamlit as st
+
 try:
-    from aiweb_common.streamlit.streamlit_common import apply_uab_font, hide_streamlit_branding
+    from aiweb_common.streamlit.streamlit_common import (
+        apply_uab_font,
+        hide_streamlit_branding,
+    )
 except ImportError:
-    def hide_streamlit_branding(): pass
-    def apply_uab_font(): pass
+
+    def hide_streamlit_branding():
+        pass
+
+    def apply_uab_font():
+        pass
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -24,28 +32,70 @@ except ImportError:
 # ─────────────────────────────────────────────────────────────────────────────
 
 WIZARD_STEPS = [
-    {"num": 1, "key": "search",     "label": "Search",       "action": "Fetch Articles",      "icon": ":material/search:",
-     "title": "Start with your research question",
-     "subtitle": "We'll search PubMed and surface the most relevant articles. You can refine in the next step."},
-    {"num": 2, "key": "iterate",    "label": "Iterate",      "action": "Run Iteration",       "icon": ":material/refresh:",
-     "title": "Refine your article selection",
-     "subtitle": "Review the search results and iterate to narrow down the most relevant articles."},
-    {"num": 3, "key": "categorize", "label": "Categorize",   "action": "Categorize Articles", "icon": ":material/category:",
-     "title": "Group articles into themes",
-     "subtitle": "Define categories and let AI classify each article into the themes you specify."},
-    {"num": 4, "key": "summarize",  "label": "Summarize",    "action": "Summarize Categories", "icon": ":material/summarize:",
-     "title": "Summarize each category",
-     "subtitle": "Generate per-category summaries of your articles for the review narrative."},
-    {"num": 5, "key": "draft",      "label": "Draft",        "action": "Draft Article",       "icon": ":material/edit_note:",
-     "title": "Draft your scoping review",
-     "subtitle": "Generate a draft narrative from your category summaries."},
-    {"num": 6, "key": "bibtex",     "label": "Bibliography",  "action": "Generate Bibliography", "icon": ":material/book:",
-     "title": "Generate your bibliography",
-     "subtitle": "Create a BibTeX file from your finalized article list."},
+    {
+        "num": 1,
+        "key": "search",
+        "label": "Search",
+        "action": "Fetch Articles",
+        "icon": ":material/search:",
+        "title": "Start with your research question",
+        "subtitle": "We'll search PubMed and surface the most relevant articles. You can refine in the next step.",
+    },
+    {
+        "num": 2,
+        "key": "iterate",
+        "label": "Iterate",
+        "action": "Run Iteration",
+        "icon": ":material/refresh:",
+        "title": "Refine your article selection",
+        "subtitle": "Review the search results and iterate to narrow down the most relevant articles.",
+    },
+    {
+        "num": 3,
+        "key": "categorize",
+        "label": "Categorize",
+        "action": "Categorize Articles",
+        "icon": ":material/category:",
+        "title": "Group articles into themes",
+        "subtitle": "Define categories and let AI classify each article into the themes you specify.",
+    },
+    {
+        "num": 4,
+        "key": "summarize",
+        "label": "Summarize",
+        "action": "Summarize Categories",
+        "icon": ":material/summarize:",
+        "title": "Summarize each category",
+        "subtitle": "Generate per-category summaries of your articles for the review narrative.",
+    },
+    {
+        "num": 5,
+        "key": "draft",
+        "label": "Draft",
+        "action": "Draft Article",
+        "icon": ":material/edit_note:",
+        "title": "Draft your scoping review",
+        "subtitle": "Generate a draft narrative from your category summaries.",
+    },
+    {
+        "num": 6,
+        "key": "bibtex",
+        "label": "Bibliography",
+        "action": "Generate Bibliography",
+        "icon": ":material/book:",
+        "title": "Generate your bibliography",
+        "subtitle": "Create a BibTeX file from your finalized article list.",
+    },
 ]
 
 RESULT_KEYS = {
-    1: ["initial_search_result", "initial_search_summary_result", "search_finished", "scope_df_1", "scope_raw_1"],
+    1: [
+        "initial_search_result",
+        "initial_search_summary_result",
+        "search_finished",
+        "scope_df_1",
+        "scope_raw_1",
+    ],
     2: ["iteration_search_result", "scope_df_2", "scope_raw_2"],
     3: ["categorize_result", "categorization_finished", "scope_df_3", "scope_raw_3"],
     4: ["docx_bytes", "summarize_result", "summarize_warning", "summarization_finished"],
@@ -168,19 +218,31 @@ AI-generated content requires human review and may contain errors. You are respo
 
 RESUME_STEPS = {
     "Step 2: Iterate — upload articles with Y/N selections (.xlsx)": {
-        "step": 2, "types": ["xlsx"], "df_target": 1, "raw_target": 1,
+        "step": 2,
+        "types": ["xlsx"],
+        "df_target": 1,
+        "raw_target": 1,
     },
     "Step 3: Categorize — upload iterated articles (.xlsx)": {
-        "step": 3, "types": ["xlsx"], "df_target": 2, "raw_target": 2,
+        "step": 3,
+        "types": ["xlsx"],
+        "df_target": 2,
+        "raw_target": 2,
     },
     "Step 4: Summarize — upload categorized articles (.xlsx/.csv)": {
-        "step": 4, "types": ["xlsx", "csv"], "result_key": "categorize_result",
+        "step": 4,
+        "types": ["xlsx", "csv"],
+        "result_key": "categorize_result",
     },
     "Step 5: Draft — upload category summary (.docx)": {
-        "step": 5, "types": ["docx"], "result_key": "docx_bytes",
+        "step": 5,
+        "types": ["docx"],
+        "result_key": "docx_bytes",
     },
     "Step 6: Bibliography — upload categorized articles (.xlsx/.docx)": {
-        "step": 6, "types": ["xlsx", "docx"], "result_key": "categorize_result",
+        "step": 6,
+        "types": ["xlsx", "docx"],
+        "result_key": "categorize_result",
     },
 }
 
@@ -189,13 +251,20 @@ RESUME_STEPS = {
 # Helpers
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 class _FakeUploadedFile:
     def __init__(self, data: bytes, name: str):
         self._data = data
         self.name = name
-    def getvalue(self): return self._data
-    def read(self): return self._data
-    def seek(self, pos): pass
+
+    def getvalue(self):
+        return self._data
+
+    def read(self):
+        return self._data
+
+    def seek(self, pos):
+        pass
 
 
 def _df_to_xlsx_bytes(df: pd.DataFrame) -> bytes:
@@ -317,6 +386,7 @@ def _extract_research_question(file_bytes: bytes) -> str | None:
 # UI components
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 def _render_stepper(current, completed):
     st.markdown(STEPPER_CSS, unsafe_allow_html=True)
 
@@ -339,9 +409,9 @@ def _render_stepper(current, completed):
             f'<div class="stepper-item {cls}">'
             f'<div class="stepper-circle">{content}</div>'
             f'<div class="stepper-label">{step["label"]}</div>'
-            f'</div>'
+            f"</div>"
         )
-    html += '</div>'
+    html += "</div>"
     st.markdown(html, unsafe_allow_html=True)
 
 
@@ -354,12 +424,14 @@ def _render_question_reference(research_q: str):
             f'<div class="question-reference">'
             f'<span><span class="question-reference-label">Researching:</span>'
             f'<span class="question-reference-text">"{research_q}"</span></span>'
-            f'</div>',
+            f"</div>",
             unsafe_allow_html=True,
         )
     with col_reset:
         if st.button(
-            "Start over", key="reset_wizard_btn", use_container_width=True,
+            "Start over",
+            key="reset_wizard_btn",
+            use_container_width=True,
             help="Clear all progress and enter a new research question",
         ):
             _reset_wizard()
@@ -376,7 +448,8 @@ def _render_step_jump_buttons(current, completed):
                 step = WIZARD_STEPS[num - 1]
                 if st.button(
                     f"Step {num}: {step['label']}",
-                    key=f"jump_{num}", use_container_width=True,
+                    key=f"jump_{num}",
+                    use_container_width=True,
                 ):
                     _go_to_step(num)
 
@@ -389,33 +462,54 @@ def _render_completion_cta(step_num, dl_data, dl_filename, dl_mime, hint=""):
         c1, c2, c3 = st.columns(3)
         next_step = WIZARD_STEPS[step_num]
         with c1:
-            if st.button(next_step["action"], type="primary", key=f"continue_{step_num}",
-                         use_container_width=True, icon=next_step.get("icon")):
+            if st.button(
+                next_step["action"],
+                type="primary",
+                key=f"continue_{step_num}",
+                use_container_width=True,
+                icon=next_step.get("icon"),
+            ):
                 _snapshot_editor(step_num)
                 st.session_state["scope_current_step"] = step_num + 1
                 _auto_run_next(step_num)
                 st.rerun()
         with c2:
-            if st.button("Re-run", key=f"rerun_{step_num}",
-                         use_container_width=True, icon=":material/refresh:"):
+            if st.button(
+                "Re-run",
+                key=f"rerun_{step_num}",
+                use_container_width=True,
+                icon=":material/refresh:",
+            ):
                 _go_to_step(step_num)
         with c3:
             st.download_button(
-                label="Download", data=dl_data,
-                file_name=dl_filename, mime=dl_mime, key=f"dl_{step_num}",
-                use_container_width=True, icon=":material/download:",
+                label="Download",
+                data=dl_data,
+                file_name=dl_filename,
+                mime=dl_mime,
+                key=f"dl_{step_num}",
+                use_container_width=True,
+                icon=":material/download:",
             )
     else:
         c1, c2 = st.columns(2)
         with c1:
-            if st.button("Re-run", key=f"rerun_{step_num}",
-                         use_container_width=True, icon=":material/refresh:"):
+            if st.button(
+                "Re-run",
+                key=f"rerun_{step_num}",
+                use_container_width=True,
+                icon=":material/refresh:",
+            ):
                 _go_to_step(step_num)
         with c2:
             st.download_button(
-                label="Download", data=dl_data,
-                file_name=dl_filename, mime=dl_mime, key=f"dl_{step_num}",
-                use_container_width=True, icon=":material/download:",
+                label="Download",
+                data=dl_data,
+                file_name=dl_filename,
+                mime=dl_mime,
+                key=f"dl_{step_num}",
+                use_container_width=True,
+                icon=":material/download:",
             )
 
 
@@ -436,16 +530,21 @@ def _render_search_card(value, placeholder, key_prefix):
         with chips_col:
             st.caption("Try one of these:")
             chosen = st.pills(
-                "Try", EXAMPLE_PROMPTS, key=f"{key_prefix}_chips",
-                label_visibility="collapsed", selection_mode="single",
+                "Try",
+                EXAMPLE_PROMPTS,
+                key=f"{key_prefix}_chips",
+                label_visibility="collapsed",
+                selection_mode="single",
             )
             if chosen and chosen != st.session_state.get("research_q"):
                 st.session_state["research_q"] = chosen
                 st.rerun()
         with btn_col:
             clicked = st.button(
-                "Fetch Articles", type="primary",
-                key=f"{key_prefix}_btn", use_container_width=True,
+                "Fetch Articles",
+                type="primary",
+                key=f"{key_prefix}_btn",
+                use_container_width=True,
                 icon=":material/search:",
             )
 
@@ -456,16 +555,22 @@ def _render_search_card(value, placeholder, key_prefix):
 
 def _render_resume_session(completed):
     with st.expander("\U0001f4c2 Resume a previous session", expanded=False):
-        st.markdown("Pick the step you want to resume from and upload your file from a previous session.")
+        st.markdown(
+            "Pick the step you want to resume from and upload your file from a previous session."
+        )
 
         choice = st.selectbox(
-            "Resume from", options=list(RESUME_STEPS.keys()),
-            label_visibility="collapsed", key="resume_choice",
+            "Resume from",
+            options=list(RESUME_STEPS.keys()),
+            label_visibility="collapsed",
+            key="resume_choice",
         )
         config = RESUME_STEPS[choice]
 
         uploaded = st.file_uploader(
-            "Upload your file", type=config["types"], key="resume_upload",
+            "Upload your file",
+            type=config["types"],
+            key="resume_upload",
         )
 
         detected_q = ""
@@ -490,7 +595,9 @@ def _render_resume_session(completed):
                 st.warning("Please upload a file first.")
                 return
 
-            with st.spinner("Loading your file and resuming session... Please do not leave this page while processing."):
+            with st.spinner(
+                "Loading your file and resuming session... Please do not leave this page while processing."
+            ):
                 st.session_state["research_q"] = resume_q
 
                 file_bytes = uploaded.getvalue()
@@ -522,7 +629,8 @@ def _render_input_source(prev_step_num, file_label, file_types, key_prefix, prev
             icon=":material/auto_awesome:",
         )
         use_own = st.checkbox(
-            "Use a different file instead", key=f"{key_prefix}_override",
+            "Use a different file instead",
+            key=f"{key_prefix}_override",
             help="Override the auto-passed results with your own file.",
         )
         if use_own:
@@ -538,6 +646,7 @@ def _render_input_source(prev_step_num, file_label, file_types, key_prefix, prev
 # Step renderers
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 def _step_search(_research_q_unused):
     if 1 not in st.session_state.get("scope_completed", set()):
         new_q, fetch_clicked = _render_search_card(
@@ -551,7 +660,9 @@ def _step_search(_research_q_unused):
             if not new_q.strip():
                 st.warning("Please enter a research question first.")
                 return
-            with st.spinner("Searching PubMed and other sources... Please do not leave this page while processing."):
+            with st.spinner(
+                "Searching PubMed and other sources... Please do not leave this page while processing."
+            ):
                 finished = initial_literature_search(new_q)
                 if finished:
                     st.session_state["search_finished"] = True
@@ -577,7 +688,10 @@ def _step_search(_research_q_unused):
             f"**{len(current_df)} articles found.** Review below and add a Y/N column to mark articles you want to keep."
         )
         st.data_editor(
-            base_df, num_rows="dynamic", use_container_width=True, key="editor_step1",
+            base_df,
+            num_rows="dynamic",
+            use_container_width=True,
+            key="editor_step1",
         )
 
         download_df = _get_edited_df(1)
@@ -627,11 +741,16 @@ def _step_iterate(research_q):
 
         st.markdown("Refine your article selection by iterating on the search.")
         uploaded_file = _render_input_source(
-            prev_step_num=1, file_label="Upload Excel with Y/N selections",
-            file_types=["xlsx"], key_prefix="scope_iter", prev_data=prev_data,
+            prev_step_num=1,
+            file_label="Upload Excel with Y/N selections",
+            file_types=["xlsx"],
+            key_prefix="scope_iter",
+            prev_data=prev_data,
         )
 
-        if st.button("Run Iteration", icon=":material/refresh:", type="primary", key="scope_iter_run"):
+        if st.button(
+            "Run Iteration", icon=":material/refresh:", type="primary", key="scope_iter_run"
+        ):
             if not uploaded_file:
                 st.warning("Please provide a file first.")
                 return
@@ -644,7 +763,10 @@ def _step_iterate(research_q):
         current_df = _get_edited_df(2)
         st.markdown(f"**{len(current_df)} refined articles.** Review and edit as needed.")
         st.data_editor(
-            base_df, num_rows="dynamic", use_container_width=True, key="editor_step2",
+            base_df,
+            num_rows="dynamic",
+            use_container_width=True,
+            key="editor_step2",
         )
         download_df = _get_edited_df(2)
         _render_completion_cta(
@@ -662,24 +784,32 @@ def _step_categorize(research_q):
     if 3 not in st.session_state.get("scope_completed", set()):
         st.markdown("Group your refined articles into themes you define.")
         uploaded_file = _render_input_source(
-            prev_step_num=2, file_label="Upload Excel file to categorize",
-            file_types=["xlsx"], key_prefix="scope_cat", prev_data=prev_data,
+            prev_step_num=2,
+            file_label="Upload Excel file to categorize",
+            file_types=["xlsx"],
+            key_prefix="scope_cat",
+            prev_data=prev_data,
         )
 
         userdefined_categories = st.text_area(
             "Categories (comma-separated)",
             placeholder="e.g., Clinical Trials, Observational Studies, Reviews",
-            key="scope_cat_input", height=80,
+            key="scope_cat_input",
+            height=80,
         )
 
-        if st.button("Run Categorization", icon=":material/category:", type="primary", key="scope_cat_run"):
+        if st.button(
+            "Run Categorization", icon=":material/category:", type="primary", key="scope_cat_run"
+        ):
             if not uploaded_file:
                 st.warning("Please provide a file first.")
                 return
             if not userdefined_categories.strip():
                 st.warning("Please enter at least one category.")
                 return
-            with st.spinner("Categorizing articles... Please do not leave this page while processing."):
+            with st.spinner(
+                "Categorizing articles... Please do not leave this page while processing."
+            ):
                 finished = categorize_articles(uploaded_file, userdefined_categories, research_q)
                 if finished:
                     xlsx = st.session_state.get("categorize_result")
@@ -699,7 +829,10 @@ def _step_categorize(research_q):
         current_df = _get_edited_df(3)
         st.markdown(f"**{len(current_df)} articles categorized.** Review the assignments below.")
         st.data_editor(
-            base_df, num_rows="dynamic", use_container_width=True, key="editor_step3",
+            base_df,
+            num_rows="dynamic",
+            use_container_width=True,
+            key="editor_step3",
         )
 
         download_df = _get_edited_df(3)
@@ -715,7 +848,9 @@ def _step_categorize(research_q):
 
 
 def _run_summarize(uploaded_file, research_q):
-    with st.spinner("Summarizing articles by category... Please do not leave this page while processing."):
+    with st.spinner(
+        "Summarizing articles by category... Please do not leave this page while processing."
+    ):
         finished = summarize_categories(uploaded_file, research_q)
         if finished:
             _mark_complete(4)
@@ -732,11 +867,16 @@ def _step_summarize(research_q):
 
         st.markdown("Generate per-category summaries of your articles.")
         uploaded_file = _render_input_source(
-            prev_step_num=3, file_label="Upload Excel or CSV file",
-            file_types=["xlsx", "csv"], key_prefix="scope_sum", prev_data=cat_result,
+            prev_step_num=3,
+            file_label="Upload Excel or CSV file",
+            file_types=["xlsx", "csv"],
+            key_prefix="scope_sum",
+            prev_data=cat_result,
         )
 
-        if st.button("Summarize Categories", icon=":material/summarize:", type="primary", key="scope_sum_run"):
+        if st.button(
+            "Summarize Categories", icon=":material/summarize:", type="primary", key="scope_sum_run"
+        ):
             if not uploaded_file:
                 st.warning("Please provide a file first.")
                 return
@@ -779,11 +919,16 @@ def _step_draft(research_q):
 
         st.markdown("Generate a draft scoping review article from your category summaries.")
         uploaded_file = _render_input_source(
-            prev_step_num=4, file_label="Upload summary document (.docx)",
-            file_types=["docx"], key_prefix="scope_draft", prev_data=sum_result,
+            prev_step_num=4,
+            file_label="Upload summary document (.docx)",
+            file_types=["docx"],
+            key_prefix="scope_draft",
+            prev_data=sum_result,
         )
 
-        if st.button("Draft Article", icon=":material/edit_note:", type="primary", key="scope_draft_run"):
+        if st.button(
+            "Draft Article", icon=":material/edit_note:", type="primary", key="scope_draft_run"
+        ):
             if not uploaded_file:
                 st.warning("Please provide a file first.")
                 return
@@ -819,11 +964,16 @@ def _step_bibtex(research_q):
 
         st.markdown("Generate a BibTeX bibliography file from your finalized article list.")
         uploaded_file = _render_input_source(
-            prev_step_num=3, file_label="Upload Excel or DOCX file",
-            file_types=["xlsx", "docx"], key_prefix="scope_bib", prev_data=cat_result,
+            prev_step_num=3,
+            file_label="Upload Excel or DOCX file",
+            file_types=["xlsx", "docx"],
+            key_prefix="scope_bib",
+            prev_data=cat_result,
         )
 
-        if st.button("Generate Bibliography", icon=":material/book:", type="primary", key="scope_bib_run"):
+        if st.button(
+            "Generate Bibliography", icon=":material/book:", type="primary", key="scope_bib_run"
+        ):
             if not uploaded_file:
                 st.warning("Please provide a file first.")
                 return
@@ -845,12 +995,14 @@ def _step_bibtex(research_q):
 # Main page
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 def show_literature_search_page():
     st.set_page_config(page_title="Literature Search", page_icon="\U0001f4da", layout="wide")
     hide_streamlit_branding()
     apply_uab_font()
 
-    st.markdown("""
+    st.markdown(
+        """
     <style>
     button[data-testid="stBaseButton-segmented_controlActive"] {
         background-color: #144b39 !important;
@@ -869,7 +1021,9 @@ def show_literature_search_page():
         justify-content: center;
     }
     </style>
-    """, unsafe_allow_html=True)
+    """,
+        unsafe_allow_html=True,
+    )
 
     st.markdown(
         '<h1 style="text-align: center;">\U0001f4da Literature Search</h1>',
@@ -877,8 +1031,8 @@ def show_literature_search_page():
     )
     st.markdown(
         '<p style="text-align: center; color: #6B7280; margin-top: -0.5rem;">'
-        'Use generative AI to situate your research question in the context of existing literature.'
-        '</p>',
+        "Use generative AI to situate your research question in the context of existing literature."
+        "</p>",
         unsafe_allow_html=True,
     )
 
@@ -981,7 +1135,7 @@ def show_literature_search_page():
         st.markdown(
             f'<p style="font-size: 12px; font-weight: 500; letter-spacing: 0.08em; '
             f'text-transform: uppercase; color: #1e6b52; margin-bottom: 4px;">'
-            f'STEP {current} OF {len(WIZARD_STEPS)}</p>'
+            f"STEP {current} OF {len(WIZARD_STEPS)}</p>"
             f'<h3 style="margin-top: 0; margin-bottom: 4px; color: #1f2933;">{step_info["title"]}</h3>'
             f'<p style="font-size: 14px; color: #5a6470; line-height: 1.5; margin-bottom: 1rem;">'
             f'{step_info["subtitle"]}</p>',
@@ -989,7 +1143,10 @@ def show_literature_search_page():
         )
 
         research_q = st.session_state.get("research_q", "")
-        if "prev_research_q" not in st.session_state or st.session_state["prev_research_q"] != research_q:
+        if (
+            "prev_research_q" not in st.session_state
+            or st.session_state["prev_research_q"] != research_q
+        ):
             st.session_state["search_finished"] = False
             st.session_state["prev_research_q"] = research_q
 

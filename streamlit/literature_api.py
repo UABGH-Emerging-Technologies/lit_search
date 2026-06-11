@@ -1,14 +1,14 @@
-import os
+import base64
 import io
 import json
-import base64
-import requests
+import os
+
 import pandas as pd
-import streamlit as st
+import requests
+from aiweb_common.WorkflowHandler import manage_sensitive
 from requests.exceptions import ConnectionError
 
-from aiweb_common.WorkflowHandler import manage_sensitive
-
+import streamlit as st
 
 # LLM credentials come from the shared secrets. manage_sensitive resolves, in order:
 # /run/secrets/<name> (compose mount) -> /workspaces/*/secrets/<name>.txt (devcontainer)
@@ -22,7 +22,7 @@ API_BASE_URL = os.environ.get("LIT_ENDPOINT", "http://lit_api:8000")
 
 DEFAULT_LLM_CONFIG = {
     "openai_compatible_endpoint": AZURE_ENDPOINT,
-    "openai_compatible_model": MODEL_NAME
+    "openai_compatible_model": MODEL_NAME,
 }
 
 
@@ -32,7 +32,7 @@ def get_auth_headers():
         return {
             "Authorization": f"Bearer {API_KEY}",
             "Content-Type": "application/json",
-            "accept": "application/json"
+            "accept": "application/json",
         }
     return {}
 
@@ -42,10 +42,7 @@ def initial_literature_search(research_question: str):
     try:
         response = requests.post(
             f"{API_BASE_URL}/v01/scoping/step1/",
-            json={
-                "research_question": research_question,
-                **DEFAULT_LLM_CONFIG
-            },
+            json={"research_question": research_question, **DEFAULT_LLM_CONFIG},
             headers=get_auth_headers(),
         )
         if response.status_code == 200:
@@ -60,7 +57,9 @@ def initial_literature_search(research_question: str):
         else:
             st.error(f"API error: {response.status_code} {response.text}")
     except ConnectionError:
-        st.error(f"Cannot connect to API server at {API_BASE_URL}. Please ensure the server is running.")
+        st.error(
+            f"Cannot connect to API server at {API_BASE_URL}. Please ensure the server is running."
+        )
     except Exception as e:
         st.error(f"Request failed: {e}")
     return False
@@ -71,10 +70,7 @@ def initial_literature_search_summary(research_question: str):
     try:
         response = requests.post(
             f"{API_BASE_URL}/v01/standalone/summary/",
-            json={
-                "research_question": research_question,
-                **DEFAULT_LLM_CONFIG
-            },
+            json={"research_question": research_question, **DEFAULT_LLM_CONFIG},
             headers=get_auth_headers(),
         )
         if response.status_code == 200:
@@ -90,7 +86,9 @@ def initial_literature_search_summary(research_question: str):
         else:
             st.error(f"API error: {response.status_code} {response.text}")
     except ConnectionError:
-        st.error(f"Cannot connect to API server at {API_BASE_URL}. Please ensure the server is running.")
+        st.error(
+            f"Cannot connect to API server at {API_BASE_URL}. Please ensure the server is running."
+        )
     except Exception as e:
         st.error(f"Request failed: {e}")
     return False
@@ -105,22 +103,22 @@ def iterate_search(uploaded_file, research_question: str):
         # Encode file as base64 like all other functions
         file_bytes = uploaded_file.getvalue()
         encoded_xlsx = base64.b64encode(file_bytes).decode("utf-8")
-        
+
         json_data = {
             "research_question": research_question,
-            "primary_keywords": [],  
+            "primary_keywords": [],
             "secondary_keywords": [],
             "exclusion_keywords": [],
             "xlsx_encoded": encoded_xlsx,
-            **DEFAULT_LLM_CONFIG
+            **DEFAULT_LLM_CONFIG,
         }
-        
+
         response = requests.post(
             f"{API_BASE_URL}/v01/scoping/step2/iteration/",
-            json=json_data,  
-            headers=get_auth_headers(),  
+            json=json_data,
+            headers=get_auth_headers(),
         )
-        
+
         if response.status_code == 200:
             json_response = response.json()
             encoded_xlsx = json_response.get("encoded_xlsx")
@@ -148,8 +146,8 @@ def categorize_articles(uploaded_file, userdefined_categories: str, research_que
         json_data = {
             "user_defined_categories": userdefined_categories,
             "xlsx_encoded": encoded_xlsx,
-            "research_question": research_question, 
-            **DEFAULT_LLM_CONFIG
+            "research_question": research_question,
+            **DEFAULT_LLM_CONFIG,
         }
         response = requests.post(
             f"{API_BASE_URL}/v01/scoping/step3/",
@@ -193,7 +191,7 @@ def summarize_categories(uploaded_file, research_question: str):
         payload = {
             "research_question": research_question,
             "xlsx_encoded": xlsx_encoded,
-            **DEFAULT_LLM_CONFIG
+            **DEFAULT_LLM_CONFIG,
         }
 
         resp = requests.post(
@@ -219,7 +217,9 @@ def summarize_categories(uploaded_file, research_question: str):
 
         st.error(f"API error: {resp.status_code} {resp.text}")
     except ConnectionError:
-        st.error(f"Cannot connect to API server at {API_BASE_URL}. Please ensure the server is running.")
+        st.error(
+            f"Cannot connect to API server at {API_BASE_URL}. Please ensure the server is running."
+        )
     except Exception as e:
         st.error(f"Request failed: {e}")
 
@@ -237,7 +237,7 @@ def draft_article(uploaded_file, research_question: str):
         json_data = {
             "research_question": research_question,
             "docx_encoded": encoded_docx,
-            **DEFAULT_LLM_CONFIG
+            **DEFAULT_LLM_CONFIG,
         }
         response = requests.post(
             f"{API_BASE_URL}/v01/scoping/step5/",

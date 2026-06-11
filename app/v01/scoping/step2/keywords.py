@@ -1,13 +1,15 @@
 from datetime import datetime
+
 from aiweb_common.file_operations.upload_manager import FastAPIUploadManager
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Security
 from fastapi.security import HTTPAuthorizationCredentials
+
 import app.fastapi_config as api_config
+from app.dependencies import get_api_key, security
 from app.v01.scoping.step2.schemas import KeywordsRequest
 from ScopingReview.Keywords.Manager import KeywordData
 from ScopingReview.Keywords.Workflow import KeywordWorkflow
 from ScopingReview_config import app_config
-from app.dependencies import security, get_api_key
 
 router = APIRouter(tags=["scoping", "step2"])
 
@@ -26,7 +28,7 @@ def get_step2keywords_response(
         df = upload_manager.read_and_validate_file(xlsx_encoded, ".xlsx")
         if df is None:
             raise HTTPException(status_code=422, detail="Failed to process the file")
-        
+
         keyword_workflow = KeywordWorkflow(
             df,
             question,
@@ -39,7 +41,7 @@ def get_step2keywords_response(
         if keywords is None:
             raise HTTPException(
                 status_code=422,
-                detail="Keyword workflow returned no keywords (None). Check LLM response or inputs."
+                detail="Keyword workflow returned no keywords (None). Check LLM response or inputs.",
             )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
@@ -57,7 +59,7 @@ async def suggest_keywords(
     Requires API key in Authorization header (Bearer scheme).
     """
     api_key = await get_api_key(credentials)
-    
+
     keywords = get_step2keywords_response(
         background_tasks,
         request.research_question,

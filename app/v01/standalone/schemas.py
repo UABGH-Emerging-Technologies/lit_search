@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field, field_validator
+
 from app.v01.schemas import UploadableFiles
 from app.v01.validators import validate_docx_bytes, validate_xlsx_bytes
 
@@ -6,7 +7,6 @@ from app.v01.validators import validate_docx_bytes, validate_xlsx_bytes
 class BibliographyRequest(BaseModel):
     file_extension: UploadableFiles
     file_encoded: str = Field(..., description="Base64-encoded DOCX OR XLSX file content.")
-
 
     @field_validator("file_encoded")
     @classmethod

@@ -36,7 +36,7 @@ def test_bibtex_generation(
         "file_extension": file_extension,
         "file_encoded": file_content,
         "openai_compatible_endpoint": "https://example.com/llm",
-        "openai_compatible_model": "test-model"
+        "openai_compatible_model": "test-model",
     }
     headers = {"Authorization": "Bearer test-key"}
     # Endpoint/model/key required by API for every request

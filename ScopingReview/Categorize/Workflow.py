@@ -1,11 +1,16 @@
 import tempfile
 from typing import Any, Tuple
+
 import pandas as pd
 from aiweb_common.generate.SingleResponse import SingleResponseHandler
 from aiweb_common.WorkflowHandler import WorkflowHandler, extract_response_text
+
 from ScopingReview.Categorize.Manager import FastAPICategorizeManager
 from ScopingReview_config import config, prompt_config
-from ScopingReview_config.config import REASONING_EFFORT, _is_responses_api_model
+from ScopingReview_config.config import (
+    REASONING_EFFORT,
+    _is_responses_api_model,
+)
 
 
 class CategorizeWorkflow(WorkflowHandler):
@@ -31,7 +36,7 @@ class CategorizeWorkflow(WorkflowHandler):
         self.df = df
         self.userdefined_categories = userdefined_categories
         self.manager = FastAPICategorizeManager(self.df, self.userdefined_categories)
-        
+
         # Initialize LLM with dynamic configuration (like IRB Assistant)
         _use_responses = _is_responses_api_model(openai_compatible_model)
         self._init_openai(
@@ -42,7 +47,7 @@ class CategorizeWorkflow(WorkflowHandler):
             use_responses_api=_use_responses,
             reasoning_effort=REASONING_EFFORT if _use_responses else None,
         )
-        
+
         # Use self.llm_interface instead of config.FAST_LLM_INTERFACE
         self.single_response = SingleResponseHandler(self.llm_interface)
 
@@ -102,7 +107,7 @@ class CategorizeWorkflow(WorkflowHandler):
                 tmpfile=tmpfile.name,
                 df=category_df,
                 input_search_terms=self.userdefined_categories,
-                query_strings="Generated query strings"
+                query_strings="Generated query strings",
             )
         return tmpfile.name
 
