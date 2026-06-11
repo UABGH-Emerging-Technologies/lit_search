@@ -1,4 +1,5 @@
 import datetime
+import logging
 import os
 import tempfile
 
@@ -6,8 +7,9 @@ import pandas as pd
 from aiweb_common.file_operations.file_handling import convert_markdown_docx
 
 import ScopingReview_config.config as config
-import streamlit as st
 from ScopingReview.BaseManager import BaseManager
+
+logger = logging.getLogger(__name__)
 
 
 class SummarizeManager(BaseManager):
@@ -51,7 +53,7 @@ class SummarizeManager(BaseManager):
         # Save the document
         with open(file_path, "wb") as file:
             file.write(docx_data)
-        print(f"File saved: {file_path}")
+        logger.info("File saved: %s", file_path)
 
     @staticmethod
     def categories_limit_check(df):
@@ -69,41 +71,11 @@ class SummarizeManager(BaseManager):
             df_exploded = df.explode("category")
 
             unique_values_counts = df_exploded["category"].value_counts()
-            # print(unique_values_counts)
             for category, count in unique_values_counts.items():
                 if count > config.SUBCLASS_THRESHOLD:
                     categories_exceeding_limit.append(category)
         # Note that in Python, empty lists return False in boolean checks
         return categories_exceeding_limit
-
-
-# keeping name for compatibility with previous implementations
-# eventually want this name to begin with Streamlit...
-class StreamlitSummarizeManager(SummarizeManager):
-    """Streamlit UI wrapper for summarization with download buttons."""
-
-    def __init__(self, df, research_q):
-        super().__init__(df, research_q)
-        st.session_state["file_uploaded_sum"] = False  # Initialize session state for summarization
-
-    def get_doc_filename(self):
-        return config.SR_STEP4_DOCX_FILENAME
-
-    def get_excel_filename(self):
-        return config.SR_STEP4_EXCEL_FILENAME
-
-    def get_download_button_label(self):
-        return config.BOTH_FILES
-
-    def download_doc_results(self, docx_data):
-        st.balloons()
-        st.write("Note that once you hit download, this form will reset.")
-        st.download_button(
-            label=self.get_download_button_label(),
-            data=docx_data,
-            file_name=self.get_doc_filename(),
-            mime=self.get_mime_type(),
-        )
 
 
 class FastAPISummarizeManager(SummarizeManager):

@@ -1,7 +1,11 @@
+import logging
+
 from aiweb_common.generate.SingleResponse import SingleResponseHandler
 from aiweb_common.WorkflowHandler import WorkflowHandler, extract_response_text
 
 from ScopingReview.Keywords.Manager import KeywordData, KeywordManager
+
+logger = logging.getLogger(__name__)
 from ScopingReview_config import config, prompt_config
 from ScopingReview_config.config import (
     REASONING_EFFORT,
@@ -64,7 +68,7 @@ class KeywordWorkflow(WorkflowHandler):
             keywords_list=formatted_keywords,
         )
         response, response_meta = self.single_response.generate_response(assembled_prompt)
-        print("Response - ", extract_response_text(response.content))
+        logger.debug("Response - %s", extract_response_text(response.content))
         self._update_total_cost(response_meta)
         return extract_response_text(response.content)
 
@@ -74,9 +78,9 @@ class KeywordWorkflow(WorkflowHandler):
         Returns:
             :class:`KeywordData` with primary, secondary, and exclusion keywords.
         """
-        print("Generating Keywords")
+        logger.info("Generating Keywords")
         generated_keywords_json = self.initialize_keywords()
-        print(generated_keywords_json)
+        logger.debug("Generated keywords JSON: %s", generated_keywords_json)
         primary, secondary, exclusion = self.keyword_manager.parse_keywords(
             str(generated_keywords_json)
         )

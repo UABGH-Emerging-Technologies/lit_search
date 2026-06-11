@@ -1,3 +1,4 @@
+import logging
 import tempfile
 from typing import Any, Tuple
 
@@ -8,6 +9,8 @@ import ScopingReview_config.boilerplate as boilerplate
 import ScopingReview_config.config as config
 import ScopingReview_config.prompt_config as prompt_config
 from ScopingReview.BaseManager import BaseManager
+
+logger = logging.getLogger(__name__)
 
 
 # TODO move aiweb_common stuff to Categorize.Workflow
@@ -41,7 +44,7 @@ class BaseCategorizeManager(BaseManager):
         Returns:
             Assembled prompt ready for the LLM.
         """
-        print("assembling prompts")
+        logger.info("assembling prompts")
         assembled_prompt = self.single_response.single_response_service.preparer.assemble_prompt(
             system_prompt=prompt_config.CATEGORIZE_SYSTEM_TEMPLATE,
             user_prompt=prompt_config.CATEGORIZE_HUMAN_TEMPLATE,
@@ -61,7 +64,7 @@ class BaseCategorizeManager(BaseManager):
                 full_text_df = self.fetch_full_text(self.df["PMID"])
                 category_df = pd.merge(self.df, full_text_df, on="PMID", how="inner")
             except Exception as e:
-                print(f"Failed while getting full texts: {str(e)}")
+                logger.error("Failed while getting full texts: %s", e)
             return category_df
 
     def save_results_to_excel(self, category_df):
@@ -79,7 +82,7 @@ class BaseCategorizeManager(BaseManager):
                 category_df.to_excel(tmpfile.name, index=False)
                 return tmpfile.name
         except Exception as e:
-            print(f"Failed to save file: {str(e)}")
+            logger.error("Failed to save file: %s", e)
             raise
 
 
@@ -103,38 +106,3 @@ class FastAPICategorizeManager(BaseCategorizeManager):
             return self.save_results_to_excel(category_df)
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
-
-
-# class StreamlitCategorizeManager(BaseCategorizeManager):
-#     def __init__(self, df, userdefined_categories):
-#         import streamlit as st
-#         super().__init__(df,userdefined_categories)
-#         st.session_state["file_uploaded_cate"] = False
-
-#     def _download_results(self, category_df):
-#         import streamlit as st  # Ensure streamlit is imported within the method
-#         category_df.drop_duplicates(subset="PMID", keep="first", inplace=True)
-#         st.write("Note that once you hit download, this form will reset.")
-#         with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmpfile:
-#             write_excel_output(tmpfile, category_df, self.userdefined_categories)
-#             with open(tmpfile.name, "rb") as file:
-#                 st.balloons()
-#                 st.download_button(
-#                     label=self.get_download_button_label(),
-#                     data=file,
-#                     file_name=self.get_filename(),
-#                     mime=self._get_mime_type(),
-#                 )
-
-
-#     def get_download_button_label(self):
-#         return config.EXCEL_DOWNLOAD_LABEL
-
-#     def categorize_articles(self):
-#         import streamlit as st  # Ensure streamlit is imported within the method
-#         super().categorize_articles()
-#         if self.df is not None:
-#             st.session_state["file_uploaded_cate"] = True
-#             with st.spinner("Categorizing contents of file..."):
-#                 category_df = self.categorize_articles()
-#             self._download_results(category_df)

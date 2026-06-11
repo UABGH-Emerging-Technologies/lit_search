@@ -56,7 +56,7 @@ def test_process_endpoint_missing_auth():
         url = "/process"
         headers = {
             "accept": "application/json",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
             # No Authorization header
         }
         response = client.post(url, headers=headers, json=payload)

@@ -17,10 +17,8 @@
         "OPENAI_API_KEY": "${localEnv:OPENAI_API_KEY}"
     },
 	
-	// change for the specific project
 	"mounts": [
-		"source=/mnt/t/AIMiniTools/ScopingReview,target=/data,type=bind,consistency=cached",
-		"source=/mnt/p/Secrets,target=/workspaces/scopingreview/secrets,readonly,type=bind"  // Mount secrets
+		"source=./data,target=/data,type=bind,consistency=cached"
 	],
 
 

@@ -2,7 +2,7 @@ services:
   lit_api:
     build: .
     ports:
-      - "${LIT_API_PORT:-8000}:8000"  # Adjusted to match the FastAPI configuration
+      - "${LIT_API_PORT:-8000}:8000"
     environment:
       PYTHONUNBUFFERED: "1"
     secrets:
@@ -19,7 +19,7 @@ services:
       - "${LIT_STREAMLIT_PORT:-8501}:8501"
     environment:
       PYTHONUNBUFFERED: "1"
-      LIT_ENDPOINT: http://lit_api:8000  # reach the backend over compose DNS
+      LIT_ENDPOINT: http://lit_api:8000
     secrets:
       - azure_proxy_key
       - azure_proxy_endpoint
@@ -27,20 +27,19 @@ services:
       lit_api:
         condition: service_healthy
 
+# Secrets are sourced from environment variables by default.
+# To use file-based secrets instead, comment the `environment:` line
+# and uncomment the `file:` line for each secret, pointing to your local path.
 secrets:
   libkey_api_key:
-    file: /mnt/p/Secrets/libkey_api_key.txt
-    # ── .env alternative ────────────────────────────────────────────────
-    # No /mnt/p/Secrets mount? Comment the `file:` line above, uncomment the
-    # `environment:` line below, then `cp .env.example .env` and fill it in.
-    # A secret takes exactly one source — keep only one of the two active.
-    # environment: libkey_api_key
+    environment: LIBKEY_API_KEY
+    # file: ./secrets/libkey_api_key.txt
   ncbi_api_key:
-    file: /mnt/p/Secrets/ncbi_api_key.txt
-    # environment: ncbi_api_key
+    environment: NCBI_API_KEY
+    # file: ./secrets/ncbi_api_key.txt
   azure_proxy_key:
-    file: /mnt/p/Secrets/azure_proxy_key.txt
-    # environment: azure_proxy_key
+    environment: AZURE_PROXY_KEY
+    # file: ./secrets/azure_proxy_key.txt
   azure_proxy_endpoint:
-    file: /mnt/p/Secrets/azure_proxy_endpoint.txt
-    # environment: azure_proxy_endpoint
+    environment: AZURE_PROXY_ENDPOINT
+    # file: ./secrets/azure_proxy_endpoint.txt

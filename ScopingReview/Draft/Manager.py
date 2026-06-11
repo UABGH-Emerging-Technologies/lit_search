@@ -2,7 +2,6 @@ import tempfile
 
 from aiweb_common.file_operations.text_format import convert_markdown_docx
 
-import streamlit as st
 from ScopingReview.BaseManager import BaseManager
 from ScopingReview_config import config
 
@@ -80,29 +79,3 @@ class DraftReviewManager(BaseManager):
         )
 
         return assembled_draft
-
-
-class StreamlitDraftReviewManager(DraftReviewManager):
-    """Streamlit UI wrapper for draft review with download buttons."""
-
-    def __init__(self, summaries, research_q):
-        super().__init__(summaries, research_q)
-        st.session_state[
-            "file_uploaded_draft"
-        ] = False  # Unique file_uploaded variable for drafting
-
-    def _download_results(self, docx_data):
-        st.balloons()
-        st.write("Note that once you hit download, this form will reset.")
-        st.download_button(
-            label=self.get_download_button_label(),
-            data=docx_data,
-            file_name=self.get_filename(),
-            mime=self.get_mime_type(),
-        )
-
-    def draft_review(self):
-        docx_data = super().draft_review()
-        if docx_data:
-            self._download_results(docx_data)
-            st.session_state["file_uploaded_draft"] = True
