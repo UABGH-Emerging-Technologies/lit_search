@@ -188,9 +188,9 @@ class StreamlitBibtexManager(BibliographyManager):
 
     def __init__(self, df, file_ext):
         super().__init__(df, file_ext)
-        st.session_state["file_uploaded_bibtex"] = (
-            False  # Unique file_uploaded variable for bibtex management
-        )
+        st.session_state[
+            "file_uploaded_bibtex"
+        ] = False  # Unique file_uploaded variable for bibtex management
 
     def get_download_button_label(self):
         return config.DOCX_DOWNLOAD_LABEL

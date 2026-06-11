@@ -1,8 +1,11 @@
+from unittest.mock import MagicMock, patch
+
 import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import patch, MagicMock
+
 from app.server import app
 from app.v01.schemas import MSExcelResponse
+
 
 # Helper: valid payload
 def get_valid_payload():
@@ -10,8 +13,9 @@ def get_valid_payload():
     return {
         "research_question": "post-surgical headache",
         "openai_compatible_endpoint": "https://example.com/llm",
-        "openai_compatible_model": "test-model"
+        "openai_compatible_model": "test-model",
     }
+
 
 @pytest.mark.parametrize(
     "payload, expected_status",
@@ -21,7 +25,7 @@ def get_valid_payload():
         ({**get_valid_payload(), "openai_compatible_endpoint": None}, 422),
         # Missing model
         ({**get_valid_payload(), "openai_compatible_model": None}, 422),
-    ]
+    ],
 )
 def test_search_various_payloads(payload, expected_status):
     with patch("app.v01.scoping.step1.get_step1_response") as mock_response:
@@ -32,7 +36,7 @@ def test_search_various_payloads(payload, expected_status):
         headers = {
             "accept": "application/json",
             "Content-Type": "application/json",
-            "Authorization": "Bearer test-key"
+            "Authorization": "Bearer test-key",
         }
         response = client.post(url, headers=headers, json=payload)
         assert response.status_code == expected_status
@@ -64,12 +68,12 @@ def test_search_invalid_key():
         headers = {
             "accept": "application/json",
             "Content-Type": "application/json",
-            "Authorization": "Bearer invalid_key"
+            "Authorization": "Bearer invalid_key",
         }
-        
+
         # TestClient raises the exception, so we catch it
         with pytest.raises(Exception) as exc_info:
             response = client.post(url, headers=headers, json=payload)
-        
+
         # Verify the exception message
         assert str(exc_info.value) == "Invalid API Key"

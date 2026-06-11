@@ -1,12 +1,20 @@
 import datetime
+
 from aiweb_common.file_operations.upload_manager import FastAPIUploadManager
-from fastapi import APIRouter, BackgroundTasks, HTTPException, Response, Security
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    HTTPException,
+    Response,
+    Security,
+)
 from fastapi.security import HTTPAuthorizationCredentials
+
 import app.fastapi_config as api_config
+from app.dependencies import get_api_key, security
 from app.v01.schemas import MSWordResponse
 from app.v01.scoping.schemas import SummariesRequest
 from ScopingReview.Summarize.Workflow import SummarizeArticles
-from app.dependencies import security, get_api_key
 
 router = APIRouter(tags=["scoping", "step4"])
 
@@ -25,7 +33,7 @@ def get_step4_response(
         df = upload_manager.read_and_validate_file(xlsx_encoded, ".xlsx")
         if df is None:
             raise HTTPException(status_code=422, detail="Failed to process the file")
-        
+
         summarization = SummarizeArticles(
             df,
             research_question,
@@ -34,9 +42,7 @@ def get_step4_response(
             openai_compatible_model,
         )
         summaries_md, warning_msg = summarization.process()
-        encoded_file = summarization.summarizer.get_encoded_docx(
-            summaries_md, background_tasks
-        )
+        encoded_file = summarization.summarizer.get_encoded_docx(summaries_md, background_tasks)
         response = MSWordResponse(encoded_docx=encoded_file)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
@@ -55,7 +61,7 @@ async def summarize_articles(
     Requires API key in Authorization header (Bearer scheme).
     """
     api_key = await get_api_key(credentials)
-    
+
     response_data, warning_message = get_step4_response(
         background_tasks,
         request.research_question,

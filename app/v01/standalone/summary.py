@@ -1,11 +1,13 @@
+import base64
 from datetime import datetime
+
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Security
 from fastapi.security import HTTPAuthorizationCredentials
-import base64
+
 import app.fastapi_config as api_config
+from app.dependencies import get_api_key, security
 from app.v01.schemas import MSWordResponse, SearchRequest
 from ScopingReview.Standalone.Workflow import StandaloneSummary
-from app.dependencies import security, get_api_key
 
 router = APIRouter(tags=["standalone", "summary"])
 
@@ -46,7 +48,7 @@ async def initial_literature_search(
     Requires API key in Authorization header (Bearer scheme).
     """
     api_key = await get_api_key(credentials)
-    
+
     response = get_summary_response(
         background_tasks,
         query.research_question,

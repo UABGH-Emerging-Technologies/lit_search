@@ -1,14 +1,19 @@
 import base64
 import os
+
 from aiweb_common.file_operations.file_handling import file_to_base64
 from aiweb_common.file_operations.upload_manager import FastAPIUploadManager
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Security
 from fastapi.security import HTTPAuthorizationCredentials
+
 import app.fastapi_config as api_config
+from app.dependencies import get_api_key, security
 from app.v01.schemas import UploadableFiles
-from app.v01.standalone.schemas import BibliographyRequest, BibliographyResponse
+from app.v01.standalone.schemas import (
+    BibliographyRequest,
+    BibliographyResponse,
+)
 from ScopingReview.Bibliography.Manager import FastAPIBibtexManager
-from app.dependencies import security, get_api_key
 
 router = APIRouter(tags=["standalone", "bibliography"])
 
@@ -68,7 +73,7 @@ async def bibliography_download(
     Requires API key in Authorization header (Bearer scheme).
     """
     api_key = await get_api_key(credentials)
-    
+
     response = get_bibtex_response(
         request.file_encoded,
         request.file_extension,

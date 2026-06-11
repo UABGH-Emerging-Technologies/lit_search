@@ -159,7 +159,7 @@ class KeywordManager(BaseManager):
         primary_keywords = data.get("Primary Keywords", [])
         secondary_keywords = data.get("Secondary Keywords", [])
         exclusion_keywords = data.get("Exclusion Keywords", [])
-    
+
         return primary_keywords, secondary_keywords, exclusion_keywords
 
     def write_keywords_excel_output(self, tmpfile, df, unique_keywords_str):

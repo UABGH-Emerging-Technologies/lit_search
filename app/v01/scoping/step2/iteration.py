@@ -1,15 +1,17 @@
+import logging
 from datetime import datetime
+
 from aiweb_common.file_operations.upload_manager import FastAPIUploadManager
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Security
 from fastapi.security import HTTPAuthorizationCredentials
 from pydantic import BaseModel, Field
+
 import app.fastapi_config as api_config
+from app.dependencies import get_api_key, security
 from app.v01.schemas import MSExcelResponse
 from app.v01.scoping.step2.validators import validate_keywords_data
 from ScopingReview.IterateSearch.Workflow import IterateSearch
 from ScopingReview.Keywords.Manager import KeywordData
-from app.dependencies import security, get_api_key
-import logging
 
 router = APIRouter(tags=["scoping", "step2"])
 logger = logging.getLogger("app_logger")
@@ -37,7 +39,7 @@ def get_step2iteration_response(
 ) -> MSExcelResponse:
     start = datetime.now()
     import binascii
-    
+
     logger.info("=" * 60)
     logger.info("STEP 2 ITERATION - Starting processing")
     logger.info(f"Research question: {question[:100]}...")  # First 100 chars
@@ -51,18 +53,20 @@ def get_step2iteration_response(
     try:
         logger.info("Creating upload manager...")
         upload_manager = FastAPIUploadManager(background_tasks=background_tasks)
-        
+
         logger.info("Attempting to decode and validate Excel file...")
         try:
             df = upload_manager.read_and_validate_file(xlsx_encoded, extension=".xlsx")
-            logger.info(f"Successfully decoded Excel file. Shape: {df.shape if df is not None else 'None'}")
+            logger.info(
+                f"Successfully decoded Excel file. Shape: {df.shape if df is not None else 'None'}"
+            )
         except (UnicodeDecodeError, binascii.Error) as decode_err:
             logger.error(f"Failed to decode Excel file: {decode_err}")
             raise HTTPException(
                 status_code=422,
-                detail="Failed to decode the uploaded Excel file. Please ensure it is a valid base64-encoded XLSX file."
+                detail="Failed to decode the uploaded Excel file. Please ensure it is a valid base64-encoded XLSX file.",
             ) from decode_err
-            
+
         if df is None:
             logger.error("DataFrame is None after validation")
             raise HTTPException(status_code=422, detail="Failed to process the file")
@@ -76,15 +80,15 @@ def get_step2iteration_response(
             openai_compatible_key,
             openai_compatible_model,
         )
-        
+
         logger.info("Calling iterate_search.process()...")
         articles_df, refined_query = iterate_search.process()
-        
+
         logger.info(f"Process completed. Articles DF is None: {articles_df is None}")
         if articles_df is not None:
             logger.info(f"Articles DataFrame shape: {articles_df.shape}")
             logger.info(f"Refined query: {refined_query}")
-        
+
         # Defensive check: if the upstream search returned None (no articles found / failure),
         # raise a clear 422 to surface a validation-like error to clients/tests instead of
         # letting subsequent attribute access trigger a 500.
@@ -92,22 +96,22 @@ def get_step2iteration_response(
             logger.warning("Upstream search workflow returned None")
             raise HTTPException(
                 status_code=422,
-                detail="Upstream search workflow returned no articles (articles_df is None)."
+                detail="Upstream search workflow returned no articles (articles_df is None).",
             )
-        
+
         logger.info("Encoding Excel file for response...")
         encoded_file = iterate_search.search_manager.get_encoded_excel(
             articles_df, background_tasks, pubmed_query="refined_query"
         )
-        
+
         logger.info(f"Successfully encoded file. Length: {len(encoded_file)}")
         response = MSExcelResponse(encoded_xlsx=encoded_file)
-        
+
         elapsed = (datetime.now() - start).total_seconds()
         logger.info(f"Step 2 iteration completed successfully in {elapsed:.2f}s")
-        
+
         return response
-        
+
     except HTTPException:
         # Re-raise HTTPExceptions as-is
         raise
@@ -142,10 +146,12 @@ async def update_keywords_and_search(
     logger.info(f"Model: {request.openai_compatible_model}")
     logger.info(f"Excel file length: {len(request.xlsx_encoded)}")
     logger.info("=" * 60)
-    
+
     api_key = await get_api_key(credentials)
-    logger.info(f"API key retrieved. Present: {bool(api_key)}, Length: {len(api_key) if api_key else 0}")
-    
+    logger.info(
+        f"API key retrieved. Present: {bool(api_key)}, Length: {len(api_key) if api_key else 0}"
+    )
+
     logger.info("Validating keywords...")
     keywords = validate_keywords_data(
         request.primary_keywords,
@@ -153,7 +159,7 @@ async def update_keywords_and_search(
         request.exclusion_keywords,
     )
     logger.info(f"Keywords validated: {keywords}")
-    
+
     response = get_step2iteration_response(
         background_tasks,
         request.research_question,
@@ -163,5 +169,5 @@ async def update_keywords_and_search(
         api_key,
         request.openai_compatible_model,
     )
-    
+
     return response

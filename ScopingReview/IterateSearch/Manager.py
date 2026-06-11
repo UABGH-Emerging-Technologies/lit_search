@@ -1,6 +1,8 @@
 import tempfile
+
 import pandas as pd
 from fastapi import HTTPException
+
 from ScopingReview.InitialSearch.Manager import BaseSearchManager
 from ScopingReview.Keywords.Manager import KeywordData
 from ScopingReview.Keywords.Workflow import KeywordWorkflow
@@ -38,12 +40,12 @@ class BaseIterateSearchManager(BaseSearchManager):
         self.primary_keywords = keywords.primary_keywords
         self.secondary_keywords = keywords.secondary_keywords
         self.exclusion_keywords = keywords.exclusion_keywords
-        
+
         # Store LLM config
         self.openai_compatible_endpoint = openai_compatible_endpoint
         self.openai_compatible_key = openai_compatible_key
         self.openai_compatible_model = openai_compatible_model
-        
+
         # Pass LLM config to KeywordWorkflow
         self.keyword_workflow = KeywordWorkflow(
             self.df,

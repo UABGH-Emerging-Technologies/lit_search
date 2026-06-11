@@ -1,11 +1,16 @@
 import tempfile
+
 from aiweb_common.file_operations.text_format import convert_markdown_docx
 from aiweb_common.generate.SingleResponse import SingleResponseHandler
 from aiweb_common.WorkflowHandler import WorkflowHandler, extract_response_text
+
 import ScopingReview_config.config as config
 import ScopingReview_config.prompt_config as prompt_config
 from ScopingReview.InitialSearch.Workflow import ArticleSearch
-from ScopingReview_config.config import REASONING_EFFORT, _is_responses_api_model
+from ScopingReview_config.config import (
+    REASONING_EFFORT,
+    _is_responses_api_model,
+)
 
 
 class StandaloneSummary(WorkflowHandler):
@@ -27,7 +32,7 @@ class StandaloneSummary(WorkflowHandler):
     ):
         super().__init__()
         self.research_question = research_question
-        
+
         # Initialize LLM with dynamic configuration (like IRB Assistant)
         _use_responses = _is_responses_api_model(openai_compatible_model)
         self._init_openai(
@@ -38,7 +43,7 @@ class StandaloneSummary(WorkflowHandler):
             use_responses_api=_use_responses,
             reasoning_effort=REASONING_EFFORT if _use_responses else None,
         )
-        
+
         # Pass LLM parameters to ArticleSearch (it also needs them now)
         self.searcher = ArticleSearch(
             research_question,
@@ -46,7 +51,7 @@ class StandaloneSummary(WorkflowHandler):
             openai_compatible_key,
             openai_compatible_model,
         )
-        
+
         # Use self.llm_interface instead of config.LLM_INTERFACE
         self.single_response = SingleResponseHandler(self.llm_interface)
 

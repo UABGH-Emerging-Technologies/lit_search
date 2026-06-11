@@ -1,8 +1,12 @@
 from aiweb_common.generate.SingleResponse import SingleResponseHandler
 from aiweb_common.WorkflowHandler import WorkflowHandler, extract_response_text
+
 from ScopingReview.Keywords.Manager import KeywordData, KeywordManager
 from ScopingReview_config import config, prompt_config
-from ScopingReview_config.config import REASONING_EFFORT, _is_responses_api_model
+from ScopingReview_config.config import (
+    REASONING_EFFORT,
+    _is_responses_api_model,
+)
 
 
 class KeywordWorkflow(WorkflowHandler):
@@ -27,7 +31,7 @@ class KeywordWorkflow(WorkflowHandler):
         super().__init__()
         self.df = df
         self.research_question = research_question
-        
+
         # Initialize LLM with dynamic configuration (like IRB Assistant)
         _use_responses = _is_responses_api_model(openai_compatible_model)
         self._init_openai(
@@ -38,7 +42,7 @@ class KeywordWorkflow(WorkflowHandler):
             use_responses_api=_use_responses,
             reasoning_effort=REASONING_EFFORT if _use_responses else None,
         )
-        
+
         # Use self.llm_interface instead of config.SMART_LLM_INTERFACE
         self.single_response = SingleResponseHandler(self.llm_interface)
         self.keyword_manager = KeywordManager(self.df, self.research_question)

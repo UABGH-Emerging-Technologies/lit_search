@@ -1,12 +1,14 @@
 import datetime
+
 from aiweb_common.file_operations.upload_manager import FastAPIUploadManager
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Security
 from fastapi.security import HTTPAuthorizationCredentials
+
 import app.fastapi_config as api_config
+from app.dependencies import get_api_key, security
 from app.v01.schemas import MSWordResponse
 from app.v01.scoping.schemas import DraftRequest
 from ScopingReview.Draft.Workflow import DraftReview
-from app.dependencies import security, get_api_key
 
 router = APIRouter(tags=["scoping", "step5"])
 
@@ -27,7 +29,7 @@ def get_step5_response(
             raise HTTPException(
                 status_code=422, detail="Failed to process the file or unsupported file type"
             )
-        
+
         drafting = DraftReview(
             summaries_markdown,
             research_question,
@@ -54,7 +56,7 @@ async def draft_review(
     Requires API key in Authorization header (Bearer scheme).
     """
     api_key = await get_api_key(credentials)
-    
+
     response = get_step5_response(
         background_tasks,
         request.research_question,

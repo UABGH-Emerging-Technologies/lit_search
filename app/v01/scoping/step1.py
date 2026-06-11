@@ -1,10 +1,12 @@
 from datetime import datetime
+
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Security
 from fastapi.security import HTTPAuthorizationCredentials
+
 import app.fastapi_config as api_config
+from app.dependencies import get_api_key, security
 from app.v01.schemas import MSExcelResponse, SearchRequest
 from ScopingReview.InitialSearch.Workflow import ArticleSearch
-from app.dependencies import security, get_api_key
 
 router = APIRouter(tags=["scoping", "step1"])
 
@@ -18,14 +20,14 @@ def get_step1_response(
 ) -> MSExcelResponse:
     """
     Performs literature search based on research question.
-    
+
     Args:
         background_tasks: FastAPI background tasks
         research_question: The research question to search for
         openai_compatible_endpoint: OpenAI-compatible API endpoint URL
         openai_compatible_key: API key for authentication
         openai_compatible_model: Model name to use
-        
+
     Returns:
         MSExcelResponse containing encoded Excel file
     """
@@ -59,12 +61,12 @@ async def perform_step1_scoping_search(
     """
     Conducts an initial literature search based on a research question, compiles the
     results into an Excel file, and returns it for download.
-    
+
     Requires API key in Authorization header (Bearer scheme).
     """
     # Extract API key from Authorization header (like IRB Assistant)
     api_key = await get_api_key(credentials)
-    
+
     return get_step1_response(
         background_tasks,
         query.research_question,

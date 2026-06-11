@@ -1,13 +1,15 @@
 import datetime
+
 from aiweb_common.file_operations.upload_manager import FastAPIUploadManager
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Security
 from fastapi.security import HTTPAuthorizationCredentials
+
 import app.fastapi_config as api_config
+from app.dependencies import get_api_key, security
 from app.v01.schemas import MSExcelResponse
 from app.v01.scoping.schemas import CategoriesRequest
 from ScopingReview.Categorize.Workflow import CategorizeWorkflow
 from ScopingReview_config import app_config
-from app.dependencies import security, get_api_key
 
 router = APIRouter(tags=["scoping", "step3"])
 
@@ -26,7 +28,7 @@ def get_step3_response(
         df = upload_manager.read_and_validate_file(xlsx_encoded, extension=".xlsx")
         if df is None:
             raise HTTPException(status_code=422, detail="Failed to process the file")
-        
+
         categorize_workflow = CategorizeWorkflow(
             df,
             user_defined_categories,
@@ -57,7 +59,7 @@ async def categorize_articles(
     Requires API key in Authorization header (Bearer scheme).
     """
     api_key = await get_api_key(credentials)
-    
+
     response = get_step3_response(
         background_tasks,
         request.user_defined_categories,

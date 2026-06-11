@@ -87,9 +87,9 @@ class StreamlitDraftReviewManager(DraftReviewManager):
 
     def __init__(self, summaries, research_q):
         super().__init__(summaries, research_q)
-        st.session_state["file_uploaded_draft"] = (
-            False  # Unique file_uploaded variable for drafting
-        )
+        st.session_state[
+            "file_uploaded_draft"
+        ] = False  # Unique file_uploaded variable for drafting
 
     def _download_results(self, docx_data):
         st.balloons()
