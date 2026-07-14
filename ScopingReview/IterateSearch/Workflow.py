@@ -80,6 +80,12 @@ class IterateSearch(ArticleSearch):
         )
         articles_df = self.search_workflow.process()
 
+        # Capture the actual LLM-generated PubMed query string produced during the
+        # refined search so it can be exported for transparency. Note that
+        # ``refined_query`` is the keyword-enriched *prompt* sent to the LLM, whereas
+        # ``generated_query`` is the boolean query the LLM actually built.
+        self.generated_query = self.search_workflow.generated_query
+
         # Ensure 'PMID' columns are strings for merge
         articles_df["PMID"] = articles_df["PMID"].astype(str)
         self.iterate_search_manager.selected_articles_df["PMID"] = (

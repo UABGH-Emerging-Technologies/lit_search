@@ -44,7 +44,10 @@ def get_step1_response(
         if articles_df is None:
             raise HTTPException(status_code=404, detail="No articles found")
         encoded_file = article_search.search_manager.get_encoded_excel(
-            articles_df, background_tasks, research_question
+            articles_df,
+            background_tasks,
+            research_question,
+            pubmed_query=article_search.generated_query,
         )
         response = MSExcelResponse(encoded_xlsx=encoded_file)
     except Exception as e:

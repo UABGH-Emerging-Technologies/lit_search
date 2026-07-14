@@ -237,7 +237,7 @@ class BaseManager:
             df.to_excel(writer, index=False, sheet_name="Sheet1")
 
             # Convert string to dataFrame and save to excel
-            data = {"Input Terms": [input_search_terms], "PubMed Querey": [query_strings]}
+            data = {"Input Terms": [input_search_terms], "PubMed Query": [query_strings]}
             df_keywords = pd.DataFrame(data)
             df_keywords.to_excel(writer, index=False, sheet_name="Sheet2")
 

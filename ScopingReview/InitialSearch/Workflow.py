@@ -50,6 +50,10 @@ class ArticleSearch(WorkflowHandler):
         super().__init__()
         self.research_question = research_question
 
+        # The final LLM-generated PubMed query string, captured for transparency
+        # and written to a second sheet in the exported Excel file.
+        self.generated_query = ""
+
         # Initialize LLM with dynamic configuration (like IRB Assistant)
         _use_responses = _is_responses_api_model(openai_compatible_model)
         self._init_openai(
@@ -80,6 +84,10 @@ class ArticleSearch(WorkflowHandler):
         while n <= config.MAX_TRIES:
             search_string = query_generator.process(loop_n=n, last_query=search_string)
             logger.info("Query: %s", search_string)
+
+            # Record the most recent LLM-generated query so it is preserved even
+            # when the search does not yield enough articles.
+            self.generated_query = search_string
 
             article_ids = self.search_manager.pubmed_interface.search_pubmed_articles(search_string)
             logger.info("Articles found: %d", len(article_ids))
