@@ -61,14 +61,20 @@ class IterateSearch(ArticleSearch):
             self.iterate_search_manager.selected_articles_df["PMID"].astype(str)
         )
         
-        # Merge the 'Relevant' column from selected_articles_df if present
-        if "Relevant" in self.iterate_search_manager.selected_articles_df.columns:
-            articles_df = articles_df.merge(
-                self.iterate_search_manager.selected_articles_df[["PMID", "Relevant"]],
-                on="PMID",
-                how="left"
-            )
+        # Preserve Yes articles: concatenate previously-selected articles
+        # with new search results, then deduplicate by PMID (keep the
+        # selected version so the Y/N columns stay intact).
+        selected = self.iterate_search_manager.selected_articles_df
+        if not selected.empty:
+            # Mark selected articles so their Relevant column carries through
+            if "Relevant" not in selected.columns:
+                selected = selected.copy()
+                selected["Relevant"] = "True"
+            # Concat: selected first, then new articles
+            combined = pd.concat([selected, articles_df], ignore_index=True)
+            combined.drop_duplicates(subset="PMID", keep="first", inplace=True)
+            articles_df = combined
         else:
             articles_df["Relevant"] = None
-        
+
         return articles_df, refined_query

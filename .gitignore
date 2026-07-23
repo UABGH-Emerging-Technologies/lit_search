@@ -173,3 +173,6 @@ secrets/*
 
 # CodeGraph
 .codegraph/
+
+# Claude Code
+.claude/settings.local.json
