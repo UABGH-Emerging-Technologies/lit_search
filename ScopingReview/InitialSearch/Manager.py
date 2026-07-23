@@ -7,6 +7,7 @@ from typing import List
 
 import pandas as pd
 from aiweb_common.resource.PubMedInterface import PubMedInterface
+from ScopingReview_config import config
 from fastapi import HTTPException
 
 import ScopingReview_config.config as config
@@ -22,7 +23,7 @@ class BaseSearchManager(BaseManager):
         self.loop_counter = 0
         self.query = ""
         self.previous_query = ""
-        self.pubmed_interface = PubMedInterface()
+        self.pubmed_interface = PubMedInterface(max_results=config.MAX_ARTICLES_SR)
 
     def _fetch_articles(self, query):
         article_ids = self.pubmed_interface.search_pubmed_articles(query)
