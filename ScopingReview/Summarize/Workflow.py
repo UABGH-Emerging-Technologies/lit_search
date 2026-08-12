@@ -9,9 +9,13 @@ from fastapi import HTTPException
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 import ScopingReview_config.prompt_config as prompt_config
+from ScopingReview.reference_sort import sort_reference_df
 from ScopingReview.Summarize.Manager import SummarizeManager
 from ScopingReview_config import boilerplate, config
-from ScopingReview_config.config import REASONING_EFFORT, _is_responses_api_model
+from ScopingReview_config.config import (
+    REASONING_EFFORT,
+    _is_responses_api_model,
+)
 
 
 class SummarizeArticles(WorkflowHandler):
@@ -27,7 +31,7 @@ class SummarizeArticles(WorkflowHandler):
         self.df = df
         self.research_q = research_q
         self.summarizer = SummarizeManager(df, research_q)
-        
+
         # Initialize LLM with dynamic configuration (like IRB Assistant)
         _use_responses = _is_responses_api_model(openai_compatible_model)
         self._init_openai(
@@ -38,7 +42,7 @@ class SummarizeArticles(WorkflowHandler):
             use_responses_api=_use_responses,
             reasoning_effort=REASONING_EFFORT if _use_responses else None,
         )
-        
+
         # Use self.llm_interface for both fast and regular LLM
         # Note: You could add a separate fast_llm_interface if needed
         self.fast_single_response = SingleResponseHandler(self.llm_interface)
@@ -166,7 +170,9 @@ class SummarizeArticles(WorkflowHandler):
                     + "\n\n"
                     + extract_response_text(response.content)
                     + "\n\n"
-                    + "\n\n".join(filtered_rows.citation)
+                    # Sorted here rather than before the loop above, so ordering the reference
+                    # block does not change the order summaries are fed to the LLM.
+                    + "\n\n".join(sort_reference_df(filtered_rows).citation)
                 )
         return "\n\n".join(output)
 
