@@ -1,4 +1,5 @@
 import datetime
+import logging
 
 from aiweb_common.file_operations.upload_manager import FastAPIUploadManager
 from fastapi import (
@@ -17,6 +18,7 @@ from app.v01.scoping.schemas import SummariesRequest
 from ScopingReview.Summarize.Workflow import SummarizeArticles
 
 router = APIRouter(tags=["scoping", "step4"])
+logger = logging.getLogger("app_logger")
 
 
 def get_step4_response(
@@ -44,8 +46,11 @@ def get_step4_response(
         summaries_md, warning_msg = summarization.process()
         encoded_file = summarization.summarizer.get_encoded_docx(summaries_md, background_tasks)
         response = MSWordResponse(encoded_docx=encoded_file)
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e)) from e
+        logger.exception("Unhandled error in get_step4_response")
+        raise HTTPException(status_code=500, detail="Internal server error") from e
     return response, warning_msg
 
 

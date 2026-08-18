@@ -1,4 +1,5 @@
 import base64
+import logging
 import os
 
 from aiweb_common.file_operations.file_handling import file_to_base64
@@ -16,6 +17,7 @@ from app.v01.standalone.schemas import (
 from ScopingReview.Bibliography.Manager import FastAPIBibtexManager
 
 router = APIRouter(tags=["standalone", "bibliography"])
+logger = logging.getLogger("app_logger")
 
 
 def get_bibtex_response(
@@ -57,8 +59,11 @@ def get_bibtex_response(
         encoded_file = file_to_base64(temp_file_path)  # Convert the file to a base64 string
         background_tasks.add_task(os.unlink, temp_file_path)
         response = BibliographyResponse(encoded_bib=encoded_file)
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e)) from e
+        logger.exception("Unhandled error in bibliography response")
+        raise HTTPException(status_code=500, detail="Internal server error") from e
     return response
 
 

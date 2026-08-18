@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 
 from aiweb_common.file_operations.upload_manager import FastAPIUploadManager
@@ -12,6 +13,7 @@ from ScopingReview.Keywords.Workflow import KeywordWorkflow
 from ScopingReview_config import app_config
 
 router = APIRouter(tags=["scoping", "step2"])
+logger = logging.getLogger("app_logger")
 
 
 def get_step2keywords_response(
@@ -43,8 +45,11 @@ def get_step2keywords_response(
                 status_code=422,
                 detail="Keyword workflow returned no keywords (None). Check LLM response or inputs.",
             )
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e)) from e
+        logger.exception("Unhandled error in get_step2keywords_response")
+        raise HTTPException(status_code=500, detail="Internal server error") from e
     return keywords
 
 

@@ -23,6 +23,13 @@ class SearchRequest(BaseModel):
     openai_compatible_model: str = Field(..., description="Model name to use for LLM calls")
     # Note: openai_compatible_key comes from Authorization header
 
+    @field_validator("openai_compatible_endpoint")
+    @classmethod
+    def _validate_endpoint(cls, v: str) -> str:
+        from app.v01.net_validators import validate_public_http_url
+
+        return validate_public_http_url(v)
+
 
 class MSWordResponse(BaseModel):
     """This class represents a response containing a Microsoft Word document."""

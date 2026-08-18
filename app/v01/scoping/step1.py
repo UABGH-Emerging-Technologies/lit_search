@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Security
@@ -9,6 +10,7 @@ from app.v01.schemas import MSExcelResponse, SearchRequest
 from ScopingReview.InitialSearch.Workflow import ArticleSearch
 
 router = APIRouter(tags=["scoping", "step1"])
+logger = logging.getLogger("app_logger")
 
 
 def get_step1_response(
@@ -50,8 +52,11 @@ def get_step1_response(
             pubmed_query=article_search.generated_query,
         )
         response = MSExcelResponse(encoded_xlsx=encoded_file)
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e)) from e
+        logger.exception("Unhandled error in get_step1_response")
+        raise HTTPException(status_code=500, detail="Internal server error") from e
     return response
 
 

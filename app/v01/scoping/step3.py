@@ -1,4 +1,5 @@
 import datetime
+import logging
 
 from aiweb_common.file_operations.upload_manager import FastAPIUploadManager
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Security
@@ -12,6 +13,7 @@ from ScopingReview.Categorize.Workflow import CategorizeWorkflow
 from ScopingReview_config import app_config
 
 router = APIRouter(tags=["scoping", "step3"])
+logger = logging.getLogger("app_logger")
 
 
 def get_step3_response(
@@ -43,8 +45,11 @@ def get_step3_response(
             research_question=user_defined_categories,
         )
         response = MSExcelResponse(encoded_xlsx=encoded_file)
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e)) from e
+        logger.exception("Unhandled error in get_step3_response")
+        raise HTTPException(status_code=500, detail="Internal server error") from e
     return response
 
 

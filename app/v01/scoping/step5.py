@@ -1,4 +1,5 @@
 import datetime
+import logging
 
 from aiweb_common.file_operations.upload_manager import FastAPIUploadManager
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Security
@@ -11,6 +12,7 @@ from app.v01.scoping.schemas import DraftRequest
 from ScopingReview.Draft.Workflow import DraftReview
 
 router = APIRouter(tags=["scoping", "step5"])
+logger = logging.getLogger("app_logger")
 
 
 def get_step5_response(
@@ -40,8 +42,11 @@ def get_step5_response(
         draft_md = drafting.process()
         encoded_file = drafting.drafter.get_encoded_docx(draft_md, background_tasks)
         response = MSWordResponse(encoded_docx=encoded_file)
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e)) from e
+        logger.exception("Unhandled error in get_step5_response")
+        raise HTTPException(status_code=500, detail="Internal server error") from e
     return response
 
 

@@ -2,11 +2,12 @@ import logging
 
 import uvicorn
 from aiweb_common.fastapi.helper_apis import router as utils_router
-from fastapi import FastAPI, Header, HTTPException, Request
+from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from app import fastapi_config
+from app.dependencies import require_gateway_key
 from app.v01.scoping.step1 import router as v01_scoping_step1_router
 from app.v01.scoping.step2.iteration import (
     router as v01_scoping_step2iteration_router,
@@ -79,7 +80,7 @@ async def custom_exception_handler(request, exc):
     logger.error(f"Unhandled exception: {exc}", exc_info=True)
     return JSONResponse(
         status_code=500,
-        content={"detail": str(exc)},
+        content={"detail": "Internal server error"},
     )
 
 
@@ -94,46 +95,20 @@ class LoggingMiddleware(BaseHTTPMiddleware):
 
 app.add_middleware(LoggingMiddleware)
 
-app.include_router(v01_standalone_summary_router)
-app.include_router(v01_standalone_bibliography_router)
-app.include_router(v01_scoping_step1_router)
-app.include_router(v01_scoping_step2keywords_router)
-app.include_router(v01_scoping_step2iteration_router)
-app.include_router(v01_scoping_step3_router)
-app.include_router(v01_scoping_step4_router)
-app.include_router(v01_scoping_step5_router)
+app.include_router(v01_standalone_summary_router, dependencies=[Depends(require_gateway_key)])
+app.include_router(v01_standalone_bibliography_router, dependencies=[Depends(require_gateway_key)])
+app.include_router(v01_scoping_step1_router, dependencies=[Depends(require_gateway_key)])
+app.include_router(v01_scoping_step2keywords_router, dependencies=[Depends(require_gateway_key)])
+app.include_router(v01_scoping_step2iteration_router, dependencies=[Depends(require_gateway_key)])
+app.include_router(v01_scoping_step3_router, dependencies=[Depends(require_gateway_key)])
+app.include_router(v01_scoping_step4_router, dependencies=[Depends(require_gateway_key)])
+app.include_router(v01_scoping_step5_router, dependencies=[Depends(require_gateway_key)])
 app.include_router(utils_router)
 
 
 @app.get("/health")
 def health_check():
     return {"status": "healthy"}
-
-
-@app.post("/process")
-async def process_request(
-    request: Request,
-    authorization: str = Header(..., description="Bearer token for authentication"),
-):
-    if authorization is None:
-        raise HTTPException(status_code=400, detail="Authorization header missing")
-    if not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=400, detail="Invalid authorization header format")
-
-    api_key = authorization.split(" ")[1]
-    body = await request.json()
-    openai_compatible_endpoint = body.get("openai_compatible_endpoint")
-    openai_compatible_model = body.get("openai_compatible_model")
-
-    # Validate required fields
-    if not openai_compatible_endpoint or not openai_compatible_model:
-        raise HTTPException(status_code=422, detail="Missing required fields")
-
-    # Simulate invalid API key handling
-    if api_key == "invalid_key":
-        raise HTTPException(status_code=500, detail="Invalid API Key")
-
-    return {"message": "Request processed successfully"}
 
 
 if __name__ == "__main__":

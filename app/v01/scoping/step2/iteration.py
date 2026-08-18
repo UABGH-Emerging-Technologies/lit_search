@@ -125,7 +125,7 @@ def get_step2iteration_response(
         logger.error(f"Exception message: {str(e)}")
         logger.exception("Full traceback:")
         logger.error("=" * 60)
-        raise HTTPException(status_code=500, detail=str(e)) from e
+        raise HTTPException(status_code=500, detail="Internal server error") from e
 
 
 @router.post("/v01/scoping/step2/iteration/", **api_config.SCOPING_STEP2EXCEL_META)

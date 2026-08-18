@@ -1,4 +1,5 @@
 import base64
+import logging
 from datetime import datetime
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Security
@@ -10,6 +11,7 @@ from app.v01.schemas import MSWordResponse, SearchRequest
 from ScopingReview.Standalone.Workflow import StandaloneSummary
 
 router = APIRouter(tags=["standalone", "summary"])
+logger = logging.getLogger("app_logger")
 
 
 def get_summary_response(
@@ -32,8 +34,11 @@ def get_summary_response(
             docx_bytes = f.read()
         encoded_file = base64.b64encode(docx_bytes).decode("utf-8")
         response = MSWordResponse(encoded_docx=encoded_file)
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e)) from e
+        logger.exception("Unhandled error in get_summary_response")
+        raise HTTPException(status_code=500, detail="Internal server error") from e
     return response
 
 
