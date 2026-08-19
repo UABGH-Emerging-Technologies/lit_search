@@ -10,8 +10,7 @@ from fastapi import HTTPException
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 import ScopingReview_config.prompt_config as prompt_config
-
-logger = logging.getLogger(__name__)
+from ScopingReview.reference_sort import sort_reference_df
 from ScopingReview.Summarize.Manager import SummarizeManager
 from ScopingReview_config import boilerplate, config
 from ScopingReview_config.config import (
@@ -239,7 +238,9 @@ class SummarizeArticles(WorkflowHandler):
                     + "\n\n"
                     + extract_response_text(response.content)
                     + "\n\n"
-                    + "\n\n".join(filtered_rows.citation)
+                    # Sorted here rather than before the loop above, so ordering the reference
+                    # block does not change the order summaries are fed to the LLM.
+                    + "\n\n".join(sort_reference_df(filtered_rows).citation)
                 )
         return "\n\n".join(output)
 

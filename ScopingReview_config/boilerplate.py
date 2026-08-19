@@ -2,7 +2,6 @@
 
 METHODOLOGY = """
 # Methodology
-Paraphrase this methodology section: 
 
 ## Use of Generative AI in the Scoping Review Process
 This scoping review leveraged a generative AI tool designed to streamline the process of identifying and synthesizing relevant literature. The tool's capabilities include generating PubMed queries based on user-provided research questions, returning a manageable list of articles for review, and assisting in the iterative refinement of the search process. It is noteworthy that this AI tool functions interactively, requiring user input at critical stages, particularly in the decision-making process for article inclusion or exclusion. Users, typically authors of the review, play a pivotal role in guiding the AI through iterative cycles of query refinement and article selection, ensuring that the final set of articles closely aligns with the specific research question. The availability and specific functionalities of this tool, if published, can be found in [insert source here].

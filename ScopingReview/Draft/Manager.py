@@ -28,16 +28,13 @@ class DraftReviewManager(BaseManager):
     # TODO: find better place for this. Used by write_first_draft()
     @staticmethod
     def extract_apa_citations(markdown_text):
-        """Separate APA citation paragraphs from body paragraphs in markdown text.
-
-        Args:
-            markdown_text: Full markdown text with embedded PMID citations.
-
-        Returns:
-            Tuple of (citation_paragraphs, non_citation_paragraphs).
-        """
-        # Split the document into paragraphs
-        paragraphs = markdown_text.split("\n\n")
+        # Split on single newlines rather than blank lines. The step 4 DOCX is read
+        # back by FastAPIUploadManager, which joins Word paragraphs with one "\n",
+        # so "\n\n" never appears and the whole document would collapse into a
+        # single paragraph -- everything would then be classified as a citation.
+        # Blank entries are dropped, so this still works on blank-line-separated
+        # input.
+        paragraphs = [para.strip() for para in markdown_text.split("\n") if para.strip()]
 
         # Filter paragraphs that contain "PMID"
         citations = [para for para in paragraphs if "PMID" in para]

@@ -101,10 +101,7 @@ def get_step2iteration_response(
 
         logger.info("Encoding Excel file for response...")
         encoded_file = iterate_search.search_manager.get_encoded_excel(
-            articles_df,
-            background_tasks,
-            research_question=question,
-            pubmed_query=iterate_search.generated_query,
+            articles_df, background_tasks, pubmed_query=refined_query
         )
 
         logger.info(f"Successfully encoded file. Length: {len(encoded_file)}")

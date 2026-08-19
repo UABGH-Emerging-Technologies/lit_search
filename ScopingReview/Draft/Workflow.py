@@ -10,6 +10,7 @@ import ScopingReview_config.prompt_config as prompt_config
 
 logger = logging.getLogger(__name__)
 from ScopingReview.Draft.Manager import DraftReviewManager
+from ScopingReview.reference_sort import sort_citation_paragraphs
 from ScopingReview_config import config
 from ScopingReview_config.config import (
     REASONING_EFFORT,
@@ -136,6 +137,9 @@ class DraftReview(WorkflowHandler):
             Full draft markdown string.
         """
         citations, non_citations = self.drafter.extract_apa_citations(self.summaries)
+        # Step 4 emits references grouped by category and repeats any article filed
+        # under more than one, so order and de-duplicate before the References section.
+        citations = sort_citation_paragraphs(citations)
         # prep introduction
         intro_prompt = self.assemble_intro_prompt(non_citations)
         intro, intro_response_meta = self.single_response.generate_response(intro_prompt)

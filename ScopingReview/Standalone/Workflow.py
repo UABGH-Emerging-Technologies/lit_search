@@ -10,6 +10,7 @@ import ScopingReview_config.prompt_config as prompt_config
 
 logger = logging.getLogger(__name__)
 from ScopingReview.InitialSearch.Workflow import ArticleSearch
+from ScopingReview.reference_sort import sort_reference_df
 from ScopingReview_config.config import (
     REASONING_EFFORT,
     _is_responses_api_model,
@@ -59,15 +60,8 @@ class StandaloneSummary(WorkflowHandler):
         self.single_response = SingleResponseHandler(self.llm_interface)
 
     def format_response(self, summary, df):
-        """Format the summary and article citations into a DOCX byte string.
-
-        Args:
-            summary: LLM-generated summary text.
-            df: Article DataFrame with ``citation`` column.
-
-        Returns:
-            DOCX file content as bytes.
-        """
+        # References are rendered here, so order the frame before emitting the list.
+        df = sort_reference_df(df)
         output = str(
             "# Literature summary \n\n"
             + "_"

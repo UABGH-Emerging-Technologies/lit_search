@@ -177,5 +177,8 @@ data/*
 
 # CodeGraph
 .codegraph/
+
+# Claude Code
+.claude/settings.local.json
 SECURITY_REMEDIATION.md
 scripts/purge_secrets_history.sh

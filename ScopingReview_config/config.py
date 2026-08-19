@@ -70,3 +70,10 @@ NEWSLETTER_QUERIES = {
 MIN_ARTICLES = 10
 MAX_ARTICLES_SR = 200
 MAX_ARTICLES_LR = 50
+
+# Order reference sections alphabetically by first-author surname.
+# Safe only while citations in the generated prose are author-date, as they are
+# today. Set to False if any output moves to a numbered (Vancouver) style, where
+# list position corresponds to in-text markers and reordering breaks the
+# document.
+SORT_REFERENCES = True
