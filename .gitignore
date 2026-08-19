@@ -177,3 +177,5 @@ data/*
 
 # CodeGraph
 .codegraph/
+SECURITY_REMEDIATION.md
+scripts/purge_secrets_history.sh
