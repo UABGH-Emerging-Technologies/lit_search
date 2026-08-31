@@ -1,7 +1,8 @@
-import base64
 import logging
+import os
 from datetime import datetime
 
+from aiweb_common.file_operations.file_handling import file_to_base64
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Security
 from fastapi.security import HTTPAuthorizationCredentials
 
@@ -29,10 +30,9 @@ def get_summary_response(
             openai_compatible_key,
             openai_compatible_model,
         )
-        overview_md = standalone_search.process()
-        with open(overview_md, "rb") as f:
-            docx_bytes = f.read()
-        encoded_file = base64.b64encode(docx_bytes).decode("utf-8")
+        temp_file_path = standalone_search.process()
+        encoded_file = file_to_base64(temp_file_path)
+        background_tasks.add_task(os.unlink, temp_file_path)
         response = MSWordResponse(encoded_docx=encoded_file)
     except HTTPException:
         raise

@@ -1,9 +1,6 @@
-import datetime
 import logging
-import os
 from typing import Optional, Tuple
 
-from aiweb_common.file_operations.text_format import convert_markdown_docx
 from aiweb_common.generate.SingleResponse import SingleResponseHandler
 from aiweb_common.WorkflowHandler import WorkflowHandler, extract_response_text
 from fastapi import HTTPException
@@ -12,17 +9,17 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 import ScopingReview_config.prompt_config as prompt_config
 from ScopingReview.reference_sort import sort_reference_df
 from ScopingReview.Summarize.Manager import SummarizeManager
-from ScopingReview_config import boilerplate, config
+from ScopingReview_config import config
 from ScopingReview_config.config import (
     REASONING_EFFORT,
     _is_responses_api_model,
 )
 
+logger = logging.getLogger(__name__)
+
 
 class SummarizeArticles(WorkflowHandler):
     """Summarizes categorized articles using chunked LLM calls and generates per-category outputs.
-
-    Supports both scoping-review summaries and newsletter-style digests.
 
     Args:
         df: Categorized article DataFrame with ``category`` and ``Text`` columns.
@@ -121,24 +118,6 @@ class SummarizeArticles(WorkflowHandler):
         )
         return assembled_prompt
 
-    def assemble_newsletter_prompt(self, anes_category, articles_summaries):
-        """Build the prompt for a newsletter-style digest of a category.
-
-        Args:
-            anes_category: Anesthesiology subcategory name.
-            articles_summaries: Concatenated article summaries text.
-
-        Returns:
-            Assembled LLM prompt.
-        """
-        assembled_prompt = self.single_response.single_response_service.preparer.assemble_prompt(
-            system_prompt=prompt_config.SUMMARIZE_NEWSLETTER_TEMPLATE,
-            user_prompt=prompt_config.SUMMARIZE_HUMAN_TEMPLATE,
-            category=anes_category,
-            content=articles_summaries,
-        )
-        return assembled_prompt
-
     def summarize_article_in_chunks(self, article_text):
         """Summarize a single article by splitting it into token-sized chunks.
 
@@ -176,12 +155,8 @@ class SummarizeArticles(WorkflowHandler):
 
         return extract_response_text(summary.content)
 
-    def summarize_all_categories(self, newsletter_flag=False):
+    def summarize_all_categories(self):
         """Summarize articles across all categories.
-
-        Args:
-            newsletter_flag: If ``True``, generate newsletter-style output instead
-                of scoping-review summaries.
 
         Returns:
             Combined markdown string of all category summaries.
@@ -214,34 +189,24 @@ class SummarizeArticles(WorkflowHandler):
                 article_summaries.append(formatted_summary)
             text_to_summarize = "\n\n".join(article_summaries)
 
-            if newsletter_flag:
-                newsletter_prompt = self.assemble_newsletter_prompt(
-                    anes_category=current_category, articles_summaries=text_to_summarize
-                )
-                response, response_meta = self.single_response.generate_response(newsletter_prompt)
-                self._update_total_cost(response_meta)
+            category_summary_prompt = self.assemble_category_summary_prompt(
+                current_category, text_to_summarize
+            )
+            response, response_meta = self.single_response.generate_response(
+                category_summary_prompt
+            )
+            self._update_total_cost(response_meta)
 
-                output.append(extract_response_text(response.content))
-
-            else:
-                category_summary_prompt = self.assemble_category_summary_prompt(
-                    current_category, text_to_summarize
-                )
-                response, response_meta = self.single_response.generate_response(
-                    category_summary_prompt
-                )
-                self._update_total_cost(response_meta)
-
-                output.append(
-                    "# "
-                    + str(current_category)
-                    + "\n\n"
-                    + extract_response_text(response.content)
-                    + "\n\n"
-                    # Sorted here rather than before the loop above, so ordering the reference
-                    # block does not change the order summaries are fed to the LLM.
-                    + "\n\n".join(sort_reference_df(filtered_rows).citation)
-                )
+            output.append(
+                "# "
+                + str(current_category)
+                + "\n\n"
+                + extract_response_text(response.content)
+                + "\n\n"
+                # Sorted here rather than before the loop above, so ordering the reference
+                # block does not change the order summaries are fed to the LLM.
+                + "\n\n".join(sort_reference_df(filtered_rows).citation)
+            )
         return "\n\n".join(output)
 
     def summarize_articles(self) -> Tuple[bytes, dict, Optional[str]]:
@@ -268,48 +233,6 @@ class SummarizeArticles(WorkflowHandler):
             return markdown_to_convert, warning_msg
         else:
             raise HTTPException(status_code=404, detail="No data available for summarization.")
-
-    def write_newsletter(self, category, output_folder, template_location=None):
-        """Generate a newsletter DOCX for a single category and save to disk.
-
-        Args:
-            category: Newsletter category name.
-            output_folder: Directory path for the output file.
-            template_location: Optional DOCX template path.
-        """
-        if self.df is not None:
-            newsletter_body = self.summarize_all_categories(newsletter_flag=True)
-            markdown_to_convert = (
-                "## "
-                + category.title()
-                + " AI-Generated Literature Digest \n\n"
-                + boilerplate.NEWSLETTER_FRONTMATTER
-                + "\n\n"
-                + newsletter_body
-                + "\n\n"
-                + boilerplate.NEWSLETTER_BACKMATTER
-            )
-            docx_data = convert_markdown_docx(markdown_to_convert, template_location)
-            self.save_newsletter(docx_data, category, output_folder)
-
-    def save_newsletter(self, docx_data, category, output_folder):
-        """Save newsletter DOCX bytes to a date-stamped file.
-
-        Args:
-            docx_data: Raw DOCX bytes.
-            category: Category name (used in filename).
-            output_folder: Directory for the output file.
-        """
-        if not os.path.exists(output_folder):
-            os.makedirs(output_folder)
-
-        today_date = datetime.date.today().strftime("%Y-%m-%d")
-        filename = f"{category}_{today_date}.docx"
-        file_path = os.path.join(output_folder, filename)
-
-        with open(file_path, "wb") as file:
-            file.write(docx_data)
-        logger.info("File saved: %s", file_path)
 
     def process(self):
         """Run the summarization workflow and return markdown with warnings.

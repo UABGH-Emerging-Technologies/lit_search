@@ -8,33 +8,20 @@ aiohttp==3.14.1
     #   langchain-community
 aiosignal==1.4.0
     # via aiohttp
-aiweb-common @ git+https://github.com/UABPeriopAI/llm_utils.git@develop
+aiweb-common @ git+https://github.com/UABPeriopAI/llm_utils.git@3d7abc67a50cbee3a9a7fdba57fc05e67f9c9b23
     # via -r requirements.in
 altair==6.2.1
     # via streamlit
 annotated-doc==0.0.4
-    # via
-    #   fastapi
-    #   typer
+    # via fastapi
 annotated-types==0.7.0
     # via pydantic
 anyio==4.13.0
     # via
     #   httpx
-    #   jupyter-server
     #   openai
     #   starlette
     #   streamlit
-argon2-cffi==25.1.0
-    # via jupyter-server
-argon2-cffi-bindings==25.1.0
-    # via argon2-cffi
-arrow==1.4.0
-    # via isoduration
-asttokens==3.0.1
-    # via stack-data
-async-lru==2.3.0
-    # via jupyterlab
 attrs==26.1.0
     # via
     #   aiohttp
@@ -49,14 +36,8 @@ azure-core==1.41.0
     #   aiweb-common
     #   azure-ai-formrecognizer
     #   msrest
-babel==2.18.0
-    # via jupyterlab-server
-beautifulsoup4==4.15.0
-    # via nbconvert
 biopython==1.87
     # via -r requirements.in
-bleach==6.4.0
-    # via nbconvert
 blinker==1.9.0
     # via streamlit
 build==1.5.0
@@ -70,9 +51,7 @@ certifi==2026.5.20
     #   msrest
     #   requests
 cffi==2.0.0
-    # via
-    #   argon2-cffi-bindings
-    #   cryptography
+    # via cryptography
 charset-normalizer==3.4.7
     # via
     #   pdfminer-six
@@ -82,42 +61,18 @@ click==8.4.1
     #   pip-tools
     #   streamlit
     #   uvicorn
-comm==0.2.3
-    # via
-    #   ipykernel
-    #   ipywidgets
-contourpy==1.3.3
-    # via matplotlib
 cryptography==48.0.0
     # via pdfminer-six
-cycler==0.12.1
-    # via matplotlib
-debugpy==1.8.21
-    # via ipykernel
-decorator==5.3.1
-    # via ipython
-defusedxml==0.7.1
-    # via nbconvert
 distro==1.9.0
     # via openai
 docx==0.2.4
-    # via
-    #   -r requirements.in
-    #   aiweb-common
+    # via aiweb-common
 et-xmlfile==2.0.0
     # via openpyxl
-executing==2.2.1
-    # via stack-data
 fastapi==0.136.3
     # via
     #   -r requirements.in
     #   aiweb-common
-fastjsonschema==2.21.2
-    # via nbformat
-fonttools==4.63.0
-    # via matplotlib
-fqdn==1.5.1
-    # via jsonschema
 frozenlist==1.8.0
     # via
     #   aiohttp
@@ -138,7 +93,6 @@ httptools==0.8.0
     # via streamlit
 httpx==0.28.1
     # via
-    #   jupyterlab
     #   langsmith
     #   openai
 httpx-sse==0.4.3
@@ -147,104 +101,26 @@ idna==3.18
     # via
     #   anyio
     #   httpx
-    #   jsonschema
     #   requests
     #   yarl
-ipykernel==7.2.0
-    # via
-    #   jupyter
-    #   jupyter-console
-    #   jupyterlab
-ipython==9.14.1
-    # via
-    #   ipykernel
-    #   ipywidgets
-    #   jupyter-console
-ipython-pygments-lexers==1.1.1
-    # via ipython
-ipywidgets==8.1.8
-    # via jupyter
 isodate==0.7.2
     # via msrest
-isoduration==20.11.0
-    # via jsonschema
 itsdangerous==2.2.0
     # via streamlit
-jedi==0.20.0
-    # via ipython
 jinja2==3.1.6
     # via
     #   altair
-    #   jupyter-server
-    #   jupyterlab
-    #   jupyterlab-server
-    #   nbconvert
     #   pydeck
 jiter==0.15.0
     # via openai
-json5==0.14.0
-    # via jupyterlab-server
 jsonpatch==1.33
     # via langchain-core
 jsonpointer==3.1.1
-    # via
-    #   jsonpatch
-    #   jsonschema
+    # via jsonpatch
 jsonschema==4.26.0
-    # via
-    #   altair
-    #   jupyter-events
-    #   jupyterlab-server
-    #   nbformat
+    # via altair
 jsonschema-specifications==2025.9.1
     # via jsonschema
-jupyter==1.1.1
-    # via -r requirements.in
-jupyter-client==8.9.0
-    # via
-    #   ipykernel
-    #   jupyter-console
-    #   jupyter-server
-    #   nbclient
-jupyter-console==6.6.3
-    # via jupyter
-jupyter-core==5.9.1
-    # via
-    #   ipykernel
-    #   jupyter-client
-    #   jupyter-console
-    #   jupyter-server
-    #   jupyterlab
-    #   nbclient
-    #   nbconvert
-    #   nbformat
-jupyter-events==0.12.1
-    # via jupyter-server
-jupyter-lsp==2.3.1
-    # via jupyterlab
-jupyter-server==2.19.0
-    # via
-    #   jupyter-lsp
-    #   jupyterlab
-    #   jupyterlab-server
-    #   notebook
-    #   notebook-shim
-jupyter-server-terminals==0.5.4
-    # via jupyter-server
-jupyterlab==4.5.8
-    # via
-    #   jupyter
-    #   notebook
-jupyterlab-pygments==0.3.0
-    # via nbconvert
-jupyterlab-server==2.28.0
-    # via
-    #   jupyterlab
-    #   notebook
-jupyterlab-widgets==3.0.16
-    # via ipywidgets
-kiwisolver==1.5.0
-    # via matplotlib
 langchain-classic==1.0.7
     # via langchain-community
 langchain-community==0.4.2
@@ -272,28 +148,12 @@ langsmith==0.8.9
     #   langchain-classic
     #   langchain-community
     #   langchain-core
-lark==1.3.1
-    # via rfc3987-syntax
 lxml==6.1.1
     # via
     #   docx
     #   python-docx
-markdown-it-py==4.2.0
-    # via rich
 markupsafe==3.0.3
-    # via
-    #   jinja2
-    #   nbconvert
-matplotlib==3.10.9
-    # via -r requirements.in
-matplotlib-inline==0.2.2
-    # via
-    #   ipykernel
-    #   ipython
-mdurl==0.1.2
-    # via markdown-it-py
-mistune==3.2.1
-    # via nbconvert
+    # via jinja2
 msrest==0.7.1
     # via azure-ai-formrecognizer
 multidict==6.7.1
@@ -302,31 +162,10 @@ multidict==6.7.1
     #   yarl
 narwhals==2.22.1
     # via altair
-nbclient==0.11.0
-    # via nbconvert
-nbconvert==7.17.1
-    # via
-    #   jupyter
-    #   jupyter-server
-nbformat==5.10.4
-    # via
-    #   jupyter-server
-    #   nbclient
-    #   nbconvert
-nest-asyncio==1.6.0
-    # via ipykernel
-notebook==7.5.7
-    # via jupyter
-notebook-shim==0.2.4
-    # via
-    #   jupyterlab
-    #   notebook
 numpy==2.4.6
     # via
     #   biopython
-    #   contourpy
     #   langchain-community
-    #   matplotlib
     #   pandas
     #   pydeck
     #   streamlit
@@ -344,15 +183,8 @@ packaging==26.2
     # via
     #   altair
     #   build
-    #   ipykernel
-    #   jupyter-events
-    #   jupyter-server
-    #   jupyterlab
-    #   jupyterlab-server
     #   langchain-core
     #   langsmith
-    #   matplotlib
-    #   nbconvert
     #   streamlit
     #   wheel
 pandas==3.0.3
@@ -360,52 +192,27 @@ pandas==3.0.3
     #   -r requirements.in
     #   aiweb-common
     #   streamlit
-pandocfilters==1.5.1
-    # via nbconvert
-parso==0.8.7
-    # via jedi
 pdfminer-six==20251230
     # via pdfplumber
 pdfplumber==0.11.9
     # via
     #   -r requirements.in
     #   aiweb-common
-pexpect==4.9.0
-    # via ipython
 pillow==12.2.0
     # via
     #   docx
-    #   matplotlib
     #   pdfplumber
     #   streamlit
 pip==26.1.2
     # via pip-tools
 pip-tools==7.5.3
     # via -r requirements.in
-platformdirs==4.10.0
-    # via jupyter-core
-prometheus-client==0.25.0
-    # via jupyter-server
-prompt-toolkit==3.0.52
-    # via
-    #   ipython
-    #   jupyter-console
 propcache==0.5.2
     # via
     #   aiohttp
     #   yarl
 protobuf==7.35.0
     # via streamlit
-psutil==7.2.2
-    # via
-    #   ipykernel
-    #   ipython
-ptyprocess==0.7.0
-    # via
-    #   pexpect
-    #   terminado
-pure-eval==0.2.3
-    # via stack-data
 pyarrow==24.0.0
     # via streamlit
 pycparser==3.0
@@ -425,25 +232,14 @@ pydantic-settings==2.14.1
     # via langchain-community
 pydeck==0.9.2
     # via streamlit
-pygments==2.20.0
-    # via
-    #   ipython
-    #   ipython-pygments-lexers
-    #   jupyter-console
-    #   nbconvert
-    #   rich
 pymupdf==1.27.2.3
     # via aiweb-common
 pyodbc==5.3.0
-    # via
-    #   -r requirements.in
-    #   aiweb-common
+    # via aiweb-common
 pypandoc==1.17
     # via
     #   -r requirements.in
     #   aiweb-common
-pyparsing==3.3.2
-    # via matplotlib
 pypdfium2==5.9.0
     # via pdfplumber
 pyproject-hooks==1.2.0
@@ -451,17 +247,11 @@ pyproject-hooks==1.2.0
     #   build
     #   pip-tools
 python-dateutil==2.9.0.post0
-    # via
-    #   arrow
-    #   jupyter-client
-    #   matplotlib
-    #   pandas
+    # via pandas
 python-docx==1.2.0
     # via aiweb-common
 python-dotenv==1.2.2
     # via pydantic-settings
-python-json-logger==4.1.0
-    # via jupyter-events
 python-magic==0.4.27
     # via
     #   -r requirements.in
@@ -475,29 +265,20 @@ pytz==2026.2
     # via aiweb-common
 pyyaml==6.0.3
     # via
-    #   jupyter-events
     #   langchain-classic
     #   langchain-community
     #   langchain-core
     #   langchain-prompty
-pyzmq==27.1.0
-    # via
-    #   ipykernel
-    #   jupyter-client
-    #   jupyter-console
-    #   jupyter-server
 referencing==0.37.0
     # via
     #   jsonschema
     #   jsonschema-specifications
-    #   jupyter-events
 regex==2026.5.9
     # via tiktoken
 requests==2.34.2
     # via
     #   -r requirements.in
     #   azure-core
-    #   jupyterlab-server
     #   langchain-classic
     #   langchain-community
     #   langsmith
@@ -510,46 +291,22 @@ requests-oauthlib==2.0.0
     # via msrest
 requests-toolbelt==1.0.0
     # via langsmith
-rfc3339-validator==0.1.4
-    # via
-    #   jsonschema
-    #   jupyter-events
-rfc3986-validator==0.1.1
-    # via
-    #   jsonschema
-    #   jupyter-events
-rfc3987-syntax==1.1.0
-    # via jsonschema
-rich==15.0.0
-    # via typer
 rpds-py==2026.5.1
     # via
     #   jsonschema
     #   referencing
-send2trash==2.1.0
-    # via jupyter-server
 setuptools==82.0.1
-    # via
-    #   jupyterlab
-    #   pip-tools
-shellingham==1.5.4
-    # via typer
+    # via pip-tools
 six==1.17.0
-    # via
-    #   python-dateutil
-    #   rfc3339-validator
+    # via python-dateutil
 smmap==5.0.3
     # via gitdb
 sniffio==1.3.1
     # via openai
-soupsieve==2.8.4
-    # via beautifulsoup4
 sqlalchemy==2.0.50
     # via
     #   langchain-classic
     #   langchain-community
-stack-data==0.6.3
-    # via ipython
 starlette==1.2.1
     # via
     #   fastapi
@@ -563,45 +320,14 @@ tenacity==9.1.4
     #   langchain-community
     #   langchain-core
     #   streamlit
-terminado==0.18.1
-    # via
-    #   jupyter-server
-    #   jupyter-server-terminals
 tiktoken==0.13.0
     # via
     #   -r requirements.in
     #   langchain-openai
-tinycss2==1.5.1
-    # via bleach
 toml==0.10.2
     # via streamlit
-tornado==6.5.7
-    # via
-    #   ipykernel
-    #   jupyter-client
-    #   jupyter-server
-    #   jupyterlab
-    #   notebook
-    #   terminado
 tqdm==4.68.1
     # via openai
-traitlets==5.15.1
-    # via
-    #   ipykernel
-    #   ipython
-    #   ipywidgets
-    #   jupyter-client
-    #   jupyter-console
-    #   jupyter-core
-    #   jupyter-events
-    #   jupyter-server
-    #   jupyterlab
-    #   matplotlib-inline
-    #   nbclient
-    #   nbconvert
-    #   nbformat
-typer==0.26.7
-    # via -r requirements.in
 typing-extensions==4.15.0
     # via
     #   aiohttp
@@ -610,9 +336,7 @@ typing-extensions==4.15.0
     #   anyio
     #   azure-ai-formrecognizer
     #   azure-core
-    #   beautifulsoup4
     #   fastapi
-    #   jupyter-client
     #   langchain-core
     #   langchain-protocol
     #   openai
@@ -629,10 +353,6 @@ typing-inspection==0.4.2
     #   fastapi
     #   pydantic
     #   pydantic-settings
-tzdata==2026.2
-    # via arrow
-uri-template==1.3.0
-    # via jsonschema
 urllib3==2.7.0
     # via requests
 uuid-utils==0.16.0
@@ -645,24 +365,12 @@ uvicorn==0.49.0
     #   streamlit
 watchdog==6.0.0
     # via streamlit
-wcwidth==0.8.1
-    # via prompt-toolkit
-webcolors==25.10.0
-    # via jsonschema
-webencodings==0.5.1
-    # via
-    #   bleach
-    #   tinycss2
-websocket-client==1.9.0
-    # via jupyter-server
 websockets==16.0
     # via
     #   langsmith
     #   streamlit
 wheel==0.47.0
     # via pip-tools
-widgetsnbextension==4.0.15
-    # via ipywidgets
 xlsxwriter==3.2.9
     # via -r requirements.in
 xxhash==3.7.0

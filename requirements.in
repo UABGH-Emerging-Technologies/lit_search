@@ -1,21 +1,16 @@
 streamlit
 tiktoken
-pyodbc
 pip-tools
-jupyter
 pandas
-matplotlib
 requests
 openpyxl
 xlsxwriter
 pdfplumber
 pypandoc
-typer
 fastapi
 uvicorn
 biopython
 python-multipart
-docx
 langchain-openai>=1.1.0
 openai>=2.20.0
 aiweb-common @ git+https://github.com/UABPeriopAI/llm_utils.git@develop

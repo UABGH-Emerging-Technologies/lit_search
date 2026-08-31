@@ -73,34 +73,30 @@ Streamlit frontend come up together, and credentials are sourced from secrets
 rather than typed in. Pick whichever path fits your machine — the app code is
 identical for all of them.
 
-### Default: `docker compose up` (no setup)
-
-On any machine with the shared `/mnt/p/Secrets` mount, just run:
+### Default: `.env` + `docker compose up`
 
 ```bash
+cp .env.example .env   # fill in the real values (see the template's comments)
 docker compose up --build
 ```
 
 The backend (`lit_api`, port 8000) and frontend (`streamlit`, port 8501) start
-together; the frontend reaches the backend over Compose's internal DNS. No
-`.env`, no exported variables. Secrets are mounted as Docker secrets and read by
-`aiweb_common.manage_sensitive`, which resolves `/run/secrets/<name>` first.
+together; the frontend reaches the backend over Compose's internal DNS. Compose
+auto-loads `.env` and delivers each value as a Docker secret at
+`/run/secrets/<name>`, which `aiweb_common.manage_sensitive` resolves first.
+The variable names in `.env` are lowercase on purpose — they must match the
+secret names exactly.
 
 Open the UI at <http://localhost:8501>.
 
-### No `/mnt/p/Secrets`? Use a `.env` (Docker)
+### Alternative: file-based secrets (Docker)
 
-If you don't have the mount (e.g. off-network), switch each secret to its
-env-var source: in `docker-compose.yml`, comment the secret's `file:` line and
-uncomment its `environment:` line (a secret takes **exactly one** source). Then:
-
-```bash
-cp .env.example .env   # fill in the real values
-docker compose up --build
-```
-
-Compose auto-loads `.env` and feeds the values to the same `/run/secrets/<name>`
-paths, so nothing else changes.
+If your secrets already live in per-secret files (e.g. a shared secrets mount
+like `/mnt/p/Secrets/<name>.txt`, or local `./secrets/<name>.txt` files), you
+can skip the `.env`: in the `secrets:` block of `docker-compose.yml`, comment
+each secret's `environment:` line and uncomment its `file:` line, pointing at
+your path (a secret takes **exactly one** source). The values land at the same
+`/run/secrets/<name>` paths, so nothing else changes.
 
 ### On the host: `make run`
 
@@ -111,9 +107,11 @@ cp .env.example .env   # required — see note below
 make run
 ```
 
-> **Note:** `manage_sensitive` checks `/run/secrets/<name>` → `/workspaces/*/secrets/<name>.txt`
-> → environment variable. It does **not** read `/mnt/p/Secrets` directly, so a
-> host run always needs the values in `.env` (the Makefile exports them for you).
+> **Note:** `manage_sensitive` checks `/run/secrets/<name>` →
+> `/workspaces/*/secrets/<name>.txt` → `/mnt/p/Secrets/<name>.txt` → environment
+> variable. On a host run the first path doesn't exist, so unless you have one
+> of the file mounts, the values must be in `.env` (the Makefile exports them
+> for you).
 
 ### Port overrides
 

@@ -5,6 +5,15 @@ from unittest.mock import MagicMock, patch
 import pytest
 from fastapi.testclient import TestClient
 
+# Keyless test support: app_config resolves secrets at import time and fails
+# fast on empty values. On machines with no secrets mount and no filled .env,
+# fall back to dummy values so the suite runs without credentials (all external
+# calls are mocked). Real file-based secrets still win — manage_sensitive
+# checks the file paths before environment variables.
+for _secret in ("libkey_api_key", "ncbi_api_key", "azure_proxy_key", "azure_proxy_endpoint"):
+    if not os.environ.get(_secret):
+        os.environ[_secret] = "test-secret"
+
 
 def load_secrets(secrets_dir="/workspaces/scopingreview/secrets"):
     """

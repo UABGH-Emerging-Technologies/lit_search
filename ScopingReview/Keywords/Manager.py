@@ -3,7 +3,6 @@ import re
 from collections import Counter
 from typing import List
 
-import pandas as pd
 from pydantic import BaseModel, Field
 
 from ScopingReview.BaseManager import BaseManager
@@ -161,29 +160,3 @@ class KeywordManager(BaseManager):
         exclusion_keywords = data.get("Exclusion Keywords", [])
 
         return primary_keywords, secondary_keywords, exclusion_keywords
-
-    def write_keywords_excel_output(self, tmpfile, df, unique_keywords_str):
-        """Write article data and unique keywords to a two-sheet Excel file.
-
-        Args:
-            tmpfile: Named temporary file object for Excel output.
-            df: Article DataFrame to write to Sheet1.
-            unique_keywords_str: Comma-separated keywords for Sheet2.
-        """
-        with pd.ExcelWriter(tmpfile.name, engine="xlsxwriter") as writer:
-            df.to_excel(writer, index=False, sheet_name="Sheet1")
-            df_keywords = pd.DataFrame([unique_keywords_str], columns=["Unique Keywords"])
-            df_keywords.to_excel(writer, index=False, sheet_name="Sheet2")
-
-            workbook = writer.book
-            worksheet1 = writer.sheets["Sheet1"]
-            worksheet2 = writer.sheets["Sheet2"]
-            wrap_format = workbook.add_format({"text_wrap": True})
-
-            for idx, col in enumerate(df.columns):
-                column_len = df[col].astype(str).map(len).max()
-                column_title_len = len(col)
-                max_len = min(100, max(column_len, column_title_len))
-                worksheet1.set_column(idx, idx, max_len + 1, wrap_format)
-
-            worksheet2.set_column(0, 0, len("Unique Keywords") + 1, wrap_format)

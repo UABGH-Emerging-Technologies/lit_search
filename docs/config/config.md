@@ -1,6 +1,6 @@
 # Config
 
 Application-wide constants: file paths, output filenames, MIME types,
-PubMed settings, retry thresholds, and newsletter category definitions.
+PubMed settings, and retry thresholds.
 
 ::: ScopingReview_config.config

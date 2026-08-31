@@ -5,16 +5,16 @@ import os
 
 import pandas as pd
 import requests
-from aiweb_common.WorkflowHandler import manage_sensitive
 from requests.exceptions import ConnectionError
 
 import streamlit as st
+from ScopingReview_config.secrets_util import require_secret
 
-# LLM credentials come from the shared secrets. manage_sensitive resolves, in order:
+# LLM credentials come from the shared secrets, resolved in order:
 # /run/secrets/<name> (compose mount) -> /workspaces/*/secrets/<name>.txt (devcontainer)
-# -> env var (.env / `make run`). So no .env is needed when the secrets are mounted.
-API_KEY = manage_sensitive("azure_proxy_key")
-AZURE_ENDPOINT = manage_sensitive("azure_proxy_endpoint")
+# -> /mnt/p/Secrets/<name>.txt -> env var (.env / `make run`).
+API_KEY = require_secret("azure_proxy_key")
+AZURE_ENDPOINT = require_secret("azure_proxy_endpoint")
 MODEL_NAME = os.environ.get("OPENAI_COMPATIBLE_MODEL", "gpt-4o")
 
 # Backend URL: defaults to the compose service name; localhost for non-docker dev.
@@ -280,7 +280,15 @@ def generate_bibtex(uploaded_file):
             headers=get_auth_headers(),
         )
         if response.status_code == 200:
-            st.session_state["bibtex_result"] = response.content
+            json_response = response.json()
+            encoded_bib = json_response.get("encoded_bib")
+            if not encoded_bib:
+                st.error("API response missing encoded_bib field.")
+                return False
+
+            # The API returns the .bib file base64-encoded inside a JSON envelope;
+            # decode it so the download is a plain-text BibTeX file.
+            st.session_state["bibtex_result"] = base64.b64decode(encoded_bib).decode("utf-8")
             return True
         else:
             st.error(f"API error: {response.status_code} {response.text}")

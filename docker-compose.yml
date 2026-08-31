@@ -27,19 +27,24 @@ services:
       lit_api:
         condition: service_healthy
 
-# Secrets are sourced from environment variables by default.
-# To use file-based secrets instead, comment the `environment:` line
-# and uncomment the `file:` line for each secret, pointing to your local path.
+# Each secret takes exactly one source:
+#   environment: (default) — Compose reads the variable from your shell or the
+#     .env file (`cp .env.example .env` and fill in values). Names are lowercase
+#     on purpose: they must match the secret name so the same .env also works
+#     for host runs (`make run`) via manage_sensitive's env-var fallback.
+#   file: — to use file-based secrets instead, comment the `environment:` line
+#     and uncomment the `file:` line, pointing at your local path
+#     (e.g. ./secrets/<name>.txt or a shared mount like /mnt/p/Secrets/<name>.txt).
 secrets:
   libkey_api_key:
-    environment: LIBKEY_API_KEY
+    environment: libkey_api_key
     # file: ./secrets/libkey_api_key.txt
   ncbi_api_key:
-    environment: NCBI_API_KEY
+    environment: ncbi_api_key
     # file: ./secrets/ncbi_api_key.txt
   azure_proxy_key:
-    environment: AZURE_PROXY_KEY
+    environment: azure_proxy_key
     # file: ./secrets/azure_proxy_key.txt
   azure_proxy_endpoint:
-    environment: AZURE_PROXY_ENDPOINT
+    environment: azure_proxy_endpoint
     # file: ./secrets/azure_proxy_endpoint.txt

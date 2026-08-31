@@ -1,10 +1,38 @@
-Make sure all (encode) write_excel/docx functions match step1
-Rename all instantiated manager to manager
-check all existing todo's in comments
-make clean, make styel
-remove all unused packages
-resolve obvious problems
-Document functions and classes throughout
-~mkdocs build
-~move excel encoding to LLM_UTILS matching how Docx encoding works
-~move PMCID stuff from Base Manager to PubMedInterface
+# TODO (rewritten 2026-08-26; previous list dated 2024-07)
+
+1. Upstream (llm_utils / aiweb_common PR — one bundle of work):
+   - Add a FastAPIExcelCreator mirroring FastAPIDocxCreator (write workbook ->
+     base64 -> background-task cleanup), then collapse BaseManager's local
+     Excel writing (write_excel_output / get_tempfile_excel / get_encoded_excel)
+     to a passthrough, matching get_encoded_docx.
+   - Move PMCID lookup and Europe PMC PDF download (_get_pmcid_from_pubmed,
+     _get_pmcids_from_pubmed, _download_pmc_pdf, fetch_full_text) from
+     BaseManager to aiweb_common's PubMedInterface.
+   - Fix aiweb-common's own deps: it pins the abandoned `docx` package (it
+     imports python-docx, already a separate dep) and `pyodbc` (verify needed).
+
+2. Docstrings (mkdocstrings renders the API reference from these):
+   - streamlit/states.py (0/23), streamlit/ScopingReview_app.py, app/server.py,
+     app/client.py, then remaining Manager modules. Overall coverage ~54%.
+
+3. Remaining inline TODOs:
+   - ScopingReview/BaseManager.py:213 — split up / move to aiweb_common
+     (subsumed by item 1).
+   - ScopingReview/BaseManager.py:363 — "Wait until after categories are
+     assigned" — decide and resolve or delete.
+   - app/v01/standalone/bibliography.py:57 — convert_and_download_bibtex should
+     return an object, not a temp-file path.
+
+4. Docs build deps: mkdocs/material/mkdocstrings live only in setup.py extras,
+   so `make docs` fails in a plain `make venv` env — install `.[docs]` or add
+   them to a requirements-docs.in.
+
+# Done (removed from the 2024 list)
+# - mkdocs adopted, CI-deployed (gh-pages on push to main)
+# - encode/write functions aligned with step1; divergent dead writers deleted
+# - unused deps removed from requirements.in (pyodbc, matplotlib, jupyter,
+#   typer, bogus `docx` pin)
+# - dead newsletter feature removed (NewsletterSearch package, Summarize
+#   newsletter path, config/prompt/boilerplate constants)
+# - dropped: blanket "rename instantiated manager to manager" (cosmetic;
+#   app/ routers already uniform)

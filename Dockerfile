@@ -2,7 +2,8 @@ FROM python:3.11-slim
 
 ENV PYTHONUNBUFFERED=1 \
     TZ=America/Chicago \
-    DEBIAN_FRONTEND=noninteractive
+    DEBIAN_FRONTEND=noninteractive \
+    PYTHONPATH=/api
 
 # Install system dependencies in one layer
 RUN apt-get update && apt-get install -y --no-install-recommends \

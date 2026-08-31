@@ -1,6 +1,4 @@
 import logging
-import tempfile
-from typing import Any, Tuple
 
 import pandas as pd
 from aiweb_common.generate.SingleResponse import SingleResponseHandler
@@ -94,25 +92,6 @@ class CategorizeWorkflow(WorkflowHandler):
         except Exception as e:
             logger.error("Failed while getting full texts: %s", e)
         return category_df
-
-    def get_tempfile_excel(self, category_df):
-        """Write categorized articles to a temporary Excel file.
-
-        Args:
-            category_df: DataFrame with assigned categories.
-
-        Returns:
-            Path to the temporary Excel file.
-        """
-        category_df.drop_duplicates(subset="PMID", keep="first", inplace=True)
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmpfile:
-            self.manager.write_excel_output(
-                tmpfile=tmpfile.name,
-                df=category_df,
-                input_search_terms=self.userdefined_categories,
-                query_strings="Generated query strings",
-            )
-        return tmpfile.name
 
     def process(self):
         """Run the full categorization workflow.

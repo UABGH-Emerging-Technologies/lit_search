@@ -1,7 +1,7 @@
 """LLM prompt templates for each workflow step.
 
 Provides system and user prompts for PubMed query generation, keyword
-extraction, article categorization, summarization, newsletter digests,
+extraction, article categorization, summarization,
 and scoping review draft sections.
 """
 
@@ -47,21 +47,6 @@ STANDALONE_SUMMARY_TEMPLATE = "You are a research librarian with medical writing
 
 
 SUMMARIZE_CATEGORY_TEMPLATE = "I am working  on a scoping review to address this question: {question}\n\n Currently, I am summarizing articles by expert-defined categories. All of the article summaries below were assigned the category {category}. Write a one page (or shorter) final summary of the following journal article summaries, focusing on my question. Liberally use APA-style in-text citations throughout the paragraph, citing the summarized articles. The article summaries are separated by '---'"
-
-SUMMARIZE_NEWSLETTER_TEMPLATE = """I am updating the 'Your Monthly AI Digest of the Latest in Anesthesiology Research' newsletter for the subfield of {category}. I will provide you with summaries of recent anesthesiology articles from PubMed. Based on these summaries, I need two specific sections for the newsletter:
-
-#### Key Anesthesiology Insights: 
-Please create a 3-item list about the most impactful articles that capture the most critical findings from the provided article summaries. Each bullet entry should be a two to three sentences indicating first the main highlight or takeaway and second who was studied, the type of study, the intervention, and the outcome. At the end, include the PMID as a hyperlink to the PubMed article for further reading. 
-
-#### In-Depth Analysis: 
-After the bullet points, delve deeper into additional articles (not covered in the bullet points) and provide detailed insights on their implications for clinical practice in anesthesiology. Cite the articles using PMIDs as a link to the PubMed article for further reading.
-
-Remember, the content should be clear, concise, and targeted towards busy healthcare professionals, providing them with valuable and quick updates on the field of anesthesiology. 
-
-Format your response as markdown. A PubMed hyperlink looks like this in markdown:
-[PMID: <PMID>](https://pubmed.ncbi.nlm.nih.gov/<PMID>/)
-"""
-
 
 SUMMARIZE_HUMAN_TEMPLATE = """
 Content to summarize:

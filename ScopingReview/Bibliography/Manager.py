@@ -1,6 +1,8 @@
 import calendar
 import logging
+import re
 import tempfile
+import unicodedata
 import xml.etree.ElementTree as ET
 from typing import Union
 
@@ -13,6 +15,24 @@ from ScopingReview.BaseManager import BaseManager
 from ScopingReview_config import config
 
 logger = logging.getLogger(__name__)
+
+
+def _sanitize_cite_key(name: str) -> str:
+    """Reduce an author surname to characters that are legal in a BibTeX cite key.
+
+    Accented characters are transliterated to their ASCII base (e.g. an s-caron
+    becomes ``s``); anything else outside ``[A-Za-z0-9-]`` (spaces, commas, braces,
+    apostrophes) is dropped, since those characters terminate or corrupt a cite key.
+
+    Args:
+        name: Raw surname taken from the PubMed record.
+
+    Returns:
+        An ASCII, cite-key-safe version of the surname.
+    """
+    decomposed = unicodedata.normalize("NFKD", name)
+    ascii_only = "".join(ch for ch in decomposed if not unicodedata.combining(ch))
+    return re.sub(r"[^A-Za-z0-9-]", "", ascii_only)
 
 
 class BibliographyManager(BaseManager):
@@ -131,14 +151,18 @@ class BibliographyManager(BaseManager):
             except AttributeError:
                 pass
             ## Print the bibtex formatted output.
-            bibtex_fmt = ""
             try:
-                line1 = "@Article{{{}{}pmid{},".format(authors[0].split(",")[0], Year, PMID.text)
+                cite_key = "{}{}pmid{}".format(
+                    _sanitize_cite_key(authors[0].split(",")[0]), Year, PMID.text
+                )
+                line1 = "@Article{{{},".format(cite_key)
                 bibtex_fmt = "".join([line1, "\n"])
             except IndexError:
                 logger.error("IndexError while formatting BibTeX for PMIDs: %s", pmids)
+                continue
             except AttributeError:
                 logger.error("AttributeError while formatting BibTeX for PMIDs: %s", pmids)
+                continue
             line2 = ' Author="{}",'.format(" and ".join(authors))
             line3 = " Title={{{}}},".format(ArticleTitle.text)
             line4 = " Journal={{{}}},".format(Title.text)
@@ -164,7 +188,7 @@ class BibliographyManager(BaseManager):
 
             line12 = "}"
             bibtex_fmt = bibtex_fmt + "".join([line12])
-            whole_bibtex = whole_bibtex + bibtex_fmt + "\n"
+            whole_bibtex = whole_bibtex + bibtex_fmt + "\n\n"
         return whole_bibtex
 
     def convert_pmid_to_bibtex(self):

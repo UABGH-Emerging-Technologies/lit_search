@@ -34,7 +34,6 @@ nav:
       - App Config: config/app-config.md
       - Prompt Templates: config/prompts.md
       - Boilerplate: config/boilerplate.md
-  - Newsletter: newsletter.md
 
 plugins:
   - search
