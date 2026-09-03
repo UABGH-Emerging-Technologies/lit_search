@@ -11,6 +11,6 @@ jobs:
     uses: UABGH-Emerging-Technologies/ai_web_interface/.github/workflows/security-scan-reusable.yml@main
     with:
       package-manager: "pip"
-      requirements-path: "requirements.txt"
+      requirements-path: "code/requirements.txt"
       scan-path: "."
       python-version: "3.11"

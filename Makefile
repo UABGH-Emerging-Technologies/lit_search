@@ -20,11 +20,12 @@ help:
 	@echo "docs      : builds documentation site (strict mode)."
 	@echo "docs-serve: starts live-reloading documentation server."
 	@echo "clean     : cleans all unnecessary files."
+	@echo "capsule   : verifies the Code Ocean capsule environment is consistent."
 
 # Testing
 .PHONY: test
 test:
-	pytest tests/ -v
+	cd code && pytest tests/ -v
 
 # Run both backend and frontend
 .PHONY: run backend frontend
@@ -34,17 +35,15 @@ run:
 	$(MAKE) frontend
 
 backend:
-	uvicorn app.server:app --host 0.0.0.0 --port 8000 --reload
+	cd code && uvicorn app.server:app --host 0.0.0.0 --port 8000 --reload
 
 frontend:
-	streamlit run streamlit/ScopingReview_app.py --server.port 8501 --server.address 0.0.0.0
+	cd code && streamlit run streamlit/ScopingReview_app.py --server.port 8501 --server.address 0.0.0.0
 
 # Styling
 .PHONY: style
 style:
-	black .
-	flake8
-	python3 -m isort .
+	cd code && black . && flake8 && python3 -m isort .
 
 # Environment
 .ONESHELL:
@@ -52,7 +51,7 @@ venv:
 	python3 -m venv venv
 	source venv/bin/activate && \
 	python3 -m pip install pip setuptools wheel && \
-	python3 -m pip install -e .
+	python3 -m pip install -e ./code
 
 # Documentation
 .PHONY: docs docs-serve
@@ -71,3 +70,24 @@ clean: style
 	find . | grep -E ".ipynb_checkpoints" | xargs rm -rf
 	rm -f .coverage
 
+
+# Code Ocean capsule
+#
+# environment/Dockerfile carries its own cache key on line 1 as
+# `# hash:sha256:<sha256 of lines 2..EOF>`. Code Ocean rebuilds the environment
+# only when that value changes, so a hand-edited Dockerfile with a stale header
+# is silently ignored and the old image is reused. environment/postInstall
+# likewise embeds a verbatim copy of code/requirements.txt, because /code does not
+# exist at environment build time. Both must be kept honest.
+.PHONY: capsule capsule-check capsule-fix
+capsule: capsule-check
+
+capsule-check:
+	@rc=0; \
+	tools/co_env_hash.sh check || rc=1; \
+	tools/check_postinstall_reqs.sh check || rc=1; \
+	exit $$rc
+
+capsule-fix:
+	tools/check_postinstall_reqs.sh sync
+	tools/co_env_hash.sh fix

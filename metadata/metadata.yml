@@ -1,0 +1,13 @@
+metadata_version: 1
+name: Lit Search
+description: >
+  Lit Search automates literature searches and scoping reviews. The capsule runs
+  the five-step scoping-review workflow end to end — initial PubMed search,
+  keyword extraction, iterative refinement, article categorization,
+  summarization, and draft generation — writing every artifact to /results.
+
+  LLM credentials, the NCBI Entrez key, and the LibKey key are supplied as Code
+  Ocean User Secrets (environment variables). The capsule holds no credentials
+  and reads no .env file.
+authors:
+  - name: Perioperative Data Science at UAB

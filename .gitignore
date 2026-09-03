@@ -182,3 +182,13 @@ data/*
 .claude/settings.local.json
 SECURITY_REMEDIATION.md
 scripts/purge_secrets_history.sh
+
+# Code Ocean capsule
+# /data is provisioned by Code Ocean and is never committed. /results is the
+# only folder Code Ocean persists after a Reproducible Run; it is generated.
+/data/
+/results/
+code/results/
+
+# opencode / oh-my-openagent local session state
+.omo/

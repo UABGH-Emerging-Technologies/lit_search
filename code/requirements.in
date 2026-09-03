@@ -13,5 +13,5 @@ biopython
 python-multipart
 langchain-openai>=1.1.0
 openai>=2.20.0
-aiweb-common @ git+https://github.com/UABPeriopAI/llm_utils.git@develop
+aiweb-common @ git+https://github.com/UABGH-Emerging-Technologies/llm_utils.git@develop
 python-magic

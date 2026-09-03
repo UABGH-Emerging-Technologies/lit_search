@@ -21,7 +21,7 @@ jobs:
 
       - uses: docker/build-push-action@v7
         with:
-          context: .
+          context: ./code
           push: true
           tags: |
             ghcr.io/uabgh-emerging-technologies/lit-api:latest

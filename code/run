@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# lit_search — Code Ocean capsule entry point (the capsule's master script).
+#
+# Code Ocean executes this file with the working directory set to /code, which
+# is this repository's code/ folder. Because the capsule tree is now shaped for
+# Code Ocean, no repo-root discovery is needed: /code IS the project root.
+#
+# SECURITY: secrets arrive only as environment variables (Code Ocean User
+# Secrets) and are never echoed. No xtrace. No .env reads.
+set -euo pipefail
+
+CODE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
+cd "$CODE_ROOT"
+export PYTHONPATH="$CODE_ROOT"
+
+# The environment image is built from the copy of requirements.txt embedded in
+# environment/postInstall, because /code does not exist at environment build
+# time. `make capsule-check` enforces that at author time; warn here too, since
+# a cached environment can outlive a pins change.
+if [[ -f /opt/lit_search_requirements.txt ]] \
+  && ! cmp -s /opt/lit_search_requirements.txt "$CODE_ROOT/requirements.txt"; then
+  echo "warning: this environment was built from a different requirements.txt than" >&2
+  echo "         the capsule declares — run 'make capsule-fix', commit, and rebuild" >&2
+  echo "         the environment before trusting these results." >&2
+fi
+
+# /code is ephemeral on Code Ocean (writes are discarded after a run).
+export PYTHONDONTWRITEBYTECODE=1
+
+# Outputs: an explicitly-set $RESULTS_DIR wins, else the Code Ocean /results
+# mount (the only folder persisted after a Reproducible Run), else ./results.
+if [[ -z "${RESULTS_DIR:-}" ]]; then
+  if [[ -d /results ]]; then
+    RESULTS_DIR=/results
+  else
+    RESULTS_DIR="$CODE_ROOT/results"
+  fi
+fi
+mkdir -p "$RESULTS_DIR"
+export RESULTS_DIR
+
+# Some base images expose only `python`; prefer python3 when present.
+PYTHON_BIN="$(command -v python3 || command -v python)"
+
+exec "$PYTHON_BIN" "$CODE_ROOT/scripts/capsule_driver.py" "$@"

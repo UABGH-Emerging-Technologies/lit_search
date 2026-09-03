@@ -22,7 +22,7 @@ jobs:
         run: pip install mkdocs "mkdocstrings[python]" mkdocs-material
 
       - name: Install package
-        run: pip install -e .
+        run: pip install -e ./code
 
       - name: Build and deploy docs
         run: mkdocs gh-deploy --force

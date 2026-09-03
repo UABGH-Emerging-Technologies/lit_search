@@ -41,6 +41,7 @@ plugins:
       default_handler: python
       handlers:
         python:
+          paths: [code]
           options:
             docstring_style: google
             show_source: true
@@ -51,5 +52,5 @@ plugins:
             show_signature_annotations: true
 
 watch:
-  - ScopingReview
-  - ScopingReview_config
+  - code/ScopingReview
+  - code/ScopingReview_config
