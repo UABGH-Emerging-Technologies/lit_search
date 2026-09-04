@@ -23,6 +23,7 @@ import platform
 import subprocess
 import sys
 import time
+import traceback
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
@@ -595,7 +596,7 @@ def _write_manifest(
     started_utc: str,
     finished_utc: str,
     status: str,
-    error_info: tuple[str, str] | None,
+    error_info: tuple[str, str, str] | None,
     outputs: list[dict[str, Any]],
     corpus_source: str,
     research_question: str,
@@ -617,7 +618,8 @@ def _write_manifest(
         started_utc: ISO-8601 start timestamp.
         finished_utc: ISO-8601 finish timestamp.
         status: ``"succeeded"`` or ``"failed"``.
-        error_info: Optional ``(error_class, scrubbed_message)`` tuple.
+        error_info: Optional ``(error_class, scrubbed_message, scrubbed_traceback)``
+            tuple.
         outputs: List of ``{file, sha256, bytes}`` entries.
         corpus_source: ``"frozen"`` or ``"live"``.
         research_question: The research question used.
@@ -661,6 +663,7 @@ def _write_manifest(
     if error_info is not None:
         manifest["error_class"] = error_info[0]
         manifest["error_message"] = error_info[1]
+        manifest["error_traceback"] = error_info[2]
     manifest_path = results_dir / "run_manifest.json"
     manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
 
@@ -765,7 +768,7 @@ def main(argv: list[str] | None = None) -> int:
 
     started_utc = _utc_now()
     status = "succeeded"
-    error_info: tuple[str, str] | None = None
+    error_info: tuple[str, str, str] | None = None
     outputs: list[dict[str, Any]] = []
 
     try:
@@ -802,8 +805,14 @@ def main(argv: list[str] | None = None) -> int:
         )
     except Exception as exc:  # noqa: BLE001 - surfaced via the manifest
         status = "failed"
-        error_info = (type(exc).__name__, _scrub(str(exc), api_key, endpoint))
-        print(f"pipeline failed: {type(exc).__name__}", file=sys.stderr)
+        scrubbed_msg = _scrub(str(exc), api_key, endpoint)
+        scrubbed_tb = _scrub(traceback.format_exc(), api_key, endpoint)
+        error_info = (type(exc).__name__, scrubbed_msg, scrubbed_tb)
+        # The class name alone is not actionable for someone re-running this
+        # capsule elsewhere, so print the message and traceback too. Python
+        # tracebacks carry no variable values, and both are scrubbed anyway.
+        print(f"pipeline failed: {type(exc).__name__}: {scrubbed_msg}", file=sys.stderr)
+        print(scrubbed_tb, file=sys.stderr)
         if replay_session is not None and replay_session.misses:
             # FastAPI turns a cassette miss into an opaque 500, so name the real
             # cause here: stale fixtures are the likeliest way demo mode breaks.

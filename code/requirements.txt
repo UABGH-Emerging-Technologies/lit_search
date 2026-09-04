@@ -8,7 +8,7 @@ aiohttp==3.14.1
     #   langchain-community
 aiosignal==1.4.0
     # via aiohttp
-aiweb-common @ git+https://github.com/UABGH-Emerging-Technologies/llm_utils.git@3d7abc67a50cbee3a9a7fdba57fc05e67f9c9b23
+aiweb-common @ git+https://github.com/UABGH-Emerging-Technologies/llm_utils.git@5e8f396fdf8713792de320e187db74270c43904c
     # via -r requirements.in
 altair==6.2.1
     # via streamlit
@@ -278,6 +278,7 @@ regex==2026.5.9
 requests==2.34.2
     # via
     #   -r requirements.in
+    #   aiweb-common
     #   azure-core
     #   langchain-classic
     #   langchain-community
@@ -372,7 +373,9 @@ websockets==16.0
 wheel==0.47.0
     # via pip-tools
 xlsxwriter==3.2.9
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   aiweb-common
 xxhash==3.7.0
     # via langsmith
 yarl==1.24.2

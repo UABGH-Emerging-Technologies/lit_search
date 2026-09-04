@@ -1,4 +1,4 @@
-# hash:sha256:774892405570ccf78e4c515317e7a662db533f7a5d9fd029137fa53d10a4b8fe
+# hash:sha256:9e7e91b46e921426c6a46b575164866f4e76e7b5f3aa83d540b7eaa2fed422ae
 # Base image as configured in the capsule's Environment panel. Change it there
 # rather than here -- the panel rewrites this line AND the hash header on line 1
 # together. If you do edit it by hand, run `make capsule-fix` or the change will
@@ -17,7 +17,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 # All apt and pip installation lives in postInstall, which also embeds a
 # verbatim copy of code/requirements.txt (/code is not mounted at build time).
-# postInstall-sha256: 048f59cabab9f536d86fb6dc5b994319bb6c034598d2aad623e2fded1c899d08  (managed by tools/co_env_hash.sh)
+# postInstall-sha256: e4f1e26b75005ea084ce28feab46f9b2cfe1848aece7b057a7ed2ed4247772e7  (managed by tools/co_env_hash.sh)
 COPY postInstall /
 RUN /postInstall
 
