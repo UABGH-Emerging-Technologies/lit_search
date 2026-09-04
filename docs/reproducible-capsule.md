@@ -161,3 +161,26 @@ unshare -rn env RESULTS_DIR=/tmp/lit-demo ./run --mode demo
 
 Expect exit code 0, six artifacts plus `run_manifest.json` in `/tmp/lit-demo`, and a manifest
 reporting `"mode": "demo"`, `"status": "succeeded"`, `"blocked_network_calls": 0`.
+
+## Secret gates
+
+Two stdlib-only checks run in CI (`.github/workflows/security-scan.yml`) and locally via
+`make scan-secrets`:
+
+- `tools/scan_secrets.py` scans the **content** of every tracked file. It is a content gate, not a
+  filename gate: a `git filter-repo --replace-text` mapping — whose left-hand sides are the literal
+  secrets — was once committed under the obvious name `purge_secrets_history.sh` and passed a
+  review that only checked staged paths.
+- `code/capsule/scrub.py` scans the recorded demo fixtures, and `record_demo.py` runs it inline so a
+  recording that captured something secret-shaped fails instead of being committed.
+
+The scanner deliberately holds **no secret values** — it runs in public CI, so anything in it would
+be published. It matches on provider formats, credential context, and entropy instead. Legitimate
+long hex in this repo (cassette prompt hashes, manifest digests, the Dockerfile cache key, pinned
+git SHAs, a gist id in a comment) is excluded by requiring a credential keyword on the same line and
+rejecting values that are plainly identifier names. Mark a deliberate test fixture with
+`pragma: allowlist secret` on its line.
+
+`code/tests/test_scan_secrets.py` covers both directions — the formats it must catch and the
+repo content it must ignore — because a detector that quietly stops detecting is worse than none.
+

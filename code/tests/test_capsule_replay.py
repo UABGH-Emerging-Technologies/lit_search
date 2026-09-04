@@ -372,7 +372,8 @@ def test_scrub_check_flags_secret_shaped_strings(tmp_path: Path) -> None:
     A cassette containing an ``sk-``-style key triggers a finding that names
     the file; a clean directory returns an empty list.
     """
-    secret = "sk-abcdefghijklmnopqrstuvwxyz012345"
+    # Deliberate fake key for the scrub test.  pragma: allowlist secret
+    secret = "sk-abcdefghijklmnopqrstuvwxyz012345"  # pragma: allowlist secret
     cassette = tmp_path / "llm.json"
     cassette.write_text(
         json.dumps({"response": secret}, indent=2, ensure_ascii=False) + "\n",

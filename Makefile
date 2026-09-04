@@ -21,6 +21,7 @@ help:
 	@echo "docs-serve: starts live-reloading documentation server."
 	@echo "clean     : cleans all unnecessary files."
 	@echo "capsule   : verifies the Code Ocean capsule environment is consistent."
+	@echo "scan-secrets: scans every tracked file for secret-shaped content."
 
 # Testing
 .PHONY: test
@@ -70,6 +71,12 @@ clean: style
 	find . | grep -E ".ipynb_checkpoints" | xargs rm -rf
 	rm -f .coverage
 
+
+# Security
+.PHONY: scan-secrets
+scan-secrets:
+	python3 tools/scan_secrets.py
+	python3 code/capsule/scrub.py code/demo_fixtures
 
 # Code Ocean capsule
 #

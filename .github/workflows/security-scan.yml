@@ -15,6 +15,21 @@ jobs:
       scan-path: "."
       python-version: "3.11"
 
+  secret-content:
+    # Content gate over every tracked file, not just paths. A git-filter-repo
+    # --replace-text mapping (whose left-hand sides ARE the secrets) was once
+    # committed under an obvious filename and passed a path-only review.
+    # Stdlib-only, so no dependency install.
+    name: Scan tracked content for secrets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Scan all tracked files
+        run: python tools/scan_secrets.py
+
   demo-fixtures:
     # The committed demo fixtures hold recorded prompt text and model output.
     # They must never contain a key. Stdlib-only, so no dependency install.
