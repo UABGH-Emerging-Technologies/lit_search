@@ -23,7 +23,15 @@ List of Publication Titles: \n\n{titles}
 
 List of keyword lists with number of occurrences indicated by "x#": \n\n{keywords_list}
 
-Please provide the primary, secondary, and exclusion keyword lists related to the given research question based on the provided keywords and titles lists from the PubMed search in JSON format. Avoid repeats."""
+Please provide the primary, secondary, and exclusion keyword lists related to the given research question based on the provided keywords and titles lists from the PubMed search. Avoid repeats.
+
+Respond with a single JSON object and nothing else. Use exactly these three keys, each mapping to an array of strings:
+
+{{
+  "Primary Keywords": ["...", "..."],
+  "Secondary Keywords": ["...", "..."],
+  "Exclusion Keywords": ["...", "..."]
+}}"""
 
 GENERATE_SYSTEM_KEYWORD_PROMPT = """ You are an expert clinical researcher. """
 

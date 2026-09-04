@@ -1,4 +1,5 @@
 import json
+import logging
 import re
 from collections import Counter
 from typing import List
@@ -6,6 +7,8 @@ from typing import List
 from pydantic import BaseModel, Field
 
 from ScopingReview.BaseManager import BaseManager
+
+logger = logging.getLogger(__name__)
 
 
 class KeywordData(BaseModel):
@@ -44,21 +47,48 @@ class KeywordManager(BaseManager):
         Returns:
             Parsed dict on success, or an error-description string on failure.
         """
-        # Regular expression to match JSON object within markdown
-        json_pattern = re.compile(r"\{.*?\}", re.DOTALL)
-
-        # Find JSON object in the markdown text
-        match = json_pattern.search(markdown_text)
-
-        if match:
-            json_str = match.group(0)
-            try:
-                json_data = json.loads(json_str)  # Validate the JSON string
-                return json_data
-            except json.JSONDecodeError:
-                return "Invalid JSON detected."
-        else:
+        if not isinstance(markdown_text, str):
             return "No JSON object found."
+
+        # Prefer an explicit ```json fenced block when the model emits one.
+        fenced = re.search(r"```(?:json)?\s*(.+?)```", markdown_text, re.DOTALL)
+        candidates = [fenced.group(1)] if fenced else []
+
+        # Otherwise take the first balanced {...} span. A non-greedy \{.*?\}
+        # stops at the first closing brace, which truncates any nested object
+        # and yields "Invalid JSON detected." -> silently empty keyword lists.
+        start = markdown_text.find("{")
+        if start != -1:
+            depth = 0
+            in_string = False
+            escaped = False
+            for i in range(start, len(markdown_text)):
+                ch = markdown_text[i]
+                if in_string:
+                    if escaped:
+                        escaped = False
+                    elif ch == "\\":
+                        escaped = True
+                    elif ch == '"':
+                        in_string = False
+                    continue
+                if ch == '"':
+                    in_string = True
+                elif ch == "{":
+                    depth += 1
+                elif ch == "}":
+                    depth -= 1
+                    if depth == 0:
+                        end = i + 1
+                        candidates.append(markdown_text[start:end])
+                        break
+
+        for candidate in candidates:
+            try:
+                return json.loads(candidate.strip())
+            except json.JSONDecodeError:
+                continue
+        return "Invalid JSON detected." if candidates else "No JSON object found."
 
     def _clean_keywords(self, keywords):
         """Strip special characters from a list of keyword strings.
@@ -153,10 +183,34 @@ class KeywordManager(BaseManager):
         # _extract_json_from_markdown may return a dict when successful, or a string/error message when not.
         # Defensively handle non-dict returns to avoid AttributeError/TypeError in production/tests.
         if not isinstance(data, dict):
-            # Return empty lists which are safe defaults when parsing fails
+            logger.warning(
+                "Keyword extraction could not parse JSON from the model response (%s); "
+                "continuing with no keywords, which disables keyword filtering downstream.",
+                data,
+            )
             return [], [], []
-        primary_keywords = data.get("Primary Keywords", [])
-        secondary_keywords = data.get("Secondary Keywords", [])
-        exclusion_keywords = data.get("Exclusion Keywords", [])
+
+        # Match key names loosely. The model is asked for "Primary Keywords" but
+        # readily answers with primary_keywords / primaryKeywords / PRIMARY.
+        # An exact-match lookup turns any of those into silently empty lists.
+        normalized = {re.sub(r"[^a-z]", "", str(k).lower()): v for k, v in data.items()}
+
+        def pick(name: str) -> list:
+            value = normalized.get(name, [])
+            if isinstance(value, str):
+                return [part.strip() for part in value.split(",") if part.strip()]
+            return value if isinstance(value, list) else []
+
+        primary_keywords = pick("primarykeywords")
+        secondary_keywords = pick("secondarykeywords")
+        exclusion_keywords = pick("exclusionkeywords")
+
+        if not (primary_keywords or secondary_keywords or exclusion_keywords):
+            logger.warning(
+                "Keyword extraction returned no keywords at all. Parsed JSON keys were %s; "
+                "expected primary/secondary/exclusion keyword lists. The refined search will "
+                "run without keyword filtering.",
+                sorted(data.keys()),
+            )
 
         return primary_keywords, secondary_keywords, exclusion_keywords

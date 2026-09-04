@@ -144,22 +144,29 @@ class DraftReview(WorkflowHandler):
         intro_prompt = self.assemble_intro_prompt(non_citations)
         intro, intro_response_meta = self.single_response.generate_response(intro_prompt)
         self._update_total_cost(intro_response_meta)
+        # Feed the generated TEXT into the downstream prompts, not the raw
+        # response object. Interpolating the message stringifies its repr --
+        # additional_kwargs, response_metadata and a random per-call
+        # id='lc_run--<uuid>' -- which pollutes the prompt, wastes tokens, and
+        # makes the conclusion/abstract prompts differ on every single run.
+        intro_text = extract_response_text(intro.content)
         # prep conclusion
-        conclusion_prompt = self.assemble_conclusion_prompt(non_citations, intro)
+        conclusion_prompt = self.assemble_conclusion_prompt(non_citations, intro_text)
         conclusion, conclusion_response_meta = self.single_response.generate_response(
             conclusion_prompt
         )
         self._update_total_cost(conclusion_response_meta)
+        conclusion_text = extract_response_text(conclusion.content)
         # prep abstract
-        abstract_prompt = self.assemble_abstract_prompt(non_citations, intro, conclusion)
+        abstract_prompt = self.assemble_abstract_prompt(non_citations, intro_text, conclusion_text)
         abstract, abstract_response_meta = self.single_response.generate_response(abstract_prompt)
         self._update_total_cost(abstract_response_meta)
         assembled_draft = self.drafter.assemble_document(
             abstract_md=extract_response_text(abstract.content),
-            intro_md=extract_response_text(intro.content),
+            intro_md=intro_text,
             methods_md=boilerplate_config.METHODOLOGY,
             results_md=non_citations,
-            conclusion_md=extract_response_text(conclusion.content),
+            conclusion_md=conclusion_text,
             citations_md=citations,
         )
         return assembled_draft

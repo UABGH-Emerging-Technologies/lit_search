@@ -6,8 +6,20 @@ description: >
   keyword extraction, iterative refinement, article categorization,
   summarization, and draft generation — writing every artifact to /results.
 
-  LLM credentials, the NCBI Entrez key, and the LibKey key are supplied as Code
-  Ocean User Secrets (environment variables). The capsule holds no credentials
-  and reads no .env file.
+  The capsule requires no credentials and no network. By default it runs in demo
+  mode, replaying a real recorded run from fixtures committed alongside the code,
+  so a Reproducible Run completes for anyone. The run manifest reports the mode,
+  a digest of the replayed fixtures, and a count of any intercepted network
+  calls (zero in a clean run).
+
+  Supplying LLM, NCBI Entrez, and LibKey credentials as Code Ocean User Secrets
+  switches the capsule to live mode against the real APIs. The capsule holds no
+  credentials and reads no .env file.
+
+  IMPORTANT: a scoping review normally screens articles with two human
+  reviewers. Running unattended, the capsule marks the first 15 articles
+  relevant automatically so the workflow can execute end to end. The outputs
+  demonstrate the pipeline's mechanics and are not a scoping review result.
+  Each run records this in DEMO_NOTICE.txt and in run_manifest.json.
 authors:
   - name: Perioperative Data Science at UAB

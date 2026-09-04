@@ -85,9 +85,16 @@ class CategorizeWorkflow(WorkflowHandler):
             self._update_total_cost(response_meta)
             assigned_categories = extract_response_text(response.content).replace("'", "")
             reduced_df.loc[index, "category"] = assigned_categories.lower()
+        # Fall back to the categorized rows if the full-text join cannot be
+        # made, rather than leaving category_df unbound on the error path.
+        category_df = reduced_df
         try:
             logger.info("Fetching Full Texts")
             full_text_df = self.manager.fetch_full_text(reduced_df["PMID"])
+            # Align the join key dtypes first. pd.merge does not raise on an
+            # int64/object mismatch, it silently returns zero rows.
+            reduced_df["PMID"] = reduced_df["PMID"].astype(str)
+            full_text_df["PMID"] = full_text_df["PMID"].astype(str)
             category_df = pd.merge(reduced_df, full_text_df, on="PMID", how="inner")
         except Exception as e:
             logger.error("Failed while getting full texts: %s", e)

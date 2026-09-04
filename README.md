@@ -118,6 +118,31 @@ make run
 Set `LIT_API_PORT` / `LIT_STREAMLIT_PORT` (in `.env` or the environment) to run
 alongside other stacks without colliding on 8000/8501.
 
+## Reproducible Capsule (Code Ocean)
+
+This repo doubles as a [Code Ocean](https://codeocean.com) capsule. Code Ocean runs `code/run`,
+which drives all six pipeline steps in-process and writes every artifact to `/results`.
+
+**The capsule needs no credentials and no network.** By default it runs in demo mode, replaying a
+real recorded run from fixtures in `code/demo_fixtures/`, so a Reproducible Run completes for
+anyone. Supplying credentials as Code Ocean User Secrets switches it to live mode.
+
+```bash
+cd code
+./run                 # auto: demo unless a full credential set is present
+./run --mode demo     # force offline replay
+./run --check-env     # validate prerequisites for the resolved mode
+```
+
+Re-record the fixtures after any prompt or workflow change — replay keys on exact prompt text:
+
+```bash
+cd code && python scripts/record_demo.py   # needs real credentials, once
+```
+
+See [docs/reproducible-capsule.md](docs/reproducible-capsule.md) for how the replay doubles work,
+why the fixtures live in `code/` rather than `data/`, and the environment cache-key rules.
+
 ## Use Case: How to Use the Application
 
 1. **Start the App:**  

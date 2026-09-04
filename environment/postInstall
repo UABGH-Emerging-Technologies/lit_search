@@ -403,3 +403,14 @@ REQS
 
 python3 -m pip install --no-cache-dir --upgrade pip
 python3 -m pip install --no-cache-dir -r /opt/lit_search_requirements.txt
+
+# Pre-bake the tiktoken BPE cache. Summarize/Workflow.py calls
+# RecursiveCharacterTextSplitter.from_tiktoken_encoder() without a model_name,
+# which resolves tiktoken's default "gpt2" encoding — and tiktoken downloads
+# that file over HTTP on first use. Baking it into the image keeps the offline
+# demo run network-free and stops the live run from silently reaching out
+# mid-pipeline. TIKTOKEN_CACHE_DIR must stay set at runtime (environment/Dockerfile).
+export TIKTOKEN_CACHE_DIR=/opt/tiktoken-cache
+mkdir -p "$TIKTOKEN_CACHE_DIR"
+python3 -c 'import tiktoken; tiktoken.get_encoding("gpt2")'
+chmod -R a+rX "$TIKTOKEN_CACHE_DIR"

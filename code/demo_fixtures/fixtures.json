@@ -1,0 +1,19 @@
+{
+  "complete": true,
+  "counts": {
+    "llm": 41,
+    "pubmed_details": 2,
+    "pubmed_fulltext": 1,
+    "pubmed_search": 2
+  },
+  "digest": "64cff63fe6211810e46af43549f7780049a21796020508ef86b932304e3d87a4",
+  "git_commit": "4e63bed8f2a1b6bf3d46e1c087a41a135d3a0415",
+  "recorded_utc": "2026-09-04T19:43:26.599430+00:00",
+  "research_question": "What is the impact of artificial intelligence on perioperative decision-making and patient outcomes?",
+  "screening": {
+    "marked": 15,
+    "synthetic": true,
+    "total": 200
+  },
+  "user_defined_categories": "preoperative risk prediction, intraoperative decision support, postoperative outcome prediction, clinical implementation and workflow, model performance and validation"
+}

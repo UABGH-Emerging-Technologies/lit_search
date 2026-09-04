@@ -1,0 +1,102 @@
+{
+  "c0005fcdbee533517f1afe060a8ede41d85cd84dfa8591e6fdfac6c5bd20d793": {
+    "columns": [
+      "PMID",
+      "URL",
+      "Downloaded",
+      "Text"
+    ],
+    "records": [
+      {
+        "Downloaded": false,
+        "PMID": 38353755,
+        "Text": "Text not available",
+        "URL": "https://libkey.io/libraries/731/articles/606234526/full-text-file?utm_source=api_4687&allow_speedbump=true"
+      },
+      {
+        "Downloaded": false,
+        "PMID": 41395980,
+        "Text": "Text not available",
+        "URL": "https://libkey.io/libraries/731/articles/692058757/full-text-file?utm_source=api_4687&allow_speedbump=true"
+      },
+      {
+        "Downloaded": false,
+        "PMID": 39570038,
+        "Text": "Text not available",
+        "URL": "https://libkey.io/libraries/731/articles/635684712/full-text-file?utm_source=api_4687&allow_speedbump=true"
+      },
+      {
+        "Downloaded": false,
+        "PMID": 36970488,
+        "Text": "Text not available",
+        "URL": "https://libkey.io/libraries/731/articles/543997936/full-text-file?utm_source=api_4687&allow_speedbump=true"
+      },
+      {
+        "Downloaded": false,
+        "PMID": 37256663,
+        "Text": "Text not available",
+        "URL": "https://libkey.io/libraries/731/articles/573741761/full-text-file?utm_source=api_4687&allow_speedbump=true"
+      },
+      {
+        "Downloaded": false,
+        "PMID": 39929595,
+        "Text": "Text not available",
+        "URL": "Not available"
+      },
+      {
+        "Downloaded": false,
+        "PMID": 37217426,
+        "Text": "Text not available",
+        "URL": "https://libkey.io/libraries/731/articles/568847773/full-text-file?utm_source=api_4687&allow_speedbump=true"
+      },
+      {
+        "Downloaded": false,
+        "PMID": 41019310,
+        "Text": "Text not available",
+        "URL": "Not available"
+      },
+      {
+        "Downloaded": false,
+        "PMID": 31934528,
+        "Text": "Text not available",
+        "URL": "https://libkey.io/libraries/731/articles/364725637/full-text-file?utm_source=api_4687&allow_speedbump=true"
+      },
+      {
+        "Downloaded": false,
+        "PMID": 32875928,
+        "Text": "Text not available",
+        "URL": "https://libkey.io/libraries/731/articles/378534102/full-text-file?utm_source=api_4687&allow_speedbump=true"
+      },
+      {
+        "Downloaded": false,
+        "PMID": 35015469,
+        "Text": "Text not available",
+        "URL": "Not available"
+      },
+      {
+        "Downloaded": false,
+        "PMID": 39212575,
+        "Text": "Text not available",
+        "URL": "Not available"
+      },
+      {
+        "Downloaded": false,
+        "PMID": 42622976,
+        "Text": "Text not available",
+        "URL": "Not available"
+      },
+      {
+        "Downloaded": false,
+        "PMID": 38406328,
+        "Text": "Text not available",
+        "URL": "https://libkey.io/libraries/731/articles/601998601/full-text-file?utm_source=api_4687&allow_speedbump=true"
+      },
+      {
+        "Downloaded": false,
+        "PMID": 40893105,
+        "Text": "Text not available",
+        "URL": "Not available"
+      }
+    ]
+  }
+}

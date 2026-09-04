@@ -16,6 +16,7 @@ nav:
   - Home: index.md
   - Getting Started: getting-started.md
   - Architecture: architecture.md
+  - Reproducible Capsule: reproducible-capsule.md
   - Scoping Workflow:
       - Overview: scoping/overview.md
       - "Step 1 - Initial Search": scoping/step1.md

@@ -14,3 +14,16 @@ jobs:
       requirements-path: "code/requirements.txt"
       scan-path: "."
       python-version: "3.11"
+
+  demo-fixtures:
+    # The committed demo fixtures hold recorded prompt text and model output.
+    # They must never contain a key. Stdlib-only, so no dependency install.
+    name: Scrub demo fixtures
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Scan code/demo_fixtures for secret-shaped strings
+        run: python code/capsule/scrub.py code/demo_fixtures
