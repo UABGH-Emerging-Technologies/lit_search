@@ -192,3 +192,6 @@ code/results/
 
 # opencode / oh-my-openagent local session state
 .omo/
+
+# Holds the six rotated secret values verbatim (--replace-text mapping). Never track.
+tools/purge_secrets_history.sh
