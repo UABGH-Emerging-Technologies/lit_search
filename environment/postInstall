@@ -401,6 +401,11 @@ zstandard==0.25.0
     # via langsmith
 REQS
 
+# Fail fast instead of hanging if a git dependency ever stops being public:
+# without this, pip's clone blocks forever waiting on a credential prompt that
+# nothing can answer during an unattended image build.
+export GIT_TERMINAL_PROMPT=0
+
 python3 -m pip install --no-cache-dir --upgrade pip
 python3 -m pip install --no-cache-dir -r /opt/lit_search_requirements.txt
 
